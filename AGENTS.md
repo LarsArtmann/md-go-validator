@@ -35,18 +35,22 @@ go-structure-linter . --fix
 ## Architecture
 
 ### pkg/extractor.go
+
 - `ExtractGoCodeBlocks(content string) []CodeBlock` - Extracts Go code blocks from markdown
 - `SkipDirectives` - List of directives that skip validation
 
 ### pkg/parser.go
+
 - `ValidateGoCode(code string) error` - Multi-strategy Go code validation
 
 ### pkg/validator.go
+
 - `Validator` type - Main validator with file/directory validation
 - `PrintReport()` - Output formatting
 - `HasErrors()` - Error checking
 
 ### cmd/md-go-validator/main.go
+
 - CLI entry point
 - Argument parsing
 - Output orchestration
@@ -54,7 +58,9 @@ go-structure-linter . --fix
 ## Key Patterns
 
 ### Multi-Strategy Parsing
+
 The validator tries 5 approaches:
+
 1. Complete file parsing
 2. Package wrapper (`package main`)
 3. Function wrapper (`func main()`)
@@ -62,7 +68,9 @@ The validator tries 5 approaches:
 5. Statements (function body)
 
 ### Skip Directives
+
 Users can skip validation with:
+
 - `<!-- skip-validate -->`
 - `<!-- skip-md-validate -->`
 - `<!-- md-skip -->`
