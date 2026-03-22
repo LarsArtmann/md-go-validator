@@ -10,20 +10,32 @@ import (
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 )
 
-func main() {
-	verbose := false
-	showCode := true
-	paths := []string{}
+type config struct {
+	verbose  bool
+	showCode bool
+	paths    []string
+}
 
-	for i := 1; i < len(os.Args); i++ {
-		arg := os.Args[i]
+func main() {
+	cfg := parseArgs(os.Args[1:])
+	validator := mdgovalidator.New(cfg.verbose)
+	allResults := validatePaths(validator, cfg.paths)
+	mdgovalidator.PrintReport(allResults, cfg.showCode)
+
+	if mdgovalidator.HasErrors(allResults) {
+		os.Exit(1)
+	}
+}
+
+func parseArgs(args []string) config {
+	cfg := config{showCode: true}
+
+	for _, arg := range args {
 		switch arg {
 		case "-v", "--verbose":
-			verbose = true
-		case "-q", "--quiet":
-			showCode = false
-		case "--no-code":
-			showCode = false
+			cfg.verbose = true
+		case "-q", "--quiet", "--no-code":
+			cfg.showCode = false
 		case "-h", "--help":
 			printUsage()
 			os.Exit(0)
@@ -33,48 +45,53 @@ func main() {
 				printUsage()
 				os.Exit(1)
 			}
-			paths = append(paths, arg)
+			cfg.paths = append(cfg.paths, arg)
 		}
 	}
 
-	if len(paths) == 0 {
-		paths = []string{"."}
+	if len(cfg.paths) == 0 {
+		cfg.paths = []string{"."}
 	}
 
-	validator := mdgovalidator.New(verbose)
-	allResults := []mdgovalidator.Result{}
+	return cfg
+}
+
+func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgovalidator.Result {
+	var allResults []mdgovalidator.Result
 
 	for _, path := range paths {
-		absPath, err := filepath.Abs(path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
-			continue
-		}
-
-		info, err := os.Stat(absPath)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
-			continue
-		}
-
-		var results []mdgovalidator.Result
-		if info.IsDir() {
-			results, err = validator.ValidateDirectory(absPath)
-		} else {
-			results, err = validator.ValidateFile(absPath)
-		}
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
-			continue
-		}
+		results := validatePath(validator, path)
 		allResults = append(allResults, results...)
 	}
 
-	mdgovalidator.PrintReport(allResults, showCode)
+	return allResults
+}
 
-	if mdgovalidator.HasErrors(allResults) {
-		os.Exit(1)
+func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidator.Result {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
+		return nil
 	}
+
+	info, err := os.Stat(absPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
+		return nil
+	}
+
+	var results []mdgovalidator.Result
+	if info.IsDir() {
+		results, err = validator.ValidateDirectory(absPath)
+	} else {
+		results, err = validator.ValidateFile(absPath)
+	}
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
+		return nil
+	}
+
+	return results
 }
 
 func printUsage() {
