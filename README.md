@@ -219,7 +219,7 @@ package main
 import (
     "fmt"
 
-    mdgovalidator "github.com/larsartmann/md-go-validator"
+    mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 )
 
 func main() {

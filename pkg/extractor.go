@@ -30,7 +30,7 @@ func ExtractGoCodeBlocks(content string) []CodeBlock {
 	blockStartLine := 0
 	skipNext := false
 
-	for i := 0; i < len(lines); i++ {
+	for i := range len(lines) {
 		line := lines[i]
 		trimmed := stringsTrimSpace(line)
 
