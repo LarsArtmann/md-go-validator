@@ -1,0 +1,8 @@
+.DS_Store
+/.go/
+/go.work
+/go.work.sum
+/md-go-validator
+/dist/
+# Dependencies
+node_modules/
