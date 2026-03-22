@@ -3,7 +3,7 @@ package mdgovalidator
 
 import "strings"
 
-// Skip directives that can be placed in markdown to skip validation
+// SkipDirectives contains directives that can be placed in markdown to skip validation.
 var SkipDirectives = []string{
 	"<!-- skip-validate -->",
 	"<!-- skip-md-validate -->",
@@ -30,7 +30,7 @@ func ExtractGoCodeBlocks(content string) []CodeBlock {
 	blockStartLine := 0
 	skipNext := false
 
-	for i := range len(lines) {
+	for i := range lines {
 		line := lines[i]
 		trimmed := stringsTrimSpace(line)
 

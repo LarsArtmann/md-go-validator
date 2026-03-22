@@ -1,3 +1,4 @@
+// md-go-validator validates Go code blocks in Markdown files.
 package main
 
 import (
