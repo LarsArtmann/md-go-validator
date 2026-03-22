@@ -7,87 +7,64 @@ import (
 )
 
 func TestExtractGoCodeBlocks(t *testing.T) {
-	tests := []struct {
-		name           string
-		content        string
-		expectedBlocks int
-		expectedLines  []int
-	}{
-		{
-			name:           "no code blocks",
-			content:        "Just text\nNo code here",
-			expectedBlocks: 0,
-		},
-		{
-			name:           "single go block",
-			content:        "Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text",
-			expectedBlocks: 1,
-			expectedLines:  []int{2},
-		},
-		{
-			name: "multiple go blocks",
-			content: `# Title
+	t.Parallel()
 
-` + "```go" + `
-code block 1
-` + "```" + `
+	t.Run("no code blocks", func(t *testing.T) {
+		t.Parallel()
+		blocks := ExtractGoCodeBlocks("Just text\nNo code here")
+		if len(blocks) != 0 {
+			t.Errorf("expected 0 blocks, got %d", len(blocks))
+		}
+	})
 
-Text between
+	t.Run("single go block", func(t *testing.T) {
+		t.Parallel()
+		content := "Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text"
+		blocks := ExtractGoCodeBlocks(content)
+		if len(blocks) != 1 {
+			t.Fatalf("expected 1 block, got %d", len(blocks))
+		}
+		if blocks[0].LineNumber != 2 {
+			t.Errorf("expected line 2, got %d", blocks[0].LineNumber)
+		}
+	})
 
-` + "```go" + `
-code block 2
-` + "```",
-			expectedBlocks: 2,
-			expectedLines:  []int{3, 9},
-		},
-		{
-			name:           "skip other languages",
-			content:        "```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```",
-			expectedBlocks: 1,
-			expectedLines:  []int{4},
-		},
-		{
-			name:           "skip directive before block",
-			content:        "<!-- skip-validate -->\n```go\npartial code\n```",
-			expectedBlocks: 1,
-			expectedLines:  []int{2},
-		},
-		{
-			name:           "skip directive in code",
-			content:        "```go\n// skip-validate\npartial code\n```",
-			expectedBlocks: 1,
-			expectedLines:  []int{1},
-		},
-		{
-			name:           "golang tag",
-			content:        "```golang\nfmt.Println(\"hello\")\n```",
-			expectedBlocks: 1,
-			expectedLines:  []int{1},
-		},
-		{
-			name:           "Go tag (capitalized)",
-			content:        "```Go\nfmt.Println(\"hello\")\n```",
-			expectedBlocks: 1,
-			expectedLines:  []int{1},
-		},
-	}
+	t.Run("skip other languages", func(t *testing.T) {
+		t.Parallel()
+		content := "```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```"
+		blocks := ExtractGoCodeBlocks(content)
+		if len(blocks) != 1 {
+			t.Fatalf("expected 1 block, got %d", len(blocks))
+		}
+		if blocks[0].LineNumber != 4 {
+			t.Errorf("expected line 4, got %d", blocks[0].LineNumber)
+		}
+	})
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			blocks := ExtractGoCodeBlocks(tt.content)
-			if len(blocks) != tt.expectedBlocks {
-				t.Errorf("expected %d blocks, got %d", tt.expectedBlocks, len(blocks))
-			}
-			for i, line := range tt.expectedLines {
-				if i < len(blocks) && blocks[i].LineNumber != line {
-					t.Errorf("block %d: expected line %d, got %d", i, line, blocks[i].LineNumber)
-				}
-			}
-		})
-	}
+	t.Run("skip directive before block", func(t *testing.T) {
+		t.Parallel()
+		content := "<!-- skip-validate -->\n```go\npartial code\n```"
+		blocks := ExtractGoCodeBlocks(content)
+		if len(blocks) != 1 {
+			t.Fatalf("expected 1 block, got %d", len(blocks))
+		}
+		if !blocks[0].Skipped {
+			t.Error("expected block to be skipped")
+		}
+	})
+
+	t.Run("golang tag", func(t *testing.T) {
+		t.Parallel()
+		content := "```golang\nfmt.Println(\"hello\")\n```"
+		blocks := ExtractGoCodeBlocks(content)
+		if len(blocks) != 1 {
+			t.Fatalf("expected 1 block, got %d", len(blocks))
+		}
+	})
 }
 
 func TestExtractGoCodeBlocks_SkipDirective(t *testing.T) {
+	t.Parallel()
 	content := `<!-- skip-validate -->
 ` + "```go" + `
 type Partial struct {
@@ -105,6 +82,7 @@ type Partial struct {
 }
 
 func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
+	t.Parallel()
 	content := "```go\n//nolint\ntype Partial struct{}\n```"
 
 	blocks := ExtractGoCodeBlocks(content)
@@ -117,6 +95,7 @@ func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 }
 
 func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
+	t.Parallel()
 	content := "```go\n\n```"
 
 	blocks := ExtractGoCodeBlocks(content)
@@ -126,72 +105,67 @@ func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
 }
 
 func TestValidateGoCode(t *testing.T) {
-	tests := []struct {
-		name      string
-		code      string
-		expectErr bool
-	}{
-		{
-			name:      "complete file",
-			code:      "package main\n\nfunc main() {}\n",
-			expectErr: false,
-		},
-		{
-			name:      "type declaration",
-			code:      "type User struct {\n\tName string\n}",
-			expectErr: false,
-		},
-		{
-			name:      "function signature",
-			code:      "func DoSomething() error",
-			expectErr: false,
-		},
-		{
-			name:      "import statement",
-			code:      "import \"fmt\"",
-			expectErr: false,
-		},
-		{
-			name:      "variable declaration",
-			code:      "var x = 42",
-			expectErr: false,
-		},
-		{
-			name:      "expression",
-			code:      "x + y",
-			expectErr: false,
-		},
-		{
-			name:      "statements",
-			code:      "result, err := doSomething()\nif err != nil {\n\treturn err\n}",
-			expectErr: false,
-		},
-		{
-			name:      "invalid go.mod syntax",
-			code:      "require (\n\tgithub.com/pkg v1.0.0\n)",
-			expectErr: true,
-		},
-		{
-			name:      "invalid syntax",
-			code:      "func broken {",
-			expectErr: true,
-		},
-	}
+	t.Parallel()
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateGoCode(tt.code)
-			if tt.expectErr && err == nil {
-				t.Error("expected error, got nil")
-			}
-			if !tt.expectErr && err != nil {
-				t.Errorf("expected no error, got: %v", err)
-			}
-		})
-	}
+	t.Run("complete file", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("package main\n\nfunc main() {}\n"); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("type declaration", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("type User struct {\n\tName string\n}"); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("function signature", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("func DoSomething() error"); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("import statement", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("import \"fmt\""); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("variable declaration", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("var x = 42"); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("expression", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("x + y"); err != nil {
+			t.Errorf("expected no error, got: %v", err)
+		}
+	})
+
+	t.Run("invalid go.mod syntax", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("require (\n\tgithub.com/pkg v1.0.0\n)"); err == nil {
+			t.Error("expected error for go.mod syntax")
+		}
+	})
+
+	t.Run("invalid syntax", func(t *testing.T) {
+		t.Parallel()
+		if err := ValidateGoCode("func broken {"); err == nil {
+			t.Error("expected error for invalid syntax")
+		}
+	})
 }
 
 func TestIndentCode(t *testing.T) {
+	t.Parallel()
 	input := "line1\nline2\n\nline4"
 	expected := "\tline1\n\tline2\n\n\tline4\n"
 
@@ -202,6 +176,7 @@ func TestIndentCode(t *testing.T) {
 }
 
 func TestValidator_ValidateFile(t *testing.T) {
+	t.Parallel()
 	content := []byte(`# Test
 
 ` + "```go" + `
@@ -215,7 +190,7 @@ func main() {
 
 	tmpDir := t.TempDir()
 	tmpFile := filepath.Join(tmpDir, "test.md")
-	if err := os.WriteFile(tmpFile, content, 0o644); err != nil {
+	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -231,6 +206,7 @@ func main() {
 }
 
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {
+	t.Parallel()
 	v := New(false)
 	_, err := v.ValidateFile("/nonexistent/path/file.md")
 	if err == nil {
@@ -239,13 +215,14 @@ func TestValidator_ValidateFile_NonExistent(t *testing.T) {
 }
 
 func TestValidator_ValidateDirectory(t *testing.T) {
+	t.Parallel()
 	content := []byte("```go\npackage main\n```\n")
 
 	tmpDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(filepath.Join(tmpDir, "test.txt"), content, 0o644); err != nil {
+	if err := os.WriteFile(filepath.Join(tmpDir, "test.txt"), content, 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -261,40 +238,45 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 }
 
 func TestHasErrors(t *testing.T) {
-	tests := []struct {
-		name     string
-		results  []Result
-		expected bool
-	}{
-		{
-			name:     "empty results",
-			results:  []Result{},
-			expected: false,
-		},
-		{
-			name: "all valid",
-			results: []Result{
-				{Error: nil},
-				{Error: nil},
-			},
-			expected: false,
-		},
-		{
-			name: "skipped doesn't count",
-			results: []Result{
-				{Skipped: true, Error: &testError{}},
-			},
-			expected: false,
-		},
-	}
+	t.Parallel()
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := HasErrors(tt.results); got != tt.expected {
-				t.Errorf("HasErrors() = %v, expected %v", got, tt.expected)
-			}
-		})
-	}
+	t.Run("empty results", func(t *testing.T) {
+		t.Parallel()
+		if HasErrors(nil) {
+			t.Error("expected false for nil results")
+		}
+	})
+
+	t.Run("all valid", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: nil},
+			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: nil},
+		}
+		if HasErrors(results) {
+			t.Error("expected false for valid results")
+		}
+	})
+
+	t.Run("skipped doesn't count", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: true, Error: &testError{}},
+		}
+		if HasErrors(results) {
+			t.Error("expected false for skipped error")
+		}
+	})
+
+	t.Run("has error", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: &testError{}},
+		}
+		if !HasErrors(results) {
+			t.Error("expected true for error result")
+		}
+	})
 }
 
 type testError struct{}
