@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-// Result contains the result of validating a single code block
+// Result contains the result of validating a single code block.
 type Result struct {
 	File       string
 	LineNumber int
@@ -20,13 +20,13 @@ type Result struct {
 	Error      error
 }
 
-// Validator validates Go code blocks in markdown files
+// Validator validates Go code blocks in markdown files.
 type Validator struct {
 	fset    *token.FileSet
 	verbose bool
 }
 
-// New creates a new validator
+// New creates a new validator.
 func New(verbose bool) *Validator {
 	return &Validator{
 		fset:    token.NewFileSet(),
@@ -34,11 +34,11 @@ func New(verbose bool) *Validator {
 	}
 }
 
-// ValidateFile validates a single markdown file
+// ValidateFile validates a single markdown file.
 func (v *Validator) ValidateFile(filePath string) ([]Result, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("reading file %s: %w", filePath, err)
 	}
 
 	blocks := ExtractGoCodeBlocks(string(content))
@@ -46,7 +46,7 @@ func (v *Validator) ValidateFile(filePath string) ([]Result, error) {
 		return []Result{}, nil
 	}
 
-	var results []Result
+	results := make([]Result, 0, len(blocks))
 	for i, block := range blocks {
 		result := Result{
 			File:       filePath,
@@ -61,44 +61,49 @@ func (v *Validator) ValidateFile(filePath string) ([]Result, error) {
 		}
 
 		results = append(results, result)
-
-		if v.verbose {
-			if block.Skipped {
-				fmt.Printf("  ⏭️  Block %d (line %d): SKIPPED\n", i+1, block.LineNumber)
-			} else if result.Error != nil {
-				fmt.Printf("  ❌ Block %d (line %d): %v\n", i+1, block.LineNumber, result.Error)
-			} else {
-				fmt.Printf("  ✅ Block %d (line %d): OK\n", i+1, block.LineNumber)
-			}
-		}
+		v.logProgress(i, block, result)
 	}
 
 	return results, nil
 }
 
-// ValidateDirectory validates all markdown files in a directory (recursively)
+func (v *Validator) logProgress(i int, block CodeBlock, result Result) {
+	if !v.verbose {
+		return
+	}
+	switch {
+	case block.Skipped:
+		fmt.Printf("  ⏭️  Block %d (line %d): SKIPPED\n", i+1, block.LineNumber)
+	case result.Error != nil:
+		fmt.Printf("  ❌ Block %d (line %d): %v\n", i+1, block.LineNumber, result.Error)
+	default:
+		fmt.Printf("  ✅ Block %d (line %d): OK\n", i+1, block.LineNumber)
+	}
+}
+
+// ValidateDirectory validates all markdown files in a directory (recursively).
 func (v *Validator) ValidateDirectory(dirPath string) ([]Result, error) {
 	var allResults []Result
 
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dirPath, v.walkFunc(&allResults))
+	if err != nil {
+		return nil, fmt.Errorf("walking directory %s: %w", dirPath, err)
+	}
+
+	return allResults, nil
+}
+
+func (v *Validator) walkFunc(results *[]Result) filepath.WalkFunc {
+	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if info.IsDir() {
-			name := info.Name()
-			if strings.HasPrefix(name, ".") ||
-				name == "node_modules" ||
-				name == "vendor" ||
-				name == "build" ||
-				name == "dist" {
-				return filepath.SkipDir
-			}
-			return nil
+			return v.handleDirectory(info)
 		}
 
-		ext := strings.ToLower(filepath.Ext(path))
-		if ext != ".md" && ext != ".markdown" {
+		if !isMarkdownFile(path) {
 			return nil
 		}
 
@@ -106,69 +111,105 @@ func (v *Validator) ValidateDirectory(dirPath string) ([]Result, error) {
 			fmt.Printf("\n📄 Validating: %s\n", path)
 		}
 
-		results, err := v.ValidateFile(path)
+		fileResults, err := v.ValidateFile(path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error reading %s: %v\n", path, err)
 			return nil
 		}
 
-		allResults = append(allResults, results...)
+		*results = append(*results, fileResults...)
 		return nil
-	})
-
-	return allResults, err
+	}
 }
 
-// PrintReport prints a summary report of validation results
+func (v *Validator) handleDirectory(info os.FileInfo) error {
+	name := info.Name()
+	if shouldSkipDir(name) {
+		return filepath.SkipDir
+	}
+	return nil
+}
+
+func shouldSkipDir(name string) bool {
+	skipDirs := []string{".", "node_modules", "vendor", "build", "dist"}
+	for _, skip := range skipDirs {
+		if strings.HasPrefix(name, ".") || name == skip {
+			return true
+		}
+	}
+	return false
+}
+
+func isMarkdownFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+	return ext == ".md" || ext == ".markdown"
+}
+
+// PrintReport prints a summary report of validation results.
 func PrintReport(results []Result, showCode bool) {
 	var errors []Result
 	var valid, skipped int
 
 	for _, r := range results {
-		if r.Skipped {
+		switch {
+		case r.Skipped:
 			skipped++
-		} else if r.Error != nil {
+		case r.Error != nil:
 			errors = append(errors, r)
-		} else {
+		default:
 			valid++
 		}
 	}
 
-	fmt.Println("\n" + strings.Repeat("=", 60))
-	fmt.Println("📊 VALIDATION REPORT")
-	fmt.Println(strings.Repeat("=", 60))
-	fmt.Printf("Total code blocks: %d\n", len(results))
-	fmt.Printf("✅ Valid: %d\n", valid)
-	fmt.Printf("⏭️  Skipped: %d\n", skipped)
-	fmt.Printf("❌ Invalid: %d\n", len(errors))
-
-	if len(errors) > 0 {
-		fmt.Println("\n" + strings.Repeat("-", 60))
-		fmt.Println("❌ ERRORS FOUND:")
-		fmt.Println(strings.Repeat("-", 60))
-
-		for _, e := range errors {
-			fmt.Printf("\n📍 %s:%d (block #%d)\n", e.File, e.LineNumber, e.CodeBlock)
-			fmt.Printf("   Error: %v\n", e.Error)
-
-			if showCode {
-				fmt.Println("\n   Code:")
-				fmt.Println("   " + strings.Repeat("-", 50))
-				scanner := bufio.NewScanner(bytes.NewBufferString(e.Code))
-				lineNum := 1
-				for scanner.Scan() {
-					fmt.Printf("   %3d | %s\n", lineNum, scanner.Text())
-					lineNum++
-				}
-				fmt.Println("   " + strings.Repeat("-", 50))
-			}
-		}
-	}
-
+	printHeader(len(results), valid, skipped, len(errors))
+	printErrors(errors, showCode)
 	fmt.Println("\n" + strings.Repeat("=", 60))
 }
 
-// HasErrors returns true if any results have errors (excluding skipped)
+func printHeader(total, valid, skipped, errorCount int) {
+	fmt.Println("\n" + strings.Repeat("=", 60))
+	fmt.Println("📊 VALIDATION REPORT")
+	fmt.Println(strings.Repeat("=", 60))
+	fmt.Printf("Total code blocks: %d\n", total)
+	fmt.Printf("✅ Valid: %d\n", valid)
+	fmt.Printf("⏭️  Skipped: %d\n", skipped)
+	fmt.Printf("❌ Invalid: %d\n", errorCount)
+}
+
+func printErrors(errors []Result, showCode bool) {
+	if len(errors) == 0 {
+		return
+	}
+
+	fmt.Println("\n" + strings.Repeat("-", 60))
+	fmt.Println("❌ ERRORS FOUND:")
+	fmt.Println(strings.Repeat("-", 60))
+
+	for _, e := range errors {
+		printError(e, showCode)
+	}
+}
+
+func printError(e Result, showCode bool) {
+	fmt.Printf("\n📍 %s:%d (block #%d)\n", e.File, e.LineNumber, e.CodeBlock)
+	fmt.Printf("   Error: %v\n", e.Error)
+
+	if !showCode {
+		return
+	}
+
+	fmt.Println("\n   Code:")
+	fmt.Println("   " + strings.Repeat("-", 50))
+	scanner := bufio.NewScanner(bytes.NewBufferString(e.Code))
+	lineNum := 1
+	for scanner.Scan() {
+		fmt.Printf("   %3d | %s\n", lineNum, scanner.Text())
+		lineNum++
+	}
+	fmt.Println("   " + strings.Repeat("-", 50))
+}
+
+// HasErrors returns true if any results have errors (excluding skipped).
 func HasErrors(results []Result) bool {
 	for _, r := range results {
 		if r.Error != nil && !r.Skipped {
