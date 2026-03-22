@@ -36,6 +36,7 @@ func New(verbose bool) *Validator {
 
 // ValidateFile validates a single markdown file.
 func (v *Validator) ValidateFile(filePath string) ([]Result, error) {
+	//nolint:gosec // CLI tool - user controls input via command line
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("reading file %s: %w", filePath, err)
@@ -54,6 +55,7 @@ func (v *Validator) ValidateFile(filePath string) ([]Result, error) {
 			CodeBlock:  i + 1,
 			Code:       block.Code,
 			Skipped:    block.Skipped,
+			Error:      nil,
 		}
 
 		if !block.Skipped {

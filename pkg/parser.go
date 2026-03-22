@@ -48,6 +48,7 @@ func ValidateGoCode(code string) error {
 
 	// All strategies failed - return the original error for reporting
 	_, originalErr := parser.ParseFile(token.NewFileSet(), "snippet.go", code, parser.AllErrors)
+	//nolint:wrapcheck // Parser error returned as-is for user reporting
 	return originalErr
 }
 

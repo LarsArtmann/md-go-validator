@@ -107,61 +107,43 @@ func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
 func TestValidateGoCode(t *testing.T) {
 	t.Parallel()
 
-	t.Run("complete file", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("package main\n\nfunc main() {}\n"); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
+	validCases := []struct {
+		name string
+		code string
+	}{
+		{"complete file", "package main\n\nfunc main() {}\n"},
+		{"type declaration", "type User struct {\n\tName string\n}"},
+		{"function signature", "func DoSomething() error"},
+		{"import statement", "import \"fmt\""},
+		{"variable declaration", "var x = 42"},
+		{"expression", "x + y"},
+	}
 
-	t.Run("type declaration", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("type User struct {\n\tName string\n}"); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
+	for _, tc := range validCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if err := ValidateGoCode(tc.code); err != nil {
+				t.Errorf("expected no error, got: %v", err)
+			}
+		})
+	}
 
-	t.Run("function signature", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("func DoSomething() error"); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
+	invalidCases := []struct {
+		name string
+		code string
+	}{
+		{"invalid go.mod syntax", "require (\n\tgithub.com/pkg v1.0.0\n)"},
+		{"invalid syntax", "func broken {"},
+	}
 
-	t.Run("import statement", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("import \"fmt\""); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
-
-	t.Run("variable declaration", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("var x = 42"); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
-
-	t.Run("expression", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("x + y"); err != nil {
-			t.Errorf("expected no error, got: %v", err)
-		}
-	})
-
-	t.Run("invalid go.mod syntax", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("require (\n\tgithub.com/pkg v1.0.0\n)"); err == nil {
-			t.Error("expected error for go.mod syntax")
-		}
-	})
-
-	t.Run("invalid syntax", func(t *testing.T) {
-		t.Parallel()
-		if err := ValidateGoCode("func broken {"); err == nil {
-			t.Error("expected error for invalid syntax")
-		}
-	})
+	for _, tc := range invalidCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			if err := ValidateGoCode(tc.code); err == nil {
+				t.Error("expected error for invalid syntax")
+			}
+		})
+	}
 }
 
 func TestIndentCode(t *testing.T) {

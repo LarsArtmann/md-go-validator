@@ -28,7 +28,7 @@ func main() {
 }
 
 func parseArgs(args []string) config {
-	cfg := config{showCode: true}
+	cfg := config{verbose: false, showCode: true, paths: []string{}}
 
 	for _, arg := range args {
 		switch arg {
@@ -41,6 +41,7 @@ func parseArgs(args []string) config {
 			os.Exit(0)
 		default:
 			if strings.HasPrefix(arg, "-") {
+				//nolint:gosec // CLI tool - user controls input via command line
 				fmt.Fprintf(os.Stderr, "Unknown option: %s\n\n", arg)
 				printUsage()
 				os.Exit(1)
@@ -57,7 +58,8 @@ func parseArgs(args []string) config {
 }
 
 func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgovalidator.Result {
-	var allResults []mdgovalidator.Result
+	// Pre-allocate with estimated capacity (each path may produce multiple results)
+	allResults := make([]mdgovalidator.Result, 0, len(paths)*10)
 
 	for _, path := range paths {
 		results := validatePath(validator, path)
@@ -70,12 +72,15 @@ func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgoval
 func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidator.Result {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
+		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
 		return nil
 	}
 
+	//nolint:gosec // CLI tool - user controls input via command line
 	info, err := os.Stat(absPath)
 	if err != nil {
+		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
 		return nil
 	}
@@ -87,6 +92,7 @@ func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidat
 		results, err = validator.ValidateFile(absPath)
 	}
 	if err != nil {
+		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
 		return nil
 	}

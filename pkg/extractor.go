@@ -3,7 +3,9 @@ package mdgovalidator
 
 import "strings"
 
-// SkipDirectives contains directives that can be placed in markdown to skip validation.
+// SkipDirectives contains markdown directives to skip validation.
+//
+//nolint:gochecknoglobals // Configuration list, not mutable state
 var SkipDirectives = []string{
 	"<!-- skip-validate -->",
 	"<!-- skip-md-validate -->",
@@ -41,7 +43,12 @@ type extractorState struct {
 }
 
 func newExtractorState() *extractorState {
-	return &extractorState{}
+	return &extractorState{
+		inCodeBlock:    false,
+		currentBlock:   strings.Builder{},
+		blockStartLine: 0,
+		skipNext:       false,
+	}
 }
 
 func (s *extractorState) processLine(lineNum int, line string, blocks *[]CodeBlock) {
