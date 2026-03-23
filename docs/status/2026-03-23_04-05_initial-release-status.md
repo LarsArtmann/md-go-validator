@@ -15,12 +15,14 @@ md-go-validator has been successfully extracted from the `reports` project and e
 ## A) FULLY DONE ✅
 
 ### Project Structure
+
 - [x] Extracted from `/Users/larsartmann/projects/reports/scripts/tools/md-go-validator.go`
 - [x] Created proper Go project layout with `pkg/` for library code
 - [x] CLI entry point in `cmd/md-go-validator/`
 - [x] Go module initialized (`go 1.26`)
 
 ### Core Implementation
+
 - [x] **pkg/extractor.go** (118 lines, complexity 17)
   - State machine pattern for code block extraction
   - Handles `go` and `golang` language tags
@@ -44,12 +46,14 @@ md-go-validator has been successfully extracted from the `reports` project and e
   - Pre-allocated result slices
 
 ### Testing
+
 - [x] 11 test functions with 100% `t.Parallel()` coverage
 - [x] 68.6% code coverage
 - [x] Table-driven tests for validation cases
 - [x] All tests passing
 
 ### Linting & Quality
+
 - [x] **golangci-lint: 0 issues**
 - [x] All nolint directives properly documented
 - [x] Complexity under limits (cyclop=10)
@@ -57,6 +61,7 @@ md-go-validator has been successfully extracted from the `reports` project and e
 - [x] Composition score: 100/100 (Excellent)
 
 ### Documentation
+
 - [x] README.md (243 lines) - Comprehensive usage docs
 - [x] AGENTS.md (94 lines) - AI agent instructions
 - [x] LICENSE (MIT)
@@ -66,11 +71,13 @@ md-go-validator has been successfully extracted from the `reports` project and e
 - [x] .goreleaser.yml (46 lines)
 
 ### CI/CD Ready
+
 - [x] GitHub Actions example in README
 - [x] Pre-commit hook example in README
 - [x] Exit code 1 on errors for CI pipelines
 
 ### Git History (9 commits)
+
 ```
 746d32d docs: improve markdown formatting in AGENTS.md
 b523a21 fix: add nolint directives and refactor tests for lint compliance
@@ -88,6 +95,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 ## B) PARTIALLY DONE ⚠️
 
 ### Code Duplication (2 clone groups)
+
 - **Status:** Reduced from 5 to 2 groups (60% improvement)
 - **Remaining:** Test file patterns in `pkg/validator_test.go`
   - Clone 1: Lines 20-30 vs 32-42 (single block assertions)
@@ -95,6 +103,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 - **Assessment:** Acceptable for test readability; not critical
 
 ### Go Toolchain Version Mismatch
+
 - **Issue:** Stdlib compiled with go1.26.1, running go1.26.0
 - **Impact:** Warning in test-coverage step, tests still pass
 - **Workaround:** Fixed go.mod to use `go 1.26` (minor version)
@@ -105,6 +114,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 ## C) NOT STARTED ⏳
 
 ### v1.0.1 Improvements
+
 1. **CLI Tests** - No tests for `cmd/md-go-validator/main.go`
 2. **Benchmark Tests** - No performance benchmarks
 3. **Fuzz Testing** - No fuzz targets (`func Fuzz*(f *testing.F)`)
@@ -117,6 +127,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 10. **Docker Image** - No containerized distribution
 
 ### Documentation Gaps
+
 1. **CONTRIBUTING.md** - No contribution guidelines
 2. **CODE_OF_CONDUCT.md** - No code of conduct
 3. **SECURITY.md** - No security policy
@@ -124,6 +135,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 5. **Architecture Diagrams** - No visual documentation
 
 ### Library Enhancements
+
 1. **Error Types** - Custom error types for better error handling
 2. **Options Pattern** - Functional options for Validator construction
 3. **Context Support** - No context.Context for cancellation
@@ -144,11 +156,13 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 ## E) WHAT WE SHOULD IMPROVE 📈
 
 ### High Priority (Should Do)
+
 1. **CLI Test Coverage** - Add tests for argument parsing and path validation
 2. **GitHub Actions CI** - Create `.github/workflows/ci.yml` for automated testing
 3. **Git Tags** - Tag v1.0.0 release for go install stability
 
 ### Medium Priority (Nice to Have)
+
 4. **Error Types** - Create structured errors with `errors.Is()` support
 5. **Context Support** - Add context for timeout/cancellation in long runs
 6. **Parallel Processing** - Use goroutines for directory scanning
@@ -156,6 +170,7 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 8. **Benchmark Suite** - Add performance benchmarks
 
 ### Low Priority (Future Consideration)
+
 9. **Options Pattern** - Replace `New(verbose bool)` with functional options
 10. **Streaming Results** - Channel-based result streaming
 11. **Plugin System** - Extensible validation strategies
@@ -166,6 +181,7 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 ## F) TOP #25 THINGS TO DO NEXT
 
 ### Immediate (v1.0.1)
+
 1. Add CLI tests in `cmd/md-go-validator/main_test.go`
 2. Create `.github/workflows/ci.yml` with golangci-lint
 3. Tag v1.0.0 release: `git tag v1.0.0 && git push --tags`
@@ -173,6 +189,7 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 5. Add godoc badge to README
 
 ### Short-term (v1.1.0)
+
 6. Implement custom error types with `errors.As()` support
 7. Add context.Context to ValidateDirectory for cancellation
 8. Implement parallel directory scanning with worker pool
@@ -185,6 +202,7 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 15. Add pre-commit hook installation (`--install-hook`)
 
 ### Medium-term (v1.2.0)
+
 16. Add Makefile or Justfile for common tasks
 17. Create Homebrew formula for easy installation
 18. Add Dockerfile for containerized distribution
@@ -203,11 +221,13 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 **Question:** Should we prioritize CI/CD automation (GitHub Actions) or test coverage (CLI tests) first?
 
 **Context:**
+
 - Current test coverage: 68.6% (pkg only, CLI untested)
 - No automated CI pipeline exists
 - Users may install via `go install` immediately
 
 **Options:**
+
 1. **CI First** - Catch regressions early, enable PR checks
 2. **Tests First** - Ensure CLI behavior is documented and verified
 
@@ -217,17 +237,17 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 
 ## Metrics Summary
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| golangci-lint issues | 0 | 0 | ✅ |
-| Test coverage | 68.6% | 80% | ⚠️ |
-| Test functions | 11 | 15+ | ⚠️ |
-| Code complexity (avg) | 20.75 | <15 | ⚠️ |
-| Files under 350 lines | 100% | 100% | ✅ |
-| Error handling score | 100/100 | 90+ | ✅ |
-| Composition score | 100/100 | 90+ | ✅ |
-| Documentation files | 5 | 8+ | ⚠️ |
-| Clone groups | 2 | 0 | ⚠️ |
+| Metric                | Value   | Target | Status |
+| --------------------- | ------- | ------ | ------ |
+| golangci-lint issues  | 0       | 0      | ✅     |
+| Test coverage         | 68.6%   | 80%    | ⚠️     |
+| Test functions        | 11      | 15+    | ⚠️     |
+| Code complexity (avg) | 20.75   | <15    | ⚠️     |
+| Files under 350 lines | 100%    | 100%   | ✅     |
+| Error handling score  | 100/100 | 90+    | ✅     |
+| Composition score     | 100/100 | 90+    | ✅     |
+| Documentation files   | 5       | 8+     | ⚠️     |
+| Clone groups          | 2       | 0      | ⚠️     |
 
 ---
 

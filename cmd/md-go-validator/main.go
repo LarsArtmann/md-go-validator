@@ -10,6 +10,11 @@ import (
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 )
 
+// osExit allows mocking os.Exit in tests.
+//
+//nolint:gochecknoglobals // Required for testing os.Exit behavior
+var osExit = os.Exit
+
 type config struct {
 	verbose  bool
 	showCode bool
@@ -23,7 +28,7 @@ func main() {
 	mdgovalidator.PrintReport(allResults, cfg.showCode)
 
 	if mdgovalidator.HasErrors(allResults) {
-		os.Exit(1)
+		osExit(1)
 	}
 }
 
