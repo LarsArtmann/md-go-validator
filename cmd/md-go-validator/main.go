@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/output"
 )
 
 // osExit allows mocking os.Exit in tests.
@@ -16,16 +17,18 @@ import (
 var osExit = os.Exit
 
 type config struct {
-	verbose  bool
-	showCode bool
-	paths    []string
+	verbose    bool
+	showCode   bool
+	format     output.OutputFormat
+	colorMode  output.ColorMode
+	paths      []string
 }
 
 func main() {
 	cfg := parseArgs(os.Args[1:])
 	validator := mdgovalidator.New(cfg.verbose)
 	allResults := validatePaths(validator, cfg.paths)
-	mdgovalidator.PrintReport(allResults, cfg.showCode)
+	output.PrintReport(allResults, cfg.format, cfg.colorMode, cfg.showCode)
 
 	if mdgovalidator.HasErrors(allResults) {
 		osExit(1)
@@ -33,14 +36,52 @@ func main() {
 }
 
 func parseArgs(args []string) config {
-	cfg := config{verbose: false, showCode: true, paths: []string{}}
+	cfg := config{
+		verbose:   false,
+		showCode:  true,
+		format:    output.FormatTable,
+		colorMode: output.ColorModeAuto,
+		paths:     []string{},
+	}
 
-	for _, arg := range args {
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
 		switch arg {
 		case "-v", "--verbose":
 			cfg.verbose = true
-		case "-q", "--quiet", "--no-code":
+		case "-q", "--quiet":
 			cfg.showCode = false
+			cfg.format = output.FormatQuiet
+		case "--no-code":
+			cfg.showCode = false
+		case "-f", "--format":
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "Error: --format requires an argument\n\n")
+				printUsage()
+				os.Exit(1)
+			}
+			i++
+			format, err := output.ParseFormat(args[i])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
+				printUsage()
+				os.Exit(1)
+			}
+			cfg.format = format
+		case "--color":
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "Error: --color requires an argument\n\n")
+				printUsage()
+				os.Exit(1)
+			}
+			i++
+			colorMode, err := output.ParseColorMode(args[i])
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
+				printUsage()
+				os.Exit(1)
+			}
+			cfg.colorMode = colorMode
 		case "-h", "--help":
 			printUsage()
 			os.Exit(0)
@@ -108,9 +149,24 @@ USAGE:
 
 OPTIONS:
     -v, --verbose    Show progress for each code block
-    -q, --quiet      Only show summary (no code in errors)
+    -q, --quiet      Quiet mode (summary only, no code in errors)
     --no-code        Don't show code snippets in error output
+    -f, --format     Output format (table, json, markdown, yaml, csv, quiet)
+    --color          Color mode (auto, always, never)
     -h, --help       Show this help message
+
+OUTPUT FORMATS:
+    table    Terminal table (default)
+    json     JSON output (machine-readable)
+    markdown Markdown table
+    yaml     YAML output
+    csv      CSV output
+    quiet    Summary only (no details)
+
+COLOR MODES:
+    auto     Respect NO_COLOR and CI detection (default)
+    always   Force ANSI colors
+    never    Disable colors
 
 SKIP DIRECTIVES:
     Add these to skip validation of specific code blocks:
@@ -124,6 +180,8 @@ SKIP DIRECTIVES:
 EXAMPLES:
     md-go-validator .                    # Validate all .md files
     md-go-validator README.md            # Validate a specific file
-    md-go-validator docs/ README.md      # Validate multiple paths
-    md-go-validator -v .                 # Verbose output`)
+    md-go-validator -v .                 # Verbose output
+    md-go-validator -f json .            # JSON output for CI
+    md-go-validator -f markdown .         # Markdown table output
+    md-go-validator --color never .      # Disable colors`)
 }
