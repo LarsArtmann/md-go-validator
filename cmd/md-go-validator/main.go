@@ -1,4 +1,4 @@
-// md-go-validator validates Go code blocks in Markdown files.
+// Command md-go-validator validates Go code blocks in Markdown files.
 package main
 
 import (
@@ -46,7 +46,6 @@ func parseArgs(args []string) config {
 			os.Exit(0)
 		default:
 			if strings.HasPrefix(arg, "-") {
-				//nolint:gosec // CLI tool - user controls input via command line
 				fmt.Fprintf(os.Stderr, "Unknown option: %s\n\n", arg)
 				printUsage()
 				os.Exit(1)
@@ -77,15 +76,12 @@ func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgoval
 func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidator.Result {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
-		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
 		return nil
 	}
 
-	//nolint:gosec // CLI tool - user controls input via command line
 	info, err := os.Stat(absPath)
 	if err != nil {
-		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
 		return nil
 	}
@@ -97,7 +93,6 @@ func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidat
 		results, err = validator.ValidateFile(absPath)
 	}
 	if err != nil {
-		//nolint:gosec // CLI tool - user controls input via command line
 		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
 		return nil
 	}

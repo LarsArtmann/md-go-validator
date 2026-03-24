@@ -219,6 +219,46 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	}
 }
 
+func TestPrintReport(t *testing.T) {
+	t.Parallel()
+
+	t.Run("empty results", func(t *testing.T) {
+		t.Parallel()
+		PrintReport([]Result{}, false)
+	})
+
+	t.Run("all valid", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{File: "test.md", LineNumber: 1, CodeBlock: 1, Code: "package main", Skipped: false, Error: nil},
+		}
+		PrintReport(results, false)
+	})
+
+	t.Run("with errors", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{
+				File: "test.md",
+				LineNumber: 1,
+				CodeBlock: 1,
+				Code:      "invalid",
+				Skipped:   false,
+				Error:     &testError{},
+			},
+		}
+		PrintReport(results, true)
+	})
+
+	t.Run("with skipped", func(t *testing.T) {
+		t.Parallel()
+		results := []Result{
+			{File: "test.md", LineNumber: 1, CodeBlock: 1, Code: "skipped", Skipped: true, Error: nil},
+		}
+		PrintReport(results, false)
+	})
+}
+
 func TestHasErrors(t *testing.T) {
 	t.Parallel()
 
