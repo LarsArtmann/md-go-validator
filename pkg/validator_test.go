@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 func TestExtractGoCodeBlocks(t *testing.T) {
@@ -24,7 +26,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 		if len(blocks) != 1 {
 			t.Fatalf("expected 1 block, got %d", len(blocks))
 		}
-		if blocks[0].LineNumber != 2 {
+		if blocks[0].LineNumber != types.NewLineNumber(2) {
 			t.Errorf("expected line 2, got %d", blocks[0].LineNumber)
 		}
 	})
@@ -36,7 +38,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 		if len(blocks) != 1 {
 			t.Fatalf("expected 1 block, got %d", len(blocks))
 		}
-		if blocks[0].LineNumber != 4 {
+		if blocks[0].LineNumber != types.NewLineNumber(4) {
 			t.Errorf("expected line 4, got %d", blocks[0].LineNumber)
 		}
 	})
@@ -48,7 +50,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 		if len(blocks) != 1 {
 			t.Fatalf("expected 1 block, got %d", len(blocks))
 		}
-		if !blocks[0].Skipped {
+		if !blocks[0].IsSkipped() {
 			t.Error("expected block to be skipped")
 		}
 	})
@@ -76,7 +78,7 @@ type Partial struct {
 	if len(blocks) != 1 {
 		t.Fatalf("expected 1 block, got %d", len(blocks))
 	}
-	if !blocks[0].Skipped {
+	if !blocks[0].IsSkipped() {
 		t.Error("expected block to be skipped")
 	}
 }
@@ -89,7 +91,7 @@ func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 	if len(blocks) != 1 {
 		t.Fatalf("expected 1 block, got %d", len(blocks))
 	}
-	if !blocks[0].Skipped {
+	if !blocks[0].IsSkipped() {
 		t.Error("expected block to be skipped due to //nolint in code")
 	}
 }
@@ -219,46 +221,6 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	}
 }
 
-func TestPrintReport(t *testing.T) {
-	t.Parallel()
-
-	t.Run("empty results", func(t *testing.T) {
-		t.Parallel()
-		PrintReport([]Result{}, false)
-	})
-
-	t.Run("all valid", func(t *testing.T) {
-		t.Parallel()
-		results := []Result{
-			{File: "test.md", LineNumber: 1, CodeBlock: 1, Code: "package main", Skipped: false, Error: nil},
-		}
-		PrintReport(results, false)
-	})
-
-	t.Run("with errors", func(t *testing.T) {
-		t.Parallel()
-		results := []Result{
-			{
-				File:       "test.md",
-				LineNumber: 1,
-				CodeBlock:  1,
-				Code:       "invalid",
-				Skipped:    false,
-				Error:      &testError{},
-			},
-		}
-		PrintReport(results, true)
-	})
-
-	t.Run("with skipped", func(t *testing.T) {
-		t.Parallel()
-		results := []Result{
-			{File: "test.md", LineNumber: 1, CodeBlock: 1, Code: "skipped", Skipped: true, Error: nil},
-		}
-		PrintReport(results, false)
-	})
-}
-
 func TestHasErrors(t *testing.T) {
 	t.Parallel()
 
@@ -271,9 +233,9 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
-		results := []Result{
-			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: nil},
-			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: nil},
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+			types.NewValidResult(types.NewFileID("test.md"), types.NewLineNumber(5), types.NewBlockIndex(2), "package main"),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for valid results")
@@ -282,8 +244,8 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("skipped doesn't count", func(t *testing.T) {
 		t.Parallel()
-		results := []Result{
-			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: true, Error: &testError{}},
+		results := []types.Result{
+			types.NewSkippedResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "skipped"),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for skipped error")
@@ -292,8 +254,8 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("has error", func(t *testing.T) {
 		t.Parallel()
-		results := []Result{
-			{File: "", LineNumber: 0, CodeBlock: 0, Code: "", Skipped: false, Error: &testError{}},
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "invalid", &testError{}),
 		}
 		if !HasErrors(results) {
 			t.Error("expected true for error result")

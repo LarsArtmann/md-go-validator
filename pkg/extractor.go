@@ -1,9 +1,30 @@
 // Package mdgovalidator validates Go code blocks in Markdown files.
 package mdgovalidator
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/larsartmann/md-go-validator/pkg/types"
+)
 
 // SkipDirectives contains markdown directives to skip validation.
+// This is a configuration list that can be customized before extraction.
+type SkipDirectivesConfig []string
+
+// DefaultSkipDirectives returns the standard set of skip directives.
+func DefaultSkipDirectives() SkipDirectivesConfig {
+	return SkipDirectivesConfig{
+		"<!-- skip-validate -->",
+		"<!-- skip-md-validate -->",
+		"<!-- md-skip -->",
+		"<!-- no-validate -->",
+		"// skip-validate",
+		"//nolint",
+	}
+}
+
+// SkipDirectives contains markdown directives to skip validation.
+// Deprecated: Use SkipDirectivesConfig and DefaultSkipDirectives() instead.
 //
 //nolint:gochecknoglobals // Configuration list, not mutable state
 var SkipDirectives = []string{
@@ -15,19 +36,25 @@ var SkipDirectives = []string{
 	"//nolint",
 }
 
-// CodeBlock represents a Go code block extracted from markdown.
-type CodeBlock struct {
-	LineNumber int
-	Code       string
-	Skipped    bool
-}
-
 // ExtractGoCodeBlocks extracts Go code blocks from markdown content.
-func ExtractGoCodeBlocks(content string) []CodeBlock {
-	var blocks []CodeBlock
+func ExtractGoCodeBlocks(content string) []types.CodeBlock {
+	var blocks []types.CodeBlock
 	lines := strings.Split(content, "\n")
 
 	state := newExtractorState()
+	for i, line := range lines {
+		state.processLine(i, line, &blocks)
+	}
+
+	return blocks
+}
+
+// ExtractGoCodeBlocksWithConfig extracts Go code blocks with custom skip directives.
+func ExtractGoCodeBlocksWithConfig(content string, config SkipDirectivesConfig) []types.CodeBlock {
+	var blocks []types.CodeBlock
+	lines := strings.Split(content, "\n")
+
+	state := newExtractorStateWithConfig(config)
 	for i, line := range lines {
 		state.processLine(i, line, &blocks)
 	}
@@ -40,6 +67,7 @@ type extractorState struct {
 	currentBlock   strings.Builder
 	blockStartLine int
 	skipNext       bool
+	skipDirectives SkipDirectivesConfig
 }
 
 func newExtractorState() *extractorState {
@@ -51,7 +79,17 @@ func newExtractorState() *extractorState {
 	}
 }
 
-func (s *extractorState) processLine(lineNum int, line string, blocks *[]CodeBlock) {
+func newExtractorStateWithConfig(config SkipDirectivesConfig) *extractorState {
+	return &extractorState{
+		inCodeBlock:    false,
+		currentBlock:   strings.Builder{},
+		blockStartLine: 0,
+		skipNext:       false,
+		skipDirectives: config,
+	}
+}
+
+func (s *extractorState) processLine(lineNum int, line string, blocks *[]types.CodeBlock) {
 	trimmed := strings.TrimSpace(line)
 
 	if s.hasSkipDirective(line) {
@@ -71,7 +109,11 @@ func (s *extractorState) processLine(lineNum int, line string, blocks *[]CodeBlo
 }
 
 func (s *extractorState) hasSkipDirective(line string) bool {
-	for _, directive := range SkipDirectives {
+	directives := s.skipDirectives
+	if directives == nil {
+		directives = SkipDirectivesConfig(SkipDirectives)
+	}
+	for _, directive := range directives {
 		if strings.Contains(line, directive) {
 			return true
 		}
@@ -99,7 +141,7 @@ func isGoLanguage(lang string) bool {
 	return lang == "go" || lang == "Go" || lang == "golang"
 }
 
-func (s *extractorState) endCodeBlock(blocks *[]CodeBlock) {
+func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 	s.inCodeBlock = false
 	code := s.currentBlock.String()
 
@@ -109,10 +151,12 @@ func (s *extractorState) endCodeBlock(blocks *[]CodeBlock) {
 	}
 
 	skipped := s.skipNext || s.hasSkipDirective(code)
-	*blocks = append(*blocks, CodeBlock{
-		LineNumber: s.blockStartLine,
-		Code:       code,
-		Skipped:    skipped,
-	})
+	block := types.NewCodeBlock(types.NewLineNumber(s.blockStartLine), code)
+	if skipped {
+		block.MarkSkipped()
+	} else {
+		block.MarkValid()
+	}
+	*blocks = append(*blocks, block)
 	s.skipNext = false
 }

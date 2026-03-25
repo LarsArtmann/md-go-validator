@@ -9,6 +9,7 @@ import (
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/output"
+	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 // osExit allows mocking os.Exit in tests.
@@ -102,9 +103,9 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgovalidator.Result {
+func validatePaths(validator *mdgovalidator.Validator, paths []string) []types.Result {
 	// Pre-allocate with estimated capacity (each path may produce multiple results)
-	allResults := make([]mdgovalidator.Result, 0, len(paths)*10)
+	allResults := make([]types.Result, 0, len(paths)*10)
 
 	for _, path := range paths {
 		results := validatePath(validator, path)
@@ -114,7 +115,7 @@ func validatePaths(validator *mdgovalidator.Validator, paths []string) []mdgoval
 	return allResults
 }
 
-func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidator.Result {
+func validatePath(validator *mdgovalidator.Validator, path string) []types.Result {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
@@ -127,7 +128,7 @@ func validatePath(validator *mdgovalidator.Validator, path string) []mdgovalidat
 		return nil
 	}
 
-	var results []mdgovalidator.Result
+	var results []types.Result
 	if info.IsDir() {
 		results, err = validator.ValidateDirectory(absPath)
 	} else {

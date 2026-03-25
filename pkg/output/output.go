@@ -3,10 +3,9 @@ package output
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/larsartmann/go-output"
-	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 type OutputFormat = output.Format
@@ -51,80 +50,7 @@ func ParseColorMode(s string) (ColorMode, error) {
 	return output.ParseColorMode(s)
 }
 
-type ReportData struct {
-	Total   int `json:"total"`
-	Valid   int `json:"valid"`
-	Skipped int `json:"skipped"`
-	Errors  int `json:"errors"`
-}
-
-type ResultData struct {
-	File       string `json:"file"`
-	LineNumber int    `json:"line"`
-	Block      int    `json:"block"`
-	Code       string `json:"code,omitempty"`
-	Skipped    bool   `json:"skipped"`
-	Error      string `json:"error,omitempty"`
-}
-
-type ReportOutput struct {
-	Summary ReportSummary `json:"summary"`
-	Errors  []ErrorEntry  `json:"errors,omitempty"`
-}
-
-type ReportSummary struct {
-	Total   int `json:"total"`
-	Valid   int `json:"valid"`
-	Skipped int `json:"skipped"`
-	Errors  int `json:"errors"`
-}
-
-type ErrorEntry struct {
-	File  string `json:"file"`
-	Line  int    `json:"line"`
-	Block int    `json:"block"`
-	Error string `json:"error"`
-	Code  string `json:"code,omitempty"`
-}
-
-func buildReportData(results []mdgovalidator.Result, showCode bool) ReportOutput {
-	var valid, skipped int
-	var errorEntries []ErrorEntry
-
-	for _, r := range results {
-		switch {
-		case r.Skipped:
-			skipped++
-		case r.Error != nil:
-			code := ""
-			if showCode {
-				code = r.Code
-			}
-			entry := ErrorEntry{
-				File:  r.File,
-				Line:  r.LineNumber,
-				Block: r.CodeBlock,
-				Error: r.Error.Error(),
-				Code:  code,
-			}
-			errorEntries = append(errorEntries, entry)
-		default:
-			valid++
-		}
-	}
-
-	return ReportOutput{
-		Summary: ReportSummary{
-			Total:   len(results),
-			Valid:   valid,
-			Skipped: skipped,
-			Errors:  len(errorEntries),
-		},
-		Errors: errorEntries,
-	}
-}
-
-func PrintReport(results []mdgovalidator.Result, format OutputFormat, colorMode ColorMode, showCode bool) {
+func PrintReport(results []types.Result, format OutputFormat, colorMode ColorMode, showCode bool) {
 	switch format {
 	case FormatJSON:
 		printJSON(results, showCode)
@@ -141,8 +67,8 @@ func PrintReport(results []mdgovalidator.Result, format OutputFormat, colorMode 
 	}
 }
 
-func printJSON(results []mdgovalidator.Result, showCode bool) {
-	report := buildReportData(results, showCode)
+func printJSON(results []types.Result, showCode bool) {
+	report := types.BuildReportData(results, showCode)
 	data, err := output.MarshalJSONIndent(report, "", "  ")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error marshaling JSON: %v\n", err)
@@ -151,8 +77,8 @@ func printJSON(results []mdgovalidator.Result, showCode bool) {
 	fmt.Println(string(data))
 }
 
-func printMarkdown(results []mdgovalidator.Result, showCode bool) {
-	report := buildReportData(results, showCode)
+func printMarkdown(results []types.Result, showCode bool) {
+	report := types.BuildReportData(results, showCode)
 
 	fmt.Println("# Validation Report")
 	fmt.Println()
@@ -171,26 +97,23 @@ func printMarkdown(results []mdgovalidator.Result, showCode bool) {
 			fmt.Println("| File | Line | Block | Error | Code |")
 			fmt.Println("|------|------|-------|-------|------|")
 			for _, e := range report.Errors {
-				code := strings.ReplaceAll(e.Code, "\n", "\\n")
-				if len(code) > 50 {
-					code = code[:47] + "..."
-				}
-				fmt.Printf("| %s | %d | %d | %s | %s |\n",
+				code := truncateCode(e.Code, 50)
+				fmt.Printf("| %s | %s | %s | %s | %s |\n",
 					e.File, e.Line, e.Block, e.Error, code)
 			}
 		} else {
 			fmt.Println("| File | Line | Block | Error |")
 			fmt.Println("|------|------|-------|-------|")
 			for _, e := range report.Errors {
-				fmt.Printf("| %s | %d | %d | %s |\n",
+				fmt.Printf("| %s | %s | %s | %s |\n",
 					e.File, e.Line, e.Block, e.Error)
 			}
 		}
 	}
 }
 
-func printYAML(results []mdgovalidator.Result, showCode bool) {
-	report := buildReportData(results, showCode)
+func printYAML(results []types.Result, showCode bool) {
+	report := types.BuildReportData(results, showCode)
 	data, err := output.MarshalYAML(report)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error marshaling YAML: %v\n", err)
@@ -199,25 +122,21 @@ func printYAML(results []mdgovalidator.Result, showCode bool) {
 	fmt.Println(string(data))
 }
 
-func printCSV(results []mdgovalidator.Result, showCode bool) {
-	fmt.Println("file,line,block,skipped,error,code")
+func printCSV(results []types.Result, showCode bool) {
+	fmt.Println("file,line,block,status,error,code")
 	for _, r := range results {
-		status := "valid"
-		var errMsg string
-		if r.Skipped {
-			status = "skipped"
-		} else if r.Error != nil {
-			status = "error"
+		var status, errMsg, code string
+		status = r.Status.String()
+		if r.Error != nil {
 			errMsg = r.Error.Error()
 		}
-		code := ""
 		if showCode {
 			code = r.Code
 		}
-		fmt.Printf("%s,%d,%d,%s,%s,%s\n",
-			escapeCSV(r.File),
-			r.LineNumber,
-			r.CodeBlock,
+		fmt.Printf("%s,%s,%s,%s,%s,%s\n",
+			escapeCSV(r.File.String()),
+			r.LineNumber.String(),
+			r.Block.String(),
 			status,
 			escapeCSV(errMsg),
 			escapeCSV(code))
@@ -225,14 +144,34 @@ func printCSV(results []mdgovalidator.Result, showCode bool) {
 }
 
 func escapeCSV(s string) string {
-	if strings.ContainsAny(s, ",\"\n") {
-		return "\"" + strings.ReplaceAll(s, "\"", "\"\"") + "\""
+	if s == "" {
+		return ""
+	}
+	if len(s) > 0 && (s[0] == '"' || s[len(s)-1] == '"' || containsSpecialCSV(s)) {
+		escaped := ""
+		for _, c := range s {
+			if c == '"' {
+				escaped += "\"\""
+			} else {
+				escaped += string(c)
+			}
+		}
+		return "\"" + escaped + "\""
 	}
 	return s
 }
 
-func printQuiet(results []mdgovalidator.Result) {
-	report := buildReportData(results, false)
+func containsSpecialCSV(s string) bool {
+	for _, c := range s {
+		if c == ',' || c == '\n' || c == '\r' {
+			return true
+		}
+	}
+	return false
+}
+
+func printQuiet(results []types.Result) {
+	report := types.BuildReportData(results, false)
 	if report.Summary.Errors > 0 {
 		fmt.Printf("%d errors found\n", report.Summary.Errors)
 	} else {
@@ -240,38 +179,91 @@ func printQuiet(results []mdgovalidator.Result) {
 	}
 }
 
-// printTable prints results in a formatted table.
-// colorMode is kept for future use with lipgloss styling.
-//
-//nolint:unparam // colorMode reserved for future color support
-func printTable(results []mdgovalidator.Result, colorMode ColorMode, showCode bool) {
-	report := buildReportData(results, showCode)
+func printTable(results []types.Result, colorMode ColorMode, showCode bool) {
+	report := types.BuildReportData(results, showCode)
+	shouldColor := colorMode.ShouldColor()
 
-	fmt.Println(strings.Repeat("=", 60))
-	fmt.Println("VALIDATION REPORT")
-	fmt.Println(strings.Repeat("=", 60))
-	fmt.Printf("Total code blocks: %d\n", report.Summary.Total)
-	fmt.Printf("Valid: %d\n", report.Summary.Valid)
-	fmt.Printf("Skipped: %d\n", report.Summary.Skipped)
-	fmt.Printf("Errors: %d\n", report.Summary.Errors)
-	fmt.Println(strings.Repeat("=", 60))
-	fmt.Println()
+	printTableHeader(report.Summary, shouldColor)
+	printTableErrors(report.Errors, showCode, shouldColor)
+}
 
-	if len(report.Errors) > 0 {
-		fmt.Println("ERRORS FOUND:")
-		fmt.Println(strings.Repeat("-", 60))
-		for _, e := range report.Errors {
-			fmt.Printf("\n%s:%d (block #%d)\n", e.File, e.Line, e.Block)
-			fmt.Printf("  Error: %s\n", e.Error)
-			if showCode && e.Code != "" {
-				fmt.Println("\n  Code:")
-				fmt.Println("  " + strings.Repeat("-", 40))
-				for i, line := range strings.Split(e.Code, "\n") {
-					fmt.Printf("  %3d | %s\n", i+1, line)
-				}
-				fmt.Println("  " + strings.Repeat("-", 40))
-			}
-		}
-		fmt.Println()
+func printTableHeader(summary types.ReportSummary, shouldColor bool) {
+	if shouldColor {
+		fmt.Println("\033[1;36m============================================================\033[0m")
+		fmt.Println("\033[1;36m📊 VALIDATION REPORT\033[0m")
+		fmt.Println("\033[1;36m============================================================\033[0m")
+		fmt.Printf("\033[1;32m✅ Valid:\033[0m %d\n", summary.Valid)
+		fmt.Printf("\033[33m⏭️  Skipped:\033[0m %d\n", summary.Skipped)
+		fmt.Printf("\033[1;31m❌ Errors:\033[0m %d\n", summary.Errors)
+	} else {
+		fmt.Println("\n============================================================")
+		fmt.Println("VALIDATION REPORT")
+		fmt.Println("============================================================")
+		fmt.Printf("Valid: %d\n", summary.Valid)
+		fmt.Printf("Skipped: %d\n", summary.Skipped)
+		fmt.Printf("Errors: %d\n", summary.Errors)
 	}
+	fmt.Println("============================================================")
+}
+
+func printTableErrors(errors []types.ErrorEntry, showCode, shouldColor bool) {
+	if len(errors) == 0 {
+		return
+	}
+
+	fmt.Println()
+	if shouldColor {
+		fmt.Println("\033[1;31mERRORS FOUND:\033[0m")
+	} else {
+		fmt.Println("ERRORS FOUND:")
+	}
+	fmt.Println("------------------------------------------------------------")
+
+	for _, e := range errors {
+		fileLoc := fmt.Sprintf("%s:%s (block #%s)", e.File, e.Line, e.Block)
+		if shouldColor {
+			fmt.Printf("\n\033[1;33m📍 %s\033[0m\n", fileLoc)
+			fmt.Printf("   \033[1;31mError:\033[0m %s\n", e.Error)
+		} else {
+			fmt.Printf("\n📍 %s\n", fileLoc)
+			fmt.Printf("   Error: %s\n", e.Error)
+		}
+
+		if showCode && e.Code != "" {
+			fmt.Println("\n   Code:")
+			fmt.Println("   " + "------------------------------------------------")
+			for i, line := range splitLines(e.Code) {
+				fmt.Printf("   %3d | %s\n", i+1, line)
+			}
+			fmt.Println("   " + "------------------------------------------------")
+		}
+	}
+	fmt.Println()
+}
+
+func splitLines(s string) []string {
+	var lines []string
+	for i := 0; i < len(s); {
+		j := i
+		for j < len(s) && s[j] != '\n' {
+			j++
+		}
+		lines = append(lines, s[i:j])
+		if j < len(s) && s[j] == '\n' {
+			j++
+		}
+		i = j
+	}
+	return lines
+}
+
+func truncateCode(code string, maxLen uint) string {
+	if code == "" {
+		return ""
+	}
+	truncated := code
+	if len(truncated) > int(maxLen) {
+		truncated = truncated[:maxLen-3] + "..."
+	}
+	return truncated
 }

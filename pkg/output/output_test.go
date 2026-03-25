@@ -3,7 +3,7 @@ package output
 import (
 	"testing"
 
-	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 func TestParseFormat(t *testing.T) {
@@ -48,8 +48,8 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("empty results", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{}
-		report := buildReportData(results, false)
+		results := []types.Result{}
+		report := types.BuildReportData(results, false)
 
 		if report.Summary.Total != 0 {
 			t.Errorf("expected Total 0, got %d", report.Summary.Total)
@@ -61,11 +61,11 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), ""),
+			types.NewValidResult(types.NewFileID("b.md"), types.NewLineNumber(2), types.NewBlockIndex(1), ""),
 		}
-		report := buildReportData(results, false)
+		report := types.BuildReportData(results, false)
 
 		if report.Summary.Total != 2 {
 			t.Errorf("expected Total 2, got %d", report.Summary.Total)
@@ -80,11 +80,11 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("with skipped", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: true, Error: nil},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
+		results := []types.Result{
+			types.NewSkippedResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), ""),
+			types.NewValidResult(types.NewFileID("b.md"), types.NewLineNumber(2), types.NewBlockIndex(1), ""),
 		}
-		report := buildReportData(results, false)
+		report := types.BuildReportData(results, false)
 
 		if report.Summary.Total != 2 {
 			t.Errorf("expected Total 2, got %d", report.Summary.Total)
@@ -99,11 +99,11 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("with errors", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: false, Error: &testError{msg: "syntax error"}},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "", &testError{msg: "syntax error"}),
+			types.NewValidResult(types.NewFileID("b.md"), types.NewLineNumber(2), types.NewBlockIndex(1), ""),
 		}
-		report := buildReportData(results, false)
+		report := types.BuildReportData(results, false)
 
 		if report.Summary.Total != 2 {
 			t.Errorf("expected Total 2, got %d", report.Summary.Total)
@@ -124,10 +124,10 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("show code", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "package main", Skipped: false, Error: &testError{msg: "syntax error"}},
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main", &testError{msg: "syntax error"}),
 		}
-		report := buildReportData(results, true)
+		report := types.BuildReportData(results, true)
 
 		if len(report.Errors) != 1 {
 			t.Fatalf("expected 1 error entry, got %d", len(report.Errors))
@@ -139,10 +139,10 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("hide code", func(t *testing.T) {
 		t.Parallel()
-		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "package main", Skipped: false, Error: &testError{msg: "syntax error"}},
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main", &testError{msg: "syntax error"}),
 		}
-		report := buildReportData(results, false)
+		report := types.BuildReportData(results, false)
 
 		if len(report.Errors) != 1 {
 			t.Fatalf("expected 1 error entry, got %d", len(report.Errors))
@@ -151,6 +151,64 @@ func TestBuildReportData(t *testing.T) {
 			t.Errorf("expected empty code, got %q", report.Errors[0].Code)
 		}
 	})
+}
+
+func TestTruncateCode(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		maxLen  uint
+		want    string
+	}{
+		{"empty", "", 50, ""},
+		{"short", "hello", 50, "hello"},
+		{"exact length", "hello", 5, "hello"},
+		{"truncate", "this is a very long code snippet that should be truncated", 20, "this is a very lo..."},
+		{"truncate to short", "hello world", 3, "..."},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := truncateCode(tt.input, tt.maxLen)
+			if got != tt.want {
+				t.Errorf("truncateCode(%q, %d) = %q, want %q", tt.input, tt.maxLen, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestSplitLines(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		input string
+		want  []string
+	}{
+		{"empty", "", []string{}},
+		{"single line", "hello", []string{"hello"}},
+		{"two lines", "hello\nworld", []string{"hello", "world"}},
+		{"three lines", "line1\nline2\nline3", []string{"line1", "line2", "line3"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := splitLines(tt.input)
+			if len(got) != len(tt.want) {
+				t.Errorf("splitLines(%q) len = %d, want %d", tt.input, len(got), len(tt.want))
+				return
+			}
+			for i := range got {
+				if got[i] != tt.want[i] {
+					t.Errorf("splitLines(%q)[%d] = %q, want %q", tt.input, i, got[i], tt.want[i])
+				}
+			}
+		})
+	}
 }
 
 func TestEscapeCSV(t *testing.T) {
