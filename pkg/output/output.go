@@ -96,16 +96,16 @@ func buildReportData(results []mdgovalidator.Result, showCode bool) ReportOutput
 		case r.Skipped:
 			skipped++
 		case r.Error != nil:
+			code := ""
+			if showCode {
+				code = r.Code
+			}
 			entry := ErrorEntry{
 				File:  r.File,
 				Line:  r.LineNumber,
 				Block: r.CodeBlock,
-			}
-			if r.Error != nil {
-				entry.Error = r.Error.Error()
-			}
-			if showCode {
-				entry.Code = r.Code
+				Error: r.Error.Error(),
+				Code:  code,
 			}
 			errorEntries = append(errorEntries, entry)
 		default:

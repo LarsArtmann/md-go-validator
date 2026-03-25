@@ -62,8 +62,8 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
 		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Skipped: false, Error: nil},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Skipped: false, Error: nil},
+			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
+			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
 		}
 		report := buildReportData(results, false)
 
@@ -81,8 +81,8 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("with skipped", func(t *testing.T) {
 		t.Parallel()
 		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Skipped: true, Error: nil},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Skipped: false, Error: nil},
+			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: true, Error: nil},
+			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
 		}
 		report := buildReportData(results, false)
 
@@ -100,8 +100,8 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("with errors", func(t *testing.T) {
 		t.Parallel()
 		results := []mdgovalidator.Result{
-			{File: "a.md", LineNumber: 1, CodeBlock: 1, Skipped: false, Error: &testError{msg: "syntax error"}},
-			{File: "b.md", LineNumber: 2, CodeBlock: 1, Skipped: false, Error: nil},
+			{File: "a.md", LineNumber: 1, CodeBlock: 1, Code: "", Skipped: false, Error: &testError{msg: "syntax error"}},
+			{File: "b.md", LineNumber: 2, CodeBlock: 1, Code: "", Skipped: false, Error: nil},
 		}
 		report := buildReportData(results, false)
 
