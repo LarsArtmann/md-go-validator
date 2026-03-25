@@ -10,22 +10,22 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-// Validator validates Go code blocks in markdown files.
-type Validator struct {
+// FileValidator validates Go code blocks in markdown files.
+type FileValidator struct {
 	fset    *token.FileSet
 	verbose bool
 }
 
-// New creates a new validator.
-func New(verbose bool) *Validator {
-	return &Validator{
+// New creates a new FileValidator.
+func New(verbose bool) *FileValidator {
+	return &FileValidator{
 		fset:    token.NewFileSet(),
 		verbose: verbose,
 	}
 }
 
 // ValidateFile validates a single markdown file.
-func (v *Validator) ValidateFile(filePath string) ([]types.Result, error) {
+func (v *FileValidator) ValidateFile(filePath string) ([]types.Result, error) {
 	cleanPath, err := validateAndCleanPath(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("invalid file path %s: %w", filePath, err)
@@ -51,7 +51,7 @@ func (v *Validator) ValidateFile(filePath string) ([]types.Result, error) {
 	return results, nil
 }
 
-func (v *Validator) validateBlock(filePath string, block types.CodeBlock, index int) types.Result {
+func (v *FileValidator) validateBlock(filePath string, block types.CodeBlock, index int) types.Result {
 	blockIndex := types.NewBlockIndex(index + 1)
 
 	if block.IsSkipped() {
@@ -81,7 +81,7 @@ func (v *Validator) validateBlock(filePath string, block types.CodeBlock, index 
 	)
 }
 
-func (v *Validator) logProgress(i int, block types.CodeBlock, result types.Result) {
+func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.Result) {
 	if !v.verbose {
 		return
 	}
@@ -96,7 +96,7 @@ func (v *Validator) logProgress(i int, block types.CodeBlock, result types.Resul
 }
 
 // ValidateDirectory validates all markdown files in a directory (recursively).
-func (v *Validator) ValidateDirectory(dirPath string) ([]types.Result, error) {
+func (v *FileValidator) ValidateDirectory(dirPath string) ([]types.Result, error) {
 	var allResults []types.Result
 
 	err := filepath.Walk(dirPath, v.walkFunc(&allResults))
@@ -107,7 +107,7 @@ func (v *Validator) ValidateDirectory(dirPath string) ([]types.Result, error) {
 	return allResults, nil
 }
 
-func (v *Validator) walkFunc(results *[]types.Result) filepath.WalkFunc {
+func (v *FileValidator) walkFunc(results *[]types.Result) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -136,7 +136,7 @@ func (v *Validator) walkFunc(results *[]types.Result) filepath.WalkFunc {
 	}
 }
 
-func (v *Validator) handleDirectory(info os.FileInfo) error {
+func (v *FileValidator) handleDirectory(info os.FileInfo) error {
 	name := info.Name()
 	if shouldSkipDir(name) {
 		return filepath.SkipDir

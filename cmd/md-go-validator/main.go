@@ -103,7 +103,7 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func validatePaths(validator *mdgovalidator.Validator, paths []string) []types.Result {
+func validatePaths(validator mdgovalidator.Validator, paths []string) []types.Result {
 	// Pre-allocate with estimated capacity (each path may produce multiple results)
 	allResults := make([]types.Result, 0, len(paths)*10)
 
@@ -115,7 +115,7 @@ func validatePaths(validator *mdgovalidator.Validator, paths []string) []types.R
 	return allResults
 }
 
-func validatePath(validator *mdgovalidator.Validator, path string) []types.Result {
+func validatePath(validator mdgovalidator.Validator, path string) []types.Result {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
