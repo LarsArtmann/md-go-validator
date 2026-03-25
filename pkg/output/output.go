@@ -248,6 +248,9 @@ func splitLines(s string) []string {
 		for j < len(s) && s[j] != '\n' {
 			j++
 		}
+		if i >= len(s) || j > len(s) {
+			break
+		}
 		lines = append(lines, s[i:j])
 		if j < len(s) && s[j] == '\n' {
 			j++
