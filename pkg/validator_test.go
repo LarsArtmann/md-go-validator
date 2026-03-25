@@ -239,12 +239,12 @@ func TestPrintReport(t *testing.T) {
 		t.Parallel()
 		results := []Result{
 			{
-				File: "test.md",
+				File:       "test.md",
 				LineNumber: 1,
-				CodeBlock: 1,
-				Code:      "invalid",
-				Skipped:   false,
-				Error:     &testError{},
+				CodeBlock:  1,
+				Code:       "invalid",
+				Skipped:    false,
+				Error:      &testError{},
 			},
 		}
 		PrintReport(results, true)

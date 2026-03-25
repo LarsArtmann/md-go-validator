@@ -1,9 +1,11 @@
+version: 2
+
 run:
-  timeout: 5m
   tests: true
 output:
   formats:
-    - format: colored-line-number
+    text:
+      path: stdout
 linters:
   enable:
     - gochecknoglobals
@@ -68,9 +70,9 @@ linters:
     - recvcheck
     - thelper
     - ginkgolinter
-linters-settings:
-  golines:
-    max-length: 120
+  settings:
+    golines:
+      max-length: 120
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10

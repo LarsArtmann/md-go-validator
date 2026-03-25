@@ -12,12 +12,12 @@ import (
 type OutputFormat = output.Format
 
 const (
-	FormatTable    = output.FormatTable
-	FormatJSON     = output.FormatJSON
-	FormatMarkdown = output.FormatMarkdown
-	FormatYAML     = output.FormatYAML
-	FormatCSV   = output.FormatCSV
-	FormatQuiet OutputFormat = "quiet"
+	FormatTable                 = output.FormatTable
+	FormatJSON                  = output.FormatJSON
+	FormatMarkdown              = output.FormatMarkdown
+	FormatYAML                  = output.FormatYAML
+	FormatCSV                   = output.FormatCSV
+	FormatQuiet    OutputFormat = "quiet"
 )
 
 const (
@@ -80,11 +80,11 @@ type ReportSummary struct {
 }
 
 type ErrorEntry struct {
-	File       string `json:"file"`
-	Line       int    `json:"line"`
-	Block      int    `json:"block"`
-	Error      string `json:"error"`
-	Code       string `json:"code,omitempty"`
+	File  string `json:"file"`
+	Line  int    `json:"line"`
+	Block int    `json:"block"`
+	Error string `json:"error"`
+	Code  string `json:"code,omitempty"`
 }
 
 func buildReportData(results []mdgovalidator.Result, showCode bool) ReportOutput {
@@ -241,7 +241,8 @@ func printQuiet(results []mdgovalidator.Result) {
 }
 
 // printTable prints results in a formatted table.
-//colorMode is kept for future use with lipgloss styling.
+// colorMode is kept for future use with lipgloss styling.
+//
 //nolint:unparam // colorMode reserved for future color support
 func printTable(results []mdgovalidator.Result, colorMode ColorMode, showCode bool) {
 	report := buildReportData(results, showCode)

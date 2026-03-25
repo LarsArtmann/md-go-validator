@@ -109,6 +109,10 @@ func TestParseArgsPaths(t *testing.T) {
 			}
 
 			for i, p := range cfg.paths {
+				if i >= len(tt.wantPaths) {
+					t.Errorf("paths[%d] = %q, out of bounds (wantPaths has %d elements)", i, p, len(tt.wantPaths))
+					continue
+				}
 				if p != tt.wantPaths[i] {
 					t.Errorf("paths[%d] = %q, want %q", i, p, tt.wantPaths[i])
 				}

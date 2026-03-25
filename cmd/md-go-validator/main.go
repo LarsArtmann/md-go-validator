@@ -17,11 +17,11 @@ import (
 var osExit = os.Exit
 
 type config struct {
-	verbose    bool
-	showCode   bool
-	format     output.OutputFormat
-	colorMode  output.ColorMode
-	paths      []string
+	verbose   bool
+	showCode  bool
+	format    output.OutputFormat
+	colorMode output.ColorMode
+	paths     []string
 }
 
 func main() {

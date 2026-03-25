@@ -48,8 +48,10 @@ func ValidateGoCode(code string) error {
 
 	// All strategies failed - return the original error for reporting
 	_, originalErr := parser.ParseFile(token.NewFileSet(), "snippet.go", code, parser.AllErrors)
-	//nolint:wrapcheck // Parser error returned as-is for user reporting
-	return originalErr
+	if originalErr != nil {
+		return fmt.Errorf("operation on %q failed: %w", code, originalErr)
+	}
+	return nil
 }
 
 // indentCode indents each non-empty line of code with a tab
