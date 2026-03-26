@@ -71,7 +71,7 @@ func (v *FileValidator) validateBlock(filePath string, block types.CodeBlock, in
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			err,
+			fmt.Errorf("validating block %d in %s: %w", index, filePath, err),
 		)
 	}
 
@@ -105,7 +105,7 @@ func (v *FileValidator) ValidateDirectory(ctx context.Context, dirPath string) (
 
 	err := filepath.Walk(dirPath, v.walkFunc(ctx, &allResults))
 	if err != nil {
-		return nil, fmt.Errorf("walking directory %s: %w", dirPath, err)
+		return allResults, fmt.Errorf("walking directory %s (processed %d results): %w", dirPath, len(allResults), err)
 	}
 
 	return allResults, nil

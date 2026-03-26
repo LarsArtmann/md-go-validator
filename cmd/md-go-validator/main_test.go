@@ -3,8 +3,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
@@ -289,6 +291,141 @@ func TestParseArgsColorFlag(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestParseArgsOutputFlag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name           string
+		args           []string
+		wantOutputFile string
+	}{
+		{"short form", []string{"-o", "report.json", "."}, "report.json"},
+		{"long form", []string{"--output", "output/report.yaml", "."}, "output/report.yaml"},
+		{"with path", []string{"-o", "/tmp/report.md", "README.md"}, "/tmp/report.md"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := parseArgs(tt.args)
+			if cfg.outputFile != tt.wantOutputFile {
+				t.Errorf("outputFile = %q, want %q", cfg.outputFile, tt.wantOutputFile)
+			}
+		})
+	}
+}
+
+func TestWriteOutputToFile(t *testing.T) {
+	t.Parallel()
+
+	t.Run("creates parent directories", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		outputPath := filepath.Join(tmpDir, "subdir", "nested", "report.json")
+
+		results := []types.Result{
+			{
+				File:       types.FileID("test.md"),
+				LineNumber: types.LineNumber(1),
+				Block:      types.BlockIndex(1),
+				Status:     types.StatusValid,
+			},
+		}
+
+		cfg := config{
+			format:     output.FormatJSON,
+			colorMode:  output.ColorModeNever,
+			showCode:   true,
+			outputFile: outputPath,
+		}
+
+		err := writeOutputToFile(results, cfg)
+		if err != nil {
+			t.Fatalf("writeOutputToFile failed: %v", err)
+		}
+
+		if _, statErr := os.Stat(outputPath); os.IsNotExist(statErr) {
+			t.Error("output file was not created")
+		}
+	})
+
+	t.Run("writes JSON content", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		outputPath := filepath.Join(tmpDir, "report.json")
+
+		results := []types.Result{
+			{
+				File:       types.FileID("test.md"),
+				LineNumber: types.LineNumber(10),
+				Block:      types.BlockIndex(1),
+				Status:     types.StatusError,
+				Error:      errors.New("syntax error"),
+			},
+		}
+
+		cfg := config{
+			format:     output.FormatJSON,
+			colorMode:  output.ColorModeNever,
+			showCode:   true,
+			outputFile: outputPath,
+		}
+
+		err := writeOutputToFile(results, cfg)
+		if err != nil {
+			t.Fatalf("writeOutputToFile failed: %v", err)
+		}
+
+		content, err := os.ReadFile(outputPath)
+		if err != nil {
+			t.Fatalf("failed to read output file: %v", err)
+		}
+
+		if !strings.Contains(string(content), "test.md") {
+			t.Errorf("output file should contain 'test.md', got: %s", string(content))
+		}
+	})
+
+	t.Run("writes CSV content", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		outputPath := filepath.Join(tmpDir, "report.csv")
+
+		results := []types.Result{
+			{
+				File:       types.FileID("test.md"),
+				LineNumber: types.LineNumber(5),
+				Block:      types.BlockIndex(1),
+				Status:     types.StatusValid,
+			},
+		}
+
+		cfg := config{
+			format:     output.FormatCSV,
+			colorMode:  output.ColorModeNever,
+			showCode:   true,
+			outputFile: outputPath,
+		}
+
+		err := writeOutputToFile(results, cfg)
+		if err != nil {
+			t.Fatalf("writeOutputToFile failed: %v", err)
+		}
+
+		content, err := os.ReadFile(outputPath)
+		if err != nil {
+			t.Fatalf("failed to read output file: %v", err)
+		}
+
+		if !strings.Contains(string(content), "test.md") {
+			t.Errorf("output file should contain 'test.md', got: %s", string(content))
+		}
+	})
 }
 
 func TestValidatePathWithErrors(t *testing.T) {

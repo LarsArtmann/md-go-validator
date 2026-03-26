@@ -19,11 +19,12 @@ import (
 var osExit = os.Exit
 
 type config struct {
-	verbose   bool
-	showCode  bool
-	format    output.OutputFormat
-	colorMode output.ColorMode
-	paths     []string
+	verbose    bool
+	showCode   bool
+	format     output.OutputFormat
+	colorMode  output.ColorMode
+	outputFile string
+	paths      []string
 }
 
 func main() {
@@ -31,7 +32,16 @@ func main() {
 	validator := mdgovalidator.New(cfg.verbose)
 	ctx := context.Background()
 	allResults := validatePaths(validator, ctx, cfg.paths)
-	output.PrintReport(allResults, cfg.format, cfg.colorMode, cfg.showCode)
+
+	if cfg.outputFile != "" {
+		if err := writeOutputToFile(allResults, cfg); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing output file: %v\n", err)
+			osExit(1)
+			return
+		}
+	} else {
+		output.PrintReport(allResults, cfg.format, cfg.colorMode, cfg.showCode)
+	}
 
 	if mdgovalidator.HasErrors(allResults) {
 		osExit(1)
@@ -40,11 +50,12 @@ func main() {
 
 func parseArgs(args []string) config {
 	cfg := config{
-		verbose:   false,
-		showCode:  true,
-		format:    output.FormatTable,
-		colorMode: output.ColorModeAuto,
-		paths:     []string{},
+		verbose:    false,
+		showCode:   true,
+		format:     output.FormatTable,
+		colorMode:  output.ColorModeAuto,
+		outputFile: "",
+		paths:      []string{},
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -85,6 +96,14 @@ func parseArgs(args []string) config {
 				os.Exit(1)
 			}
 			cfg.colorMode = colorMode
+		case "-o", "--output":
+			if i+1 >= len(args) {
+				fmt.Fprintf(os.Stderr, "Error: --output requires an argument\n\n")
+				printUsage()
+				os.Exit(1)
+			}
+			i++
+			cfg.outputFile = args[i]
 		case "-h", "--help":
 			printUsage()
 			os.Exit(0)
@@ -144,6 +163,20 @@ func validatePath(validator mdgovalidator.Validator, ctx context.Context, path s
 	return results
 }
 
+func writeOutputToFile(results []types.Result, cfg config) error {
+	if err := os.MkdirAll(filepath.Dir(cfg.outputFile), 0o755); err != nil {
+		return fmt.Errorf("create parent directories: %w", err)
+	}
+
+	file, err := os.Create(cfg.outputFile)
+	if err != nil {
+		return fmt.Errorf("create output file: %w", err)
+	}
+	defer file.Close()
+
+	return output.PrintReportTo(file, results, cfg.format, cfg.colorMode, cfg.showCode)
+}
+
 func printUsage() {
 	fmt.Println(`md-go-validator - Validate Go code blocks in Markdown files
 
@@ -156,6 +189,7 @@ OPTIONS:
     --no-code        Don't show code snippets in error output
     -f, --format     Output format (table, json, markdown, yaml, csv, quiet)
     --color          Color mode (auto, always, never)
+    -o, --output     Write output to file (creates parent dirs if needed)
     -h, --help       Show this help message
 
 OUTPUT FORMATS:
@@ -181,10 +215,11 @@ SKIP DIRECTIVES:
     //nolint
 
 EXAMPLES:
-    md-go-validator .                    # Validate all .md files
-    md-go-validator README.md            # Validate a specific file
-    md-go-validator -v .                 # Verbose output
-    md-go-validator -f json .            # JSON output for CI
-    md-go-validator -f markdown .         # Markdown table output
-    md-go-validator --color never .      # Disable colors`)
+    md-go-validator .                       # Validate all .md files
+    md-go-validator README.md               # Validate a specific file
+    md-go-validator -v .                    # Verbose output
+    md-go-validator -f json .               # JSON output for CI
+    md-go-validator -f markdown .           # Markdown table output
+    md-go-validator --color never .         # Disable colors
+    md-go-validator -o report.json -f json . # Write JSON to file`)
 }

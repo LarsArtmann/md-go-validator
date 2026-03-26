@@ -141,6 +141,8 @@ func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 	} else {
 		block.MarkValid()
 	}
-	*blocks = append(*blocks, block)
+	if blocks != nil {
+		*blocks = append(*blocks, block)
+	}
 	s.skipNext = false
 }
