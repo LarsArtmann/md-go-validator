@@ -107,7 +107,7 @@ func printJSONTo(w io.Writer, results []types.Result, showCode bool) error {
 	}
 	_, err = fmt.Fprintln(w, string(data))
 	if err != nil {
-		return fmt.Errorf("write JSON output (%d results): %w", len(results), err)
+		return fmt.Errorf("write JSON output (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
 	return nil
 }
@@ -156,7 +156,7 @@ func printYAMLTo(w io.Writer, results []types.Result, showCode bool) error {
 	}
 	_, err = fmt.Fprintln(w, string(data))
 	if err != nil {
-		return fmt.Errorf("write YAML output (%d results): %w", len(results), err)
+		return fmt.Errorf("write YAML output (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
 	return nil
 }
@@ -166,7 +166,7 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 	if err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
 	); err != nil {
-		return fmt.Errorf("write CSV header (%d results): %w", len(results), err)
+		return fmt.Errorf("write CSV header (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
 
 	for _, r := range results {

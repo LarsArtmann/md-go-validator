@@ -79,8 +79,8 @@ func (v *FileValidator) validateBlock(
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			fmt.Errorf("validating block (code=%q, line=%s): %w",
-				codePreview, block.LineNumber, err),
+			fmt.Errorf("validating block (block=%d, file=%s, code=%q, line=%s): %w",
+				index, filePath, codePreview, block.LineNumber, err),
 		)
 	}
 
