@@ -1,6 +1,7 @@
 package mdgovalidator
 
 import (
+	"context"
 	"fmt"
 	"go/token"
 	"os"
@@ -25,7 +26,7 @@ func New(verbose bool) *FileValidator {
 }
 
 // ValidateFile validates a single markdown file.
-func (v *FileValidator) ValidateFile(filePath string) ([]types.Result, error) {
+func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	cleanPath, err := validateAndCleanPath(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("invalid file path %s: %w", filePath, err)
@@ -96,10 +97,10 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 }
 
 // ValidateDirectory validates all markdown files in a directory (recursively).
-func (v *FileValidator) ValidateDirectory(dirPath string) ([]types.Result, error) {
+func (v *FileValidator) ValidateDirectory(ctx context.Context, dirPath string) ([]types.Result, error) {
 	var allResults []types.Result
 
-	err := filepath.Walk(dirPath, v.walkFunc(&allResults))
+	err := filepath.Walk(dirPath, v.walkFunc(ctx, &allResults))
 	if err != nil {
 		return nil, fmt.Errorf("walking directory %s: %w", dirPath, err)
 	}
@@ -107,7 +108,7 @@ func (v *FileValidator) ValidateDirectory(dirPath string) ([]types.Result, error
 	return allResults, nil
 }
 
-func (v *FileValidator) walkFunc(results *[]types.Result) filepath.WalkFunc {
+func (v *FileValidator) walkFunc(ctx context.Context, results *[]types.Result) filepath.WalkFunc {
 	return func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -125,7 +126,7 @@ func (v *FileValidator) walkFunc(results *[]types.Result) filepath.WalkFunc {
 			fmt.Printf("\n📄 Validating: %s\n", path)
 		}
 
-		fileResults, err := v.ValidateFile(path)
+		fileResults, err := v.validateFileWithContext(ctx, path)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error reading %s: %v\n", path, err)
 			return nil
@@ -133,6 +134,15 @@ func (v *FileValidator) walkFunc(results *[]types.Result) filepath.WalkFunc {
 
 		*results = append(*results, fileResults...)
 		return nil
+	}
+}
+
+func (v *FileValidator) validateFileWithContext(ctx context.Context, filePath string) ([]types.Result, error) {
+	select {
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	default:
+		return v.ValidateFile(ctx, filePath)
 	}
 }
 

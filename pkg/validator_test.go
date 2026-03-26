@@ -1,6 +1,7 @@
 package mdgovalidator
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -179,7 +180,8 @@ func main() {
 	}
 
 	v := New(false)
-	results, err := v.ValidateFile(tmpFile)
+	ctx := context.Background()
+	results, err := v.ValidateFile(ctx, tmpFile)
 	if err != nil {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
@@ -192,7 +194,8 @@ func main() {
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {
 	t.Parallel()
 	v := New(false)
-	_, err := v.ValidateFile("/nonexistent/path/file.md")
+	ctx := context.Background()
+	_, err := v.ValidateFile(ctx, "/nonexistent/path/file.md")
 	if err == nil {
 		t.Error("expected error for non-existent file")
 	}
@@ -211,7 +214,8 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	}
 
 	v := New(false)
-	results, err := v.ValidateDirectory(tmpDir)
+	ctx := context.Background()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("ValidateDirectory error: %v", err)
 	}

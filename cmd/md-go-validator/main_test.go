@@ -2,6 +2,7 @@
 package main
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -128,7 +129,7 @@ func TestValidatePath(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, "/nonexistent/path/that/does/not/exist")
+		results := validatePath(validator, context.Background(), "/nonexistent/path/that/does/not/exist")
 
 		if results != nil {
 			t.Errorf("expected nil results for non-existent path, got %v", results)
@@ -147,7 +148,7 @@ func TestValidatePath(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, tmpFile)
+		results := validatePath(validator, context.Background(), tmpFile)
 
 		if len(results) != 1 {
 			t.Errorf("expected 1 result, got %d", len(results))
@@ -172,7 +173,7 @@ func TestValidatePath(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, tmpDir)
+		results := validatePath(validator, context.Background(), tmpDir)
 
 		if len(results) != 1 {
 			t.Errorf("expected 1 result (only .md files), got %d", len(results))
@@ -201,7 +202,7 @@ func TestValidatePaths(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(validator, []string{file1, file2})
+		results := validatePaths(validator, context.Background(), []string{file1, file2})
 
 		if len(results) != 2 {
 			t.Errorf("expected 2 results, got %d", len(results))
@@ -212,7 +213,7 @@ func TestValidatePaths(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(validator, []string{})
+		results := validatePaths(validator, context.Background(), []string{})
 
 		if len(results) != 0 {
 			t.Errorf("expected 0 results for empty paths, got %d", len(results))

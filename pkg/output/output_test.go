@@ -242,3 +242,147 @@ type testError struct {
 }
 
 func (e *testError) Error() string { return e.msg }
+
+func TestContainsSpecialCSV(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name  string
+		input string
+		want  bool
+	}{
+		{"simple", "hello", false},
+		{"with comma", "hello,world", true},
+		{"with newline", "line1\nline2", true},
+		{"with carriage return", "line1\rline2", true},
+		{"empty", "", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := containsSpecialCSV(tt.input)
+			if got != tt.want {
+				t.Errorf("containsSpecialCSV(%q) = %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPrintReport(t *testing.T) {
+	t.Parallel()
+
+	t.Run("JSON format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatJSON, ColorModeNever, false)
+	})
+
+	t.Run("Markdown format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatMarkdown, ColorModeNever, false)
+	})
+
+	t.Run("Markdown format with errors", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "bad code", &testError{msg: "syntax error"}),
+		}
+		PrintReport(results, FormatMarkdown, ColorModeNever, false)
+		PrintReport(results, FormatMarkdown, ColorModeNever, true)
+	})
+
+	t.Run("YAML format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatYAML, ColorModeNever, false)
+	})
+
+	t.Run("CSV format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatCSV, ColorModeNever, false)
+		PrintReport(results, FormatCSV, ColorModeNever, true)
+	})
+
+	t.Run("CSV format with error", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "bad code", &testError{msg: "syntax error"}),
+		}
+		PrintReport(results, FormatCSV, ColorModeNever, true)
+	})
+
+	t.Run("Quiet format with no errors", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatQuiet, ColorModeNever, false)
+	})
+
+	t.Run("Quiet format with errors", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "bad code", &testError{msg: "syntax error"}),
+		}
+		PrintReport(results, FormatQuiet, ColorModeNever, false)
+	})
+
+	t.Run("Table format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+			types.NewSkippedResult(types.NewFileID("b.md"), types.NewLineNumber(2), types.NewBlockIndex(1), "// skip"),
+		}
+		PrintReport(results, FormatTable, ColorModeNever, false)
+	})
+
+	t.Run("Table format with errors", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewErrorResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "bad\ncode", &testError{msg: "syntax error"}),
+		}
+		PrintReport(results, FormatTable, ColorModeNever, false)
+		PrintReport(results, FormatTable, ColorModeNever, true)
+	})
+
+	t.Run("Table format with color", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatTable, ColorModeAlways, false)
+	})
+
+	t.Run("Table format with no errors", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatTable, ColorModeNever, false)
+	})
+
+	t.Run("Table format empty results", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{}
+		PrintReport(results, FormatTable, ColorModeNever, false)
+	})
+
+	t.Run("default format", func(t *testing.T) {
+		t.Parallel()
+		results := []types.Result{
+			types.NewValidResult(types.NewFileID("a.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
+		}
+		PrintReport(results, FormatTable, ColorModeNever, false)
+	})
+}
