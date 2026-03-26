@@ -53,7 +53,11 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 	return results, nil
 }
 
-func (v *FileValidator) validateBlock(filePath string, block types.CodeBlock, index int) types.Result {
+func (v *FileValidator) validateBlock(
+	filePath string,
+	block types.CodeBlock,
+	index int,
+) types.Result {
 	blockIndex := types.NewBlockIndex(index + 1)
 
 	if block.IsSkipped() {
@@ -100,12 +104,20 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 }
 
 // ValidateDirectory validates all markdown files in a directory (recursively).
-func (v *FileValidator) ValidateDirectory(ctx context.Context, dirPath string) ([]types.Result, error) {
+func (v *FileValidator) ValidateDirectory(
+	ctx context.Context,
+	dirPath string,
+) ([]types.Result, error) {
 	var allResults []types.Result
 
 	err := filepath.Walk(dirPath, v.walkFunc(ctx, &allResults))
 	if err != nil {
-		return allResults, fmt.Errorf("walking directory %s (processed %d results): %w", dirPath, len(allResults), err)
+		return allResults, fmt.Errorf(
+			"walking directory %s (processed %d results): %w",
+			dirPath,
+			len(allResults),
+			err,
+		)
 	}
 
 	return allResults, nil
@@ -140,7 +152,10 @@ func (v *FileValidator) walkFunc(ctx context.Context, results *[]types.Result) f
 	}
 }
 
-func (v *FileValidator) validateFileWithContext(ctx context.Context, filePath string) ([]types.Result, error) {
+func (v *FileValidator) validateFileWithContext(
+	ctx context.Context,
+	filePath string,
+) ([]types.Result, error) {
 	select {
 	case <-ctx.Done():
 		return nil, ctx.Err()

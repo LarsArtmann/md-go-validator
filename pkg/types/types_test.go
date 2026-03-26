@@ -32,6 +32,7 @@ func TestFileID(t *testing.T) {
 	})
 }
 
+//nolint:dupl // TestLineNumber and TestBlockIndex test different types with similar structure
 func TestLineNumber(t *testing.T) {
 	t.Parallel()
 
@@ -61,6 +62,14 @@ func TestLineNumber(t *testing.T) {
 			t.Error("expected error for LineNumber == 0")
 		}
 	})
+
+	t.Run("Validate large value", func(t *testing.T) {
+		t.Parallel()
+		ln := NewLineNumber(1000000)
+		if err := ln.Validate(); err != nil {
+			t.Errorf("expected no error for large LineNumber, got %v", err)
+		}
+	})
 }
 
 func TestBlockIndex(t *testing.T) {
@@ -68,12 +77,12 @@ func TestBlockIndex(t *testing.T) {
 
 	t.Run("NewBlockIndex", func(t *testing.T) {
 		t.Parallel()
-		bi := NewBlockIndex(5)
-		if bi.Int() != 5 {
-			t.Errorf("expected 5, got %d", bi.Int())
+		bi := NewBlockIndex(7)
+		if bi.Int() != 7 {
+			t.Errorf("expected 7, got %d", bi.Int())
 		}
-		if bi.String() != "5" {
-			t.Errorf("expected '5', got %q", bi.String())
+		if bi.String() != "7" {
+			t.Errorf("expected '7', got %q", bi.String())
 		}
 	})
 
@@ -90,6 +99,14 @@ func TestBlockIndex(t *testing.T) {
 		bi := NewBlockIndex(0)
 		if err := bi.Validate(); err == nil {
 			t.Error("expected error for BlockIndex == 0")
+		}
+	})
+
+	t.Run("Validate large value", func(t *testing.T) {
+		t.Parallel()
+		bi := NewBlockIndex(500000)
+		if err := bi.Validate(); err != nil {
+			t.Errorf("expected no error for large BlockIndex, got %v", err)
 		}
 	})
 }
@@ -151,7 +168,12 @@ func TestValidationStatus(t *testing.T) {
 				t.Errorf("ParseValidationStatus(%q): expected ok=%v, got %v", tc.input, tc.ok, ok)
 			}
 			if got != tc.expected {
-				t.Errorf("ParseValidationStatus(%q): expected %v, got %v", tc.input, tc.expected, got)
+				t.Errorf(
+					"ParseValidationStatus(%q): expected %v, got %v",
+					tc.input,
+					tc.expected,
+					got,
+				)
 			}
 		}
 	})
@@ -216,7 +238,12 @@ func TestResult(t *testing.T) {
 
 	t.Run("NewValidResult", func(t *testing.T) {
 		t.Parallel()
-		r := NewValidResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "package main")
+		r := NewValidResult(
+			NewFileID("test.md"),
+			NewLineNumber(5),
+			NewBlockIndex(1),
+			"package main",
+		)
 		if r.File != NewFileID("test.md") {
 			t.Errorf("expected FileID test.md, got %v", r.File)
 		}
@@ -236,7 +263,13 @@ func TestResult(t *testing.T) {
 	t.Run("NewErrorResult", func(t *testing.T) {
 		t.Parallel()
 		err := &testError{msg: "syntax error"}
-		r := NewErrorResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "invalid", err)
+		r := NewErrorResult(
+			NewFileID("test.md"),
+			NewLineNumber(5),
+			NewBlockIndex(1),
+			"invalid",
+			err,
+		)
 		if r.Status != StatusError {
 			t.Errorf("expected StatusError, got %v", r.Status)
 		}
@@ -247,7 +280,12 @@ func TestResult(t *testing.T) {
 
 	t.Run("String", func(t *testing.T) {
 		t.Parallel()
-		r := NewValidResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "package main")
+		r := NewValidResult(
+			NewFileID("test.md"),
+			NewLineNumber(5),
+			NewBlockIndex(1),
+			"package main",
+		)
 		s := r.String()
 		if s != "test.md:5 (block #1): valid" {
 			t.Errorf("unexpected string: %q", s)
@@ -256,7 +294,12 @@ func TestResult(t *testing.T) {
 
 	t.Run("Summary", func(t *testing.T) {
 		t.Parallel()
-		r := NewValidResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "package main")
+		r := NewValidResult(
+			NewFileID("test.md"),
+			NewLineNumber(5),
+			NewBlockIndex(1),
+			"package main",
+		)
 		summary := r.Summary()
 		if summary == "" {
 			t.Error("expected non-empty summary")
@@ -296,7 +339,13 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("with errors and show code", func(t *testing.T) {
 		t.Parallel()
 		results := []Result{
-			NewErrorResult(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", &testError{msg: "err"}),
+			NewErrorResult(
+				NewFileID("a.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				&testError{msg: "err"},
+			),
 		}
 		report := BuildReportData(results, true)
 		if len(report.Errors) != 1 {
@@ -310,7 +359,13 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("with errors and hide code", func(t *testing.T) {
 		t.Parallel()
 		results := []Result{
-			NewErrorResult(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", &testError{msg: "err"}),
+			NewErrorResult(
+				NewFileID("a.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				&testError{msg: "err"},
+			),
 		}
 		report := BuildReportData(results, false)
 		if report.Errors[0].Code != "" {
@@ -324,7 +379,10 @@ func TestReportData_HasErrors(t *testing.T) {
 
 	t.Run("has errors", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, Errors: nil}
+		report := ReportData{
+			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
+			Errors:  nil,
+		}
 		if !report.HasErrors() {
 			t.Error("expected HasErrors() to return true")
 		}
@@ -332,7 +390,10 @@ func TestReportData_HasErrors(t *testing.T) {
 
 	t.Run("no errors", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0}, Errors: nil}
+		report := ReportData{
+			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0},
+			Errors:  nil,
+		}
 		if report.HasErrors() {
 			t.Error("expected HasErrors() to return false")
 		}
@@ -344,7 +405,10 @@ func TestReportData_Success(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0}, Errors: nil}
+		report := ReportData{
+			Summary: ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0},
+			Errors:  nil,
+		}
 		if !report.Success() {
 			t.Error("expected Success() to return true")
 		}
@@ -352,7 +416,10 @@ func TestReportData_Success(t *testing.T) {
 
 	t.Run("failure", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, Errors: nil}
+		report := ReportData{
+			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
+			Errors:  nil,
+		}
 		if report.Success() {
 			t.Error("expected Success() to return false")
 		}

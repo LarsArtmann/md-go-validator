@@ -238,8 +238,18 @@ func TestHasErrors(t *testing.T) {
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewValidResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "package main"),
-			types.NewValidResult(types.NewFileID("test.md"), types.NewLineNumber(5), types.NewBlockIndex(2), "package main"),
+			types.NewValidResult(
+				types.NewFileID("test.md"),
+				types.NewLineNumber(1),
+				types.NewBlockIndex(1),
+				"package main",
+			),
+			types.NewValidResult(
+				types.NewFileID("test.md"),
+				types.NewLineNumber(5),
+				types.NewBlockIndex(2),
+				"package main",
+			),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for valid results")
@@ -249,7 +259,12 @@ func TestHasErrors(t *testing.T) {
 	t.Run("skipped doesn't count", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewSkippedResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "skipped"),
+			types.NewSkippedResult(
+				types.NewFileID("test.md"),
+				types.NewLineNumber(1),
+				types.NewBlockIndex(1),
+				"skipped",
+			),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for skipped error")
@@ -259,7 +274,13 @@ func TestHasErrors(t *testing.T) {
 	t.Run("has error", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewErrorResult(types.NewFileID("test.md"), types.NewLineNumber(1), types.NewBlockIndex(1), "invalid", &testError{}),
+			types.NewErrorResult(
+				types.NewFileID("test.md"),
+				types.NewLineNumber(1),
+				types.NewBlockIndex(1),
+				"invalid",
+				&testError{},
+			),
 		}
 		if !HasErrors(results) {
 			t.Error("expected true for error result")

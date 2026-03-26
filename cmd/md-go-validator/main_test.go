@@ -121,7 +121,12 @@ func TestParseArgsPaths(t *testing.T) {
 
 			for i, p := range cfg.paths {
 				if i >= len(tt.wantPaths) {
-					t.Errorf("paths[%d] = %q, out of bounds (wantPaths has %d elements)", i, p, len(tt.wantPaths))
+					t.Errorf(
+						"paths[%d] = %q, out of bounds (wantPaths has %d elements)",
+						i,
+						p,
+						len(tt.wantPaths),
+					)
 					continue
 				}
 				if p != tt.wantPaths[i] {
@@ -139,7 +144,11 @@ func TestValidatePath(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, context.Background(), "/nonexistent/path/that/does/not/exist")
+		results := validatePath(
+			validator,
+			context.Background(),
+			"/nonexistent/path/that/does/not/exist",
+		)
 
 		if results != nil {
 			t.Errorf("expected nil results for non-existent path, got %v", results)
@@ -449,7 +458,10 @@ func (m *mockValidator) ValidateFile(ctx context.Context, path string) ([]types.
 	return nil, nil
 }
 
-func (m *mockValidator) ValidateDirectory(ctx context.Context, path string) ([]types.Result, error) {
+func (m *mockValidator) ValidateDirectory(
+	ctx context.Context,
+	path string,
+) ([]types.Result, error) {
 	return nil, nil
 }
 

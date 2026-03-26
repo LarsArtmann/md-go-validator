@@ -1,6 +1,6 @@
 version: "2"
 run:
-  timeout: ""
+  timeout: 5m
   go: ""
   build-tags: []
   allow-parallel-runners: false
@@ -74,9 +74,6 @@ linters:
     - gosec
     - sqlclosecheck
     - forcetypeassert
-  settings:
-    golines:
-      max-length: 120
 formatters:
   enable:
     - golines

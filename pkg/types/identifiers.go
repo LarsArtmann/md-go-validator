@@ -32,7 +32,11 @@ func (f FileID) Validate() error {
 type LineNumber uint
 
 // NewLineNumber creates a LineNumber from an int.
+// Negative values are converted to 0.
 func NewLineNumber(n int) LineNumber {
+	if n < 0 {
+		return 0
+	}
 	return LineNumber(n)
 }
 
@@ -64,7 +68,11 @@ func (l LineNumber) Validate() error {
 type BlockIndex uint
 
 // NewBlockIndex creates a BlockIndex from an int.
+// Negative values are converted to 0.
 func NewBlockIndex(n int) BlockIndex {
+	if n < 0 {
+		return 0
+	}
 	return BlockIndex(n)
 }
 

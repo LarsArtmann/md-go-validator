@@ -1,4 +1,4 @@
-// Command md-go-validator validates Go code blocks in Markdown files.
+// md-go-validator validates Go code blocks in Markdown files.
 package main
 
 import (
@@ -48,6 +48,25 @@ func main() {
 	}
 }
 
+// argHandler defines a function type for handling an argument.
+type argHandler func(args []string, i int, cfg *config) (int, bool)
+
+// argHandlers maps flag names to their handler functions.
+var argHandlers = map[string]argHandler{
+	"-v":        handleVerbose,
+	"--verbose": handleVerbose,
+	"-q":        handleQuiet,
+	"--quiet":   handleQuiet,
+	"--no-code": handleNoCode,
+	"-f":        handleFormat,
+	"--format":  handleFormat,
+	"--color":   handleColor,
+	"-o":        handleOutput,
+	"--output":  handleOutput,
+	"-h":        handleHelp,
+	"--help":    handleHelp,
+}
+
 func parseArgs(args []string) config {
 	cfg := config{
 		verbose:    false,
@@ -60,61 +79,20 @@ func parseArgs(args []string) config {
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
-		switch arg {
-		case "-v", "--verbose":
-			cfg.verbose = true
-		case "-q", "--quiet":
-			cfg.showCode = false
-			cfg.format = output.FormatQuiet
-		case "--no-code":
-			cfg.showCode = false
-		case "-f", "--format":
-			if i+1 >= len(args) {
-				fmt.Fprintf(os.Stderr, "Error: --format requires an argument\n\n")
-				printUsage()
+		if handler, ok := argHandlers[arg]; ok {
+			advance, ok := handler(args, i, &cfg)
+			if !ok {
 				os.Exit(1)
 			}
-			i++
-			format, err := output.ParseFormat(args[i])
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
-				printUsage()
-				os.Exit(1)
-			}
-			cfg.format = format
-		case "--color":
-			if i+1 >= len(args) {
-				fmt.Fprintf(os.Stderr, "Error: --color requires an argument\n\n")
-				printUsage()
-				os.Exit(1)
-			}
-			i++
-			colorMode, err := output.ParseColorMode(args[i])
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n\n", err)
-				printUsage()
-				os.Exit(1)
-			}
-			cfg.colorMode = colorMode
-		case "-o", "--output":
-			if i+1 >= len(args) {
-				fmt.Fprintf(os.Stderr, "Error: --output requires an argument\n\n")
-				printUsage()
-				os.Exit(1)
-			}
-			i++
-			cfg.outputFile = args[i]
-		case "-h", "--help":
-			printUsage()
-			os.Exit(0)
-		default:
-			if strings.HasPrefix(arg, "-") {
-				fmt.Fprintf(os.Stderr, "Unknown option: %s\n\n", arg)
-				printUsage()
-				os.Exit(1)
-			}
-			cfg.paths = append(cfg.paths, arg)
+			i += advance
+			continue
 		}
+		if strings.HasPrefix(arg, "-") {
+			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", arg)
+			printUsage()
+			os.Exit(1)
+		}
+		cfg.paths = append(cfg.paths, arg)
 	}
 
 	if len(cfg.paths) == 0 {
@@ -124,8 +102,75 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func validatePaths(validator mdgovalidator.Validator, ctx context.Context, paths []string) []types.Result {
-	// Pre-allocate with estimated capacity (each path may produce multiple results)
+func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.verbose = true
+	return 0, true
+}
+
+func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.showCode = false
+	cfg.format = output.FormatQuiet
+	return 0, true
+}
+
+func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.showCode = false
+	return 0, true
+}
+
+func handleFormat(args []string, i int, cfg *config) (int, bool) {
+	if i+1 >= len(args) {
+		fmt.Fprintln(os.Stderr, "Error: --format requires an argument")
+		printUsage()
+		return 0, false
+	}
+	format, err := output.ParseFormat(args[i+1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		printUsage()
+		return 0, false
+	}
+	cfg.format = format
+	return 1, true
+}
+
+func handleColor(args []string, i int, cfg *config) (int, bool) {
+	if i+1 >= len(args) {
+		fmt.Fprintln(os.Stderr, "Error: --color requires an argument")
+		printUsage()
+		return 0, false
+	}
+	colorMode, err := output.ParseColorMode(args[i+1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		printUsage()
+		return 0, false
+	}
+	cfg.colorMode = colorMode
+	return 1, true
+}
+
+func handleOutput(args []string, i int, cfg *config) (int, bool) {
+	if i+1 >= len(args) {
+		fmt.Fprintln(os.Stderr, "Error: --output requires an argument")
+		printUsage()
+		return 0, false
+	}
+	cfg.outputFile = args[i+1]
+	return 1, true
+}
+
+func handleHelp(_ []string, _ int, _ *config) (int, bool) {
+	printUsage()
+	os.Exit(0)
+	return 0, false // exit called, but we need to return something
+}
+
+func validatePaths(
+	validator mdgovalidator.Validator,
+	ctx context.Context,
+	paths []string,
+) []types.Result {
 	allResults := make([]types.Result, 0, len(paths)*10)
 
 	for _, path := range paths {
@@ -136,7 +181,11 @@ func validatePaths(validator mdgovalidator.Validator, ctx context.Context, paths
 	return allResults
 }
 
-func validatePath(validator mdgovalidator.Validator, ctx context.Context, path string) []types.Result {
+func validatePath(
+	validator mdgovalidator.Validator,
+	_ context.Context,
+	path string,
+) []types.Result {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
@@ -150,6 +199,7 @@ func validatePath(validator mdgovalidator.Validator, ctx context.Context, path s
 	}
 
 	var results []types.Result
+	ctx := context.Background()
 	if info.IsDir() {
 		results, err = validator.ValidateDirectory(ctx, absPath)
 	} else {
@@ -164,17 +214,31 @@ func validatePath(validator mdgovalidator.Validator, ctx context.Context, path s
 }
 
 func writeOutputToFile(results []types.Result, cfg config) error {
-	if err := os.MkdirAll(filepath.Dir(cfg.outputFile), 0o755); err != nil {
-		return fmt.Errorf("create parent directories: %w", err)
+	dir := filepath.Dir(cfg.outputFile)
+	if dir != "" && dir != "." {
+		if err := os.MkdirAll(dir, 0o750); err != nil {
+			return fmt.Errorf("create parent directories: %w", err)
+		}
 	}
 
 	file, err := os.Create(cfg.outputFile)
 	if err != nil {
 		return fmt.Errorf("create output file: %w", err)
 	}
+	if err := file.Close(); err != nil {
+		return fmt.Errorf("close output file: %w", err)
+	}
+
+	file, err = os.OpenFile(cfg.outputFile, os.O_WRONLY, 0o644)
+	if err != nil {
+		return fmt.Errorf("open output file for writing: %w", err)
+	}
 	defer file.Close()
 
-	return output.PrintReportTo(file, results, cfg.format, cfg.colorMode, cfg.showCode)
+	if err := output.PrintReportTo(file, results, cfg.format, cfg.colorMode, cfg.showCode); err != nil {
+		return fmt.Errorf("write report: %w", err)
+	}
+	return nil
 }
 
 func printUsage() {
