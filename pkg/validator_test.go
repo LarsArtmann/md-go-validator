@@ -270,3 +270,79 @@ func TestHasErrors(t *testing.T) {
 type testError struct{}
 
 func (e *testError) Error() string { return "test error" }
+
+func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	v := New(false)
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel() // Cancel immediately
+
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	if len(results) != 0 {
+		t.Errorf("expected 0 results for cancelled context, got %d", len(results))
+	}
+}
+
+func TestValidator_ValidateFile_Empty(t *testing.T) {
+	t.Parallel()
+	content := []byte("No code blocks here")
+
+	tmpDir := t.TempDir()
+	tmpFile := filepath.Join(tmpDir, "empty.md")
+	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	v := New(false)
+	ctx := context.Background()
+	results, err := v.ValidateFile(ctx, tmpFile)
+	if err != nil {
+		t.Fatalf("ValidateFile error: %v", err)
+	}
+
+	if len(results) != 0 {
+		t.Errorf("expected 0 results for empty file, got %d", len(results))
+	}
+}
+
+func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+
+	// Create files in various directories
+	subdirs := []string{".hidden", "vendor", "node_modules", "build", "dist", "normal"}
+	for _, dir := range subdirs {
+		dirPath := filepath.Join(tmpDir, dir)
+		if err := os.MkdirAll(dirPath, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(filepath.Join(dirPath, "test.md"), content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	v := New(false)
+	ctx := context.Background()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	// Only normal directory should be processed
+	if len(results) != 1 {
+		t.Errorf("expected 1 result (only normal dir), got %d", len(results))
+	}
+}
