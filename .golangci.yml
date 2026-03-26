@@ -1,85 +1,85 @@
 version: "2"
 run:
-    timeout: ""
-    go: ""
-    build-tags: []
-    allow-parallel-runners: false
-    allow-serial-runners: false
-    tests: true
+  timeout: ""
+  go: ""
+  build-tags: []
+  allow-parallel-runners: false
+  allow-serial-runners: false
+  tests: true
 output:
-    formats:
-        text:
-            path: stdout
+  formats:
+    text:
+      path: stdout
 linters:
-    enable:
-        - gosmopolitan
-        - nilnesserr
-        - spancheck
-        - errorlint
-        - sloglint
-        - nolintlint
-        - testifylint
-        - reassign
-        - thelper
-        - ginkgolinter
-        - contextcheck
-        - gocognit
-        - goconst
-        - unparam
-        - ineffassign
-        - zerologlint
-        - errname
-        - gocyclo
-        - nestif
-        - loggercheck
-        - interfacebloat
-        - cyclop
-        - nilnil
-        - gochecknoinits
-        - funlen
-        - rowserrcheck
-        - maintidx
-        - perfsprint
-        - intrange
-        - predeclared
-        - unused
-        - paralleltest
-        - nilerr
-        - prealloc
-        - errchkjson
-        - unconvert
-        - gocritic
-        - durationcheck
-        - exhaustive
-        - revive
-        - errcheck
-        - gochecksumtype
-        - mirror
-        - misspell
-        - noctx
-        - gochecknoglobals
-        - protogetter
-        - copyloopvar
-        - wastedassign
-        - govet
-        - nakedret
-        - staticcheck
-        - musttag
-        - wrapcheck
-        - dupl
-        - bodyclose
-        - exhaustruct
-        - usetesting
-        - recvcheck
-        - gosec
-        - sqlclosecheck
-        - forcetypeassert
-    settings:
-        golines:
-            max-length: 120
+  enable:
+    - gosmopolitan
+    - nilnesserr
+    - spancheck
+    - errorlint
+    - sloglint
+    - nolintlint
+    - testifylint
+    - reassign
+    - thelper
+    - ginkgolinter
+    - contextcheck
+    - gocognit
+    - goconst
+    - unparam
+    - ineffassign
+    - zerologlint
+    - errname
+    - gocyclo
+    - nestif
+    - loggercheck
+    - interfacebloat
+    - cyclop
+    - nilnil
+    - gochecknoinits
+    - funlen
+    - rowserrcheck
+    - maintidx
+    - perfsprint
+    - intrange
+    - predeclared
+    - unused
+    - paralleltest
+    - nilerr
+    - prealloc
+    - errchkjson
+    - unconvert
+    - gocritic
+    - durationcheck
+    - exhaustive
+    - revive
+    - errcheck
+    - gochecksumtype
+    - mirror
+    - misspell
+    - noctx
+    - gochecknoglobals
+    - protogetter
+    - copyloopvar
+    - wastedassign
+    - govet
+    - nakedret
+    - staticcheck
+    - musttag
+    - wrapcheck
+    - dupl
+    - bodyclose
+    - exhaustruct
+    - usetesting
+    - recvcheck
+    - gosec
+    - sqlclosecheck
+    - forcetypeassert
+  settings:
+    golines:
+      max-length: 120
 formatters:
-    enable:
-        - golines
+  enable:
+    - golines
 issues:
-    max-issues-per-linter: 50
-    max-same-issues: 10
+  max-issues-per-linter: 50
+  max-same-issues: 10
