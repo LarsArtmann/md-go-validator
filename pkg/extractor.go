@@ -23,19 +23,6 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 	}
 }
 
-// SkipDirectives contains markdown directives to skip validation.
-// Deprecated: Use SkipDirectivesConfig and DefaultSkipDirectives() instead.
-//
-//nolint:gochecknoglobals // Configuration list, not mutable state
-var SkipDirectives = []string{
-	"<!-- skip-validate -->",
-	"<!-- skip-md-validate -->",
-	"<!-- md-skip -->",
-	"<!-- no-validate -->",
-	"// skip-validate",
-	"//nolint",
-}
-
 // ExtractGoCodeBlocks extracts Go code blocks from markdown content.
 func ExtractGoCodeBlocks(content string) []types.CodeBlock {
 	var blocks []types.CodeBlock
@@ -76,6 +63,7 @@ func newExtractorState() *extractorState {
 		currentBlock:   strings.Builder{},
 		blockStartLine: 0,
 		skipNext:       false,
+		skipDirectives: DefaultSkipDirectives(),
 	}
 }
 
@@ -109,11 +97,7 @@ func (s *extractorState) processLine(lineNum int, line string, blocks *[]types.C
 }
 
 func (s *extractorState) hasSkipDirective(line string) bool {
-	directives := s.skipDirectives
-	if directives == nil {
-		directives = SkipDirectivesConfig(SkipDirectives)
-	}
-	for _, directive := range directives {
+	for _, directive := range s.skipDirectives {
 		if strings.Contains(line, directive) {
 			return true
 		}

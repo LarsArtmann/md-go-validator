@@ -222,24 +222,24 @@ repos:
 package main
 
 import (
+    "context"
     "fmt"
 
     mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+    "github.com/larsartmann/md-go-validator/pkg/output"
 )
 
 func main() {
     v := mdgovalidator.New(false)
 
     // Validate a single file
-    results, err := v.ValidateFile("README.md")
+    results, err := v.ValidateFile(context.Background(), "README.md")
     if err != nil {
         panic(err)
     }
 
-    // Check for errors
-    if mdgovalidator.HasErrors(results) {
-        mdgovalidator.PrintReport(results, true)
-    }
+    // Print results in various formats
+    output.PrintReport(results, output.FormatTable, output.ColorModeAuto, true)
 }
 ```
 

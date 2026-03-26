@@ -192,42 +192,6 @@ func validateAndCleanPath(path string) (string, error) {
 	return cleanPath, nil
 }
 
-// PrintReport prints a summary report of validation results.
-//
-// Deprecated: Use output.PrintReport from github.com/larsartmann/md-go-validator/pkg/output
-// This function exists only for backward compatibility and will be removed in a future version.
-func PrintReport(results []types.Result, showCode bool) {
-	report := types.BuildReportData(results, showCode)
-
-	fmt.Println("\n" + strings.Repeat("=", 60))
-	fmt.Println("📊 VALIDATION REPORT")
-	fmt.Println(strings.Repeat("=", 60))
-	fmt.Printf("Total code blocks: %d\n", report.Summary.Total)
-	fmt.Printf("✅ Valid: %d\n", report.Summary.Valid)
-	fmt.Printf("⏭️  Skipped: %d\n", report.Summary.Skipped)
-	fmt.Printf("❌ Invalid: %d\n", report.Summary.Errors)
-	fmt.Println(strings.Repeat("=", 60))
-
-	if len(report.Errors) > 0 {
-		fmt.Println("\n" + strings.Repeat("-", 60))
-		fmt.Println("❌ ERRORS FOUND:")
-		fmt.Println(strings.Repeat("-", 60))
-		for _, e := range report.Errors {
-			fmt.Printf("\n📍 %s:%s (block #%s)\n", e.File, e.Line, e.Block)
-			fmt.Printf("   Error: %s\n", e.Error)
-			if showCode && e.Code != "" {
-				fmt.Println("\n   Code:")
-				fmt.Println("   " + strings.Repeat("-", 50))
-				for i, line := range strings.Split(e.Code, "\n") {
-					fmt.Printf("   %3d | %s\n", i+1, line)
-				}
-				fmt.Println("   " + strings.Repeat("-", 50))
-			}
-		}
-	}
-	fmt.Println()
-}
-
 // HasErrors returns true if any results have errors (excluding skipped).
 func HasErrors(results []types.Result) bool {
 	for _, r := range results {
