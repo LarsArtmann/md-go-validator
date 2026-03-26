@@ -70,12 +70,17 @@ func (v *FileValidator) validateBlock(
 	}
 
 	if err := ValidateGoCode(block.Code); err != nil {
+		codePreview := block.Code
+		if len(codePreview) > 30 {
+			codePreview = codePreview[:30] + "..."
+		}
 		return types.NewErrorResult(
 			types.NewFileID(filePath),
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			fmt.Errorf("validating block %d in %s: %w", index, filePath, err),
+			fmt.Errorf("validating block (code=%q, line=%s): %w",
+				codePreview, block.LineNumber, err),
 		)
 	}
 

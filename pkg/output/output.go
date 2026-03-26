@@ -103,11 +103,11 @@ func printJSONTo(w io.Writer, results []types.Result, showCode bool) error {
 	report := types.BuildReportData(results, showCode)
 	data, err := output.MarshalJSONIndent(report, "", "  ")
 	if err != nil {
-		return fmt.Errorf("marshal JSON: %w", err)
+		return fmt.Errorf("marshal JSON (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
 	_, err = fmt.Fprintln(w, string(data))
 	if err != nil {
-		return fmt.Errorf("write JSON output: %w", err)
+		return fmt.Errorf("write JSON output (%d results): %w", len(results), err)
 	}
 	return nil
 }
@@ -152,11 +152,11 @@ func printYAMLTo(w io.Writer, results []types.Result, showCode bool) error {
 	report := types.BuildReportData(results, showCode)
 	data, err := output.MarshalYAML(report)
 	if err != nil {
-		return fmt.Errorf("marshal YAML: %w", err)
+		return fmt.Errorf("marshal YAML (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
 	_, err = fmt.Fprintln(w, string(data))
 	if err != nil {
-		return fmt.Errorf("write YAML output: %w", err)
+		return fmt.Errorf("write YAML output (%d results): %w", len(results), err)
 	}
 	return nil
 }
@@ -166,7 +166,7 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 	if err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
 	); err != nil {
-		return fmt.Errorf("write CSV header: %w", err)
+		return fmt.Errorf("write CSV header (%d results): %w", len(results), err)
 	}
 
 	for _, r := range results {
@@ -185,12 +185,13 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 			errMsg,
 			code,
 		}); err != nil {
-			return fmt.Errorf("write CSV row: %w", err)
+			return fmt.Errorf("write CSV row (file=%s, line=%s, showCode=%t, errMsg=%q): %w",
+				r.File, r.LineNumber, showCode, errMsg, err)
 		}
 	}
 	csvWriter.Flush()
 	if err := csvWriter.Error(); err != nil {
-		return fmt.Errorf("flush CSV: %w", err)
+		return fmt.Errorf("flush CSV (%d rows, showCode=%t): %w", len(results), showCode, err)
 	}
 	return nil
 }
@@ -200,13 +201,15 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 	if report.Summary.Errors > 0 {
 		_, err := fmt.Fprintf(w, "%d errors found\n", report.Summary.Errors)
 		if err != nil {
-			return fmt.Errorf("write quiet output: %w", err)
+			return fmt.Errorf("write quiet output (%d results, %d errors): %w",
+				len(results), report.Summary.Errors, err)
 		}
 		return nil
 	}
 	_, err := fmt.Fprintf(w, "All %d code blocks valid\n", report.Summary.Valid)
 	if err != nil {
-		return fmt.Errorf("write quiet output: %w", err)
+		return fmt.Errorf("write quiet output (%d valid results): %w",
+			len(results), err)
 	}
 	return nil
 }
@@ -221,7 +224,6 @@ func printTableTo(w io.Writer, results []types.Result, colorMode ColorMode, show
 }
 
 func printTableHeaderTo(w io.Writer, summary types.ReportSummary, shouldColor bool) {
-
 	if shouldColor {
 		_, _ = fmt.Fprintln(
 			w,

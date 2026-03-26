@@ -217,26 +217,27 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 	dir := filepath.Dir(cfg.outputFile)
 	if dir != "" && dir != "." {
 		if err := os.MkdirAll(dir, 0o750); err != nil {
-			return fmt.Errorf("create parent directories: %w", err)
+			return fmt.Errorf("create parent directories (%d results): %w", len(results), err)
 		}
 	}
 
 	file, err := os.Create(cfg.outputFile)
 	if err != nil {
-		return fmt.Errorf("create output file: %w", err)
+		return fmt.Errorf("create output file (%d results, path=%s): %w", len(results), cfg.outputFile, err)
 	}
 	if err := file.Close(); err != nil {
-		return fmt.Errorf("close output file: %w", err)
+		return fmt.Errorf("close output file (%d results, path=%s): %w", len(results), cfg.outputFile, err)
 	}
 
 	file, err = os.OpenFile(cfg.outputFile, os.O_WRONLY, 0o644)
 	if err != nil {
-		return fmt.Errorf("open output file for writing: %w", err)
+		return fmt.Errorf("open output file for writing (%d results, path=%s): %w",
+			len(results), cfg.outputFile, err)
 	}
 	defer file.Close()
 
 	if err := output.PrintReportTo(file, results, cfg.format, cfg.colorMode, cfg.showCode); err != nil {
-		return fmt.Errorf("write report: %w", err)
+		return fmt.Errorf("write report (%d results, format=%s): %w", len(results), cfg.format, err)
 	}
 	return nil
 }
