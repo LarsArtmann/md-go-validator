@@ -32,11 +32,19 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 - [x] Add validatePath with mock validator test
 - [x] Add validatePaths capacity test
 - [x] go mod tidy fix
+- [x] **Phase 1.1:** Remove deprecated PrintReport from validator.go
+- [x] **Phase 1.2:** Remove deprecated SkipDirectives global from extractor.go
+- [x] **Phase 1.3:** ValidateFunc ghost system (never existed - only Validator interface)
+- [x] **Phase 2.1:** Simplify splitLines (already uses strings.Split directly)
+- [x] **Phase 2.2:** Leverage go-output CSV (already using CSVWriter)
+- [x] **Phase 2.3:** Fix newExtractorState to use DefaultSkipDirectives()
 
 ### Remaining Issues
 
 - [ ] gosec G304 warning (path traversal) - documented as safe
 - [ ] cmd package coverage could be higher (59.4%)
+- [ ] Phase 2.4: Add custom error types (optional enhancement)
+- [ ] Phase 4: Feature enhancements (--output-file, --fail-on, --exclude/--include)
 
 ---
 
