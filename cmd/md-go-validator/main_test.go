@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -21,6 +22,12 @@ func TestParseArgsDefaults(t *testing.T) {
 	}
 	if !cfg.showCode {
 		t.Error("showCode should be true by default")
+	}
+	if cfg.format != output.FormatTable {
+		t.Errorf("format should be 'table' by default, got %q", cfg.format)
+	}
+	if cfg.colorMode != output.ColorModeAuto {
+		t.Errorf("colorMode should be 'auto' by default, got %q", cfg.colorMode)
 	}
 	if len(cfg.paths) != 1 || cfg.paths[0] != "." {
 		t.Errorf("paths should be ['.'], got %v", cfg.paths)
@@ -233,23 +240,28 @@ func TestParseArgsFormatFlag(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name string
-		args []string
+		name       string
+		args       []string
+		wantFormat output.OutputFormat
 	}{
-		{"json", []string{"-f", "json", "."}},
-		{"table", []string{"--format", "table", "."}},
-		{"markdown", []string{"-f", "markdown", "."}},
-		{"yaml", []string{"--format", "yaml", "."}},
-		{"csv", []string{"-f", "csv", "."}},
+		{"json short", []string{"-f", "json", "."}, output.FormatJSON},
+		{"json long", []string{"--format", "json", "."}, output.FormatJSON},
+		{"table", []string{"-f", "table", "."}, output.FormatTable},
+		{"markdown", []string{"-f", "markdown", "."}, output.FormatMarkdown},
+		{"markdown alias md", []string{"-f", "md", "."}, output.FormatMarkdown},
+		{"yaml", []string{"-f", "yaml", "."}, output.FormatYAML},
+		{"yaml alias yml", []string{"-f", "yml", "."}, output.FormatYAML},
+		{"csv", []string{"-f", "csv", "."}, output.FormatCSV},
+		{"quiet", []string{"-f", "quiet", "."}, output.FormatQuiet},
+		{"quiet alias q", []string{"-f", "q", "."}, output.FormatQuiet},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cfg := parseArgs(tt.args)
-			// Just verify it doesn't panic and returns valid config
-			if cfg.format == "" {
-				t.Error("format should be set")
+			if cfg.format != tt.wantFormat {
+				t.Errorf("format = %q, want %q", cfg.format, tt.wantFormat)
 			}
 		})
 	}
@@ -259,20 +271,22 @@ func TestParseArgsColorFlag(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name string
-		args []string
+		name          string
+		args          []string
+		wantColorMode output.ColorMode
 	}{
-		{"always", []string{"--color", "always", "."}},
-		{"never", []string{"--color", "never", "."}},
-		{"auto", []string{"--color", "auto", "."}},
+		{"always", []string{"--color", "always", "."}, output.ColorModeAlways},
+		{"never", []string{"--color", "never", "."}, output.ColorModeNever},
+		{"auto", []string{"--color", "auto", "."}, output.ColorModeAuto},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 			cfg := parseArgs(tt.args)
-			// Just verify it doesn't panic
-			_ = cfg.colorMode
+			if cfg.colorMode != tt.wantColorMode {
+				t.Errorf("colorMode = %q, want %q", cfg.colorMode, tt.wantColorMode)
+			}
 		})
 	}
 }

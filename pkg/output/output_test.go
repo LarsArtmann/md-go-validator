@@ -43,6 +43,37 @@ func TestParseFormat(t *testing.T) {
 	}
 }
 
+func TestParseColorMode(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		want    ColorMode
+		wantErr bool
+	}{
+		{"auto", "auto", ColorModeAuto, false},
+		{"always", "always", ColorModeAlways, false},
+		{"never", "never", ColorModeNever, false},
+		{"invalid", "invalid", "", true},
+		{"empty", "", "", true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got, err := ParseColorMode(tt.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("ParseColorMode(%q) error = %v, wantErr %v", tt.input, err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("ParseColorMode(%q) = %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestBuildReportData(t *testing.T) {
 	t.Parallel()
 
