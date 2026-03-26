@@ -11,39 +11,30 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 
 ---
 
-## Current State Analysis
+## Current State Analysis (Updated: 2026-03-26)
 
 ### Test Coverage
 
 | Package | Coverage | Status |
 |---------|----------|--------|
 | pkg/types | 91.0% | ✅ Good |
-| pkg/output | 93.3% | ✅ Good |
-| pkg | 69.9% | ⚠️ Needs improvement |
-| cmd | 44.9% | ❌ Low |
+| pkg/output | 92.0% | ✅ Good |
+| pkg | 85.2% | ✅ Good |
+| cmd | 59.4% | ⚠️ Improved |
 
-### Split Brains Identified
+### Completed Tasks
+- [x] Fix SkipDirectives undefined bug in extractor.go
+- [x] Update README.md with new API (context + output package)
+- [x] Add context cancellation tests
+- [x] Add format flag parsing tests
+- [x] Add color flag parsing tests
+- [x] Add validatePath with mock validator test
+- [x] Add validatePaths capacity test
+- [x] go mod tidy fix
 
-| Item | Location | Issue | Priority |
-|------|----------|-------|----------|
-| PrintReport | validator.go:195-229 | Duplicate of output.PrintReport | HIGH |
-| SkipDirectives | extractor.go:26-37 | Global var vs SkipDirectivesConfig | HIGH |
-| ValidateFunc | validator_interface.go | ValidateDirectory returns nil, nil (useless) | MEDIUM |
-| Manual ANSI codes | output/output.go | Should use go-output lipgloss | LOW |
-
-### Ghost Systems
-
-| Item | Issue | Action |
-|------|-------|--------|
-| ValidateFunc type | ValidateDirectory is no-op, no tests use it | REMOVE |
-| splitLines function | Manual impl, strings.Split would work | SIMPLIFY |
-| Manual CSV escaping | go-output has built-in CSV | LEVERAGE |
-
-### Legacy Code (Target: ZERO)
-
-1. `PrintReport` in validator.go - 35 lines
-2. `SkipDirectives` global in extractor.go - 12 lines
-3. `ValidateFunc` in validator_interface.go - entire type
+### Remaining Issues
+- [ ] gosec G304 warning (path traversal) - documented as safe
+- [ ] cmd package coverage could be higher (59.4%)
 
 ---
 
