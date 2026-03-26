@@ -36,6 +36,7 @@ func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string)
 		Block:      block,
 		Code:       code,
 		Status:     StatusValid,
+		Error:      nil,
 	}
 }
 
@@ -47,6 +48,7 @@ func NewSkippedResult(file FileID, line LineNumber, block BlockIndex, code strin
 		Block:      block,
 		Code:       code,
 		Status:     StatusSkipped,
+		Error:      nil,
 	}
 }
 

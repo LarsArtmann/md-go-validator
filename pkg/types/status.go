@@ -15,6 +15,8 @@ const (
 // String returns the string representation of the status.
 func (s ValidationStatus) String() string {
 	switch s {
+	case StatusUnknown:
+		return "unknown"
 	case StatusValid:
 		return "valid"
 	case StatusSkipped:

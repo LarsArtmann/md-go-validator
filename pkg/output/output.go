@@ -125,7 +125,10 @@ func printYAML(results []types.Result, showCode bool) {
 
 func printCSV(results []types.Result, showCode bool) {
 	csvWriter := output.NewCSVWriter(os.Stdout)
-	csvWriter.WriteHeader([]string{"file", "line", "block", "status", "error", "code"})
+	if err := csvWriter.WriteHeader([]string{"file", "line", "block", "status", "error", "code"}); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing CSV header: %v\n", err)
+		return
+	}
 
 	for _, r := range results {
 		var errMsg, code string
@@ -135,14 +138,17 @@ func printCSV(results []types.Result, showCode bool) {
 		if showCode {
 			code = r.Code
 		}
-		csvWriter.WriteRow([]string{
+		if err := csvWriter.WriteRow([]string{
 			r.File.String(),
 			r.LineNumber.String(),
 			r.Block.String(),
 			r.Status.String(),
 			errMsg,
 			code,
-		})
+		}); err != nil {
+			fmt.Fprintf(os.Stderr, "Error writing CSV row: %v\n", err)
+			return
+		}
 	}
 	csvWriter.Flush()
 	if err := csvWriter.Error(); err != nil {

@@ -311,11 +311,18 @@ func TestValidatePathsCapacity(t *testing.T) {
 
 	// Create files with multiple code blocks each
 	tmpDir := t.TempDir()
-	for i := 0; i < 5; i++ {
+	for i := range 5 {
 		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
-		f, _ := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
-		f.Write(content)
-		f.Close()
+		f, err := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
+		if err != nil {
+			t.Fatalf("failed to create test file: %v", err)
+		}
+		if _, err := f.Write(content); err != nil {
+			t.Fatalf("failed to write test file: %v", err)
+		}
+		if err := f.Close(); err != nil {
+			t.Fatalf("failed to close test file: %v", err)
+		}
 	}
 
 	results := validatePaths(validator, ctx, []string{tmpDir})

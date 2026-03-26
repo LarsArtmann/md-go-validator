@@ -324,7 +324,7 @@ func TestReportData_HasErrors(t *testing.T) {
 
 	t.Run("has errors", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Errors: 1}}
+		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, Errors: nil}
 		if !report.HasErrors() {
 			t.Error("expected HasErrors() to return true")
 		}
@@ -332,7 +332,7 @@ func TestReportData_HasErrors(t *testing.T) {
 
 	t.Run("no errors", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Errors: 0}}
+		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0}, Errors: nil}
 		if report.HasErrors() {
 			t.Error("expected HasErrors() to return false")
 		}
@@ -344,7 +344,7 @@ func TestReportData_Success(t *testing.T) {
 
 	t.Run("success", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Errors: 0, Valid: 5, Skipped: 2}}
+		report := ReportData{Summary: ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0}, Errors: nil}
 		if !report.Success() {
 			t.Error("expected Success() to return true")
 		}
@@ -352,7 +352,7 @@ func TestReportData_Success(t *testing.T) {
 
 	t.Run("failure", func(t *testing.T) {
 		t.Parallel()
-		report := ReportData{Summary: ReportSummary{Errors: 1}}
+		report := ReportData{Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, Errors: nil}
 		if report.Success() {
 			t.Error("expected Success() to return false")
 		}

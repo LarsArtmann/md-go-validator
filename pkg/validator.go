@@ -2,6 +2,7 @@ package mdgovalidator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go/token"
 	"os"
@@ -87,12 +88,14 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 		return
 	}
 	switch result.Status {
+	case types.StatusUnknown:
+		fmt.Printf("  ❓ Block %d (line %s): UNKNOWN\n", i+1, block.LineNumber)
+	case types.StatusValid:
+		fmt.Printf("  ✅ Block %d (line %s): OK\n", i+1, block.LineNumber)
 	case types.StatusSkipped:
 		fmt.Printf("  ⏭️  Block %d (line %s): SKIPPED\n", i+1, block.LineNumber)
 	case types.StatusError:
 		fmt.Printf("  ❌ Block %d (line %s): %v\n", i+1, block.LineNumber, result.Error)
-	default:
-		fmt.Printf("  ✅ Block %d (line %s): OK\n", i+1, block.LineNumber)
 	}
 }
 
@@ -172,12 +175,12 @@ func isMarkdownFile(path string) bool {
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.
 func validateAndCleanPath(path string) (string, error) {
 	if path == "" {
-		return "", fmt.Errorf("path cannot be empty")
+		return "", errors.New("path cannot be empty")
 	}
 
 	// Check for null bytes (common attack vector)
 	if strings.Contains(path, "\x00") {
-		return "", fmt.Errorf("path contains null byte")
+		return "", errors.New("path contains null byte")
 	}
 
 	// Clean the path to resolve any ".." or similar path traversal

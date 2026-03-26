@@ -50,6 +50,8 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 
 	for _, r := range results {
 		switch r.Status {
+		case StatusUnknown:
+			// Unknown status - no action needed
 		case StatusValid:
 			valid++
 		case StatusSkipped:
@@ -61,6 +63,7 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 				Line:  r.LineNumber,
 				Block: r.Block,
 				Error: r.Error.Error(),
+				Code:  "",
 			}
 			if showCode {
 				entry.Code = r.Code

@@ -1,7 +1,7 @@
 package types
 
 import (
-	"fmt"
+	"errors"
 	"strconv"
 )
 
@@ -22,7 +22,7 @@ func (f FileID) String() string {
 // Validate checks if the FileID is non-empty.
 func (f FileID) Validate() error {
 	if f == "" {
-		return fmt.Errorf("FileID cannot be empty")
+		return errors.New("FileID cannot be empty")
 	}
 	return nil
 }
@@ -54,7 +54,7 @@ func (l LineNumber) String() string {
 // Validate checks if the LineNumber is valid (>= 1).
 func (l LineNumber) Validate() error {
 	if l == 0 {
-		return fmt.Errorf("LineNumber must be >= 1, got 0")
+		return errors.New("LineNumber must be >= 1, got 0")
 	}
 	return nil
 }
@@ -86,7 +86,7 @@ func (b BlockIndex) String() string {
 // Validate checks if the BlockIndex is valid (>= 1).
 func (b BlockIndex) Validate() error {
 	if b == 0 {
-		return fmt.Errorf("BlockIndex must be >= 1, got 0")
+		return errors.New("BlockIndex must be >= 1, got 0")
 	}
 	return nil
 }
