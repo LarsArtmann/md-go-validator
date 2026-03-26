@@ -1,33 +1,39 @@
 # md-go-validator Comprehensive Improvement Plan
 
 **Created:** 2026-03-26  
-**Status:** Draft
+**Status:** In Progress
 
 ---
 
-## Executive Summary
-
-This plan addresses technical debt, security concerns, and quality improvements for the md-go-validator project.
-
----
-
-## Current State Analysis
+## Current State Analysis (Updated: 2026-03-26)
 
 ### Test Coverage
-| Package | Coverage | Status |
-|---------|----------|--------|
-| `pkg/types` | 91.0% | ✅ Excellent |
-| `pkg/output` | 93.3% | ✅ Excellent |
-| `pkg` | 69.9% | ⚠️ Can Improve |
-| `cmd` | 44.9% | ⚠️ Needs Work |
+| Package | Coverage | Status | Change |
+|---------|----------|--------|--------|
+| `pkg/types` | 91.0% | ✅ Excellent | - |
+| `pkg/output` | 93.3% | ✅ Excellent | - |
+| `pkg` | **85.2%** | ✅ Good | ↑ from 69.9% |
+| `cmd` | 44.9% | ⚠️ Needs Work | - |
+
+### Completed Tasks
+- [x] Commit go mod tidy fix (reproducibility)
+- [x] Remove deprecated PrintReport from validator.go (already removed)
+- [x] Update README.md with new API (context + output package)
+- [x] Fix SkipDirectives undefined bug in extractor.go
+- [x] Add context cancellation tests
+- [x] Add empty file validation test
+- [x] Add skip directories test
+
+### Remaining Issues
+- [ ] gosec G304 warning on `validator.go:39` (path traversal)
+- [ ] cmd package coverage only 44.9%
+- [ ] Stale LSP diagnostics (not affecting build)
 
 ### Issues Identified
 
 1. **Security:** gosec G304 warning on `validator.go:39` (path traversal)
-2. **Technical Debt:** Deprecated `PrintReport` function in `validator.go:189-219`
+2. **Coverage:** cmd package only 44.9%
 3. **Stale Diagnostics:** LSP showing errors that don't exist (build passes)
-4. **Missing Deps:** `go.mod` needed `go mod tidy` to fix missing entries
-5. **Coverage Gaps:** cmd package only 44.9%
 
 ---
 

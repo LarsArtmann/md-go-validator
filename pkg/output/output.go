@@ -3,6 +3,7 @@ package output
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/larsartmann/go-output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
@@ -123,51 +124,30 @@ func printYAML(results []types.Result, showCode bool) {
 }
 
 func printCSV(results []types.Result, showCode bool) {
-	fmt.Println("file,line,block,status,error,code")
+	csvWriter := output.NewCSVWriter(os.Stdout)
+	csvWriter.WriteHeader([]string{"file", "line", "block", "status", "error", "code"})
+
 	for _, r := range results {
-		var status, errMsg, code string
-		status = r.Status.String()
+		var errMsg, code string
 		if r.Error != nil {
 			errMsg = r.Error.Error()
 		}
 		if showCode {
 			code = r.Code
 		}
-		fmt.Printf("%s,%s,%s,%s,%s,%s\n",
-			escapeCSV(r.File.String()),
+		csvWriter.WriteRow([]string{
+			r.File.String(),
 			r.LineNumber.String(),
 			r.Block.String(),
-			status,
-			escapeCSV(errMsg),
-			escapeCSV(code))
+			r.Status.String(),
+			errMsg,
+			code,
+		})
 	}
-}
-
-func escapeCSV(s string) string {
-	if s == "" {
-		return ""
+	csvWriter.Flush()
+	if err := csvWriter.Error(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error writing CSV: %v\n", err)
 	}
-	if len(s) > 0 && (s[0] == '"' || s[len(s)-1] == '"' || containsSpecialCSV(s)) {
-		escaped := ""
-		for _, c := range s {
-			if c == '"' {
-				escaped += "\"\""
-			} else {
-				escaped += string(c)
-			}
-		}
-		return "\"" + escaped + "\""
-	}
-	return s
-}
-
-func containsSpecialCSV(s string) bool {
-	for _, c := range s {
-		if c == ',' || c == '\n' || c == '\r' {
-			return true
-		}
-	}
-	return false
 }
 
 func printQuiet(results []types.Result) {
@@ -232,32 +212,13 @@ func printTableErrors(errors []types.ErrorEntry, showCode, shouldColor bool) {
 		if showCode && e.Code != "" {
 			fmt.Println("\n   Code:")
 			fmt.Println("   " + "------------------------------------------------")
-			for i, line := range splitLines(e.Code) {
+			for i, line := range strings.Split(e.Code, "\n") {
 				fmt.Printf("   %3d | %s\n", i+1, line)
 			}
 			fmt.Println("   " + "------------------------------------------------")
 		}
 	}
 	fmt.Println()
-}
-
-func splitLines(s string) []string {
-	var lines []string
-	for i := 0; i < len(s); {
-		j := i
-		for j < len(s) && s[j] != '\n' {
-			j++
-		}
-		if i >= len(s) || j > len(s) {
-			break
-		}
-		lines = append(lines, s[i:j])
-		if j < len(s) && s[j] == '\n' {
-			j++
-		}
-		i = j
-	}
-	return lines
 }
 
 func truncateCode(code string, maxLen uint) string {

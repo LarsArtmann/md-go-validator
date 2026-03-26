@@ -180,94 +180,11 @@ func TestTruncateCode(t *testing.T) {
 	}
 }
 
-func TestSplitLines(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name  string
-		input string
-		want  []string
-	}{
-		{"empty", "", []string{}},
-		{"single line", "hello", []string{"hello"}},
-		{"two lines", "hello\nworld", []string{"hello", "world"}},
-		{"three lines", "line1\nline2\nline3", []string{"line1", "line2", "line3"}},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := splitLines(tt.input)
-			if len(got) != len(tt.want) {
-				t.Errorf("splitLines(%q) len = %d, want %d", tt.input, len(got), len(tt.want))
-				return
-			}
-			for i := range got {
-				if got[i] != tt.want[i] {
-					t.Errorf("splitLines(%q)[%d] = %q, want %q", tt.input, i, got[i], tt.want[i])
-				}
-			}
-		})
-	}
-}
-
-func TestEscapeCSV(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name  string
-		input string
-		want  string
-	}{
-		{"simple", "hello", "hello"},
-		{"with comma", "hello,world", "\"hello,world\""},
-		{"with quote", `say "hello"`, `"say ""hello"""`},
-		{"with newline", "line1\nline2", "\"line1\nline2\""},
-		{"empty", "", ""},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := escapeCSV(tt.input)
-			if got != tt.want {
-				t.Errorf("escapeCSV(%q) = %q, want %q", tt.input, got, tt.want)
-			}
-		})
-	}
-}
-
 type testError struct {
 	msg string
 }
 
 func (e *testError) Error() string { return e.msg }
-
-func TestContainsSpecialCSV(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name  string
-		input string
-		want  bool
-	}{
-		{"simple", "hello", false},
-		{"with comma", "hello,world", true},
-		{"with newline", "line1\nline2", true},
-		{"with carriage return", "line1\rline2", true},
-		{"empty", "", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := containsSpecialCSV(tt.input)
-			if got != tt.want {
-				t.Errorf("containsSpecialCSV(%q) = %v, want %v", tt.input, got, tt.want)
-			}
-		})
-	}
-}
 
 func TestPrintReport(t *testing.T) {
 	t.Parallel()

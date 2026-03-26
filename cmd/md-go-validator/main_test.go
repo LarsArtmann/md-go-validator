@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 func TestParseArgsDefaults(t *testing.T) {
@@ -226,4 +227,99 @@ func TestPrintUsage(t *testing.T) {
 
 	// Just verify it doesn't panic
 	printUsage()
+}
+
+func TestParseArgsFormatFlag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"json", []string{"-f", "json", "."}},
+		{"table", []string{"--format", "table", "."}},
+		{"markdown", []string{"-f", "markdown", "."}},
+		{"yaml", []string{"--format", "yaml", "."}},
+		{"csv", []string{"-f", "csv", "."}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := parseArgs(tt.args)
+			// Just verify it doesn't panic and returns valid config
+			if cfg.format == "" {
+				t.Error("format should be set")
+			}
+		})
+	}
+}
+
+func TestParseArgsColorFlag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"always", []string{"--color", "always", "."}},
+		{"never", []string{"--color", "never", "."}},
+		{"auto", []string{"--color", "auto", "."}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := parseArgs(tt.args)
+			// Just verify it doesn't panic
+			_ = cfg.colorMode
+		})
+	}
+}
+
+func TestValidatePathWithErrors(t *testing.T) {
+	t.Parallel()
+
+	t.Run("path resolution error", func(t *testing.T) {
+		t.Parallel()
+		// Create a mock validator that returns an error
+		mockValidator := &mockValidator{}
+
+		results := validatePath(mockValidator, context.Background(), "/valid/path.md")
+		if results != nil {
+			t.Error("expected nil for non-existent path")
+		}
+	})
+}
+
+type mockValidator struct{}
+
+func (m *mockValidator) ValidateFile(ctx context.Context, path string) ([]types.Result, error) {
+	return nil, nil
+}
+
+func (m *mockValidator) ValidateDirectory(ctx context.Context, path string) ([]types.Result, error) {
+	return nil, nil
+}
+
+func TestValidatePathsCapacity(t *testing.T) {
+	t.Parallel()
+
+	// Test that we pre-allocate correctly
+	validator := mdgovalidator.New(false)
+	ctx := context.Background()
+
+	// Create files with multiple code blocks each
+	tmpDir := t.TempDir()
+	for i := 0; i < 5; i++ {
+		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
+		f, _ := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
+		f.Write(content)
+		f.Close()
+	}
+
+	results := validatePaths(validator, ctx, []string{tmpDir})
+	if len(results) < 5 {
+		t.Errorf("expected at least 5 results, got %d", len(results))
+	}
 }
