@@ -15,14 +15,15 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 
 ### Test Coverage
 
-| Package | Coverage | Status |
-|---------|----------|--------|
-| pkg/types | 91.0% | ✅ Good |
-| pkg/output | 92.0% | ✅ Good |
-| pkg | 85.2% | ✅ Good |
-| cmd | 59.4% | ⚠️ Improved |
+| Package    | Coverage | Status      |
+| ---------- | -------- | ----------- |
+| pkg/types  | 91.0%    | ✅ Good     |
+| pkg/output | 92.0%    | ✅ Good     |
+| pkg        | 85.2%    | ✅ Good     |
+| cmd        | 59.4%    | ⚠️ Improved |
 
 ### Completed Tasks
+
 - [x] Fix SkipDirectives undefined bug in extractor.go
 - [x] Update README.md with new API (context + output package)
 - [x] Add context cancellation tests
@@ -33,6 +34,7 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 - [x] go mod tidy fix
 
 ### Remaining Issues
+
 - [ ] gosec G304 warning (path traversal) - documented as safe
 - [ ] cmd package coverage could be higher (59.4%)
 
@@ -42,37 +44,37 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 
 ### Phase 1: Remove Legacy Code (Impact: HIGH, Effort: LOW)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 1.1 | Remove deprecated PrintReport from validator.go | 10 min | High | P0 |
-| 1.2 | Remove deprecated SkipDirectives global from extractor.go | 10 min | High | P0 |
-| 1.3 | Remove ValidateFunc type (ghost system) | 10 min | Medium | P1 |
+| #   | Task                                                      | Effort | Impact | Priority |
+| --- | --------------------------------------------------------- | ------ | ------ | -------- |
+| 1.1 | Remove deprecated PrintReport from validator.go           | 10 min | High   | P0       |
+| 1.2 | Remove deprecated SkipDirectives global from extractor.go | 10 min | High   | P0       |
+| 1.3 | Remove ValidateFunc type (ghost system)                   | 10 min | Medium | P1       |
 
 ### Phase 2: Clean Architecture (Impact: HIGH, Effort: MEDIUM)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 2.1 | Simplify splitLines to use strings.Split | 5 min | Low | P2 |
-| 2.2 | Leverage go-output's CSV formatting | 20 min | Medium | P1 |
-| 2.3 | Fix newExtractorState to use SkipDirectivesConfig | 10 min | Medium | P1 |
-| 2.4 | Add custom error types for validation | 30 min | High | P2 |
+| #   | Task                                              | Effort | Impact | Priority |
+| --- | ------------------------------------------------- | ------ | ------ | -------- |
+| 2.1 | Simplify splitLines to use strings.Split          | 5 min  | Low    | P2       |
+| 2.2 | Leverage go-output's CSV formatting               | 20 min | Medium | P1       |
+| 2.3 | Fix newExtractorState to use SkipDirectivesConfig | 10 min | Medium | P1       |
+| 2.4 | Add custom error types for validation             | 30 min | High   | P2       |
 
 ### Phase 3: Improve Test Coverage (Impact: MEDIUM, Effort: MEDIUM)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 3.1 | Add CLI integration tests for --format flag | 30 min | High | P1 |
-| 3.2 | Add CLI integration tests for --color flag | 20 min | Medium | P2 |
-| 3.3 | Add Validator interface tests | 30 min | Medium | P2 |
-| 3.4 | Add parser multi-strategy tests | 30 min | Medium | P2 |
+| #   | Task                                        | Effort | Impact | Priority |
+| --- | ------------------------------------------- | ------ | ------ | -------- |
+| 3.1 | Add CLI integration tests for --format flag | 30 min | High   | P1       |
+| 3.2 | Add CLI integration tests for --color flag  | 20 min | Medium | P2       |
+| 3.3 | Add Validator interface tests               | 30 min | Medium | P2       |
+| 3.4 | Add parser multi-strategy tests             | 30 min | Medium | P2       |
 
 ### Phase 4: Enhance Functionality (Impact: MEDIUM, Effort: MEDIUM)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 4.1 | Add --output-file flag for CI/CD | 40 min | High | P1 |
-| 4.2 | Add --fail-on flag (error, warning) | 30 min | Medium | P2 |
-| 4.3 | Add --exclude/--include glob patterns | 60 min | Medium | P2 |
+| #   | Task                                  | Effort | Impact | Priority |
+| --- | ------------------------------------- | ------ | ------ | -------- |
+| 4.1 | Add --output-file flag for CI/CD      | 40 min | High   | P1       |
+| 4.2 | Add --fail-on flag (error, warning)   | 30 min | Medium | P2       |
+| 4.3 | Add --exclude/--include glob patterns | 60 min | Medium | P2       |
 
 ---
 
@@ -220,22 +222,22 @@ graph TD
 
 ## Priority Matrix
 
-| Priority | Task | Work | Impact | Value |
-|----------|------|------|--------|-------|
-| P0 | 1.1 Remove PrintReport | 10 min | High | 6x |
-| P0 | 1.2 Remove SkipDirectives | 10 min | High | 6x |
-| P1 | 1.3 Remove ValidateFunc | 10 min | Medium | 3x |
-| P1 | 2.2 Leverage go-output CSV | 20 min | Medium | 2x |
-| P1 | 2.3 Fix newExtractorState | 10 min | Medium | 3x |
-| P1 | 3.1 CLI format tests | 30 min | High | 2x |
-| P2 | 2.1 Simplify splitLines | 5 min | Low | 1x |
-| P2 | 2.4 Custom error types | 30 min | High | 2x |
-| P2 | 3.2 CLI color tests | 20 min | Medium | 1.5x |
-| P2 | 3.3 Validator interface tests | 30 min | Medium | 1.5x |
-| P2 | 3.4 Parser strategy tests | 30 min | Medium | 1.5x |
-| P2 | 4.2 --fail-on flag | 30 min | Medium | 2x |
-| P3 | 4.1 --output-file flag | 40 min | High | 1.5x |
-| P3 | 4.3 --exclude/--include | 60 min | Medium | 1x |
+| Priority | Task                          | Work   | Impact | Value |
+| -------- | ----------------------------- | ------ | ------ | ----- |
+| P0       | 1.1 Remove PrintReport        | 10 min | High   | 6x    |
+| P0       | 1.2 Remove SkipDirectives     | 10 min | High   | 6x    |
+| P1       | 1.3 Remove ValidateFunc       | 10 min | Medium | 3x    |
+| P1       | 2.2 Leverage go-output CSV    | 20 min | Medium | 2x    |
+| P1       | 2.3 Fix newExtractorState     | 10 min | Medium | 3x    |
+| P1       | 3.1 CLI format tests          | 30 min | High   | 2x    |
+| P2       | 2.1 Simplify splitLines       | 5 min  | Low    | 1x    |
+| P2       | 2.4 Custom error types        | 30 min | High   | 2x    |
+| P2       | 3.2 CLI color tests           | 20 min | Medium | 1.5x  |
+| P2       | 3.3 Validator interface tests | 30 min | Medium | 1.5x  |
+| P2       | 3.4 Parser strategy tests     | 30 min | Medium | 1.5x  |
+| P2       | 4.2 --fail-on flag            | 30 min | Medium | 2x    |
+| P3       | 4.1 --output-file flag        | 40 min | High   | 1.5x  |
+| P3       | 4.3 --exclude/--include       | 60 min | Medium | 1x    |
 
 ---
 

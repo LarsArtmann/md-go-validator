@@ -32,14 +32,14 @@ pkg/
 
 ### Type Safety Achieved
 
-| Type | Implementation | Status |
-|------|----------------|--------|
-| `FileID` | Branded `string` | ✅ Implemented |
-| `LineNumber` | Branded `uint` | ✅ Implemented |
-| `BlockIndex` | Branded `uint` | ✅ Implemented |
-| `ValidationStatus` | `uint` enum | ✅ Implemented |
-| `OutputFormat` | Type alias of `output.Format` | ✅ Implemented |
-| `ColorMode` | Type alias of `output.ColorMode` | ✅ Implemented |
+| Type               | Implementation                   | Status         |
+| ------------------ | -------------------------------- | -------------- |
+| `FileID`           | Branded `string`                 | ✅ Implemented |
+| `LineNumber`       | Branded `uint`                   | ✅ Implemented |
+| `BlockIndex`       | Branded `uint`                   | ✅ Implemented |
+| `ValidationStatus` | `uint` enum                      | ✅ Implemented |
+| `OutputFormat`     | Type alias of `output.Format`    | ✅ Implemented |
+| `ColorMode`        | Type alias of `output.ColorMode` | ✅ Implemented |
 
 ---
 
@@ -60,35 +60,39 @@ pkg/
 
 ### Output Formats Available
 
-| Format | Use Case | Example |
-|--------|----------|---------|
-| `table` | Terminal (default) | Human-readable with colors |
-| `json` | CI/CD pipelines | Machine-parseable |
-| `markdown` | Documentation | Markdown tables |
-| `yaml` | Configuration | YAML output |
-| `csv` | Data analysis | Spreadsheet import |
-| `quiet` | Scripts | Minimal output |
+| Format     | Use Case           | Example                    |
+| ---------- | ------------------ | -------------------------- |
+| `table`    | Terminal (default) | Human-readable with colors |
+| `json`     | CI/CD pipelines    | Machine-parseable          |
+| `markdown` | Documentation      | Markdown tables            |
+| `yaml`     | Configuration      | YAML output                |
+| `csv`      | Data analysis      | Spreadsheet import         |
+| `quiet`    | Scripts            | Minimal output             |
 
 ---
 
 ## Improvements Made
 
 ### 1. Split-Brain Fix
+
 - Deprecated `mdgovalidator.PrintReport()` with clear migration path
 - Single `output.PrintReport()` as the canonical implementation
 - Both exist for backward compatibility
 
 ### 2. Type Safety
+
 - Replaced duplicate types with `types` package usage
 - `ReportOutput`, `ErrorEntry` now come from `types.ReportData`
 - `buildReportData` replaced with `types.BuildReportData`
 
 ### 3. Color Implementation
+
 - Actual ANSI color codes in table output
 - Respects `ColorMode` enum (auto/always/never)
 - Uses `output.ColorMode.ShouldColor()` for detection
 
 ### 4. CSV Writer
+
 - Now uses `go-output`'s `CSVWriter` properly
 - Correct header handling
 - Error checking on write operations
@@ -97,27 +101,31 @@ pkg/
 
 ## Test Coverage
 
-| Package | Coverage | Notes |
-|---------|----------|-------|
-| `pkg/types` | 91.0% | Excellent - core domain types |
-| `pkg` | 71.3% | Good - validation logic |
-| `pkg/output` | 28.6% | Needs improvement |
-| `cmd/md-go-validator` | 45.6% | CLI tests needed |
+| Package               | Coverage | Notes                         |
+| --------------------- | -------- | ----------------------------- |
+| `pkg/types`           | 91.0%    | Excellent - core domain types |
+| `pkg`                 | 71.3%    | Good - validation logic       |
+| `pkg/output`          | 28.6%    | Needs improvement             |
+| `cmd/md-go-validator` | 45.6%    | CLI tests needed              |
 
 ---
 
 ## Known Issues
 
 ### 1. golangci-lint Configuration
+
 ```
 Error: unsupported version of the configuration: ""
 ```
+
 **Status:** External tool issue, not code-related
 
 ### 2. Test Coverage on output Package
+
 **Status:** 28.6% - Needs more BDD-style tests
 
 ### 3. No BDD Tests
+
 **Status:** Not implemented yet
 
 ---
@@ -166,13 +174,17 @@ Error: unsupported version of the configuration: ""
 ## What Was Forgotten/Missed
 
 ### 1. Tests for New CLI Flags
+
 The `--format` and `--color` flags don't have dedicated tests in `main_test.go`.
 
 ### 2. No BDD Tests
+
 The project lacks behavior-driven tests which would improve confidence in output correctness.
 
 ### 3. Split Output Package
+
 `output.go` is 271 lines - should be split into:
+
 - `format.go` - Format parsing
 - `json.go` - JSON formatter
 - `yaml.go` - YAML formatter
@@ -180,9 +192,11 @@ The project lacks behavior-driven tests which would improve confidence in output
 - `table.go` - Table formatter
 
 ### 4. No `--output-file`
+
 Can't redirect output to a file directly from CLI.
 
 ### 5. Error Handling in Output Formatters
+
 Some formatters don't handle errors comprehensively.
 
 ---
@@ -262,13 +276,13 @@ The integration of `go-output` provides:
 
 ## Files Changed
 
-| File | Change Type | Lines |
-|------|-------------|-------|
-| `go.mod` | Modified | +3 |
-| `pkg/output/output.go` | Created | 271 |
-| `pkg/output/output_test.go` | Created | 195 |
-| `pkg/validator.go` | Modified | +10 |
-| `cmd/md-go-validator/main.go` | Modified | +55 |
+| File                          | Change Type | Lines |
+| ----------------------------- | ----------- | ----- |
+| `go.mod`                      | Modified    | +3    |
+| `pkg/output/output.go`        | Created     | 271   |
+| `pkg/output/output_test.go`   | Created     | 195   |
+| `pkg/validator.go`            | Modified    | +10   |
+| `cmd/md-go-validator/main.go` | Modified    | +55   |
 
 ---
 

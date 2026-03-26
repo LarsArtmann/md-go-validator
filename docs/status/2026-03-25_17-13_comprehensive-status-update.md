@@ -14,18 +14,18 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 
 ## Current Status Matrix
 
-| Component | Status | Details |
-|-----------|--------|---------|
-| **go-output Integration** | ✅ FULLY DONE | JSON, YAML, Markdown, CSV, Table, Quiet formats |
-| **Type Safety** | ✅ FULLY DONE | Branded types, ValidationStatus enum |
-| **Output Package** | ✅ FULLY DONE | 271 lines, clean architecture |
-| **CLI Flags** | ✅ FULLY DONE | `-f/--format`, `--color` |
-| **Split-Brain Fix** | ✅ FULLY DONE | Deprecated old PrintReport |
-| **Core Validation** | ✅ FULLY DONE | Works correctly |
-| **Test Coverage** | ⚠️ PARTIALLY DONE | 71-91% core, 28% output |
-| **BDD Tests** | ❌ NOT STARTED | No ginkgo/testify |
-| **Linting** | ❌ TOTALLY FUCKED UP | golangci-lint config broken |
-| **Documentation** | ✅ FULLY DONE | Status reports, README |
+| Component                 | Status               | Details                                         |
+| ------------------------- | -------------------- | ----------------------------------------------- |
+| **go-output Integration** | ✅ FULLY DONE        | JSON, YAML, Markdown, CSV, Table, Quiet formats |
+| **Type Safety**           | ✅ FULLY DONE        | Branded types, ValidationStatus enum            |
+| **Output Package**        | ✅ FULLY DONE        | 271 lines, clean architecture                   |
+| **CLI Flags**             | ✅ FULLY DONE        | `-f/--format`, `--color`                        |
+| **Split-Brain Fix**       | ✅ FULLY DONE        | Deprecated old PrintReport                      |
+| **Core Validation**       | ✅ FULLY DONE        | Works correctly                                 |
+| **Test Coverage**         | ⚠️ PARTIALLY DONE    | 71-91% core, 28% output                         |
+| **BDD Tests**             | ❌ NOT STARTED       | No ginkgo/testify                               |
+| **Linting**               | ❌ TOTALLY FUCKED UP | golangci-lint config broken                     |
+| **Documentation**         | ✅ FULLY DONE        | Status reports, README                          |
 
 ---
 
@@ -34,10 +34,12 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 ### 1. go-output Integration (✅ DONE)
 
 **Files Created:**
+
 - `pkg/output/output.go` - 271 lines
 - `pkg/output/output_test.go` - 195 lines
 
 **Features:**
+
 - Multi-format output (table, json, markdown, yaml, csv, quiet)
 - Color mode support (auto, always, never)
 - Type-safe format parsing
@@ -46,6 +48,7 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 ### 2. Type Safety Package (✅ DONE)
 
 **Files Created:**
+
 - `pkg/types/code_block.go` - CodeBlock with ValidationStatus
 - `pkg/types/identifiers.go` - FileID, LineNumber, BlockIndex branded types
 - `pkg/types/result.go` - Result type with factory constructors
@@ -55,6 +58,7 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 - `pkg/types/types_test.go` - 368 lines of tests
 
 **Branded Types:**
+
 ```go
 type FileID string        // Prevents mixing file paths with other strings
 type LineNumber uint       // Natural alignment (lines start at 1)
@@ -65,10 +69,12 @@ type ValidationStatus uint // Enum: Unknown, Valid, Skipped, Error
 ### 3. CLI Enhancements (✅ DONE)
 
 **New Flags:**
+
 - `-f, --format` - Output format (table, json, markdown, yaml, csv, quiet)
 - `--color` - Color mode (auto, always, never)
 
 **Backward Compatibility:**
+
 - Old `PrintReport()` deprecated with clear migration path
 - `-q` still works for quiet mode
 - Default behavior unchanged
@@ -198,48 +204,48 @@ type ValidationStatus uint // Enum: Unknown, Valid, Skipped, Error
 
 ### Immediate (Today)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 1 | Fix golangci-lint config | Low | High | 🔴 Critical |
-| 2 | Add `--format` CLI tests | Low | Medium | 🟡 High |
-| 3 | Add `--color` CLI tests | Low | Medium | 🟡 High |
-| 4 | Improve output test coverage | Medium | High | 🟡 High |
+| #   | Task                         | Effort | Impact | Priority    |
+| --- | ---------------------------- | ------ | ------ | ----------- |
+| 1   | Fix golangci-lint config     | Low    | High   | 🔴 Critical |
+| 2   | Add `--format` CLI tests     | Low    | Medium | 🟡 High     |
+| 3   | Add `--color` CLI tests      | Low    | Medium | 🟡 High     |
+| 4   | Improve output test coverage | Medium | High   | 🟡 High     |
 
 ### This Week
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 5 | Add BDD tests | Medium | High | 🟡 High |
-| 6 | Add `--output-file` | Low | High | 🟡 High |
-| 7 | Add `--fail-on` | Low | High | 🟡 High |
-| 8 | Add `--exclude`/`--include` | Medium | High | 🟡 High |
-| 9 | Split output.go | Medium | Medium | 🟢 Medium |
-| 10 | Add config file support | Medium | High | 🟡 High |
+| #   | Task                        | Effort | Impact | Priority  |
+| --- | --------------------------- | ------ | ------ | --------- |
+| 5   | Add BDD tests               | Medium | High   | 🟡 High   |
+| 6   | Add `--output-file`         | Low    | High   | 🟡 High   |
+| 7   | Add `--fail-on`             | Low    | High   | 🟡 High   |
+| 8   | Add `--exclude`/`--include` | Medium | High   | 🟡 High   |
+| 9   | Split output.go             | Medium | Medium | 🟢 Medium |
+| 10  | Add config file support     | Medium | High   | 🟡 High   |
 
 ### This Month
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 11 | Add JSON Schema validation | Medium | Medium | 🟢 Medium |
-| 12 | Add GitHub annotations | Medium | High | 🟡 High |
-| 13 | Add Checkstyle format | Medium | Medium | 🟢 Medium |
-| 14 | Add JUnit XML format | Medium | Medium | 🟢 Medium |
-| 15 | Add SARIF format | Medium | Medium | 🟢 Medium |
-| 16 | Add `--watch` mode | High | High | 🟡 High |
-| 17 | Add `--diff` output | Medium | Medium | 🟢 Medium |
-| 18 | Add `--severity` flag | Low | Medium | 🟢 Medium |
-| 19 | Improve error messages | Medium | Medium | 🟢 Medium |
-| 20 | Add `--cache` mode | High | High | 🟡 High |
+| #   | Task                       | Effort | Impact | Priority  |
+| --- | -------------------------- | ------ | ------ | --------- |
+| 11  | Add JSON Schema validation | Medium | Medium | 🟢 Medium |
+| 12  | Add GitHub annotations     | Medium | High   | 🟡 High   |
+| 13  | Add Checkstyle format      | Medium | Medium | 🟢 Medium |
+| 14  | Add JUnit XML format       | Medium | Medium | 🟢 Medium |
+| 15  | Add SARIF format           | Medium | Medium | 🟢 Medium |
+| 16  | Add `--watch` mode         | High   | High   | 🟡 High   |
+| 17  | Add `--diff` output        | Medium | Medium | 🟢 Medium |
+| 18  | Add `--severity` flag      | Low    | Medium | 🟢 Medium |
+| 19  | Improve error messages     | Medium | Medium | 🟢 Medium |
+| 20  | Add `--cache` mode         | High   | High   | 🟡 High   |
 
 ### Future (Roadmap)
 
-| # | Task | Effort | Impact | Priority |
-|---|------|--------|--------|----------|
-| 21 | Add `--autofix` mode | High | High | 🔵 Low |
-| 22 | Add LSP server | Very High | High | 🔵 Low |
-| 23 | Add VSCode extension | Very High | Medium | 🔵 Low |
-| 24 | Add `--interactive` mode | High | Medium | 🔵 Low |
-| 25 | Add Web UI | Very High | Medium | 🔵 Low |
+| #   | Task                     | Effort    | Impact | Priority |
+| --- | ------------------------ | --------- | ------ | -------- |
+| 21  | Add `--autofix` mode     | High      | High   | 🔵 Low   |
+| 22  | Add LSP server           | Very High | High   | 🔵 Low   |
+| 23  | Add VSCode extension     | Very High | Medium | 🔵 Low   |
+| 24  | Add `--interactive` mode | High      | Medium | 🔵 Low   |
+| 25  | Add Web UI               | Very High | Medium | 🔵 Low   |
 
 ---
 
@@ -292,18 +298,21 @@ type ValidationStatus uint // Enum: Unknown, Valid, Skipped, Error
 ### Should we use `lipgloss` directly for styling instead of manual ANSI escape codes?
 
 **Current State:**
+
 ```go
 fmt.Println("\033[1;36m============================================================\033[0m")
 fmt.Println("\033[1;36m📊 VALIDATION REPORT\033[0m")
 ```
 
 **What go-output Provides:**
+
 - Full `lipgloss` integration
 - Automatic color detection
 - Theme support
 - Consistent styling
 
 **Trade-offs:**
+
 - ✅ Using lipgloss = Consistent, maintainable, themeable
 - ❌ Manual ANSI = Simple, no extra deps, works everywhere
 
@@ -331,37 +340,37 @@ For a CLI tool that primarily outputs to terminals, the current manual approach 
 
 ## Customer Value Delivered
 
-| Feature | Value |
-|---------|-------|
-| **JSON Output** | CI/CD pipelines can parse results |
-| **Multiple Formats** | Different tools need different outputs |
-| **Type Safety** | Fewer bugs, better IDE support |
-| **Backward Compatibility** | Existing users not affected |
-| **Color Mode** | Works in CI and terminals |
+| Feature                    | Value                                  |
+| -------------------------- | -------------------------------------- |
+| **JSON Output**            | CI/CD pipelines can parse results      |
+| **Multiple Formats**       | Different tools need different outputs |
+| **Type Safety**            | Fewer bugs, better IDE support         |
+| **Backward Compatibility** | Existing users not affected            |
+| **Color Mode**             | Works in CI and terminals              |
 
 ---
 
 ## Files Summary
 
-| Category | Files | Lines |
-|----------|-------|-------|
-| Core Logic | `validator.go`, `extractor.go`, `parser.go` | ~400 |
-| Types | `pkg/types/*.go` | ~750 |
-| Output | `pkg/output/output.go` | 271 |
-| Tests | `*_test.go` files | ~700 |
-| CLI | `cmd/md-go-validator/main.go` | ~180 |
-| **Total** | | **~2,300** |
+| Category   | Files                                       | Lines      |
+| ---------- | ------------------------------------------- | ---------- |
+| Core Logic | `validator.go`, `extractor.go`, `parser.go` | ~400       |
+| Types      | `pkg/types/*.go`                            | ~750       |
+| Output     | `pkg/output/output.go`                      | 271        |
+| Tests      | `*_test.go` files                           | ~700       |
+| CLI        | `cmd/md-go-validator/main.go`               | ~180       |
+| **Total**  |                                             | **~2,300** |
 
 ---
 
 ## Test Coverage
 
-| Package | Coverage | Trend |
-|---------|----------|-------|
-| `pkg/types` | 91.0% | ✅ Good |
-| `pkg` | 71.3% | ✅ Good |
-| `pkg/output` | 28.6% | ❌ Needs work |
-| `cmd/md-go-validator` | 45.6% | ⚠️ Acceptable |
+| Package               | Coverage | Trend         |
+| --------------------- | -------- | ------------- |
+| `pkg/types`           | 91.0%    | ✅ Good       |
+| `pkg`                 | 71.3%    | ✅ Good       |
+| `pkg/output`          | 28.6%    | ❌ Needs work |
+| `cmd/md-go-validator` | 45.6%    | ⚠️ Acceptable |
 
 **Target:** >80% overall
 
@@ -377,4 +386,4 @@ For a CLI tool that primarily outputs to terminals, the current manual approach 
 
 ---
 
-*Report generated by Crush AI Assistant*
+_Report generated by Crush AI Assistant_

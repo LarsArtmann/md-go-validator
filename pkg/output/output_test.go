@@ -157,10 +157,10 @@ func TestTruncateCode(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name    string
-		input   string
-		maxLen  uint
-		want    string
+		name   string
+		input  string
+		maxLen uint
+		want   string
 	}{
 		{"empty", "", 50, ""},
 		{"short", "hello", 50, "hello"},
