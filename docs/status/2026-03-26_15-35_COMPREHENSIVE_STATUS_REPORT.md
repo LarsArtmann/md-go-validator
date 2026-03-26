@@ -16,21 +16,21 @@ The md-go-validator project is in **excellent health**. All tests pass, build su
 
 ### Test Coverage
 
-| Package      | Coverage | Status    | Trend     |
-| ------------ | -------- | --------- | --------- |
-| pkg/types    | 91.2%    | Excellent | Stable    |
-| pkg/output   | 93.3%    | Excellent | Improved  |
-| pkg          | 84.7%    | Good      | Stable    |
-| cmd          | 56.3%    | Adequate  | Needs work|
+| Package    | Coverage | Status    | Trend      |
+| ---------- | -------- | --------- | ---------- |
+| pkg/types  | 91.2%    | Excellent | Stable     |
+| pkg/output | 93.3%    | Excellent | Improved   |
+| pkg        | 84.7%    | Good      | Stable     |
+| cmd        | 56.3%    | Adequate  | Needs work |
 
 ### Build & CI Status
 
-| Check        | Status    | Notes                              |
-| ------------ | --------- | ---------------------------------- |
-| Build        | PASS      | `go build ./...` succeeds          |
-| Tests        | PASS      | All tests pass                     |
-| Git Status   | Clean     | No uncommitted changes             |
-| Remote Sync  | Synced    | Up to date with origin/master      |
+| Check       | Status | Notes                         |
+| ----------- | ------ | ----------------------------- |
+| Build       | PASS   | `go build ./...` succeeds     |
+| Tests       | PASS   | All tests pass                |
+| Git Status  | Clean  | No uncommitted changes        |
+| Remote Sync | Synced | Up to date with origin/master |
 
 ### Recent Commits (Last 10)
 
@@ -98,6 +98,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 **Estimated effort:** 30 min
 
 **Design questions pending:**
+
 - What values should be supported? (`error`, `warning`, `never`, `skipped`?)
 - Should `--fail-on=never` always exit 0?
 - Should `--fail-on=skipped` fail on skipped blocks?
@@ -108,6 +109,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 **Estimated effort:** 60 min
 
 **Design questions pending:**
+
 - Use glob patterns (e.g., `--exclude "vendor/**"`) or regex?
 - Support multiple values (e.g., `--exclude a --exclude b`)?
 - Case-sensitive matching?
@@ -118,32 +120,32 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Optional Enhancements
 
-| #  | Task                              | Effort  | Priority | Notes                    |
-| -- | --------------------------------- | ------- | -------- | ------------------------ |
-| 1  | Custom error types                | 30 min  | P2       | ValidationError, ParseError |
-| 2  | Parser multi-strategy tests       | 30 min  | P2       | Test all 5 strategies    |
-| 3  | Validator interface tests         | 30 min  | P2       | Mock validator tests     |
-| 4  | Improve cmd coverage to 70%+      | 45 min  | P2       | Currently 56.3%          |
-| 5  | Add E2E integration tests         | 60 min  | P3       | Full CLI workflow tests  |
-| 6  | Add benchmark tests               | 30 min  | P3       | Performance tracking     |
-| 7  | Add fuzzing tests for parser      | 45 min  | P3       | Edge case discovery      |
+| #   | Task                         | Effort | Priority | Notes                       |
+| --- | ---------------------------- | ------ | -------- | --------------------------- |
+| 1   | Custom error types           | 30 min | P2       | ValidationError, ParseError |
+| 2   | Parser multi-strategy tests  | 30 min | P2       | Test all 5 strategies       |
+| 3   | Validator interface tests    | 30 min | P2       | Mock validator tests        |
+| 4   | Improve cmd coverage to 70%+ | 45 min | P2       | Currently 56.3%             |
+| 5   | Add E2E integration tests    | 60 min | P3       | Full CLI workflow tests     |
+| 6   | Add benchmark tests          | 30 min | P3       | Performance tracking        |
+| 7   | Add fuzzing tests for parser | 45 min | P3       | Edge case discovery         |
 
 ### Documentation Improvements
 
-| #  | Task                              | Effort  | Priority |
-| -- | --------------------------------- | ------- | -------- |
-| 8  | Update CHANGELOG.md               | 15 min  | P1       |
-| 9  | Add API documentation             | 30 min  | P2       |
-| 10 | Add contribution guidelines       | 20 min  | P3       |
-| 11 | Add architecture decision records | 45 min  | P3       |
+| #   | Task                              | Effort | Priority |
+| --- | --------------------------------- | ------ | -------- |
+| 8   | Update CHANGELOG.md               | 15 min | P1       |
+| 9   | Add API documentation             | 30 min | P2       |
+| 10  | Add contribution guidelines       | 20 min | P3       |
+| 11  | Add architecture decision records | 45 min | P3       |
 
 ### CI/CD Improvements
 
-| #  | Task                              | Effort  | Priority |
-| -- | --------------------------------- | ------- | -------- |
-| 12 | Add release automation            | 30 min  | P2       |
-| 13 | Add code coverage reporting       | 20 min  | P2       |
-| 14 | Add dependabot configuration      | 15 min  | P3       |
+| #   | Task                         | Effort | Priority |
+| --- | ---------------------------- | ------ | -------- |
+| 12  | Add release automation       | 30 min | P2       |
+| 13  | Add code coverage reporting  | 20 min | P2       |
+| 14  | Add dependabot configuration | 15 min | P3       |
 
 ---
 
@@ -193,48 +195,48 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Immediate (Next Session)
 
-| #  | Task                              | Effort  | Impact   | Why                                      |
-| -- | --------------------------------- | ------- | -------- | ---------------------------------------- |
-| 1  | **Update CHANGELOG.md**           | 15 min  | High     | Document new features for users          |
-| 2  | **Implement --fail-on flag**      | 30 min  | High     | User requested CI/CD control             |
-| 3  | **Implement --exclude/--include** | 60 min  | High     | User requested filtering capability      |
-| 4  | **Improve cmd coverage to 70%**   | 45 min  | Medium   | Better test reliability                  |
+| #   | Task                              | Effort | Impact | Why                                 |
+| --- | --------------------------------- | ------ | ------ | ----------------------------------- |
+| 1   | **Update CHANGELOG.md**           | 15 min | High   | Document new features for users     |
+| 2   | **Implement --fail-on flag**      | 30 min | High   | User requested CI/CD control        |
+| 3   | **Implement --exclude/--include** | 60 min | High   | User requested filtering capability |
+| 4   | **Improve cmd coverage to 70%**   | 45 min | Medium | Better test reliability             |
 
 ### Short Term (This Week)
 
-| #  | Task                              | Effort  | Impact   | Why                                      |
-| -- | --------------------------------- | ------- | -------- | ---------------------------------------- |
-| 5  | Add parser multi-strategy tests   | 30 min  | Medium   | Validate all parsing approaches          |
-| 6  | Add validator interface tests     | 30 min  | Medium   | Ensure interface compliance              |
-| 7  | Add custom error types            | 30 min  | Medium   | Better error categorization              |
-| 8  | Add benchmark tests               | 30 min  | Low      | Performance tracking                     |
+| #   | Task                            | Effort | Impact | Why                             |
+| --- | ------------------------------- | ------ | ------ | ------------------------------- |
+| 5   | Add parser multi-strategy tests | 30 min | Medium | Validate all parsing approaches |
+| 6   | Add validator interface tests   | 30 min | Medium | Ensure interface compliance     |
+| 7   | Add custom error types          | 30 min | Medium | Better error categorization     |
+| 8   | Add benchmark tests             | 30 min | Low    | Performance tracking            |
 
 ### Medium Term (Next 2 Weeks)
 
-| #  | Task                              | Effort  | Impact   | Why                                      |
-| -- | --------------------------------- | ------- | -------- | ---------------------------------------- |
-| 9  | Add E2E integration tests         | 60 min  | Medium   | Full workflow validation                 |
-| 10 | Add code coverage reporting       | 20 min  | Medium   | Track coverage in CI                     |
-| 11 | Add release automation            | 30 min  | Medium   | Streamline releases                      |
-| 12 | Add API documentation             | 30 min  | Medium   | Help library users                       |
+| #   | Task                        | Effort | Impact | Why                      |
+| --- | --------------------------- | ------ | ------ | ------------------------ |
+| 9   | Add E2E integration tests   | 60 min | Medium | Full workflow validation |
+| 10  | Add code coverage reporting | 20 min | Medium | Track coverage in CI     |
+| 11  | Add release automation      | 30 min | Medium | Streamline releases      |
+| 12  | Add API documentation       | 30 min | Medium | Help library users       |
 
 ### Long Term (Nice to Have)
 
-| #  | Task                              | Effort  | Impact   | Why                                      |
-| -- | --------------------------------- | ------- | -------- | ---------------------------------------- |
-| 13 | Add fuzzing tests for parser      | 45 min  | Low      | Edge case discovery                      |
-| 14 | Add contribution guidelines       | 20 min  | Low      | Help contributors                        |
-| 15 | Add architecture decision records | 45 min  | Low      | Document design decisions                |
-| 16 | Add dependabot configuration      | 15 min  | Low      | Automated dependency updates             |
-| 17 | Add --config flag                 | 60 min  | Low      | Load settings from file                  |
-| 18 | Add pre-commit hook example       | 15 min  | Low      | Already in README, could be expanded     |
-| 19 | Add GitHub Action                 | 20 min  | Low      | Already in README, could be standalone   |
-| 20 | Add VS Code extension             | 120 min | Low      | Real-time validation                     |
-| 21 | Add LSP server                    | 180 min | Low      | Editor integration                       |
-| 22 | Add watch mode (--watch)          | 45 min  | Low      | Continuous validation                    |
-| 23 | Add parallel processing           | 30 min  | Low      | Faster validation                        |
-| 24 | Add caching                       | 30 min  | Low      | Skip unchanged files                     |
-| 25 | Add JSON schema for output        | 20 min  | Low      | Structured output validation             |
+| #   | Task                              | Effort  | Impact | Why                                    |
+| --- | --------------------------------- | ------- | ------ | -------------------------------------- |
+| 13  | Add fuzzing tests for parser      | 45 min  | Low    | Edge case discovery                    |
+| 14  | Add contribution guidelines       | 20 min  | Low    | Help contributors                      |
+| 15  | Add architecture decision records | 45 min  | Low    | Document design decisions              |
+| 16  | Add dependabot configuration      | 15 min  | Low    | Automated dependency updates           |
+| 17  | Add --config flag                 | 60 min  | Low    | Load settings from file                |
+| 18  | Add pre-commit hook example       | 15 min  | Low    | Already in README, could be expanded   |
+| 19  | Add GitHub Action                 | 20 min  | Low    | Already in README, could be standalone |
+| 20  | Add VS Code extension             | 120 min | Low    | Real-time validation                   |
+| 21  | Add LSP server                    | 180 min | Low    | Editor integration                     |
+| 22  | Add watch mode (--watch)          | 45 min  | Low    | Continuous validation                  |
+| 23  | Add parallel processing           | 30 min  | Low    | Faster validation                      |
+| 24  | Add caching                       | 30 min  | Low    | Skip unchanged files                   |
+| 25  | Add JSON schema for output        | 20 min  | Low    | Structured output validation           |
 
 ---
 
@@ -283,17 +285,17 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ## Project Statistics
 
-| Metric              | Value    |
-| ------------------- | -------- |
-| Go Version          | 1.26     |
+| Metric                | Value         |
+| --------------------- | ------------- |
+| Go Version            | 1.26          |
 | External Dependencies | 1 (go-output) |
-| Total Packages      | 4        |
-| Total Test Files    | 4        |
-| Lines of Code (est) | ~1500    |
-| Test Coverage (avg) | 81.4%    |
-| Commits (last 10)   | 10       |
-| Open Issues         | 0        |
-| Technical Debt      | Minimal  |
+| Total Packages        | 4             |
+| Total Test Files      | 4             |
+| Lines of Code (est)   | ~1500         |
+| Test Coverage (avg)   | 81.4%         |
+| Commits (last 10)     | 10            |
+| Open Issues           | 0             |
+| Technical Debt        | Minimal       |
 
 ---
 
@@ -337,6 +339,7 @@ md-go-validator/
 ## Session Summary
 
 **What was accomplished this session:**
+
 - Fixed failing `TestWriteOutputToFile/writes_JSON_content` test
 - Changed test to use `StatusError` instead of `StatusValid` (JSON only includes errors)
 - Added `errors` import to test file

@@ -7,13 +7,13 @@
 
 ## Current State
 
-| Metric | Status |
-|--------|--------|
-| Build | PASS |
-| Tests | PASS (4 packages) |
-| Coverage | 81.4% avg |
-| Git | Clean, 1 commit ahead of origin |
-| Todo List | 7 completed, 2 pending |
+| Metric    | Status                          |
+| --------- | ------------------------------- |
+| Build     | PASS                            |
+| Tests     | PASS (4 packages)               |
+| Coverage  | 81.4% avg                       |
+| Git       | Clean, 1 commit ahead of origin |
+| Todo List | 7 completed, 2 pending          |
 
 ---
 
@@ -35,6 +35,7 @@
 ## Action Required
 
 Push pending commit:
+
 ```bash
 git push
 ```
