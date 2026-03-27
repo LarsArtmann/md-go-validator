@@ -7,7 +7,7 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-// SkipDirectives contains markdown directives to skip validation.
+// SkipDirectivesConfig contains markdown directives to skip validation.
 // This is a configuration list that can be customized before extraction.
 type SkipDirectivesConfig []string
 

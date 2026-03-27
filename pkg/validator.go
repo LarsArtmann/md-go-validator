@@ -29,7 +29,7 @@ func New(verbose bool) *FileValidator {
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	if err := checkContext(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("validate file %s: %w", filePath, err)
 	}
 
 	cleanPath, err := validateAndCleanPath(filePath)
@@ -56,13 +56,24 @@ func (v *FileValidator) validateBlocks(
 	blocks []types.CodeBlock,
 ) ([]types.Result, error) {
 	if err := checkContext(ctx); err != nil {
-		return nil, err
+		return nil, fmt.Errorf(
+			"validate blocks (file=%s, blocks=%d): %w",
+			cleanPath,
+			len(blocks),
+			err,
+		)
 	}
 
 	results := make([]types.Result, 0, len(blocks))
 	for i, block := range blocks {
 		if err := checkContext(ctx); err != nil {
-			return results, fmt.Errorf("validation cancelled at block %d: %w", i, err)
+			return results, fmt.Errorf(
+				"validation cancelled at block %d (file=%s, total=%d): %w",
+				i,
+				cleanPath,
+				len(blocks),
+				err,
+			)
 		}
 
 		result := v.validateBlock(cleanPath, block, i)

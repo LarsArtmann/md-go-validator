@@ -145,8 +145,8 @@ func TestValidatePath(t *testing.T) {
 
 		validator := mdgovalidator.New(false)
 		results := validatePath(
-			validator,
 			context.Background(),
+			validator,
 			"/nonexistent/path/that/does/not/exist",
 		)
 
@@ -167,7 +167,7 @@ func TestValidatePath(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, context.Background(), tmpFile)
+		results := validatePath(context.Background(), validator, tmpFile)
 
 		if len(results) != 1 {
 			t.Errorf("expected 1 result, got %d", len(results))
@@ -192,7 +192,7 @@ func TestValidatePath(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(validator, context.Background(), tmpDir)
+		results := validatePath(context.Background(), validator, tmpDir)
 
 		if len(results) != 1 {
 			t.Errorf("expected 1 result (only .md files), got %d", len(results))
@@ -221,7 +221,7 @@ func TestValidatePaths(t *testing.T) {
 		}
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(validator, context.Background(), []string{file1, file2})
+		results := validatePaths(context.Background(), validator, []string{file1, file2})
 
 		if len(results) != 2 {
 			t.Errorf("expected 2 results, got %d", len(results))
@@ -232,7 +232,7 @@ func TestValidatePaths(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(validator, context.Background(), []string{})
+		results := validatePaths(context.Background(), validator, []string{})
 
 		if len(results) != 0 {
 			t.Errorf("expected 0 results for empty paths, got %d", len(results))
@@ -340,15 +340,21 @@ func TestWriteOutputToFile(t *testing.T) {
 				File:       types.FileID("test.md"),
 				LineNumber: types.LineNumber(1),
 				Block:      types.BlockIndex(1),
+				Code:       "package main",
 				Status:     types.StatusValid,
+				Error:      nil,
 			},
 		}
 
 		cfg := config{
+			verbose:    false,
+			showCode:   true,
 			format:     output.FormatJSON,
 			colorMode:  output.ColorModeNever,
-			showCode:   true,
 			outputFile: outputPath,
+			paths:      nil,
+			timeout:    0,
+			contextCfg: mdgovalidator.DefaultContextConfig(),
 		}
 
 		err := writeOutputToFile(results, cfg)
@@ -372,16 +378,21 @@ func TestWriteOutputToFile(t *testing.T) {
 				File:       types.FileID("test.md"),
 				LineNumber: types.LineNumber(10),
 				Block:      types.BlockIndex(1),
+				Code:       "bad code",
 				Status:     types.StatusError,
 				Error:      errors.New("syntax error"),
 			},
 		}
 
 		cfg := config{
+			verbose:    false,
+			showCode:   true,
 			format:     output.FormatJSON,
 			colorMode:  output.ColorModeNever,
-			showCode:   true,
 			outputFile: outputPath,
+			paths:      nil,
+			timeout:    0,
+			contextCfg: mdgovalidator.DefaultContextConfig(),
 		}
 
 		err := writeOutputToFile(results, cfg)
@@ -410,15 +421,21 @@ func TestWriteOutputToFile(t *testing.T) {
 				File:       types.FileID("test.md"),
 				LineNumber: types.LineNumber(5),
 				Block:      types.BlockIndex(1),
+				Code:       "package main",
 				Status:     types.StatusValid,
+				Error:      nil,
 			},
 		}
 
 		cfg := config{
+			verbose:    false,
+			showCode:   true,
 			format:     output.FormatCSV,
 			colorMode:  output.ColorModeNever,
-			showCode:   true,
 			outputFile: outputPath,
+			paths:      nil,
+			timeout:    0,
+			contextCfg: mdgovalidator.DefaultContextConfig(),
 		}
 
 		err := writeOutputToFile(results, cfg)
@@ -445,7 +462,7 @@ func TestValidatePathWithErrors(t *testing.T) {
 		// Create a mock validator that returns an error
 		mockValidator := &mockValidator{}
 
-		results := validatePath(mockValidator, context.Background(), "/valid/path.md")
+		results := validatePath(context.Background(), mockValidator, "/valid/path.md")
 		if results != nil {
 			t.Error("expected nil for non-existent path")
 		}
@@ -454,13 +471,13 @@ func TestValidatePathWithErrors(t *testing.T) {
 
 type mockValidator struct{}
 
-func (m *mockValidator) ValidateFile(ctx context.Context, path string) ([]types.Result, error) {
+func (m *mockValidator) ValidateFile(_ context.Context, _ string) ([]types.Result, error) {
 	return nil, nil
 }
 
 func (m *mockValidator) ValidateDirectory(
-	ctx context.Context,
-	path string,
+	_ context.Context,
+	_ string,
 ) ([]types.Result, error) {
 	return nil, nil
 }
@@ -488,7 +505,7 @@ func TestValidatePathsCapacity(t *testing.T) {
 		}
 	}
 
-	results := validatePaths(validator, ctx, []string{tmpDir})
+	results := validatePaths(ctx, validator, []string{tmpDir})
 	if len(results) < 5 {
 		t.Errorf("expected at least 5 results, got %d", len(results))
 	}

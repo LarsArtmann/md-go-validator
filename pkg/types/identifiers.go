@@ -46,6 +46,8 @@ func NewLineNumberFromUint(n uint) LineNumber {
 }
 
 // Int returns the LineNumber as int.
+//
+//nolint:gosec // G115: Line numbers are always small values that fit in int
 func (l LineNumber) Int() int {
 	return int(l)
 }
@@ -82,6 +84,8 @@ func NewBlockIndexFromUint(n uint) BlockIndex {
 }
 
 // Int returns the BlockIndex as int.
+//
+//nolint:gosec // G115: Block indices are always small values that fit in int
 func (b BlockIndex) Int() int {
 	return int(b)
 }

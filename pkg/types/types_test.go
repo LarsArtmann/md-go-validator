@@ -32,6 +32,7 @@ func TestFileID(t *testing.T) {
 	})
 }
 
+//nolint:dupl // Test structure mirrors TestBlockIndex for consistency
 func TestLineNumber(t *testing.T) {
 	t.Parallel()
 
@@ -71,6 +72,7 @@ func TestLineNumber(t *testing.T) {
 	})
 }
 
+//nolint:dupl // Test structure mirrors TestLineNumber for consistency
 func TestBlockIndex(t *testing.T) {
 	t.Parallel()
 

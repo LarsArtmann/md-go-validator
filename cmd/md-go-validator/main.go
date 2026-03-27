@@ -20,14 +20,14 @@ import (
 var osExit = os.Exit
 
 type config struct {
-	verbose      bool
-	showCode     bool
-	format       output.OutputFormat
-	colorMode    output.ColorMode
-	outputFile   string
-	paths        []string
-	timeout      time.Duration
-	contextCfg   mdgovalidator.ContextConfig
+	verbose    bool
+	showCode   bool
+	format     output.OutputFormat
+	colorMode  output.ColorMode
+	outputFile string
+	paths      []string
+	timeout    time.Duration
+	contextCfg mdgovalidator.ContextConfig
 }
 
 func main() {
@@ -38,7 +38,7 @@ func main() {
 	ctx, cancel := cfg.contextCfg.Build()
 	defer cancel()
 
-	allResults := validatePaths(validator, ctx, cfg.paths)
+	allResults := validatePaths(ctx, validator, cfg.paths)
 
 	if cfg.outputFile != "" {
 		if err := writeOutputToFile(allResults, cfg); err != nil {
@@ -60,20 +60,20 @@ type argHandler func(args []string, i int, cfg *config) (int, bool)
 
 // argHandlers maps flag names to their handler functions.
 var argHandlers = map[string]argHandler{
-	"-v":          handleVerbose,
-	"--verbose":   handleVerbose,
-	"-q":          handleQuiet,
-	"--quiet":     handleQuiet,
-	"--no-code":   handleNoCode,
-	"-f":          handleFormat,
-	"--format":    handleFormat,
-	"--color":     handleColor,
-	"-o":          handleOutput,
-	"--output":    handleOutput,
-	"--timeout":   handleTimeout,
-	"-t":          handleTimeout,
-	"-h":          handleHelp,
-	"--help":      handleHelp,
+	"-v":        handleVerbose,
+	"--verbose": handleVerbose,
+	"-q":        handleQuiet,
+	"--quiet":   handleQuiet,
+	"--no-code": handleNoCode,
+	"-f":        handleFormat,
+	"--format":  handleFormat,
+	"--color":   handleColor,
+	"-o":        handleOutput,
+	"--output":  handleOutput,
+	"--timeout": handleTimeout,
+	"-t":        handleTimeout,
+	"-h":        handleHelp,
+	"--help":    handleHelp,
 }
 
 func parseArgs(args []string) config {
@@ -195,14 +195,14 @@ func handleTimeout(args []string, i int, cfg *config) (int, bool) {
 }
 
 func validatePaths(
-	validator mdgovalidator.Validator,
 	ctx context.Context,
+	validator mdgovalidator.Validator,
 	paths []string,
 ) []types.Result {
 	allResults := make([]types.Result, 0, len(paths)*10)
 
 	for _, path := range paths {
-		results := validatePath(validator, ctx, path)
+		results := validatePath(ctx, validator, path)
 		allResults = append(allResults, results...)
 	}
 
@@ -210,8 +210,8 @@ func validatePaths(
 }
 
 func validatePath(
-	validator mdgovalidator.Validator,
 	ctx context.Context,
+	validator mdgovalidator.Validator,
 	path string,
 ) []types.Result {
 	absPath, err := filepath.Abs(path)
@@ -271,7 +271,12 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 		return fmt.Errorf("open output file for writing (%d results, path=%s): %w",
 			len(results), cfg.outputFile, err)
 	}
-	defer file.Close()
+	defer func() {
+		if closeErr := file.Close(); closeErr != nil {
+			err = fmt.Errorf("close output file (%d results, path=%s): %w",
+				len(results), cfg.outputFile, closeErr)
+		}
+	}()
 
 	if err := output.PrintReportTo(
 		file,

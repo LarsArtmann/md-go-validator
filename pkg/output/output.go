@@ -66,12 +66,16 @@ func ParseFormat(s string) (OutputFormat, error) {
 
 // ParseColorMode converts a string color mode to a ColorMode.
 func ParseColorMode(s string) (ColorMode, error) {
-	return output.ParseColorMode(s)
+	cm, err := output.ParseColorMode(s)
+	if err != nil {
+		return "", fmt.Errorf("parse color mode %q: %w", s, err)
+	}
+	return cm, nil
 }
 
 // PrintReport outputs validation results to stdout.
 func PrintReport(results []types.Result, format OutputFormat, colorMode ColorMode, showCode bool) {
-	//nolint:errcheck // Writing to stdout, cannot recover from write errors
+	//nolint:errcheck,gosec // Writing to stdout, cannot recover from write errors
 	PrintReportTo(os.Stdout, results, format, colorMode, showCode)
 }
 
@@ -200,8 +204,8 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 			errMsg,
 			code,
 		}); err != nil {
-			return fmt.Errorf("write CSV row (file=%s, line=%s, showCode=%t, errMsg=%q): %w",
-				r.File, r.LineNumber, showCode, errMsg, err)
+			return fmt.Errorf("write CSV row (file=%s, line=%s, block=%s, code=%q, errMsg=%q): %w",
+				r.File, r.LineNumber, r.Block, code, errMsg, err)
 		}
 	}
 	csvWriter.Flush()

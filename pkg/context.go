@@ -33,11 +33,11 @@ type ContextConfig struct {
 // DefaultContextConfig returns a default context configuration with sensible defaults.
 func DefaultContextConfig() ContextConfig {
 	return ContextConfig{
-		Timeout:           0, // No timeout by default
-		Deadline:          time.Time{},
-		MaxFiles:          0, // Unlimited
-		MaxBlocksPerFile:  0, // Unlimited
-		Parent:            nil,
+		Timeout:          0, // No timeout by default
+		Deadline:         time.Time{},
+		MaxFiles:         0, // Unlimited
+		MaxBlocksPerFile: 0, // Unlimited
+		Parent:           nil,
 	}
 }
 
@@ -124,7 +124,9 @@ func (c ContextConfig) Branch() (context.Context, context.CancelFunc) {
 }
 
 // BranchWithTimeout creates a new branch context with a timeout for parallel operations.
-func (c ContextConfig) BranchWithTimeout(timeout time.Duration) (context.Context, context.CancelFunc) {
+func (c ContextConfig) BranchWithTimeout(
+	timeout time.Duration,
+) (context.Context, context.CancelFunc) {
 	parent := c.Parent
 	if parent == nil {
 		parent = context.Background()
@@ -138,7 +140,9 @@ func (c ContextConfig) BranchWithTimeout(timeout time.Duration) (context.Context
 }
 
 // BranchWithDeadline creates a new branch context with a deadline for parallel operations.
-func (c ContextConfig) BranchWithDeadline(deadline time.Time) (context.Context, context.CancelFunc) {
+func (c ContextConfig) BranchWithDeadline(
+	deadline time.Time,
+) (context.Context, context.CancelFunc) {
 	parent := c.Parent
 	if parent == nil {
 		parent = context.Background()
