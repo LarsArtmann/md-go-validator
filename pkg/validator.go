@@ -28,6 +28,10 @@ func New(verbose bool) *FileValidator {
 
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
+	if err := checkContext(ctx); err != nil {
+		return nil, err
+	}
+
 	cleanPath, err := validateAndCleanPath(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("invalid file path %s: %w", filePath, err)
@@ -43,14 +47,39 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 		return []types.Result{}, nil
 	}
 
+	return v.validateBlocks(ctx, cleanPath, blocks)
+}
+
+func (v *FileValidator) validateBlocks(
+	ctx context.Context,
+	cleanPath string,
+	blocks []types.CodeBlock,
+) ([]types.Result, error) {
+	if err := checkContext(ctx); err != nil {
+		return nil, err
+	}
+
 	results := make([]types.Result, 0, len(blocks))
 	for i, block := range blocks {
+		if err := checkContext(ctx); err != nil {
+			return results, fmt.Errorf("validation cancelled at block %d: %w", i, err)
+		}
+
 		result := v.validateBlock(cleanPath, block, i)
 		results = append(results, result)
 		v.logProgress(i, block, result)
 	}
 
 	return results, nil
+}
+
+func checkContext(ctx context.Context) error {
+	select {
+	case <-ctx.Done():
+		return fmt.Errorf("validation cancelled: %w", ctx.Err())
+	default:
+		return nil
+	}
 }
 
 func (v *FileValidator) validateBlock(
@@ -161,12 +190,11 @@ func (v *FileValidator) validateFileWithContext(
 	ctx context.Context,
 	filePath string,
 ) ([]types.Result, error) {
-	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
-	default:
-		return v.ValidateFile(ctx, filePath)
-	}
+	// Create a branch context for this file to allow independent cancellation
+	branchCtx, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	return v.ValidateFile(branchCtx, filePath)
 }
 
 func (v *FileValidator) handleDirectory(info os.FileInfo) error {

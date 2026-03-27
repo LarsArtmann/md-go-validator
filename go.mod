@@ -1,6 +1,6 @@
 module github.com/larsartmann/md-go-validator
 
-go 1.26
+go 1.26.1
 
 replace github.com/larsartmann/go-output => ../go-output
 

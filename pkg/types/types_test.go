@@ -32,7 +32,6 @@ func TestFileID(t *testing.T) {
 	})
 }
 
-//nolint:dupl // TestLineNumber and TestBlockIndex test different types with similar structure
 func TestLineNumber(t *testing.T) {
 	t.Parallel()
 

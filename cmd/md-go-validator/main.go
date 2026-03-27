@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/output"
@@ -19,18 +20,24 @@ import (
 var osExit = os.Exit
 
 type config struct {
-	verbose    bool
-	showCode   bool
-	format     output.OutputFormat
-	colorMode  output.ColorMode
-	outputFile string
-	paths      []string
+	verbose      bool
+	showCode     bool
+	format       output.OutputFormat
+	colorMode    output.ColorMode
+	outputFile   string
+	paths        []string
+	timeout      time.Duration
+	contextCfg   mdgovalidator.ContextConfig
 }
 
 func main() {
 	cfg := parseArgs(os.Args[1:])
 	validator := mdgovalidator.New(cfg.verbose)
-	ctx := context.Background()
+
+	// Build context with timeout from config
+	ctx, cancel := cfg.contextCfg.Build()
+	defer cancel()
+
 	allResults := validatePaths(validator, ctx, cfg.paths)
 
 	if cfg.outputFile != "" {
@@ -53,18 +60,20 @@ type argHandler func(args []string, i int, cfg *config) (int, bool)
 
 // argHandlers maps flag names to their handler functions.
 var argHandlers = map[string]argHandler{
-	"-v":        handleVerbose,
-	"--verbose": handleVerbose,
-	"-q":        handleQuiet,
-	"--quiet":   handleQuiet,
-	"--no-code": handleNoCode,
-	"-f":        handleFormat,
-	"--format":  handleFormat,
-	"--color":   handleColor,
-	"-o":        handleOutput,
-	"--output":  handleOutput,
-	"-h":        handleHelp,
-	"--help":    handleHelp,
+	"-v":          handleVerbose,
+	"--verbose":   handleVerbose,
+	"-q":          handleQuiet,
+	"--quiet":     handleQuiet,
+	"--no-code":   handleNoCode,
+	"-f":          handleFormat,
+	"--format":    handleFormat,
+	"--color":     handleColor,
+	"-o":          handleOutput,
+	"--output":    handleOutput,
+	"--timeout":   handleTimeout,
+	"-t":          handleTimeout,
+	"-h":          handleHelp,
+	"--help":      handleHelp,
 }
 
 func parseArgs(args []string) config {
@@ -75,6 +84,8 @@ func parseArgs(args []string) config {
 		colorMode:  output.ColorModeAuto,
 		outputFile: "",
 		paths:      []string{},
+		timeout:    0,
+		contextCfg: mdgovalidator.DefaultContextConfig(),
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -166,6 +177,23 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	return 0, false // exit called, but we need to return something
 }
 
+func handleTimeout(args []string, i int, cfg *config) (int, bool) {
+	if i+1 >= len(args) {
+		fmt.Fprintln(os.Stderr, "Error: --timeout requires an argument")
+		printUsage()
+		return 0, false
+	}
+	duration, err := time.ParseDuration(args[i+1])
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: invalid timeout value %q: %v\n", args[i+1], err)
+		printUsage()
+		return 0, false
+	}
+	cfg.timeout = duration
+	cfg.contextCfg = cfg.contextCfg.WithTimeout(duration)
+	return 1, true
+}
+
 func validatePaths(
 	validator mdgovalidator.Validator,
 	ctx context.Context,
@@ -183,7 +211,7 @@ func validatePaths(
 
 func validatePath(
 	validator mdgovalidator.Validator,
-	_ context.Context,
+	ctx context.Context,
 	path string,
 ) []types.Result {
 	absPath, err := filepath.Abs(path)
@@ -199,7 +227,6 @@ func validatePath(
 	}
 
 	var results []types.Result
-	ctx := context.Background()
 	if info.IsDir() {
 		results, err = validator.ValidateDirectory(ctx, absPath)
 	} else {
@@ -223,10 +250,20 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 
 	file, err := os.Create(cfg.outputFile)
 	if err != nil {
-		return fmt.Errorf("create output file (%d results, path=%s): %w", len(results), cfg.outputFile, err)
+		return fmt.Errorf(
+			"create output file (%d results, path=%s): %w",
+			len(results),
+			cfg.outputFile,
+			err,
+		)
 	}
 	if err := file.Close(); err != nil {
-		return fmt.Errorf("close output file (%d results, path=%s): %w", len(results), cfg.outputFile, err)
+		return fmt.Errorf(
+			"close output file (%d results, path=%s): %w",
+			len(results),
+			cfg.outputFile,
+			err,
+		)
 	}
 
 	file, err = os.OpenFile(cfg.outputFile, os.O_WRONLY, 0o644)
@@ -236,7 +273,13 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 	}
 	defer file.Close()
 
-	if err := output.PrintReportTo(file, results, cfg.format, cfg.colorMode, cfg.showCode); err != nil {
+	if err := output.PrintReportTo(
+		file,
+		results,
+		cfg.format,
+		cfg.colorMode,
+		cfg.showCode,
+	); err != nil {
 		return fmt.Errorf("write report (%d results, format=%s): %w", len(results), cfg.format, err)
 	}
 	return nil
@@ -255,6 +298,7 @@ OPTIONS:
     -f, --format     Output format (table, json, markdown, yaml, csv, quiet)
     --color          Color mode (auto, always, never)
     -o, --output     Write output to file (creates parent dirs if needed)
+    -t, --timeout    Timeout for validation (e.g., 30s, 5m, 1h)
     -h, --help       Show this help message
 
 OUTPUT FORMATS:
@@ -286,5 +330,6 @@ EXAMPLES:
     md-go-validator -f json .               # JSON output for CI
     md-go-validator -f markdown .           # Markdown table output
     md-go-validator --color never .         # Disable colors
-    md-go-validator -o report.json -f json . # Write JSON to file`)
+    md-go-validator -o report.json -f json . # Write JSON to file
+    md-go-validator --timeout 30s .         # 30 second timeout`)
 }
