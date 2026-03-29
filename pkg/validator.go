@@ -8,22 +8,49 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
 // FileValidator validates Go code blocks in markdown files.
 type FileValidator struct {
-	fset    *token.FileSet
-	verbose bool
+	fset        *token.FileSet
+	verbose     bool
+	maxFiles    int
+	maxBlocks   int
+	concurrency int
 }
 
 // New creates a new FileValidator.
 func New(verbose bool) *FileValidator {
 	return &FileValidator{
-		fset:    token.NewFileSet(),
-		verbose: verbose,
+		fset:        token.NewFileSet(),
+		verbose:     verbose,
+		maxFiles:    0,
+		maxBlocks:   0,
+		concurrency: 4,
 	}
+}
+
+// WithMaxFiles sets the maximum number of files to process.
+func (v *FileValidator) WithMaxFiles(maxFiles int) *FileValidator {
+	v.maxFiles = maxFiles
+	return v
+}
+
+// WithMaxBlocks sets the maximum number of blocks per file to process.
+func (v *FileValidator) WithMaxBlocks(maxBlocks int) *FileValidator {
+	v.maxBlocks = maxBlocks
+	return v
+}
+
+// WithConcurrency sets the number of concurrent workers for directory validation.
+func (v *FileValidator) WithConcurrency(n int) *FileValidator {
+	if n > 0 {
+		v.concurrency = n
+	}
+	return v
 }
 
 // ValidateFile validates a single markdown file.
@@ -64,16 +91,20 @@ func (v *FileValidator) validateBlocks(
 		)
 	}
 
-	results := make([]types.Result, 0, len(blocks))
-	for i, block := range blocks {
-		if err := checkContext(ctx); err != nil {
+	blocksToProcess := blocks
+	if v.maxBlocks > 0 && len(blocks) > v.maxBlocks {
+		blocksToProcess = blocks[:v.maxBlocks]
+	}
+
+	results := make([]types.Result, 0, len(blocksToProcess))
+	for i, block := range blocksToProcess {
+		select {
+		case <-ctx.Done():
 			return results, fmt.Errorf(
-				"validation cancelled at block %d (file=%s, total=%d): %w",
-				i,
-				cleanPath,
-				len(blocks),
-				err,
+				"validation cancelled at block %d (file=%s, processed=%d, total=%d): %w",
+				i, cleanPath, len(results), len(blocksToProcess), ctx.Err(),
 			)
+		default:
 		}
 
 		result := v.validateBlock(cleanPath, block, i)
@@ -149,71 +180,155 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 }
 
 // ValidateDirectory validates all markdown files in a directory (recursively).
+// Uses parallel processing with configurable concurrency for improved performance.
 func (v *FileValidator) ValidateDirectory(
 	ctx context.Context,
 	dirPath string,
 ) ([]types.Result, error) {
-	var allResults []types.Result
-
-	err := filepath.Walk(dirPath, v.walkFunc(ctx, &allResults))
+	cleanPath, err := validateAndCleanPath(dirPath)
 	if err != nil {
-		return allResults, fmt.Errorf(
-			"walking directory %s (processed %d results): %w",
-			dirPath,
-			len(allResults),
-			err,
+		return nil, fmt.Errorf("invalid directory path %s: %w", dirPath, err)
+	}
+
+	filePaths, err := v.collectMarkdownFiles(cleanPath)
+	if err != nil {
+		return nil, fmt.Errorf("collecting files from %s: %w", cleanPath, err)
+	}
+
+	if len(filePaths) == 0 {
+		return []types.Result{}, nil
+	}
+
+	if v.verbose {
+		fmt.Printf(
+			"📁 Processing %d markdown files with %d workers\n",
+			len(filePaths),
+			v.concurrency,
 		)
 	}
 
-	return allResults, nil
+	return v.processFilesParallel(ctx, filePaths)
 }
 
-func (v *FileValidator) walkFunc(ctx context.Context, results *[]types.Result) filepath.WalkFunc {
-	return func(path string, info os.FileInfo, err error) error {
+// collectMarkdownFiles gathers all markdown files from a directory recursively.
+func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
+	var files []string
+
+	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
 		if info.IsDir() {
-			return v.handleDirectory(info)
-		}
-
-		if !isMarkdownFile(path) {
+			if shouldSkipDir(info.Name()) {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 
-		if v.verbose {
-			fmt.Printf("\n📄 Validating: %s\n", path)
+		if isMarkdownFile(path) {
+			files = append(files, path)
 		}
-
-		fileResults, err := v.validateFileWithContext(ctx, path)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error reading %s: %v\n", path, err)
-			return nil
-		}
-
-		*results = append(*results, fileResults...)
 		return nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("collecting files from %s: %w", dirPath, err)
 	}
+
+	return files, nil
 }
 
-func (v *FileValidator) validateFileWithContext(
+// processFilesParallel validates files concurrently using a worker pool.
+func (v *FileValidator) processFilesParallel(
 	ctx context.Context,
-	filePath string,
+	filePaths []string,
 ) ([]types.Result, error) {
-	// Create a branch context for this file to allow independent cancellation
-	branchCtx, cancel := context.WithCancel(ctx)
-	defer cancel()
-
-	return v.ValidateFile(branchCtx, filePath)
-}
-
-func (v *FileValidator) handleDirectory(info os.FileInfo) error {
-	name := info.Name()
-	if shouldSkipDir(name) {
-		return filepath.SkipDir
+	if err := checkContext(ctx); err != nil {
+		return nil, fmt.Errorf("context cancelled before processing files: %w", err)
 	}
-	return nil
+
+	filesToProcess := filePaths
+	if v.maxFiles > 0 && len(filePaths) > v.maxFiles {
+		filesToProcess = filePaths[:v.maxFiles]
+	}
+
+	jobs := make(chan string, len(filesToProcess))
+	results := make(chan []types.Result, len(filesToProcess))
+	errors := make(chan error, len(filesToProcess))
+
+	var wg sync.WaitGroup
+
+	for i := 0; i < v.concurrency; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for path := range jobs {
+				select {
+				case <-ctx.Done():
+					return
+				default:
+				}
+
+				branchCtx, cancel := context.WithCancel(ctx)
+				fileResults, err := v.ValidateFile(branchCtx, path)
+				cancel()
+
+				if err != nil {
+					errors <- fmt.Errorf("file %s: %w", path, err)
+					continue
+				}
+				results <- fileResults
+			}
+		}()
+	}
+
+	go func() {
+		for _, path := range filesToProcess {
+			if err := checkContext(ctx); err != nil {
+				break
+			}
+			jobs <- path
+		}
+		close(jobs)
+	}()
+
+	go func() {
+		wg.Wait()
+		close(results)
+		close(errors)
+	}()
+
+	var allResults []types.Result
+	var errs []error
+
+	for {
+		select {
+		case <-ctx.Done():
+			return allResults, fmt.Errorf("validation cancelled: %w", ctx.Err())
+		case fileResults, ok := <-results:
+			if !ok {
+				goto done
+			}
+			allResults = append(allResults, fileResults...)
+		case err, ok := <-errors:
+			if !ok {
+				goto done
+			}
+			errs = append(errs, err)
+		}
+	}
+
+done:
+	if len(errs) > 0 {
+		return allResults, fmt.Errorf(
+			"encountered %d errors: %w",
+			len(errs),
+			errs[0],
+		)
+	}
+
+	return allResults, nil
 }
 
 func shouldSkipDir(name string) bool {

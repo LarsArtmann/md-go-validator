@@ -2,9 +2,12 @@ package mdgovalidator
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
@@ -303,15 +306,45 @@ func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
 
 	v := New(false)
 	ctx, cancel := context.WithCancel(context.Background())
-	cancel() // Cancel immediately
+	cancel() // Cancel immediately before processing
 
-	results, err := v.ValidateDirectory(ctx, tmpDir)
-	if err != nil {
-		t.Fatalf("ValidateDirectory error: %v", err)
+	_, err := v.ValidateDirectory(ctx, tmpDir)
+	if err == nil {
+		t.Error("expected error for cancelled context")
 	}
 
-	if len(results) != 0 {
-		t.Errorf("expected 0 results for cancelled context, got %d", len(results))
+	// Verify it's a context cancellation error
+	if !strings.Contains(err.Error(), "context cancelled") {
+		t.Errorf("expected context cancellation error, got: %v", err)
+	}
+}
+
+func TestValidator_ValidateDirectory_CancellationDuringProcessing(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+	// Create multiple files to ensure processing takes time
+	for i := 0; i < 5; i++ {
+		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("test%d.md", i))
+		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	v := New(false).WithConcurrency(1) // Single worker for predictable cancellation
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
+	defer cancel()
+
+	// Context will cancel during processing
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil && !strings.Contains(err.Error(), "cancelled") {
+		t.Fatalf("expected cancellation error, got: %v", err)
+	}
+
+	// Some results may have been collected before cancellation
+	if len(results) > 5 {
+		t.Errorf("expected at most 5 results, got %d", len(results))
 	}
 }
 
@@ -365,5 +398,133 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 	// Only normal directory should be processed
 	if len(results) != 1 {
 		t.Errorf("expected 1 result (only normal dir), got %d", len(results))
+	}
+}
+
+func TestValidator_WithMaxFiles(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+
+	// Create 10 files
+	for i := 0; i < 10; i++ {
+		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
+		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	v := New(false).WithMaxFiles(3)
+	ctx := context.Background()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	if len(results) != 3 {
+		t.Errorf("expected 3 results (max files limit), got %d", len(results))
+	}
+}
+
+func TestValidator_WithMaxBlocks(t *testing.T) {
+	t.Parallel()
+
+	// Create file with 5 blocks
+	block := "```go\npackage main\n```\n"
+	content := []byte(block + block + block + block + block)
+	tmpDir := t.TempDir()
+	tmpFile := filepath.Join(tmpDir, "multi.md")
+	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+
+	v := New(false).WithMaxBlocks(3)
+	ctx := context.Background()
+	results, err := v.ValidateFile(ctx, tmpFile)
+	if err != nil {
+		t.Fatalf("ValidateFile error: %v", err)
+	}
+
+	if len(results) != 3 {
+		t.Errorf("expected 3 results (max blocks limit), got %d", len(results))
+	}
+}
+
+func TestValidator_WithConcurrency(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+
+	// Create 4 files
+	for i := 0; i < 4; i++ {
+		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
+		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	v := New(false).WithConcurrency(2)
+	ctx := context.Background()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	if len(results) != 4 {
+		t.Errorf("expected 4 results, got %d", len(results))
+	}
+}
+
+func TestValidator_ParallelValidation(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+	tmpDir := t.TempDir()
+
+	// Create 8 files
+	for i := 0; i < 8; i++ {
+		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
+		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	v := New(false).WithConcurrency(4)
+	ctx := context.Background()
+
+	start := time.Now()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	elapsed := time.Since(start)
+
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	if len(results) != 8 {
+		t.Errorf("expected 8 results, got %d", len(results))
+	}
+
+	// With parallel processing, this should complete reasonably fast
+	// Sequential would take longer with file I/O overhead
+	if elapsed > 5*time.Second {
+		t.Logf("Validation took %v - may be running sequentially", elapsed)
+	}
+}
+
+func TestValidator_ChainMethods(t *testing.T) {
+	t.Parallel()
+
+	v := New(false).WithMaxFiles(10).WithMaxBlocks(5).WithConcurrency(3)
+
+	if v.maxFiles != 10 {
+		t.Errorf("expected maxFiles 10, got %d", v.maxFiles)
+	}
+	if v.maxBlocks != 5 {
+		t.Errorf("expected maxBlocks 5, got %d", v.maxBlocks)
+	}
+	if v.concurrency != 3 {
+		t.Errorf("expected concurrency 3, got %d", v.concurrency)
 	}
 }
