@@ -243,28 +243,28 @@ func printTableTo(w io.Writer, results []types.Result, colorMode ColorMode, show
 }
 
 func printTableHeaderTo(w io.Writer, summary types.ReportSummary, shouldColor bool) {
+	divider := "============================================================"
+	reportLabel := "VALIDATION REPORT"
+	validLabel := fmt.Sprintf("Valid: %d", summary.Valid)
+	skippedLabel := fmt.Sprintf("Skipped: %d", summary.Skipped)
+	errorsLabel := fmt.Sprintf("Errors: %d", summary.Errors)
+
 	if shouldColor {
-		_, _ = fmt.Fprintln(
-			w,
-			"\033[1;36m============================================================\033[0m",
-		)
-		_, _ = fmt.Fprintln(w, "\033[1;36m📊 VALIDATION REPORT\033[0m")
-		_, _ = fmt.Fprintln(
-			w,
-			"\033[1;36m============================================================\033[0m",
-		)
-		_, _ = fmt.Fprintf(w, "\033[1;32m✅ Valid:\033[0m %d\n", summary.Valid)
-		_, _ = fmt.Fprintf(w, "\033[33m⏭️  Skipped:\033[0m %d\n", summary.Skipped)
-		_, _ = fmt.Fprintf(w, "\033[1;31m❌ Errors:\033[0m %d\n", summary.Errors)
+		_, _ = fmt.Fprintln(w, "\033[1;36m"+divider+"\033[0m")
+		_, _ = fmt.Fprintln(w, "\033[1;36m📊 "+reportLabel+"\033[0m")
+		_, _ = fmt.Fprintln(w, "\033[1;36m"+divider+"\033[0m")
+		_, _ = fmt.Fprintf(w, "\033[1;32m✅ %s\033[0m\n", validLabel)
+		_, _ = fmt.Fprintf(w, "\033[33m⏭️  %s\033[0m\n", skippedLabel)
+		_, _ = fmt.Fprintf(w, "\033[1;31m❌ %s\033[0m\n", errorsLabel)
 	} else {
-		_, _ = fmt.Fprintln(w, "\n============================================================")
-		_, _ = fmt.Fprintln(w, "VALIDATION REPORT")
-		_, _ = fmt.Fprintln(w, "============================================================")
-		_, _ = fmt.Fprintf(w, "Valid: %d\n", summary.Valid)
-		_, _ = fmt.Fprintf(w, "Skipped: %d\n", summary.Skipped)
-		_, _ = fmt.Fprintf(w, "Errors: %d\n", summary.Errors)
+		_, _ = fmt.Fprintln(w, "\n"+divider)
+		_, _ = fmt.Fprintln(w, reportLabel)
+		_, _ = fmt.Fprintln(w, divider)
+		_, _ = fmt.Fprintln(w, validLabel)
+		_, _ = fmt.Fprintln(w, skippedLabel)
+		_, _ = fmt.Fprintln(w, errorsLabel)
 	}
-	_, _ = fmt.Fprintln(w, "============================================================")
+	_, _ = fmt.Fprintln(w, divider)
 }
 
 func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, shouldColor bool) {

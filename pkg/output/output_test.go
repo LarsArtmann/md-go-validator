@@ -93,18 +93,8 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewValidResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"",
-			),
-			types.NewValidResult(
-				types.NewFileID("b.md"),
-				types.NewLineNumber(2),
-				types.NewBlockIndex(1),
-				"",
-			),
+			newValidResultWithCode("a.md", 1, 1, ""),
+			newValidResultWithCode("b.md", 2, 1, ""),
 		}
 		report := types.BuildReportData(results, false)
 
@@ -186,15 +176,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("show code", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"package main",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("package main", "syntax error")}
 		report := types.BuildReportData(results, true)
 
 		if len(report.Errors) != 1 {
@@ -207,15 +189,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("hide code", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"package main",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("package main", "syntax error")}
 		report := types.BuildReportData(results, false)
 
 		if len(report.Errors) != 1 {
@@ -296,15 +270,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Markdown format with errors", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"bad code",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("bad code", "syntax error")}
 		PrintReport(results, FormatMarkdown, ColorModeNever, false)
 		PrintReport(results, FormatMarkdown, ColorModeNever, true)
 	})
@@ -338,15 +304,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("CSV format with error", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"bad code",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("bad code", "syntax error")}
 		PrintReport(results, FormatCSV, ColorModeNever, true)
 	})
 
@@ -365,15 +323,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Quiet format with errors", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"bad code",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("bad code", "syntax error")}
 		PrintReport(results, FormatQuiet, ColorModeNever, false)
 	})
 
@@ -398,15 +348,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Table format with errors", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"bad\ncode",
-				&testError{msg: "syntax error"},
-			),
-		}
+		results := []types.Result{newErrorResultWithCode("bad\ncode", "syntax error")}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 		PrintReport(results, FormatTable, ColorModeNever, true)
 	})
@@ -426,14 +368,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Table format with no errors", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewValidResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"package main",
-			),
-		}
+		results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 	})
 
@@ -445,14 +380,26 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("default format", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewValidResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"package main",
-			),
-		}
+		results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 	})
+}
+
+func newValidResultWithCode(fileID string, lineNumber, blockIndex int, code string) types.Result {
+	return types.NewValidResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(lineNumber),
+		types.NewBlockIndex(blockIndex),
+		code,
+	)
+}
+
+func newErrorResultWithCode(code, errorMsg string) types.Result {
+	return types.NewErrorResult(
+		types.NewFileID("a.md"),
+		types.NewLineNumber(1),
+		types.NewBlockIndex(1),
+		code,
+		&testError{msg: errorMsg},
+	)
 }

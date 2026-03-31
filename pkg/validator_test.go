@@ -322,15 +322,8 @@ func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
 func TestValidator_ValidateDirectory_CancellationDuringProcessing(t *testing.T) {
 	t.Parallel()
 
-	content := []byte("```go\npackage main\n```\n")
 	tmpDir := t.TempDir()
-	// Create multiple files to ensure processing takes time
-	for i := 0; i < 5; i++ {
-		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("test%d.md", i))
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
+	createTestMarkdownFiles(t, tmpDir, "test%d.md", 5)
 
 	v := New(false).WithConcurrency(1) // Single worker for predictable cancellation
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
@@ -404,16 +397,8 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 func TestValidator_WithMaxFiles(t *testing.T) {
 	t.Parallel()
 
-	content := []byte("```go\npackage main\n```\n")
 	tmpDir := t.TempDir()
-
-	// Create 10 files
-	for i := 0; i < 10; i++ {
-		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
+	createTestMarkdownFiles(t, tmpDir, "file%d.md", 10)
 
 	v := New(false).WithMaxFiles(3)
 	ctx := context.Background()
@@ -454,16 +439,8 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 func TestValidator_WithConcurrency(t *testing.T) {
 	t.Parallel()
 
-	content := []byte("```go\npackage main\n```\n")
 	tmpDir := t.TempDir()
-
-	// Create 4 files
-	for i := 0; i < 4; i++ {
-		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
-	}
+	createTestMarkdownFiles(t, tmpDir, "file%d.md", 4)
 
 	v := New(false).WithConcurrency(2)
 	ctx := context.Background()
@@ -526,5 +503,16 @@ func TestValidator_ChainMethods(t *testing.T) {
 	}
 	if v.concurrency != 3 {
 		t.Errorf("expected concurrency 3, got %d", v.concurrency)
+	}
+}
+
+func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
+	t.Helper()
+	content := []byte("```go\npackage main\n```\n")
+	for i := 0; i < count; i++ {
+		tmpFile := filepath.Join(tmpDir, fmt.Sprintf(pattern, i))
+		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
+			t.Fatal(err)
+		}
 	}
 }
