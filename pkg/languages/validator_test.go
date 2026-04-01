@@ -80,7 +80,9 @@ func TestRegistry_Get(t *testing.T) {
 
 	r := NewRegistry()
 	v := &MockValidator{lang: LangGo, available: true}
-	r.Register(v)
+	if err := r.Register(v); err != nil {
+		t.Fatalf("failed to register validator: %v", err)
+	}
 
 	tests := []struct {
 		name     string
@@ -106,7 +108,9 @@ func TestRegistry_GetByString(t *testing.T) {
 
 	r := NewRegistry()
 	v := &MockValidator{lang: LangGo, available: true}
-	r.Register(v)
+	if err := r.Register(v); err != nil {
+		t.Fatalf("failed to register validator: %v", err)
+	}
 
 	tests := []struct {
 		name     string
@@ -134,8 +138,12 @@ func TestRegistry_GetAvailable(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: false}
-	r.Register(v1)
-	r.Register(v2)
+	if err := r.Register(v1); err != nil {
+		t.Fatalf("failed to register v1: %v", err)
+	}
+	if err := r.Register(v2); err != nil {
+		t.Fatalf("failed to register v2: %v", err)
+	}
 
 	available := r.GetAvailable()
 	if len(available) != 1 {
@@ -153,8 +161,12 @@ func TestRegistry_Languages(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: true}
-	r.Register(v1)
-	r.Register(v2)
+	if err := r.Register(v1); err != nil {
+		t.Fatalf("failed to register v1: %v", err)
+	}
+	if err := r.Register(v2); err != nil {
+		t.Fatalf("failed to register v2: %v", err)
+	}
 
 	langs := r.Languages()
 	if len(langs) != 2 {
@@ -169,7 +181,9 @@ func TestRegistry_Validate(t *testing.T) {
 		t.Parallel()
 		r := NewRegistry()
 		v := &MockValidator{lang: LangGo, available: true}
-		r.Register(v)
+		if err := r.Register(v); err != nil {
+		t.Fatalf("failed to register validator: %v", err)
+	}
 
 		ctx := context.Background()
 		err := r.Validate(ctx, LangGo, "code")
@@ -193,7 +207,9 @@ func TestRegistry_Validate(t *testing.T) {
 		t.Parallel()
 		r := NewRegistry()
 		v := &MockValidator{lang: LangTypeScript, available: false}
-		r.Register(v)
+		if err := r.Register(v); err != nil {
+		t.Fatalf("failed to register validator: %v", err)
+	}
 
 		ctx := context.Background()
 		err := r.Validate(ctx, LangTypeScript, "code")
@@ -231,7 +247,8 @@ func TestValidationError(t *testing.T) {
 			expected: "10:5: syntax error",
 		},
 		{
-			name:     "without line and column",
+			name: "without line and column",
+			//nolint:exhaustruct // Intentionally testing partial initialization
 			err:      ValidationError{Message: "syntax error"},
 			expected: "syntax error",
 		},
