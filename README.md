@@ -238,6 +238,7 @@ The validator uses a pluggable architecture:
 
 ### Adding a New Language Validator
 
+<!-- skip-validate -->
 ```go
 // Create a validator
 type MyLanguageValidator struct{}

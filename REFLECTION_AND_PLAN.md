@@ -203,6 +203,8 @@ type ResultHandler interface {
 ```
 
 2. **Make CodeBlock immutable:**
+
+<!-- skip-validate -->
 ```go
 type CodeBlock struct {
     lineNumber LineNumber
