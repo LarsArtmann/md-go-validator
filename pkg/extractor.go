@@ -1,9 +1,10 @@
-// Package mdgovalidator validates Go code blocks in Markdown files.
+// Package mdgovalidator validates code blocks in Markdown files.
 package mdgovalidator
 
 import (
 	"strings"
 
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -23,12 +24,12 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 	}
 }
 
-// ExtractGoCodeBlocks extracts Go code blocks from markdown content.
-func ExtractGoCodeBlocks(content string) []types.CodeBlock {
+// ExtractCodeBlocks extracts code blocks for specified languages from markdown content.
+func ExtractCodeBlocks(content string, langs []languages.Language) []types.CodeBlock {
 	var blocks []types.CodeBlock
 	lines := strings.Split(content, "\n")
 
-	state := newExtractorState()
+	state := newExtractorState(langs)
 	for i, line := range lines {
 		state.processLine(i, line, &blocks)
 	}
@@ -36,12 +37,17 @@ func ExtractGoCodeBlocks(content string) []types.CodeBlock {
 	return blocks
 }
 
-// ExtractGoCodeBlocksWithConfig extracts Go code blocks with custom skip directives.
-func ExtractGoCodeBlocksWithConfig(content string, config SkipDirectivesConfig) []types.CodeBlock {
+// ExtractGoCodeBlocks extracts Go code blocks from markdown content (backwards compatible).
+func ExtractGoCodeBlocks(content string) []types.CodeBlock {
+	return ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+}
+
+// ExtractCodeBlocksWithConfig extracts code blocks with custom skip directives.
+func ExtractCodeBlocksWithConfig(content string, langs []languages.Language, config SkipDirectivesConfig) []types.CodeBlock {
 	var blocks []types.CodeBlock
 	lines := strings.Split(content, "\n")
 
-	state := newExtractorStateWithConfig(config)
+	state := newExtractorStateWithConfig(langs, config)
 	for i, line := range lines {
 		state.processLine(i, line, &blocks)
 	}
@@ -55,25 +61,31 @@ type extractorState struct {
 	blockStartLine int
 	skipNext       bool
 	skipDirectives SkipDirectivesConfig
+	targetLangs    []languages.Language
+	currentLang    languages.Language
 }
 
-func newExtractorState() *extractorState {
+func newExtractorState(langs []languages.Language) *extractorState {
 	return &extractorState{
 		inCodeBlock:    false,
 		currentBlock:   strings.Builder{},
 		blockStartLine: 0,
 		skipNext:       false,
 		skipDirectives: DefaultSkipDirectives(),
+		targetLangs:    langs,
+		currentLang:    "",
 	}
 }
 
-func newExtractorStateWithConfig(config SkipDirectivesConfig) *extractorState {
+func newExtractorStateWithConfig(langs []languages.Language, config SkipDirectivesConfig) *extractorState {
 	return &extractorState{
 		inCodeBlock:    false,
 		currentBlock:   strings.Builder{},
 		blockStartLine: 0,
 		skipNext:       false,
 		skipDirectives: config,
+		targetLangs:    langs,
+		currentLang:    "",
 	}
 }
 
@@ -114,15 +126,29 @@ func (s *extractorState) handleCodeContent(line string) {
 
 func (s *extractorState) startCodeBlock(trimmed string, lineNum int) {
 	lang := strings.TrimSpace(strings.TrimPrefix(trimmed, "```"))
-	if isGoLanguage(lang) {
-		s.inCodeBlock = true
-		s.blockStartLine = lineNum + 1 // 1-indexed
-		s.currentBlock.Reset()
+	parsedLang, ok := languages.ParseLanguage(lang)
+	if !ok {
+		return // Not a supported language
 	}
+
+	// Check if this language is in our target list
+	if !s.isTargetLanguage(parsedLang) {
+		return
+	}
+
+	s.inCodeBlock = true
+	s.blockStartLine = lineNum + 1 // 1-indexed
+	s.currentLang = parsedLang
+	s.currentBlock.Reset()
 }
 
-func isGoLanguage(lang string) bool {
-	return lang == "go" || lang == "Go" || lang == "golang"
+func (s *extractorState) isTargetLanguage(lang languages.Language) bool {
+	for _, target := range s.targetLangs {
+		if lang == target {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
@@ -131,11 +157,12 @@ func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 
 	if strings.TrimSpace(code) == "" {
 		s.skipNext = false
+		s.currentLang = ""
 		return
 	}
 
 	skipped := s.skipNext || s.hasSkipDirective(code)
-	block := types.NewCodeBlock(types.NewLineNumber(s.blockStartLine), code)
+	block := types.NewCodeBlock(types.NewLineNumber(s.blockStartLine), s.currentLang, code)
 	if skipped {
 		block.MarkSkipped()
 	} else {
@@ -145,4 +172,5 @@ func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 		*blocks = append(*blocks, block)
 	}
 	s.skipNext = false
+	s.currentLang = ""
 }

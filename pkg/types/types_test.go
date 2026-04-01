@@ -2,6 +2,8 @@ package types
 
 import (
 	"testing"
+
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 func TestFileID(t *testing.T) {
@@ -185,9 +187,12 @@ func TestCodeBlock(t *testing.T) {
 
 	t.Run("NewCodeBlock", func(t *testing.T) {
 		t.Parallel()
-		block := NewCodeBlock(NewLineNumber(10), "package main")
+		block := NewCodeBlock(NewLineNumber(10), languages.LangGo, "package main")
 		if block.LineNumber.Int() != 10 {
 			t.Errorf("expected LineNumber 10, got %d", block.LineNumber.Int())
+		}
+		if block.Language != languages.LangGo {
+			t.Errorf("expected Language Go, got %v", block.Language)
 		}
 		if block.Code != "package main" {
 			t.Errorf("expected 'package main', got %q", block.Code)

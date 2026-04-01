@@ -1,16 +1,24 @@
 # md-go-validator
 
-A CLI tool and Go library that validates Go code blocks in Markdown files.
+A CLI tool and Go library that validates code blocks in Markdown files.
 
-Ensures code examples in your documentation are syntactically valid Go code. Uses multiple parsing strategies to handle partial code snippets (imports, type declarations, function bodies) commonly found in technical documentation.
+Ensures code examples in your documentation are syntactically valid. Uses multiple parsing strategies to handle partial code snippets (imports, type declarations, function bodies) commonly found in technical documentation.
 
 - **CLI tool** - Validate entire documentation repositories
 - **Go library** - Integrate validation into your own tools
 - **CI-friendly** - Exit code 1 on validation errors
-- **Pure Go** - No external dependencies
+- **Multi-language** - Validate Go, TypeScript, Rust, Nix, HCL/Terraform, and Templ
+- **Pluggable** - Easy to add new language validators
 
 ## Features
 
+- **Multi-Language Support**:
+  - **Go** (built-in, no dependencies)
+  - **TypeScript/TSX** (requires `tsc`)
+  - **Rust** (requires `rustc`)
+  - **Nix** (requires `nix-instantiate`)
+  - **HCL/Terraform** (requires `terraform`)
+  - **Templ** (requires `templ` CLI)
 - **Multiple Parsing Strategies** - Handles partial code:
   - Complete files
   - Package declarations only
@@ -20,7 +28,6 @@ Ensures code examples in your documentation are syntactically valid Go code. Use
 - **Skip Directives** - Mark intentionally incomplete code
 - **Recursive Scanning** - Validates entire documentation trees
 - **CI-Friendly** - Exit code 1 on errors, structured output
-- **Fast** - Pure Go, no external dependencies
 
 ## Installation
 
@@ -31,7 +38,7 @@ go install github.com/larsartmann/md-go-validator@latest
 ## Usage
 
 ```bash
-# Validate all markdown in current directory
+# Validate all Go code blocks in current directory (default)
 md-go-validator .
 
 # Validate specific file
@@ -39,6 +46,9 @@ md-go-validator README.md
 
 # Validate multiple paths
 md-go-validator docs/ README.md
+
+# Validate multiple languages
+md-go-validator -l go,typescript,rust .
 
 # Verbose output (show each block)
 md-go-validator -v .
@@ -49,12 +59,42 @@ md-go-validator -q .
 
 ## Options
 
-| Option          | Description                              |
-| --------------- | ---------------------------------------- |
-| `-v, --verbose` | Show progress for each code block        |
-| `-q, --quiet`   | Only show summary (no code in errors)    |
-| `--no-code`     | Don't show code snippets in error output |
-| `-h, --help`    | Show help message                        |
+| Option               | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `-v, --verbose`      | Show progress for each code block                |
+| `-q, --quiet`        | Only show summary (no code in errors)          |
+| `--no-code`          | Don't show code snippets in error output         |
+| `-l, --language`     | Comma-separated list of languages to validate    |
+| `-f, --format`       | Output format (table, json, yaml, csv, quiet)  |
+| `--color`            | Color mode (auto, always, never)                 |
+| `-o, --output`       | Write output to file                             |
+| `-t, --timeout`      | Timeout for validation (e.g., 30s, 5m)          |
+| `-h, --help`         | Show help message                                |
+
+## Supported Languages
+
+| Language   | Identifier(s)           | Required Tool      | Built-in |
+| ---------- | ----------------------- | ------------------ | -------- |
+| Go         | `go`, `golang`          | -                  | ✅       |
+| TypeScript | `typescript`, `ts`      | `tsc`              | ❌       |
+| TSX        | `tsx`                   | `tsc`              | ❌       |
+| Rust       | `rust`, `rs`            | `rustc`            | ❌       |
+| Nix        | `nix`                   | `nix-instantiate`  | ❌       |
+| HCL        | `hcl`, `terraform`, `tf`| `terraform`        | ❌       |
+| Templ      | `templ`                 | `templ` CLI        | ❌       |
+
+## Language Selection Examples
+
+```bash
+# Validate Go and TypeScript only
+md-go-validator -l go,typescript .
+
+# Validate all supported languages found in markdown
+md-go-validator -l go,templ,typescript,nix,rust,hcl .
+
+# Short form
+md-go-validator -l go,ts,rs .
+```
 
 ## Skip Directives
 
@@ -63,12 +103,12 @@ For intentionally incomplete code snippets (common in documentation), place thes
 ````markdown
 <!-- skip-validate -->
 
-`+ "```go" +`
+```go
 // This is intentionally partial
 type MyStruct struct {
-Name string
+    Name string
 }
-`+ "```" +`
+```
 ````
 
 ### Available Directives
@@ -82,9 +122,9 @@ Name string
 
 ## How It Works
 
-### Parsing Strategies
+### Go Parsing Strategies
 
-The validator tries multiple approaches to parse code:
+The Go validator tries multiple approaches to parse code:
 
 1. **Complete File** - Parse as-is
 2. **Package Wrapper** - Wrap in `package main`
@@ -99,122 +139,51 @@ This handles:
 - Function signatures
 - Import statements
 - Variable declarations
-- Expressions
+- Individual expressions
 
-### Example Validations
+### External Language Validators
 
-**Valid (passes):**
+For other languages, the tool uses external CLI tools:
 
-```go
-package main
+- **TypeScript**: `tsc --noEmit --allowJs`
+- **Rust**: `rustc --emit=metadata --crate-type lib`
+- **Nix**: `nix-instantiate --parse`
+- **HCL**: `terraform fmt -check`
+- **Templ**: `templ fmt -stdin`
 
-func main() {
-    fmt.Println("Hello")
-}
+These validators gracefully skip if the required tool is not installed.
+
+## Output Formats
+
+```bash
+# JSON output for CI integration
+md-go-validator -f json .
+
+# YAML output
+md-go-validator -f yaml .
+
+# CSV for spreadsheets
+md-go-validator -f csv .
+
+# Markdown table
+md-go-validator -f markdown .
 ```
 
-```go
-type User struct {
-    Name string
-    Age  int
-}
-```
-
-```go
-import "github.com/example/pkg"
-```
-
-```go
-result, err := doSomething()
-if err != nil {
-    return err
-}
-```
-
-**Invalid (fails):**
-
-<!-- skip-validate -->
-
-```go
-require (
-    github.com/pkg v1.0.0
-)
-```
-
-(This is go.mod syntax, not Go code)
-
-## Sample Output
-
-```
-============================================================
-📊 VALIDATION REPORT
-============================================================
-Total code blocks: 863
-✅ Valid: 738
-⏭️  Skipped: 0
-❌ Invalid: 125
-
-------------------------------------------------------------
-❌ ERRORS FOUND:
-------------------------------------------------------------
-
-📍 docs/example.md:42 (block #3)
-   Error: snippet.go:2:1: expected 'package', found 'import'
-
-   Code:
-   --------------------------------------------------
-     1 | import "fmt"
-     2 |
-     3 | func main() {}
-   --------------------------------------------------
-
-============================================================
-```
-
-## CI/CD Integration
-
-### GitHub Actions
+## CI Integration
 
 ```yaml
-name: Validate Docs
-
+# .github/workflows/docs.yml
+name: Validate Documentation
 on: [push, pull_request]
-
 jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
-        with:
-          go-version: "1.22"
-
-      - name: Validate Go code in markdown
-        run: go run github.com/larsartmann/md-go-validator@latest --no-code .
+      - run: go install github.com/larsartmann/md-go-validator@latest
+      - run: md-go-validator -f json -o results.json .
 ```
-
-### Pre-commit Hook
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: local
-    hooks:
-      - id: md-go-validator
-        name: Validate Go in Markdown
-        entry: md-go-validator
-        language: system
-        types: [markdown]
-```
-
-## Comparison with Alternatives
-
-| Tool                | Partial Code           | Skip Directives | CI-Friendly   | Dependencies |
-| ------------------- | ---------------------- | --------------- | ------------- | ------------ |
-| **md-go-validator** | ✅ Multiple strategies | ✅ 6 directives | ✅ Exit codes | ❌ None      |
-| godown              | ❌ Requires package    | ❌ No           | ✅ Yes        | ❌ None      |
-| Runme               | ⚠️ Limited             | ⚠️ Annotations  | ✅ Yes        | ❌ None      |
-| embedmd             | ❌ No execution        | ❌ No           | ✅ Yes        | ❌ None      |
 
 ## Library Usage
 
@@ -226,23 +195,79 @@ import (
     "fmt"
 
     mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
-    "github.com/larsartmann/md-go-validator/pkg/output"
+    "github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 func main() {
-    v := mdgovalidator.New(false)
+    // Create validator for specific languages
+    validator := mdgovalidator.New(true).
+        WithLanguages([]languages.Language{
+            languages.LangGo,
+            languages.LangTypeScript,
+        })
 
-    // Validate a single file
-    results, err := v.ValidateFile(context.Background(), "README.md")
+    // Validate a file
+    ctx := context.Background()
+    results, err := validator.ValidateFile(ctx, "README.md")
     if err != nil {
         panic(err)
     }
 
-    // Print results in various formats
-    output.PrintReport(results, output.FormatTable, output.ColorModeAuto, true)
+    // Process results
+    for _, r := range results {
+        if r.HasError() {
+            fmt.Printf("Error at line %s: %v\n", r.LineNumber, r.Error)
+        }
+    }
 }
 ```
 
+## Architecture
+
+The validator uses a pluggable architecture:
+
+```
+┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Extractor     │────▶│  Language Registry│────▶│   Validators    │
+│                 │     │                  │     │                 │
+│ - Parse markdown│     │ - Map lang to    │     │ - Go (built-in) │
+│ - Find code     │     │   validator      │     │ - External cmds │
+│   blocks        │     │ - Check avail.   │     │ - Custom        │
+└─────────────────┘     └──────────────────┘     └─────────────────┘
+```
+
+### Adding a New Language Validator
+
+```go
+// Create a validator
+type MyLanguageValidator struct{}
+
+func (v *MyLanguageValidator) Language() languages.Language {
+    return languages.Language("mylang")
+}
+
+func (v *MyLanguageValidator) Validate(ctx context.Context, code string) error {
+    // Validation logic here
+    return nil
+}
+
+func (v *MyLanguageValidator) IsAvailable() bool {
+    // Check if required tools are installed
+    return true
+}
+
+// Register it
+registry := languages.NewRegistry()
+registry.Register(&MyLanguageValidator{})
+```
+
+## Future Enhancements
+
+- **Tree-sitter integration** - Pure Go parsing without external dependencies
+- **More languages** - Python, Java, C/C++, etc.
+- **Custom validators** - User-defined validation rules
+- **Fix suggestions** - Auto-fix common syntax errors
+
 ## License
 
-MIT
+MIT License - See [LICENSE](LICENSE) for details.

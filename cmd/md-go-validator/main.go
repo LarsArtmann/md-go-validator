@@ -1,4 +1,4 @@
-// md-go-validator validates Go code blocks in Markdown files.
+// md-go-validator validates code blocks in Markdown files.
 package main
 
 import (
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
@@ -28,11 +29,12 @@ type config struct {
 	paths      []string
 	timeout    time.Duration
 	contextCfg mdgovalidator.ContextConfig
+	languages  []languages.Language
 }
 
 func main() {
 	cfg := parseArgs(os.Args[1:])
-	validator := mdgovalidator.New(cfg.verbose)
+	validator := mdgovalidator.New(cfg.verbose).WithLanguages(cfg.languages)
 
 	// Build context with timeout from config
 	ctx, cancel := cfg.contextCfg.Build()
@@ -59,21 +61,25 @@ func main() {
 type argHandler func(args []string, i int, cfg *config) (int, bool)
 
 // argHandlers maps flag names to their handler functions.
+//
+//nolint:gochecknoglobals // Required for CLI argument parsing
 var argHandlers = map[string]argHandler{
-	"-v":        handleVerbose,
-	"--verbose": handleVerbose,
-	"-q":        handleQuiet,
-	"--quiet":   handleQuiet,
-	"--no-code": handleNoCode,
-	"-f":        handleFormat,
-	"--format":  handleFormat,
-	"--color":   handleColor,
-	"-o":        handleOutput,
-	"--output":  handleOutput,
-	"--timeout": handleTimeout,
-	"-t":        handleTimeout,
-	"-h":        handleHelp,
-	"--help":    handleHelp,
+	"-v":         handleVerbose,
+	"--verbose":  handleVerbose,
+	"-q":         handleQuiet,
+	"--quiet":    handleQuiet,
+	"--no-code":  handleNoCode,
+	"-f":         handleFormat,
+	"--format":   handleFormat,
+	"--color":    handleColor,
+	"-o":         handleOutput,
+	"--output":   handleOutput,
+	"--timeout":  handleTimeout,
+	"-t":         handleTimeout,
+	"-l":         handleLanguages,
+	"--language": handleLanguages,
+	"-h":         handleHelp,
+	"--help":     handleHelp,
 }
 
 func parseArgs(args []string) config {
@@ -86,6 +92,7 @@ func parseArgs(args []string) config {
 		paths:      []string{},
 		timeout:    0,
 		contextCfg: mdgovalidator.DefaultContextConfig(),
+		languages:  []languages.Language{languages.LangGo},
 	}
 
 	for i := 0; i < len(args); i++ {
@@ -194,6 +201,39 @@ func handleTimeout(args []string, i int, cfg *config) (int, bool) {
 	return 1, true
 }
 
+func handleLanguages(args []string, i int, cfg *config) (int, bool) {
+	if i+1 >= len(args) {
+		fmt.Fprintln(os.Stderr, "Error: --language requires an argument")
+		printUsage()
+		return 0, false
+	}
+
+	// Parse comma-separated list of languages
+	langs := strings.Split(args[i+1], ",")
+	cfg.languages = nil // Reset to empty slice
+
+	for _, lang := range langs {
+		lang = strings.TrimSpace(strings.ToLower(lang))
+		parsed, ok := languages.ParseLanguage(lang)
+		if !ok {
+			fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
+			fmt.Fprintf(os.Stderr, "Supported languages: %s\n", strings.Join(getLanguageNames(), ", "))
+			return 0, false
+		}
+		cfg.languages = append(cfg.languages, parsed)
+	}
+
+	return 1, true
+}
+
+func getLanguageNames() []string {
+	names := make([]string, 0, len(languages.AllLanguages()))
+	for _, lang := range languages.AllLanguages() {
+		names = append(names, string(lang))
+	}
+	return names
+}
+
 func validatePaths(
 	ctx context.Context,
 	validator mdgovalidator.Validator,
@@ -291,20 +331,22 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 }
 
 func printUsage() {
-	fmt.Println(`md-go-validator - Validate Go code blocks in Markdown files
+	fmt.Println(`md-go-validator - Validate code blocks in Markdown files
 
 USAGE:
     md-go-validator [OPTIONS] [PATH...]
 
 OPTIONS:
-    -v, --verbose    Show progress for each code block
-    -q, --quiet      Quiet mode (summary only, no code in errors)
-    --no-code        Don't show code snippets in error output
-    -f, --format     Output format (table, json, markdown, yaml, csv, quiet)
-    --color          Color mode (auto, always, never)
-    -o, --output     Write output to file (creates parent dirs if needed)
-    -t, --timeout    Timeout for validation (e.g., 30s, 5m, 1h)
-    -h, --help       Show this help message
+    -v, --verbose     Show progress for each code block
+    -q, --quiet       Quiet mode (summary only, no code in errors)
+    --no-code         Don't show code snippets in error output
+    -f, --format      Output format (table, json, markdown, yaml, csv, quiet)
+    --color           Color mode (auto, always, never)
+    -o, --output      Write output to file (creates parent dirs if needed)
+    -t, --timeout     Timeout for validation (e.g., 30s, 5m, 1h)
+    -l, --language    Comma-separated list of languages to validate
+                      (go, templ, typescript, tsx, nix, rust, hcl, terraform)
+    -h, --help        Show this help message
 
 OUTPUT FORMATS:
     table    Terminal table (default)
@@ -319,6 +361,16 @@ COLOR MODES:
     always   Force ANSI colors
     never    Disable colors
 
+SUPPORTED LANGUAGES:
+    go          Go (built-in, always available)
+    templ       Templ (requires 'templ' CLI)
+    typescript  TypeScript (requires 'tsc')
+    tsx         TypeScript JSX (requires 'tsc')
+    nix         Nix (requires 'nix-instantiate')
+    rust        Rust (requires 'rustc')
+    hcl         HCL/Terraform (requires 'terraform' or 'hclfmt')
+    terraform   Alias for HCL
+
 SKIP DIRECTIVES:
     Add these to skip validation of specific code blocks:
     <!-- skip-validate -->
@@ -329,12 +381,13 @@ SKIP DIRECTIVES:
     //nolint
 
 EXAMPLES:
-    md-go-validator .                       # Validate all .md files
-    md-go-validator README.md               # Validate a specific file
-    md-go-validator -v .                    # Verbose output
-    md-go-validator -f json .               # JSON output for CI
-    md-go-validator -f markdown .           # Markdown table output
-    md-go-validator --color never .         # Disable colors
-    md-go-validator -o report.json -f json . # Write JSON to file
-    md-go-validator --timeout 30s .         # 30 second timeout`)
+    md-go-validator .                           # Validate all .md files
+    md-go-validator README.md                   # Validate a specific file
+    md-go-validator -v .                        # Verbose output
+    md-go-validator -f json .                 # JSON output for CI
+    md-go-validator -l go,typescript .        # Validate Go and TypeScript
+    md-go-validator -l templ,nix .            # Validate Templ and Nix
+    md-go-validator --color never .             # Disable colors
+    md-go-validator -o report.json -f json .  # Write JSON to file
+    md-go-validator --timeout 30s .           # 30 second timeout`)
 }

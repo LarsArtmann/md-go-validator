@@ -1,12 +1,17 @@
 package types
 
-// CodeBlock represents a Go code block extracted from markdown.
+import "github.com/larsartmann/md-go-validator/pkg/languages"
+
+// CodeBlock represents a code block extracted from markdown.
 // This is the internal representation used during extraction.
 type CodeBlock struct {
 	// LineNumber is the 1-based line number where the code block starts.
 	LineNumber LineNumber
 
-	// Code is the actual Go source code content.
+	// Language is the programming language of the code block.
+	Language languages.Language
+
+	// Code is the actual source code content.
 	Code string
 
 	// Skipped indicates if this block should be skipped during validation.
@@ -15,9 +20,10 @@ type CodeBlock struct {
 }
 
 // NewCodeBlock creates a new CodeBlock with default values.
-func NewCodeBlock(line LineNumber, code string) CodeBlock {
+func NewCodeBlock(line LineNumber, lang languages.Language, code string) CodeBlock {
 	return CodeBlock{
 		LineNumber: line,
+		Language:   lang,
 		Code:       code,
 		Status:     StatusUnknown,
 	}

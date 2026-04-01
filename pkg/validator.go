@@ -4,32 +4,34 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-// FileValidator validates Go code blocks in markdown files.
+// FileValidator validates code blocks in markdown files.
 type FileValidator struct {
-	fset        *token.FileSet
+	registry    *languages.Registry
 	verbose     bool
 	maxFiles    int
 	maxBlocks   int
 	concurrency int
+	targetLangs []languages.Language
 }
 
-// New creates a new FileValidator.
+// New creates a new FileValidator with default settings.
 func New(verbose bool) *FileValidator {
 	return &FileValidator{
-		fset:        token.NewFileSet(),
-		verbose:     verbose,
-		maxFiles:    0,
-		maxBlocks:   0,
-		concurrency: 4,
+		registry:    languages.DefaultRegistry(),
+		verbose:       verbose,
+		maxFiles:      0,
+		maxBlocks:     0,
+		concurrency:   4,
+		targetLangs:   []languages.Language{languages.LangGo},
 	}
 }
 
@@ -53,6 +55,18 @@ func (v *FileValidator) WithConcurrency(n int) *FileValidator {
 	return v
 }
 
+// WithLanguages sets the target languages to validate.
+func (v *FileValidator) WithLanguages(langs []languages.Language) *FileValidator {
+	v.targetLangs = langs
+	return v
+}
+
+// WithRegistry sets a custom validator registry.
+func (v *FileValidator) WithRegistry(r *languages.Registry) *FileValidator {
+	v.registry = r
+	return v
+}
+
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	if err := checkContext(ctx); err != nil {
@@ -69,7 +83,7 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 		return nil, fmt.Errorf("reading file %s: %w", filePath, err)
 	}
 
-	blocks := ExtractGoCodeBlocks(string(content))
+	blocks := ExtractCodeBlocks(string(content), v.targetLangs)
 	if len(blocks) == 0 {
 		return []types.Result{}, nil
 	}
@@ -107,7 +121,7 @@ func (v *FileValidator) validateBlocks(
 		default:
 		}
 
-		result := v.validateBlock(cleanPath, block, i)
+		result := v.validateBlock(ctx, cleanPath, block, i)
 		results = append(results, result)
 		v.logProgress(i, block, result)
 	}
@@ -125,6 +139,7 @@ func checkContext(ctx context.Context) error {
 }
 
 func (v *FileValidator) validateBlock(
+	ctx context.Context,
 	filePath string,
 	block types.CodeBlock,
 	index int,
@@ -140,7 +155,29 @@ func (v *FileValidator) validateBlock(
 		)
 	}
 
-	if err := ValidateGoCode(block.Code); err != nil {
+	// Get the validator for this language
+	validator := v.registry.Get(block.Language)
+	if validator == nil {
+		return types.NewErrorResult(
+			types.NewFileID(filePath),
+			block.LineNumber,
+			blockIndex,
+			block.Code,
+			fmt.Errorf("no validator available for language: %s", block.Language),
+		)
+	}
+
+	if !validator.IsAvailable() {
+		return types.NewSkippedResult(
+			types.NewFileID(filePath),
+			block.LineNumber,
+			blockIndex,
+			block.Code,
+		)
+	}
+
+	// Validate using the language-specific validator
+	if err := validator.Validate(ctx, block.Code); err != nil {
 		codePreview := block.Code
 		if len(codePreview) > 30 {
 			codePreview = codePreview[:30] + "..."
@@ -150,8 +187,8 @@ func (v *FileValidator) validateBlock(
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			fmt.Errorf("validating block (block=%d, file=%s, code=%q, line=%s): %w",
-				index, filePath, codePreview, block.LineNumber, err),
+			fmt.Errorf("validating %s block (block=%d, file=%s, code=%q, line=%s): %w",
+				block.Language, index, filePath, codePreview, block.LineNumber, err),
 		)
 	}
 
