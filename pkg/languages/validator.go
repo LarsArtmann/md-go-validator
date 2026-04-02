@@ -121,19 +121,19 @@ func DefaultRegistry() *Registry {
 	// These use embedded grammars and don't require external tools.
 	// Errors are silently ignored since these are optional validators
 	// and may not have grammar support compiled in.
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangRust, "rust"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangTypeScript, "typescript"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangTSX, "tsx"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangNix, "nix"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangHCL, "hcl"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangTerraform, "terraform"))
-	//nolint:errcheck // Optional validators, failure is acceptable
+	//nolint:errcheck // Optional validators, failure is acceptable.
 	_ = r.Register(NewTreeSitterValidator(LangTempl, "templ"))
 
 	return r
