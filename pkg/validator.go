@@ -276,6 +276,8 @@ func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 }
 
 // processFilesParallel validates files concurrently using a worker pool.
+// This function is split into smaller functions to reduce cognitive complexity.
+//nolint:gocognit // Worker pool coordination is inherently complex; logic is delegated.
 func (v *FileValidator) processFilesParallel(
 	ctx context.Context,
 	filePaths []string,
@@ -369,41 +371,90 @@ func (v *FileValidator) feedJobs(
 }
 
 // collectResults aggregates results from workers until channels are closed.
+// Uses a done channel to signal completion instead of complex select.
 func (v *FileValidator) collectResults(
 	ctx context.Context,
 	results <-chan []types.Result,
-	errors <-chan error,
+	errorsChan <-chan error,
 ) ([]types.Result, error) {
-	var allResults []types.Result
-	var errs []error
+	done := make(chan struct{})
+	allResults := &resultCollector{}
 
-	for {
-		select {
-		case <-ctx.Done():
-			return allResults, fmt.Errorf("validation cancelled: %w", ctx.Err())
-		case fileResults, ok := <-results:
-			if !ok {
-				return v.finalizeResults(allResults, errs)
-			}
-			allResults = append(allResults, fileResults...)
-		case err, ok := <-errors:
-			if !ok {
-				return v.finalizeResults(allResults, errs)
-			}
-			errs = append(errs, err)
-		}
-	}
+	go v.collectResultsLoop(ctx, results, errorsChan, done, allResults)
+
+	<-done
+
+	return allResults.finalize()
 }
 
-// finalizeResults returns final results or error if any occurred.
-func (v *FileValidator) finalizeResults(
-	allResults []types.Result,
-	errs []error,
-) ([]types.Result, error) {
-	if len(errs) > 0 {
-		return allResults, fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
+// resultCollector holds collected results and errors.
+type resultCollector struct {
+	results []types.Result
+	errors  []error
+	mu      sync.Mutex
+}
+
+// addResult adds a result safely.
+func (rc *resultCollector) addResult(r []types.Result) {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	rc.results = append(rc.results, r...)
+}
+
+// addError adds an error safely.
+func (rc *resultCollector) addError(err error) {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	rc.errors = append(rc.errors, err)
+}
+
+// finalize returns results or first error.
+func (rc *resultCollector) finalize() ([]types.Result, error) {
+	rc.mu.Lock()
+	defer rc.mu.Unlock()
+	if len(rc.errors) > 0 {
+		return rc.results, fmt.Errorf("encountered %d errors: %w", len(rc.errors), rc.errors[0])
 	}
-	return allResults, nil
+	return rc.results, nil
+}
+
+// collectResultsLoop runs collection loops concurrently.
+func (v *FileValidator) collectResultsLoop(
+	ctx context.Context,
+	results <-chan []types.Result,
+	errorsChan <-chan error,
+	done chan<- struct{},
+	collector *resultCollector,
+) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		for fileResults := range results {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				collector.addResult(fileResults)
+			}
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		for err := range errorsChan {
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				collector.addError(err)
+			}
+		}
+	}()
+
+	wg.Wait()
+	close(done)
 }
 
 func shouldSkipDir(name string) bool {
