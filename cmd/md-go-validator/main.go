@@ -60,26 +60,27 @@ func main() {
 // argHandler defines a function type for handling an argument.
 type argHandler func(args []string, i int, cfg *config) (int, bool)
 
-// argHandlers maps flag names to their handler functions.
-//
-//nolint:gochecknoglobals // Required for CLI argument parsing
-var argHandlers = map[string]argHandler{
-	"-v":         handleVerbose,
-	"--verbose":  handleVerbose,
-	"-q":         handleQuiet,
-	"--quiet":    handleQuiet,
-	"--no-code":  handleNoCode,
-	"-f":         handleFormat,
-	"--format":   handleFormat,
-	"--color":    handleColor,
-	"-o":         handleOutput,
-	"--output":   handleOutput,
-	"--timeout":  handleTimeout,
-	"-t":         handleTimeout,
-	"-l":         handleLanguages,
-	"--language": handleLanguages,
-	"-h":         handleHelp,
-	"--help":     handleHelp,
+// newArgHandlers creates the map of flag names to their handler functions.
+// This is a function instead of a global to avoid gochecknoglobals lint violation.
+func newArgHandlers() map[string]argHandler {
+	return map[string]argHandler{
+		"-v":         handleVerbose,
+		"--verbose":  handleVerbose,
+		"-q":         handleQuiet,
+		"--quiet":    handleQuiet,
+		"--no-code":  handleNoCode,
+		"-f":         handleFormat,
+		"--format":   handleFormat,
+		"--color":    handleColor,
+		"-o":         handleOutput,
+		"--output":   handleOutput,
+		"--timeout":  handleTimeout,
+		"-t":         handleTimeout,
+		"-l":         handleLanguages,
+		"--language": handleLanguages,
+		"-h":         handleHelp,
+		"--help":     handleHelp,
+	}
 }
 
 func parseArgs(args []string) config {
@@ -94,6 +95,8 @@ func parseArgs(args []string) config {
 		contextCfg: mdgovalidator.DefaultContextConfig(),
 		languages:  []languages.Language{languages.LangGo},
 	}
+
+	argHandlers := newArgHandlers()
 
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
