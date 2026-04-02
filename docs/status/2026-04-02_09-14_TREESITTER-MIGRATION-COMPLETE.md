@@ -269,6 +269,8 @@ After:
 
 ### Dependencies Added
 
+<!-- skip-validate -->
+
 ```go
 require (
     github.com/odvcencio/gotreesitter v0.13.0 // indirect
