@@ -10,11 +10,12 @@
 ## A) FULLY DONE ✅
 
 ### 1. ErrorCode Enum Implementation (COMPLETED 2026-04-02)
+
 **Files:** `pkg/languages/validator.go`, `pkg/languages/go_validator.go`, `pkg/languages/treesitter_validator.go`
 
 - Added `ErrorCode` type as `uint` with 4 constants:
   - `ErrCodeUnknown` - Unspecified error type
-  - `ErrCodeSyntax` - Syntax parsing error  
+  - `ErrCodeSyntax` - Syntax parsing error
   - `ErrCodeNotAvailable` - Validator not available
   - `ErrCodeNotRegistered` - No validator for language
 - Enhanced `ValidationError` struct with `Code ErrorCode` field
@@ -24,6 +25,7 @@
 - Fixed all exhaustruct linter warnings
 
 ### 2. Line/Column Extraction from Go Parser (COMPLETED 2026-04-02)
+
 **File:** `pkg/languages/go_validator.go`
 
 - `createValidationError()` now extracts actual line/column from `go/scanner.ErrorList`
@@ -32,6 +34,7 @@
 - Fixes exhaustruct warning about missing Line/Column fields
 
 ### 3. Tree-sitter Validator Registration Refactoring (COMPLETED 2026-04-02)
+
 **File:** `pkg/languages/validator.go`
 
 - Changed from repetitive individual registrations to registration loop
@@ -40,6 +43,7 @@
 - More maintainable - add new language by adding to slice
 
 ### 4. Registry.Validate Error Handling (COMPLETED 2026-04-02)
+
 **File:** `pkg/languages/validator.go`
 
 - Returns `ValidationError` with appropriate `ErrorCode` for missing validators
@@ -47,6 +51,7 @@
 - Fixes wrapcheck linter warning
 
 ### 5. TreeSitterValidator ErrorCode Support (COMPLETED 2026-04-02)
+
 **File:** `pkg/languages/treesitter_validator.go`
 
 - All error paths now return `ValidationError` with appropriate codes:
@@ -61,13 +66,16 @@
 ## B) PARTIALLY DONE ⚠️
 
 ### 1. CodeBlock Immutability (DESIGNED, NOT IMPLEMENTED)
+
 **File:** `pkg/types/code_block.go`
 
 **Current State:** Mutable with pointer receiver methods
+
 - `MarkSkipped()`, `MarkValid()`, `MarkError()` modify state
 - Works correctly but mutable pattern
 
 **Planned Improvement:** Builder pattern for immutability
+
 ```go
 // Proposed immutable API:
 func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
@@ -83,6 +91,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 **Blockers:** Need to update all callers in extractor.go and validator.go
 
 ### 2. Context Propagation in validateBlock (IDENTIFIED, NOT FIXED)
+
 **File:** `pkg/validator.go`
 
 - `validateBlock` function doesn't receive context parameter
@@ -90,9 +99,11 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 - Medium impact - timeout still works at file level
 
 ### 3. Linter Warnings Cleanup (ONGOING)
+
 **Status:** Reduced from 40+ warnings to 0 errors, 0 critical warnings
 
 **Remaining Hints (non-critical, Go modernization suggestions):**
+
 - `pkg/extractor.go:146` - Can use `slices.Contains`
 - `pkg/languages/language.go:100` - Can use `slices.Contains`
 - `pkg/validator.go:301` - Can use `WaitGroup.Go`
@@ -103,6 +114,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 ## C) NOT STARTED ❌
 
 ### 1. Global argHandlers Refactoring
+
 **File:** `cmd/md-go-validator/main.go:62`
 
 **Issue:** Global variable `argHandlers` violates `gochecknoglobals`
@@ -110,19 +122,24 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 **Solution:** Convert to function returning map or use struct-based approach
 
 ### 2. Long Function Refactoring
+
 **Files:** `pkg/validator.go`, `cmd/md-go-validator/main.go`
 
 **Issues:**
+
 - `processFilesParallel` - Cognitive complexity 32 (exceeds 30 threshold)
 - Multiple test functions exceed 60 lines (funlen violations)
 - Main function in main.go is long and handles too many concerns
 
 ### 3. External Validator Error Handling
+
 **Note:** External validator appears to have been removed or refactored
+
 - Original REFLECTION_AND_PLAN.md mentioned unchecked `os.Remove` and `tmpFile.Close()` errors
 - Current codebase uses tree-sitter validators (pure Go, no temp files)
 
 ### 4. Result Handler Interface
+
 **File:** Proposed addition
 
 ```go
@@ -137,6 +154,7 @@ type ResultHandler interface {
 **Purpose:** Better abstraction for result processing
 
 ### 5. Multi-error Aggregation
+
 **Consideration:** Use `github.com/hashicorp/go-multierror` for collecting multiple validation errors
 **Status:** Not needed yet - current single-error approach works
 
@@ -147,6 +165,7 @@ type ResultHandler interface {
 **NONE** - All critical issues resolved.
 
 Previous issues that were fixed:
+
 - ❌ ~40 linter warnings → ✅ 0 errors, only modernization hints
 - ❌ exhaustruct violations → ✅ All structs properly initialized
 - ❌ wrapcheck warnings → ✅ Errors properly wrapped
@@ -272,6 +291,7 @@ Previous issues that were fixed:
 We want to make `CodeBlock` immutable by returning new instances from methods like `WithStatus()`. However, `CodeBlock` is used extensively in tight loops during markdown parsing and validation.
 
 **Current approach (mutable):**
+
 ```go
 func (b *CodeBlock) MarkSkipped() {
     b.Status = StatusSkipped  // Mutates in place
@@ -279,6 +299,7 @@ func (b *CodeBlock) MarkSkipped() {
 ```
 
 **Proposed approach (immutable):**
+
 ```go
 func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
     return CodeBlock{  // Allocates new struct
@@ -291,23 +312,27 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 ```
 
 **Concerns:**
+
 1. **Allocations:** Immutable approach creates new allocations for every status change
 2. **GC Pressure:** Large markdown files with many code blocks could create thousands of temporary structs
 3. **Performance:** Go's escape analysis might heap-allocate these, causing GC overhead
 4. **Value vs Pointer:** Current mutable approach uses pointer receiver - is this actually a problem?
 
 **What I've considered:**
+
 - Go's compiler is smart about escape analysis - small structs might stay on stack
 - Functional/immutable design is cleaner but may not be idiomatic for high-performance Go
 - The `Code` field is a string (heap allocated anyway), so copying the struct is cheap (just 4 words)
 - Thread safety isn't really an issue since we process files sequentially
 
 **Why I can't decide:**
+
 - The project emphasizes "quality over speed" in AGENTS.md
 - But also "Excellence without paralysis" and "Ship fast, iterate faster"
 - Is this refactoring valuable engineering or premature optimization/pessimization?
 
 **Possible answers I need:**
+
 1. Is immutability worth the allocation cost in this specific case?
 2. Should we benchmark first before deciding?
 3. Is there a middle ground (e.g., keep mutable but document why)?
@@ -317,16 +342,16 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| Total Lines of Code | ~2,782 |
-| Go Files | 22 |
-| Test Files | 7 |
+| Metric              | Value                                                    |
+| ------------------- | -------------------------------------------------------- |
+| Total Lines of Code | ~2,782                                                   |
+| Go Files            | 22                                                       |
+| Test Files          | 7                                                        |
 | Languages Supported | 7 (Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, Templ) |
-| Linter Errors | 0 |
-| Linter Warnings | 0 (only modernization hints) |
-| Test Coverage | Unknown (tests not running due to Go cache issues) |
-| Dependencies | 2 (gotreesitter, go-output) |
+| Linter Errors       | 0                                                        |
+| Linter Warnings     | 0 (only modernization hints)                             |
+| Test Coverage       | Unknown (tests not running due to Go cache issues)       |
+| Dependencies        | 2 (gotreesitter, go-output)                              |
 
 ## Recent Commits
 
