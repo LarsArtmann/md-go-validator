@@ -117,24 +117,26 @@ func DefaultRegistry() *Registry {
 		panic(fmt.Sprintf("failed to register Go validator: %v", err))
 	}
 
-	// Register tree-sitter based validators (pure Go, always available)
-	// These use embedded grammars and don't require external tools.
+	// Register tree-sitter based validators using a loop for maintainability.
 	// Errors are silently ignored since these are optional validators
 	// and may not have grammar support compiled in.
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangRust, "rust"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangTypeScript, "typescript"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangTSX, "tsx"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangNix, "nix"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangHCL, "hcl"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangTerraform, "terraform"))
-	//nolint:errcheck // Optional validators, failure is acceptable.
-	_ = r.Register(NewTreeSitterValidator(LangTempl, "templ"))
+	treeSitterValidators := []struct {
+		lang Language
+		name string
+	}{
+		{LangRust, "rust"},
+		{LangTypeScript, "typescript"},
+		{LangTSX, "tsx"},
+		{LangNix, "nix"},
+		{LangHCL, "hcl"},
+		{LangTerraform, "terraform"},
+		{LangTempl, "templ"},
+	}
+
+	//nolint:errcheck // Optional validators, failure is acceptable
+	for _, v := range treeSitterValidators {
+		_ = r.Register(NewTreeSitterValidator(v.lang, v.name))
+	}
 
 	return r
 }

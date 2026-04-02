@@ -3,8 +3,9 @@ package languages
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"go/parser"
+	"go/scanner"
 	"go/token"
 	"strings"
 )
@@ -59,16 +60,41 @@ func (v *GoValidator) Validate(_ context.Context, code string) error {
 		return nil
 	}
 
-	// All strategies failed
-	_, originalErr := parser.ParseFile(token.NewFileSet(), "snippet.go", code, parser.AllErrors)
-	if originalErr != nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("Go syntax error: %v", originalErr),
-			Line:    0,
-			Column:  0,
-		}
+	// All strategies failed - extract error with position information
+	return v.createValidationError(code)
+}
+
+// createValidationError extracts line/column from Go parser errors.
+func (v *GoValidator) createValidationError(code string) error {
+	fset := token.NewFileSet()
+	_, err := parser.ParseFile(fset, "snippet.go", code, parser.AllErrors)
+	if err == nil {
+		return nil
 	}
-	return nil
+
+	var line, column int
+	var message string
+
+	// Try to extract position information from scanner.ErrorList
+	var errList scanner.ErrorList
+	if errors.As(err, &errList) && len(errList) > 0 {
+		firstErr := errList[0]
+		message = firstErr.Msg
+		if firstErr.Pos.IsValid() {
+			pos := fset.Position(firstErr.Pos)
+			line = pos.Line
+			column = pos.Column
+		}
+	} else {
+		// Fallback: use error string without position
+		message = err.Error()
+	}
+
+	return &ValidationError{
+		Message: "Go syntax error: " + message,
+		Line:    line,
+		Column:  column,
+	}
 }
 
 // indentCode indents each non-empty line of code with a tab.
