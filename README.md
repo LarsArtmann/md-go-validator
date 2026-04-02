@@ -8,17 +8,20 @@ Ensures code examples in your documentation are syntactically valid. Uses multip
 - **Go library** - Integrate validation into your own tools
 - **CI-friendly** - Exit code 1 on validation errors
 - **Multi-language** - Validate Go, TypeScript, Rust, Nix, HCL/Terraform, and Templ
+- **Pure Go** - Uses gotreesitter (pure Go tree-sitter), no CGO required
+- **Cross-platform** - Compiles to any GOOS/GOARCH
 - **Pluggable** - Easy to add new language validators
 
 ## Features
 
-- **Multi-Language Support**:
-  - **Go** (built-in, no dependencies)
-  - **TypeScript/TSX** (requires `tsc`)
-  - **Rust** (requires `rustc`)
-  - **Nix** (requires `nix-instantiate`)
-  - **HCL/Terraform** (requires `terraform`)
-  - **Templ** (requires `templ` CLI)
+- **Multi-Language Support** (all built-in, no external tools needed):
+  - **Go** - built-in Go parser
+  - **TypeScript/TSX** - tree-sitter parser
+  - **Rust** - tree-sitter parser
+  - **Nix** - tree-sitter parser
+  - **HCL/Terraform** - tree-sitter parser
+  - **Templ** - tree-sitter parser
+- **Pure Go** - Uses [gotreesitter](https://github.com/odvcencio/gotreesitter) for syntax parsing
 - **Multiple Parsing Strategies** - Handles partial code:
   - Complete files
   - Package declarations only
@@ -73,15 +76,17 @@ md-go-validator -q .
 
 ## Supported Languages
 
-| Language   | Identifier(s)           | Required Tool      | Built-in |
-| ---------- | ----------------------- | ------------------ | -------- |
-| Go         | `go`, `golang`          | -                  | ✅       |
-| TypeScript | `typescript`, `ts`      | `tsc`              | ❌       |
-| TSX        | `tsx`                   | `tsc`              | ❌       |
-| Rust       | `rust`, `rs`            | `rustc`            | ❌       |
-| Nix        | `nix`                   | `nix-instantiate`  | ❌       |
-| HCL        | `hcl`, `terraform`, `tf`| `terraform`        | ❌       |
-| Templ      | `templ`                 | `templ` CLI        | ❌       |
+| Language   | Identifier(s)           | Parser          |
+| ---------- | ----------------------- | --------------- |
+| Go         | `go`, `golang`          | Built-in        |
+| TypeScript | `typescript`, `ts`      | Tree-sitter     |
+| TSX        | `tsx`                   | Tree-sitter     |
+| Rust       | `rust`, `rs`            | Tree-sitter     |
+| Nix        | `nix`                   | Tree-sitter     |
+| HCL        | `hcl`, `terraform`, `tf`| Tree-sitter     |
+| Templ      | `templ`                 | Tree-sitter     |
+
+All parsers are embedded in the binary - no external tools required.
 
 ## Language Selection Examples
 

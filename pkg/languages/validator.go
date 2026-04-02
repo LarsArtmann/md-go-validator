@@ -116,13 +116,15 @@ func DefaultRegistry() *Registry {
 		panic(fmt.Sprintf("failed to register Go validator: %v", err))
 	}
 
-	// Register external validators (availability depends on installed tools)
-	// Errors are ignored as external validators may not be available
-	_ = r.Register(NewTemplValidator())
-	_ = r.Register(NewTypeScriptValidator())
-	_ = r.Register(NewNixValidator())
-	_ = r.Register(NewRustValidator())
-	_ = r.Register(NewHCLValidator())
+	// Register tree-sitter based validators (pure Go, always available)
+	// These use embedded grammars and don't require external tools
+	_ = r.Register(NewTreeSitterValidator(LangRust, "rust"))
+	_ = r.Register(NewTreeSitterValidator(LangTypeScript, "typescript"))
+	_ = r.Register(NewTreeSitterValidator(LangTSX, "tsx"))
+	_ = r.Register(NewTreeSitterValidator(LangNix, "nix"))
+	_ = r.Register(NewTreeSitterValidator(LangHCL, "hcl"))
+	_ = r.Register(NewTreeSitterValidator(LangTerraform, "terraform"))
+	_ = r.Register(NewTreeSitterValidator(LangTempl, "templ"))
 
 	return r
 }
