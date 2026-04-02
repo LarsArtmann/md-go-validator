@@ -10,16 +10,24 @@ import (
 // Language represents a supported programming language.
 type Language string
 
-// Supported languages.
+// Supported language constants.
 const (
-	LangGo         Language = "go"
-	LangTempl      Language = "templ"
+	// LangGo represents the Go programming language.
+	LangGo Language = "go"
+	// LangTempl represents the Templ templating language.
+	LangTempl Language = "templ"
+	// LangTypeScript represents the TypeScript programming language.
 	LangTypeScript Language = "typescript"
-	LangTSX        Language = "tsx"
-	LangNix        Language = "nix"
-	LangRust       Language = "rust"
-	LangHCL        Language = "hcl"
-	LangTerraform  Language = "terraform"
+	// LangTSX represents TypeScript with JSX support.
+	LangTSX Language = "tsx"
+	// LangNix represents the Nix expression language.
+	LangNix Language = "nix"
+	// LangRust represents the Rust programming language.
+	LangRust Language = "rust"
+	// LangHCL represents HashiCorp Configuration Language.
+	LangHCL Language = "hcl"
+	// LangTerraform represents Terraform configuration (alias for HCL).
+	LangTerraform Language = "terraform"
 )
 
 // String returns the string representation of the language.
