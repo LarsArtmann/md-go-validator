@@ -90,11 +90,12 @@ func (v *GoValidator) createValidationError(code string) error {
 		message = err.Error()
 	}
 
-	return &ValidationError{
+	return (&ValidationError{
 		Message: "Go syntax error: " + message,
 		Line:    line,
 		Column:  column,
-	}
+		Code:    ErrCodeUnknown,
+	}).WithCode(ErrCodeSyntax)
 }
 
 // indentCode indents each non-empty line of code with a tab.

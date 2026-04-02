@@ -7,11 +7,31 @@ import (
 	"fmt"
 )
 
+// ErrorCode represents the type of validation error for programmatic handling.
+type ErrorCode uint
+
+// Error codes for different validation failure types.
+const (
+	// ErrCodeUnknown indicates an unspecified error type.
+	ErrCodeUnknown ErrorCode = iota
+	// ErrCodeSyntax indicates a syntax parsing error.
+	ErrCodeSyntax
+	// ErrCodeNotAvailable indicates the validator is not available.
+	ErrCodeNotAvailable
+	// ErrCodeNotRegistered indicates no validator is registered for the language.
+	ErrCodeNotRegistered
+)
+
 // ValidationError represents a syntax validation error.
 type ValidationError struct {
+	// Message is the human-readable error description.
 	Message string
-	Line    int
-	Column  int
+	// Line is the 1-based line number where the error occurred (0 if unknown).
+	Line int
+	// Column is the 1-based column number where the error occurred (0 if unknown).
+	Column int
+	// Code is the error code for programmatic handling.
+	Code ErrorCode
 }
 
 // Error implements the error interface.
@@ -20,6 +40,21 @@ func (e *ValidationError) Error() string {
 		return fmt.Sprintf("%d:%d: %s", e.Line, e.Column, e.Message)
 	}
 	return e.Message
+}
+
+// WithCode returns a new ValidationError with the specified error code.
+func (e *ValidationError) WithCode(code ErrorCode) *ValidationError {
+	return &ValidationError{
+		Message: e.Message,
+		Line:    e.Line,
+		Column:  e.Column,
+		Code:    code,
+	}
+}
+
+// Unwrap returns the wrapped error if any. Implements errors.Unwrap.
+func (e *ValidationError) Unwrap() error {
+	return nil
 }
 
 // Validator validates code for a specific language.
@@ -100,12 +135,21 @@ func (r *Registry) Languages() []Language {
 func (r *Registry) Validate(ctx context.Context, lang Language, code string) error {
 	v := r.Get(lang)
 	if v == nil {
-		return fmt.Errorf("no validator registered for language: %s", lang)
+		return &ValidationError{
+			Message: fmt.Sprintf("no validator registered for language: %s", lang),
+			Code:    ErrCodeNotRegistered,
+		}
 	}
 	if !v.IsAvailable() {
-		return fmt.Errorf("validator for %s is not available (required tools not installed)", lang)
+		return &ValidationError{
+			Message: fmt.Sprintf("validator for %s is not available (required tools not installed)", lang),
+			Code:    ErrCodeNotAvailable,
+		}
 	}
-	return v.Validate(ctx, code)
+	if err := v.Validate(ctx, code); err != nil {
+		return fmt.Errorf("validation failed for %s: %w", lang, err)
+	}
+	return nil
 }
 
 // DefaultRegistry creates a registry with all built-in validators.

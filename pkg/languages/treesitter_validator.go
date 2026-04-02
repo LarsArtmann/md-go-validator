@@ -31,12 +31,18 @@ func (v *TreeSitterValidator) IsAvailable() bool {
 func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 	entry := grammars.DetectLanguageByName(v.langName)
 	if entry == nil || entry.Language == nil {
-		return fmt.Errorf("language %q not available", v.langName)
+		return &ValidationError{
+			Message: fmt.Sprintf("language %q not available", v.langName),
+			Code:    ErrCodeNotAvailable,
+		}
 	}
 
 	lang := entry.Language()
 	if lang == nil {
-		return fmt.Errorf("failed to load language %q", v.langName)
+		return &ValidationError{
+			Message: fmt.Sprintf("failed to load language %q", v.langName),
+			Code:    ErrCodeNotAvailable,
+		}
 	}
 
 	parser := gotreesitter.NewParser(lang)
@@ -45,6 +51,7 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 	if err != nil {
 		return &ValidationError{
 			Message: fmt.Sprintf("failed to parse %s code: %v", v.langName, err),
+			Code:    ErrCodeSyntax,
 		}
 	}
 	defer tree.Release()
@@ -53,12 +60,14 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 	if root == nil {
 		return &ValidationError{
 			Message: fmt.Sprintf("failed to get root node for %s code", v.langName),
+			Code:    ErrCodeSyntax,
 		}
 	}
 
 	if root.HasError() {
 		return &ValidationError{
 			Message: fmt.Sprintf("%s syntax error: code contains parse errors", v.langName),
+			Code:    ErrCodeSyntax,
 		}
 	}
 
