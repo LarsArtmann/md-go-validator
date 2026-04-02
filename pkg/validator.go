@@ -284,39 +284,79 @@ func (v *FileValidator) processFilesParallel(
 		return nil, fmt.Errorf("context cancelled before processing files: %w", err)
 	}
 
-	filesToProcess := filePaths
-	if v.maxFiles > 0 && len(filePaths) > v.maxFiles {
-		filesToProcess = filePaths[:v.maxFiles]
-	}
-
+	filesToProcess := v.limitFiles(filePaths)
 	jobs := make(chan string, len(filesToProcess))
 	results := make(chan []types.Result, len(filesToProcess))
 	errors := make(chan error, len(filesToProcess))
 
+	v.startWorkers(ctx, jobs, results, errors)
+	v.feedJobs(ctx, jobs, filesToProcess)
+
+	return v.collectResults(ctx, results, errors)
+}
+
+// limitFiles applies maxFiles limit to file paths.
+func (v *FileValidator) limitFiles(filePaths []string) []string {
+	if v.maxFiles > 0 && len(filePaths) > v.maxFiles {
+		return filePaths[:v.maxFiles]
+	}
+	return filePaths
+}
+
+// startWorkers starts concurrent workers to process files.
+func (v *FileValidator) startWorkers(
+	ctx context.Context,
+	jobs <-chan string,
+	results chan<- []types.Result,
+	errors chan<- error,
+) {
 	var wg sync.WaitGroup
 
-	for i := 0; i < v.concurrency; i++ {
+	for range v.concurrency {
 		wg.Go(func() {
-			for path := range jobs {
-				select {
-				case <-ctx.Done():
-					return
-				default:
-				}
-
-				branchCtx, cancel := context.WithCancel(ctx)
-				fileResults, err := v.ValidateFile(branchCtx, path)
-				cancel()
-
-				if err != nil {
-					errors <- fmt.Errorf("file %s: %w", path, err)
-					continue
-				}
-				results <- fileResults
-			}
+			v.processJob(ctx, jobs, results, errors)
 		})
 	}
 
+	go func() {
+		wg.Wait()
+		close(results)
+		close(errors)
+	}()
+}
+
+// processJob processes a single job from the jobs channel.
+func (v *FileValidator) processJob(
+	ctx context.Context,
+	jobs <-chan string,
+	results chan<- []types.Result,
+	errors chan<- error,
+) {
+	for path := range jobs {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+		}
+
+		branchCtx, cancel := context.WithCancel(ctx)
+		fileResults, err := v.ValidateFile(branchCtx, path)
+		cancel()
+
+		if err != nil {
+			errors <- fmt.Errorf("file %s: %w", path, err)
+			continue
+		}
+		results <- fileResults
+	}
+}
+
+// feedJobs sends file paths to the jobs channel.
+func (v *FileValidator) feedJobs(
+	ctx context.Context,
+	jobs chan<- string,
+	filesToProcess []string,
+) {
 	go func() {
 		for _, path := range filesToProcess {
 			if err := checkContext(ctx); err != nil {
@@ -326,13 +366,14 @@ func (v *FileValidator) processFilesParallel(
 		}
 		close(jobs)
 	}()
+}
 
-	go func() {
-		wg.Wait()
-		close(results)
-		close(errors)
-	}()
-
+// collectResults aggregates results from workers until channels are closed.
+func (v *FileValidator) collectResults(
+	ctx context.Context,
+	results <-chan []types.Result,
+	errors <-chan error,
+) ([]types.Result, error) {
 	var allResults []types.Result
 	var errs []error
 
@@ -342,26 +383,26 @@ func (v *FileValidator) processFilesParallel(
 			return allResults, fmt.Errorf("validation cancelled: %w", ctx.Err())
 		case fileResults, ok := <-results:
 			if !ok {
-				goto done
+				return v.finalizeResults(allResults, errs)
 			}
 			allResults = append(allResults, fileResults...)
 		case err, ok := <-errors:
 			if !ok {
-				goto done
+				return v.finalizeResults(allResults, errs)
 			}
 			errs = append(errs, err)
 		}
 	}
+}
 
-done:
+// finalizeResults returns final results or error if any occurred.
+func (v *FileValidator) finalizeResults(
+	allResults []types.Result,
+	errs []error,
+) ([]types.Result, error) {
 	if len(errs) > 0 {
-		return allResults, fmt.Errorf(
-			"encountered %d errors: %w",
-			len(errs),
-			errs[0],
-		)
+		return allResults, fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
 	}
-
 	return allResults, nil
 }
 
