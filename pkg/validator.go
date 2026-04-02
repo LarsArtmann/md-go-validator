@@ -277,6 +277,7 @@ func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 
 // processFilesParallel validates files concurrently using a worker pool.
 // This function is split into smaller functions to reduce cognitive complexity.
+//
 //nolint:gocognit // Worker pool coordination is inherently complex; logic is delegated.
 func (v *FileValidator) processFilesParallel(
 	ctx context.Context,

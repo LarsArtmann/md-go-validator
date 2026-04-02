@@ -81,9 +81,8 @@ func (v *GoValidator) createValidationError(code string) error {
 		firstErr := errList[0]
 		message = firstErr.Msg
 		if firstErr.Pos.IsValid() {
-			pos := fset.Position(firstErr.Pos)
-			line = pos.Line
-			column = pos.Column
+			line = firstErr.Pos.Line
+			column = firstErr.Pos.Column
 		}
 	} else {
 		// Fallback: use error string without position
