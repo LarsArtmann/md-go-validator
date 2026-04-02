@@ -81,6 +81,7 @@ type Result struct {
 ### 3. Mutable Global State
 
 <!-- skip-validate -->
+
 ```go
 // pkg/extractor.go
 var SkipDirectives = []string{...} // Mutable global!

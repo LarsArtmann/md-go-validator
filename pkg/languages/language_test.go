@@ -34,10 +34,10 @@ func TestParseLanguage(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name        string
-		input       string
-		wantLang    Language
-		wantOk      bool
+		name     string
+		input    string
+		wantLang Language
+		wantOk   bool
 	}{
 		{"go lowercase", "go", LangGo, true},
 		{"Go uppercase", "Go", LangGo, true},

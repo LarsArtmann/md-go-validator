@@ -182,8 +182,8 @@ func TestRegistry_Validate(t *testing.T) {
 		r := NewRegistry()
 		v := &MockValidator{lang: LangGo, available: true}
 		if err := r.Register(v); err != nil {
-		t.Fatalf("failed to register validator: %v", err)
-	}
+			t.Fatalf("failed to register validator: %v", err)
+		}
 
 		ctx := context.Background()
 		err := r.Validate(ctx, LangGo, "code")
@@ -208,8 +208,8 @@ func TestRegistry_Validate(t *testing.T) {
 		r := NewRegistry()
 		v := &MockValidator{lang: LangTypeScript, available: false}
 		if err := r.Register(v); err != nil {
-		t.Fatalf("failed to register validator: %v", err)
-	}
+			t.Fatalf("failed to register validator: %v", err)
+		}
 
 		ctx := context.Background()
 		err := r.Validate(ctx, LangTypeScript, "code")

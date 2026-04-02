@@ -461,7 +461,7 @@ func TestValidator_ParallelValidation(t *testing.T) {
 	tmpDir := t.TempDir()
 
 	// Create 8 files
-	for i := 0; i < 8; i++ {
+	for i := range 8 {
 		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
 		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
 			t.Fatal(err)
@@ -509,7 +509,7 @@ func TestValidator_ChainMethods(t *testing.T) {
 func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 	t.Helper()
 	content := []byte("```go\npackage main\n```\n")
-	for i := 0; i < count; i++ {
+	for i := range count {
 		tmpFile := filepath.Join(tmpDir, fmt.Sprintf(pattern, i))
 		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
 			t.Fatal(err)

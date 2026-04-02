@@ -27,11 +27,11 @@ type FileValidator struct {
 func New(verbose bool) *FileValidator {
 	return &FileValidator{
 		registry:    languages.DefaultRegistry(),
-		verbose:       verbose,
-		maxFiles:      0,
-		maxBlocks:     0,
-		concurrency:   4,
-		targetLangs:   []languages.Language{languages.LangGo},
+		verbose:     verbose,
+		maxFiles:    0,
+		maxBlocks:   0,
+		concurrency: 4,
+		targetLangs: []languages.Language{languages.LangGo},
 	}
 }
 
@@ -268,7 +268,6 @@ func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 		}
 		return nil
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("collecting files from %s: %w", dirPath, err)
 	}
@@ -297,9 +296,7 @@ func (v *FileValidator) processFilesParallel(
 	var wg sync.WaitGroup
 
 	for i := 0; i < v.concurrency; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
+		wg.Go(func() {
 			for path := range jobs {
 				select {
 				case <-ctx.Done():
@@ -317,7 +314,7 @@ func (v *FileValidator) processFilesParallel(
 				}
 				results <- fileResults
 			}
-		}()
+		})
 	}
 
 	go func() {

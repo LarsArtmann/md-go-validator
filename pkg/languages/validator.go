@@ -3,6 +3,7 @@ package languages
 
 import (
 	"context"
+	"errors"
 	"fmt"
 )
 
@@ -49,7 +50,7 @@ func NewRegistry() *Registry {
 // Register adds a validator to the registry.
 func (r *Registry) Register(v Validator) error {
 	if v == nil {
-		return fmt.Errorf("validator cannot be nil")
+		return errors.New("validator cannot be nil")
 	}
 
 	lang := v.Language()
@@ -117,13 +118,22 @@ func DefaultRegistry() *Registry {
 	}
 
 	// Register tree-sitter based validators (pure Go, always available)
-	// These use embedded grammars and don't require external tools
+	// These use embedded grammars and don't require external tools.
+	// Errors are silently ignored since these are optional validators
+	// and may not have grammar support compiled in.
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangRust, "rust"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangTypeScript, "typescript"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangTSX, "tsx"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangNix, "nix"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangHCL, "hcl"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangTerraform, "terraform"))
+	//nolint:errcheck // Optional validators, failure is acceptable
 	_ = r.Register(NewTreeSitterValidator(LangTempl, "templ"))
 
 	return r

@@ -3,6 +3,7 @@ package languages
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -97,10 +98,8 @@ func (l Language) Extensions() []string {
 
 // Validate checks if the language identifier is valid.
 func (l Language) Validate() error {
-	for _, lang := range AllLanguages() {
-		if l == lang {
-			return nil
-		}
+	if slices.Contains(AllLanguages(), l) {
+		return nil
 	}
 	return fmt.Errorf("unsupported language: %s", l)
 }

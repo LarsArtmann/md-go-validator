@@ -62,29 +62,29 @@ md-go-validator -q .
 
 ## Options
 
-| Option               | Description                                      |
-| -------------------- | ------------------------------------------------ |
-| `-v, --verbose`      | Show progress for each code block                |
-| `-q, --quiet`        | Only show summary (no code in errors)          |
-| `--no-code`          | Don't show code snippets in error output         |
-| `-l, --language`     | Comma-separated list of languages to validate    |
-| `-f, --format`       | Output format (table, json, yaml, csv, quiet)  |
-| `--color`            | Color mode (auto, always, never)                 |
-| `-o, --output`       | Write output to file                             |
-| `-t, --timeout`      | Timeout for validation (e.g., 30s, 5m)          |
-| `-h, --help`         | Show help message                                |
+| Option           | Description                                   |
+| ---------------- | --------------------------------------------- |
+| `-v, --verbose`  | Show progress for each code block             |
+| `-q, --quiet`    | Only show summary (no code in errors)         |
+| `--no-code`      | Don't show code snippets in error output      |
+| `-l, --language` | Comma-separated list of languages to validate |
+| `-f, --format`   | Output format (table, json, yaml, csv, quiet) |
+| `--color`        | Color mode (auto, always, never)              |
+| `-o, --output`   | Write output to file                          |
+| `-t, --timeout`  | Timeout for validation (e.g., 30s, 5m)        |
+| `-h, --help`     | Show help message                             |
 
 ## Supported Languages
 
-| Language   | Identifier(s)           | Parser          |
-| ---------- | ----------------------- | --------------- |
-| Go         | `go`, `golang`          | Built-in        |
-| TypeScript | `typescript`, `ts`      | Tree-sitter     |
-| TSX        | `tsx`                   | Tree-sitter     |
-| Rust       | `rust`, `rs`            | Tree-sitter     |
-| Nix        | `nix`                   | Tree-sitter     |
-| HCL        | `hcl`, `terraform`, `tf`| Tree-sitter     |
-| Templ      | `templ`                 | Tree-sitter     |
+| Language   | Identifier(s)            | Parser      |
+| ---------- | ------------------------ | ----------- |
+| Go         | `go`, `golang`           | Built-in    |
+| TypeScript | `typescript`, `ts`       | Tree-sitter |
+| TSX        | `tsx`                    | Tree-sitter |
+| Rust       | `rust`, `rs`             | Tree-sitter |
+| Nix        | `nix`                    | Tree-sitter |
+| HCL        | `hcl`, `terraform`, `tf` | Tree-sitter |
+| Templ      | `templ`                  | Tree-sitter |
 
 All parsers are embedded in the binary - no external tools required.
 
@@ -244,6 +244,7 @@ The validator uses a pluggable architecture:
 ### Adding a New Language Validator
 
 <!-- skip-validate -->
+
 ```go
 // Create a validator
 type MyLanguageValidator struct{}

@@ -27,27 +27,27 @@ type User struct {
 ```typescript
 // Valid TypeScript
 interface User {
-    name: string;
-    email: string;
+  name: string;
+  email: string;
 }
 
 function greet(user: User): string {
-    return `Hello, ${user.name}!`;
+  return `Hello, ${user.name}!`;
 }
 ```
 
 ```typescript
 // TypeScript with generics
 class Container<T> {
-    private value: T;
+  private value: T;
 
-    constructor(value: T) {
-        this.value = value;
-    }
+  constructor(value: T) {
+    this.value = value;
+  }
 
-    getValue(): T {
-        return this.value;
-    }
+  getValue(): T {
+    return this.value;
+  }
 }
 ```
 

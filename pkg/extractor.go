@@ -2,6 +2,7 @@
 package mdgovalidator
 
 import (
+	"slices"
 	"strings"
 
 	"github.com/larsartmann/md-go-validator/pkg/languages"
@@ -43,7 +44,11 @@ func ExtractGoCodeBlocks(content string) []types.CodeBlock {
 }
 
 // ExtractCodeBlocksWithConfig extracts code blocks with custom skip directives.
-func ExtractCodeBlocksWithConfig(content string, langs []languages.Language, config SkipDirectivesConfig) []types.CodeBlock {
+func ExtractCodeBlocksWithConfig(
+	content string,
+	langs []languages.Language,
+	config SkipDirectivesConfig,
+) []types.CodeBlock {
 	var blocks []types.CodeBlock
 	lines := strings.Split(content, "\n")
 
@@ -143,12 +148,7 @@ func (s *extractorState) startCodeBlock(trimmed string, lineNum int) {
 }
 
 func (s *extractorState) isTargetLanguage(lang languages.Language) bool {
-	for _, target := range s.targetLangs {
-		if lang == target {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(s.targetLangs, lang)
 }
 
 func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {

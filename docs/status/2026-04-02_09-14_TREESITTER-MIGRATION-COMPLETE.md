@@ -17,35 +17,35 @@ Successfully completed migration from external command-based validators to pure 
 
 ### a) FULLY DONE ✅
 
-| # | Item | Details |
-|---|------|---------|
-| 1 | **Tree-sitter Research** | Researched gotreesitter API, grammar registration, error detection methods |
-| 2 | **TreeSitterValidator Implementation** | Created `pkg/languages/treesitter_validator.go` with generic tree-sitter validator |
-| 3 | **Language Support** | All 7 languages: Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, Templ |
-| 4 | **Registry Update** | Updated `DefaultRegistry()` to use tree-sitter validators |
-| 5 | **External Validator Removal** | Deleted all external command validators (6 files, ~230 lines) |
-| 6 | **gotreesitter Integration** | Added dependency, verified API compatibility |
-| 7 | **Test Suite** | Created comprehensive tests for all tree-sitter validators |
-| 8 | **Documentation Update** | Updated README with new architecture, removed external tool requirements |
-| 9 | **Build Verification** | All packages compile without errors |
-| 10 | **Test Verification** | All tests pass (5 packages) |
+| #   | Item                                   | Details                                                                            |
+| --- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1   | **Tree-sitter Research**               | Researched gotreesitter API, grammar registration, error detection methods         |
+| 2   | **TreeSitterValidator Implementation** | Created `pkg/languages/treesitter_validator.go` with generic tree-sitter validator |
+| 3   | **Language Support**                   | All 7 languages: Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, Templ              |
+| 4   | **Registry Update**                    | Updated `DefaultRegistry()` to use tree-sitter validators                          |
+| 5   | **External Validator Removal**         | Deleted all external command validators (6 files, ~230 lines)                      |
+| 6   | **gotreesitter Integration**           | Added dependency, verified API compatibility                                       |
+| 7   | **Test Suite**                         | Created comprehensive tests for all tree-sitter validators                         |
+| 8   | **Documentation Update**               | Updated README with new architecture, removed external tool requirements           |
+| 9   | **Build Verification**                 | All packages compile without errors                                                |
+| 10  | **Test Verification**                  | All tests pass (5 packages)                                                        |
 
 ### b) PARTIALLY DONE 🟡
 
-| # | Item | Status | Notes |
-|---|------|--------|-------|
-| 1 | Error Location Reporting | 50% | `HasError()` detects errors but doesn't provide line/column yet |
-| 2 | Advanced Parser Features | 30% | Not using incremental parsing, token sources, or timeout features |
+| #   | Item                     | Status | Notes                                                             |
+| --- | ------------------------ | ------ | ----------------------------------------------------------------- |
+| 1   | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |
+| 2   | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |
 
 ### c) NOT STARTED ⏸️
 
-| # | Item | Priority |
-|------|------|----------|
-| 1 | **Grammar Subset Optimization** | Medium | Using full grammars; could use grammar_subset build tags for smaller binaries |
-| 2 | **Parser Pool** | Low | Could use `NewParserPool` for high-concurrency scenarios |
-| 3 | **Incremental Parsing** | Low | Not needed for validation use case |
-| 4 | **Custom Token Sources** | Low | Default DFA token source sufficient |
-| 5 | **Language Detection** | Low | Currently manual mapping; could use `DetectLanguageByName` |
+| #   | Item                            | Priority |
+| --- | ------------------------------- | -------- | ----------------------------------------------------------------------------- |
+| 1   | **Grammar Subset Optimization** | Medium   | Using full grammars; could use grammar_subset build tags for smaller binaries |
+| 2   | **Parser Pool**                 | Low      | Could use `NewParserPool` for high-concurrency scenarios                      |
+| 3   | **Incremental Parsing**         | Low      | Not needed for validation use case                                            |
+| 4   | **Custom Token Sources**        | Low      | Default DFA token source sufficient                                           |
+| 5   | **Language Detection**          | Low      | Currently manual mapping; could use `DetectLanguageByName`                    |
 
 ### d) TOTALLY FUCKED UP ❌
 
@@ -53,13 +53,13 @@ Successfully completed migration from external command-based validators to pure 
 
 ### e) WHAT WE SHOULD IMPROVE 🔧
 
-| Priority | Item | Impact | Effort |
-|----------|------|--------|--------|
-| High | **Error Line/Column Reporting** | Critical for UX | Medium |
-| Medium | **Grammar Lazy Loading** | Binary size | Low |
-| Medium | **Parser Timeout** | Reliability | Low |
-| Low | **Grammar Subset Build Tags** | Binary size | Medium |
-| Low | **Parser Pool for Concurrency** | Performance | Medium |
+| Priority | Item                            | Impact          | Effort |
+| -------- | ------------------------------- | --------------- | ------ |
+| High     | **Error Line/Column Reporting** | Critical for UX | Medium |
+| Medium   | **Grammar Lazy Loading**        | Binary size     | Low    |
+| Medium   | **Parser Timeout**              | Reliability     | Low    |
+| Low      | **Grammar Subset Build Tags**   | Binary size     | Medium |
+| Low      | **Parser Pool for Concurrency** | Performance     | Medium |
 
 ---
 
@@ -190,17 +190,20 @@ Successfully completed migration from external command-based validators to pure 
 **Context:** Currently using `root.HasError()` to detect syntax errors, but need line/column information for better error messages.
 
 **What I know:**
+
 - `Node` struct has `startPoint` and `endPoint` fields (type `Point`)
 - `Point` has `Row` and `Column` fields
 - `IsError()` returns true for error nodes specifically
 
 **What I need to figure out:**
+
 - Should I walk the tree to find all error nodes or just report the first?
 - How to handle multiple errors - report all or just the first?
 - What's the performance impact of tree walking for error extraction?
 - Does gotreesitter provide any built-in error reporting utilities?
 
 **Potential approaches:**
+
 1. Use `gotreesitter.Walk()` to find error nodes
 2. Manual recursion through `node.Children()`
 3. Query API with error node pattern
@@ -249,20 +252,20 @@ After:
 
 ### Files Changed
 
-| File | Action | Lines |
-|------|--------|-------|
-| `pkg/languages/treesitter_validator.go` | Created | +74 |
-| `pkg/languages/treesitter_validator_test.go` | Created | +94 |
-| `pkg/languages/validator.go` | Modified | ~16 changed |
-| `pkg/languages/external_validator.go` | Deleted | -146 |
-| `pkg/languages/templ_validator.go` | Deleted | -42 |
-| `pkg/languages/typescript_validator.go` | Deleted | -42 |
-| `pkg/languages/nix_validator.go` | Deleted | -42 |
-| `pkg/languages/rust_validator.go` | Deleted | -42 |
-| `pkg/languages/hcl_validator.go` | Deleted | -42 |
-| `README.md` | Modified | ~37 changed |
-| `go.mod` | Modified | +1 dependency |
-| `go.sum` | Modified | +2 entries |
+| File                                         | Action   | Lines         |
+| -------------------------------------------- | -------- | ------------- |
+| `pkg/languages/treesitter_validator.go`      | Created  | +74           |
+| `pkg/languages/treesitter_validator_test.go` | Created  | +94           |
+| `pkg/languages/validator.go`                 | Modified | ~16 changed   |
+| `pkg/languages/external_validator.go`        | Deleted  | -146          |
+| `pkg/languages/templ_validator.go`           | Deleted  | -42           |
+| `pkg/languages/typescript_validator.go`      | Deleted  | -42           |
+| `pkg/languages/nix_validator.go`             | Deleted  | -42           |
+| `pkg/languages/rust_validator.go`            | Deleted  | -42           |
+| `pkg/languages/hcl_validator.go`             | Deleted  | -42           |
+| `README.md`                                  | Modified | ~37 changed   |
+| `go.mod`                                     | Modified | +1 dependency |
+| `go.sum`                                     | Modified | +2 entries    |
 
 ### Dependencies Added
 
@@ -288,24 +291,24 @@ All 5 packages pass.
 
 ## Performance Impact
 
-| Metric | Before | After | Change |
-|--------|--------|-------|--------|
-| External Dependencies | 5 tools | 0 | -100% |
-| Binary Size | ~5MB | ~15MB | +200% (grammars) |
-| Parse Speed | ~100-500ms | ~1-10ms | 10-50x faster |
-| Setup Time | Tool installation | None | Instant |
-| Cross-compilation | Limited | Full | Any GOOS/GOARCH |
+| Metric                | Before            | After   | Change           |
+| --------------------- | ----------------- | ------- | ---------------- |
+| External Dependencies | 5 tools           | 0       | -100%            |
+| Binary Size           | ~5MB              | ~15MB   | +200% (grammars) |
+| Parse Speed           | ~100-500ms        | ~1-10ms | 10-50x faster    |
+| Setup Time            | Tool installation | None    | Instant          |
+| Cross-compilation     | Limited           | Full    | Any GOOS/GOARCH  |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Level | Mitigation |
-|------|-------|------------|
-| Grammar bugs | Medium | Extensive test coverage |
-| Binary size | Medium | Future: grammar subsets |
-| Memory usage | Low | Parser releases properly |
-| Breaking changes | Low | All tests pass |
+| Risk             | Level  | Mitigation               |
+| ---------------- | ------ | ------------------------ |
+| Grammar bugs     | Medium | Extensive test coverage  |
+| Binary size      | Medium | Future: grammar subsets  |
+| Memory usage     | Low    | Parser releases properly |
+| Breaking changes | Low    | All tests pass           |
 
 ---
 
@@ -314,6 +317,7 @@ All 5 packages pass.
 ✅ **Migration Complete and Successful**
 
 All objectives achieved:
+
 - Pure Go implementation
 - No external dependencies
 - Cross-platform support
