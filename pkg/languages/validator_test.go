@@ -114,11 +114,16 @@ func TestRegistry_GetByString(t *testing.T) {
 	})
 }
 
-func testRegistryLookup[T any](t *testing.T, name string, r *Registry, lookup func(T) Validator, tests []struct {
-	name     string
-	key      T
-	expected Validator
-},
+func testRegistryLookup[T any](
+	t *testing.T,
+	name string,
+	r *Registry,
+	lookup func(T) Validator,
+	tests []struct {
+		name     string
+		key      T
+		expected Validator
+	},
 ) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -240,8 +245,13 @@ func TestValidationError(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "with line and column",
-			value:    ValidationError{Message: "syntax error", Line: 10, Column: 5, Code: ErrCodeSyntax},
+			name: "with line and column",
+			value: ValidationError{
+				Message: "syntax error",
+				Line:    10,
+				Column:  5,
+				Code:    ErrCodeSyntax,
+			},
 			expected: "10:5: syntax error",
 		},
 		{

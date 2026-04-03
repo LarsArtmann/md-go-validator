@@ -301,7 +301,11 @@ func newErrorResultWithCode(code string) types.Result {
 	)
 }
 
-func newSkippedResultWithReason(fileID string, lineNumber, blockIndex int, reason string) types.Result {
+func newSkippedResultWithReason(
+	fileID string,
+	lineNumber, blockIndex int,
+	reason string,
+) types.Result {
 	return types.NewSkippedResult(
 		types.NewFileID(fileID),
 		types.NewLineNumber(lineNumber),

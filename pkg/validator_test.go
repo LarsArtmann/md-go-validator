@@ -461,7 +461,13 @@ func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 	}
 }
 
-func validateDirectoryWithFiles(t *testing.T, fileCount int, configure func(*FileValidator) *FileValidator, expectedResults int, msg string) {
+func validateDirectoryWithFiles(
+	t *testing.T,
+	fileCount int,
+	configure func(*FileValidator) *FileValidator,
+	expectedResults int,
+	msg string,
+) {
 	t.Helper()
 	tmpDir := t.TempDir()
 	createTestMarkdownFiles(t, tmpDir, "file%d.md", fileCount)
@@ -510,7 +516,11 @@ func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int)
 	return blocks
 }
 
-func newSkippedResultWithReason(fileID string, lineNumber, blockIndex int, reason string) types.Result {
+func newSkippedResultWithReason(
+	fileID string,
+	lineNumber, blockIndex int,
+	reason string,
+) types.Result {
 	return types.NewSkippedResult(
 		types.NewFileID(fileID),
 		types.NewLineNumber(lineNumber),

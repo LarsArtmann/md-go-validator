@@ -29,7 +29,13 @@ type Result struct {
 }
 
 // newResult creates a Result with the given status and no error.
-func newResult(file FileID, line LineNumber, block BlockIndex, code string, status ValidationStatus) Result {
+func newResult(
+	file FileID,
+	line LineNumber,
+	block BlockIndex,
+	code string,
+	status ValidationStatus,
+) Result {
 	return Result{
 		File:       file,
 		LineNumber: line,

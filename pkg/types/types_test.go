@@ -79,7 +79,12 @@ type positiveIntValidator interface {
 	Validate() error
 }
 
-func testPositiveIntValidator[TP positiveIntValidator](t *testing.T, name string, newFunc func(int) TP, _ string) {
+func testPositiveIntValidator[TP positiveIntValidator](
+	t *testing.T,
+	name string,
+	newFunc func(int) TP,
+	_ string,
+) {
 	tests := []struct {
 		value int
 		valid bool
@@ -369,28 +374,58 @@ func TestReportData_BuildReportData(t *testing.T) {
 func TestReportData_HasErrors(t *testing.T) {
 	t.Parallel()
 
-	testReportDataBoolCase(t, "has errors", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, true, func(r ReportData) bool {
-		return r.HasErrors()
-	})
+	testReportDataBoolCase(
+		t,
+		"has errors",
+		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
+		true,
+		func(r ReportData) bool {
+			return r.HasErrors()
+		},
+	)
 
-	testReportDataBoolCase(t, "no errors", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0}, false, func(r ReportData) bool {
-		return r.HasErrors()
-	})
+	testReportDataBoolCase(
+		t,
+		"no errors",
+		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0},
+		false,
+		func(r ReportData) bool {
+			return r.HasErrors()
+		},
+	)
 }
 
 func TestReportData_Success(t *testing.T) {
 	t.Parallel()
 
-	testReportDataBoolCase(t, "success", ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0}, true, func(r ReportData) bool {
-		return r.Success()
-	})
+	testReportDataBoolCase(
+		t,
+		"success",
+		ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0},
+		true,
+		func(r ReportData) bool {
+			return r.Success()
+		},
+	)
 
-	testReportDataBoolCase(t, "failure", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, false, func(r ReportData) bool {
-		return r.Success()
-	})
+	testReportDataBoolCase(
+		t,
+		"failure",
+		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
+		false,
+		func(r ReportData) bool {
+			return r.Success()
+		},
+	)
 }
 
-func testReportDataBoolCase(t *testing.T, name string, summary ReportSummary, expected bool, method func(ReportData) bool) {
+func testReportDataBoolCase(
+	t *testing.T,
+	name string,
+	summary ReportSummary,
+	expected bool,
+	method func(ReportData) bool,
+) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		report := ReportData{

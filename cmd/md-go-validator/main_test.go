@@ -15,7 +15,13 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-func runParseArgsFieldTest[T comparable](t *testing.T, name string, args []string, want T, get func(config) T) {
+func runParseArgsFieldTest[T comparable](
+	t *testing.T,
+	name string,
+	args []string,
+	want T,
+	get func(config) T,
+) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		cfg := parseArgs(args)
@@ -258,7 +264,13 @@ func TestParseArgsFormatFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantFormat, func(cfg config) output.Format { return cfg.format })
+		runParseArgsFieldTest(
+			t,
+			tt.name,
+			tt.args,
+			tt.wantFormat,
+			func(cfg config) output.Format { return cfg.format },
+		)
 	}
 }
 
@@ -276,7 +288,13 @@ func TestParseArgsColorFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantColorMode, func(cfg config) output.ColorMode { return cfg.colorMode })
+		runParseArgsFieldTest(
+			t,
+			tt.name,
+			tt.args,
+			tt.wantColorMode,
+			func(cfg config) output.ColorMode { return cfg.colorMode },
+		)
 	}
 }
 
@@ -294,7 +312,13 @@ func TestParseArgsOutputFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantOutputFile, func(cfg config) string { return cfg.outputFile })
+		runParseArgsFieldTest(
+			t,
+			tt.name,
+			tt.args,
+			tt.wantOutputFile,
+			func(cfg config) string { return cfg.outputFile },
+		)
 	}
 }
 

@@ -100,16 +100,24 @@ func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 
 	// Apply timeout if set
 	if c.Timeout > 0 {
-		ctx, cancel = wrapContextWithCancel(ctx, cancel, func(parent context.Context) (context.Context, context.CancelFunc) {
-			return context.WithTimeout(parent, c.Timeout)
-		})
+		ctx, cancel = wrapContextWithCancel(
+			ctx,
+			cancel,
+			func(parent context.Context) (context.Context, context.CancelFunc) {
+				return context.WithTimeout(parent, c.Timeout)
+			},
+		)
 	}
 
 	// Apply deadline if set
 	if !c.Deadline.IsZero() {
-		ctx, cancel = wrapContextWithCancel(ctx, cancel, func(parent context.Context) (context.Context, context.CancelFunc) {
-			return context.WithDeadline(parent, c.Deadline)
-		})
+		ctx, cancel = wrapContextWithCancel(
+			ctx,
+			cancel,
+			func(parent context.Context) (context.Context, context.CancelFunc) {
+				return context.WithDeadline(parent, c.Deadline)
+			},
+		)
 	}
 
 	return ctx, cancel
