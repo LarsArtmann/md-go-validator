@@ -66,7 +66,7 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 
 	if root.HasError() {
 		return &ValidationError{
-			Message: fmt.Sprintf("%s syntax error: code contains parse errors", v.langName),
+			Message: v.langName + " syntax error: code contains parse errors",
 			Code:    ErrCodeSyntax,
 		}
 	}

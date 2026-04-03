@@ -142,8 +142,11 @@ func (r *Registry) Validate(ctx context.Context, lang Language, code string) err
 	}
 	if !v.IsAvailable() {
 		return &ValidationError{
-			Message: fmt.Sprintf("validator for %s is not available (required tools not installed)", lang),
-			Code:    ErrCodeNotAvailable,
+			Message: fmt.Sprintf(
+				"validator for %s is not available (required tools not installed)",
+				lang,
+			),
+			Code: ErrCodeNotAvailable,
 		}
 	}
 	if err := v.Validate(ctx, code); err != nil {
@@ -177,7 +180,6 @@ func DefaultRegistry() *Registry {
 		{LangTempl, "templ"},
 	}
 
-	//nolint:errcheck // Optional validators, failure is acceptable
 	for _, v := range treeSitterValidators {
 		_ = r.Register(NewTreeSitterValidator(v.lang, v.name))
 	}

@@ -220,7 +220,11 @@ func handleLanguages(args []string, i int, cfg *config) (int, bool) {
 		parsed, ok := languages.ParseLanguage(lang)
 		if !ok {
 			fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
-			fmt.Fprintf(os.Stderr, "Supported languages: %s\n", strings.Join(getLanguageNames(), ", "))
+			fmt.Fprintf(
+				os.Stderr,
+				"Supported languages: %s\n",
+				strings.Join(getLanguageNames(), ", "),
+			)
 			return 0, false
 		}
 		cfg.languages = append(cfg.languages, parsed)

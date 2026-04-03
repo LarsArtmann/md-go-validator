@@ -82,7 +82,10 @@ func newExtractorState(langs []languages.Language) *extractorState {
 	}
 }
 
-func newExtractorStateWithConfig(langs []languages.Language, config SkipDirectivesConfig) *extractorState {
+func newExtractorStateWithConfig(
+	langs []languages.Language,
+	config SkipDirectivesConfig,
+) *extractorState {
 	return &extractorState{
 		inCodeBlock:    false,
 		currentBlock:   strings.Builder{},
