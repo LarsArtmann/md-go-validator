@@ -229,6 +229,55 @@ func TestCodeBlock(t *testing.T) {
 	})
 }
 
+func TestCodeBlockMarkMethods(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name          string
+		markFunc      func(*CodeBlock)
+		expectedStatus Status
+		checkFunc     func(*CodeBlock) bool
+		expectedLabel string
+	}{
+		{
+			name:          "MarkValid",
+			markFunc:      func(b *CodeBlock) { b.MarkValid() },
+			expectedStatus: StatusValid,
+			checkFunc:     func(b *CodeBlock) bool { return b.IsValid() },
+			expectedLabel: "IsValid()",
+		},
+		{
+			name:          "MarkError",
+			markFunc:      func(b *CodeBlock) { b.MarkError() },
+			expectedStatus: StatusError,
+			checkFunc:     func(b *CodeBlock) bool { return b.HasError() },
+			expectedLabel: "HasError()",
+		},
+		{
+			name:          "MarkSkipped",
+			markFunc:      func(b *CodeBlock) { b.MarkSkipped() },
+			expectedStatus: StatusSkipped,
+			checkFunc:     func(b *CodeBlock) bool { return b.IsSkipped() },
+			expectedLabel: "IsSkipped()",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			var block CodeBlock
+			tc.markFunc(&block)
+			if block.Status != tc.expectedStatus {
+				t.Errorf("expected %v, got %v", tc.expectedStatus, block.Status)
+			}
+			if !tc.checkFunc(&block) {
+				t.Errorf("expected %s to return true", tc.expectedLabel)
+			}
+		})
+	}
+}
+
 func TestResult(t *testing.T) {
 	t.Parallel()
 
