@@ -191,74 +191,38 @@ func TestCodeBlock(t *testing.T) {
 			t.Errorf("expected StatusUnknown, got %v", block.Status)
 		}
 	})
-
-	t.Run("MarkSkipped", func(t *testing.T) {
-		t.Parallel()
-		var block CodeBlock
-		block.MarkSkipped()
-		if block.Status != StatusSkipped {
-			t.Errorf("expected StatusSkipped, got %v", block.Status)
-		}
-		if !block.IsSkipped() {
-			t.Error("expected IsSkipped() to return true")
-		}
-	})
-
-	t.Run("MarkValid", func(t *testing.T) {
-		t.Parallel()
-		var block CodeBlock
-		block.MarkValid()
-		if block.Status != StatusValid {
-			t.Errorf("expected StatusValid, got %v", block.Status)
-		}
-		if !block.IsValid() {
-			t.Error("expected IsValid() to return true")
-		}
-	})
-
-	t.Run("MarkError", func(t *testing.T) {
-		t.Parallel()
-		var block CodeBlock
-		block.MarkError()
-		if block.Status != StatusError {
-			t.Errorf("expected StatusError, got %v", block.Status)
-		}
-		if !block.HasError() {
-			t.Error("expected HasError() to return true")
-		}
-	})
 }
 
 func TestCodeBlockMarkMethods(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
-		name          string
-		markFunc      func(*CodeBlock)
+		name           string
+		markFunc       func(*CodeBlock)
 		expectedStatus Status
-		checkFunc     func(*CodeBlock) bool
-		expectedLabel string
+		checkFunc      func(*CodeBlock) bool
+		expectedLabel  string
 	}{
 		{
-			name:          "MarkValid",
-			markFunc:      func(b *CodeBlock) { b.MarkValid() },
+			name:           "MarkValid",
+			markFunc:       func(b *CodeBlock) { b.MarkValid() },
 			expectedStatus: StatusValid,
-			checkFunc:     func(b *CodeBlock) bool { return b.IsValid() },
-			expectedLabel: "IsValid()",
+			checkFunc:      func(b *CodeBlock) bool { return b.IsValid() },
+			expectedLabel:  "IsValid()",
 		},
 		{
-			name:          "MarkError",
-			markFunc:      func(b *CodeBlock) { b.MarkError() },
+			name:           "MarkError",
+			markFunc:       func(b *CodeBlock) { b.MarkError() },
 			expectedStatus: StatusError,
-			checkFunc:     func(b *CodeBlock) bool { return b.HasError() },
-			expectedLabel: "HasError()",
+			checkFunc:      func(b *CodeBlock) bool { return b.HasError() },
+			expectedLabel:  "HasError()",
 		},
 		{
-			name:          "MarkSkipped",
-			markFunc:      func(b *CodeBlock) { b.MarkSkipped() },
+			name:           "MarkSkipped",
+			markFunc:       func(b *CodeBlock) { b.MarkSkipped() },
 			expectedStatus: StatusSkipped,
-			checkFunc:     func(b *CodeBlock) bool { return b.IsSkipped() },
-			expectedLabel: "IsSkipped()",
+			checkFunc:      func(b *CodeBlock) bool { return b.IsSkipped() },
+			expectedLabel:  "IsSkipped()",
 		},
 	}
 
