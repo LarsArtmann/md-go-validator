@@ -459,14 +459,14 @@ func newErrorResultForFile(fileID string, line, block int, code, errMsg string) 
 
 func newTestConfig(outputFile string, format output.OutputFormat) config {
 	return config{
-		verbose:     false,
-		showCode:    true,
-		format:      format,
-		colorMode:   output.ColorModeNever,
-		outputFile:  outputFile,
-		paths:       nil,
-		timeout:     0,
-		contextCfg:  mdgovalidator.DefaultContextConfig(),
+		verbose:    false,
+		showCode:   true,
+		format:     format,
+		colorMode:  output.ColorModeNever,
+		outputFile: outputFile,
+		paths:      nil,
+		timeout:    0,
+		contextCfg: mdgovalidator.DefaultContextConfig(),
 	}
 }
 
