@@ -84,23 +84,14 @@ func TestRegistry_Get(t *testing.T) {
 		t.Fatalf("failed to register validator: %v", err)
 	}
 
-	tests := []struct {
+	testRegistryLookup(t, "Get", r, r.Get, []struct {
 		name     string
-		lang     Language
+		key      Language
 		expected Validator
 	}{
 		{"registered", LangGo, v},
 		{"not registered", LangTypeScript, nil},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := r.Get(tt.lang); got != tt.expected {
-				t.Errorf("Get() = %v, want %v", got, tt.expected)
-			}
-		})
-	}
+	})
 }
 
 func TestRegistry_GetByString(t *testing.T) {
@@ -112,21 +103,28 @@ func TestRegistry_GetByString(t *testing.T) {
 		t.Fatalf("failed to register validator: %v", err)
 	}
 
-	tests := []struct {
+	testRegistryLookup(t, "GetByString", r, r.GetByString, []struct {
 		name     string
-		lang     string
+		key      string
 		expected Validator
 	}{
 		{"go", "go", v},
 		{"Go uppercase", "Go", v},
 		{"unknown", "python", nil},
-	}
+	})
+}
 
+func testRegistryLookup[T any](t *testing.T, name string, r *Registry, lookup func(T) Validator, tests []struct {
+	name     string
+	key      T
+	expected Validator
+},
+) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			if got := r.GetByString(tt.lang); got != tt.expected {
-				t.Errorf("GetByString() = %v, want %v", got, tt.expected)
+			if got := lookup(tt.key); got != tt.expected {
+				t.Errorf("%s() = %v, want %v", name, got, tt.expected)
 			}
 		})
 	}
@@ -236,30 +234,21 @@ func TestDefaultRegistry(t *testing.T) {
 func TestValidationError(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	testStringMethod(t, "Error", []struct {
 		name     string
-		err      ValidationError
+		value    ValidationError
 		expected string
 	}{
 		{
 			name:     "with line and column",
-			err:      ValidationError{Message: "syntax error", Line: 10, Column: 5, Code: ErrCodeSyntax},
+			value:    ValidationError{Message: "syntax error", Line: 10, Column: 5, Code: ErrCodeSyntax},
 			expected: "10:5: syntax error",
 		},
 		{
 			name: "without line and column",
 			//nolint:exhaustruct // Intentionally testing partial initialization
-			err:      ValidationError{Message: "syntax error"},
+			value:    ValidationError{Message: "syntax error"},
 			expected: "syntax error",
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := tt.err.Error(); got != tt.expected {
-				t.Errorf("Error() = %v, want %v", got, tt.expected)
-			}
-		})
-	}
+	}, func(e ValidationError) string { return e.Error() })
 }

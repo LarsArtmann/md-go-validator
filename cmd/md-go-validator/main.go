@@ -123,26 +123,37 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
+func requireArg(args []string, i int, flagName string) bool {
+	if i+1 >= len(args) {
+		fmt.Fprintf(os.Stderr, "Error: --%s requires an argument\n", flagName)
+		printUsage()
+		return false
+	}
+	return true
+}
+
+func hideCode(cfg *config) {
+	cfg.showCode = false
+}
+
 func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
 	cfg.verbose = true
 	return 0, true
 }
 
 func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.showCode = false
 	cfg.format = output.FormatQuiet
+	hideCode(cfg)
 	return 0, true
 }
 
 func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.showCode = false
+	hideCode(cfg)
 	return 0, true
 }
 
 func handleFormat(args []string, i int, cfg *config) (int, bool) {
-	if i+1 >= len(args) {
-		fmt.Fprintln(os.Stderr, "Error: --format requires an argument")
-		printUsage()
+	if !requireArg(args, i, "format") {
 		return 0, false
 	}
 	format, err := output.ParseFormat(args[i+1])
@@ -156,9 +167,7 @@ func handleFormat(args []string, i int, cfg *config) (int, bool) {
 }
 
 func handleColor(args []string, i int, cfg *config) (int, bool) {
-	if i+1 >= len(args) {
-		fmt.Fprintln(os.Stderr, "Error: --color requires an argument")
-		printUsage()
+	if !requireArg(args, i, "color") {
 		return 0, false
 	}
 	colorMode, err := output.ParseColorMode(args[i+1])
@@ -172,9 +181,7 @@ func handleColor(args []string, i int, cfg *config) (int, bool) {
 }
 
 func handleOutput(args []string, i int, cfg *config) (int, bool) {
-	if i+1 >= len(args) {
-		fmt.Fprintln(os.Stderr, "Error: --output requires an argument")
-		printUsage()
+	if !requireArg(args, i, "output") {
 		return 0, false
 	}
 	cfg.outputFile = args[i+1]
@@ -188,9 +195,7 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 }
 
 func handleTimeout(args []string, i int, cfg *config) (int, bool) {
-	if i+1 >= len(args) {
-		fmt.Fprintln(os.Stderr, "Error: --timeout requires an argument")
-		printUsage()
+	if !requireArg(args, i, "timeout") {
 		return 0, false
 	}
 	duration, err := time.ParseDuration(args[i+1])
@@ -205,9 +210,7 @@ func handleTimeout(args []string, i int, cfg *config) (int, bool) {
 }
 
 func handleLanguages(args []string, i int, cfg *config) (int, bool) {
-	if i+1 >= len(args) {
-		fmt.Fprintln(os.Stderr, "Error: --language requires an argument")
-		printUsage()
+	if !requireArg(args, i, "language") {
 		return 0, false
 	}
 

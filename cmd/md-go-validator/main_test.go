@@ -15,6 +15,17 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+func runParseArgsFieldTest[T comparable](t *testing.T, name string, args []string, want T, get func(config) T) {
+	t.Run(name, func(t *testing.T) {
+		t.Parallel()
+		cfg := parseArgs(args)
+		got := get(cfg)
+		if got != want {
+			t.Errorf("got %v, want %v", got, want)
+		}
+	})
+}
+
 func TestParseArgsDefaults(t *testing.T) {
 	t.Parallel()
 
@@ -160,12 +171,8 @@ func TestValidatePath(t *testing.T) {
 		t.Parallel()
 
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.md")
-
 		content := []byte("```go\npackage main\n```\n")
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		tmpFile := writeTestFile(t, tmpDir, "test.md", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpFile)
@@ -179,18 +186,9 @@ func TestValidatePath(t *testing.T) {
 		t.Parallel()
 
 		tmpDir := t.TempDir()
-		tmpFile := filepath.Join(tmpDir, "test.md")
-
 		content := []byte("```go\npackage main\n```\n")
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
-
-		// Non-markdown file should be ignored
-		txtFile := filepath.Join(tmpDir, "test.txt")
-		if err := os.WriteFile(txtFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		writeTestFile(t, tmpDir, "test.md", content)
+		writeTestFile(t, tmpDir, "test.txt", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpDir)
@@ -208,18 +206,9 @@ func TestValidatePaths(t *testing.T) {
 		t.Parallel()
 
 		tmpDir := t.TempDir()
-
-		// Create two markdown files
-		file1 := filepath.Join(tmpDir, "file1.md")
-		file2 := filepath.Join(tmpDir, "file2.md")
-
 		content := []byte("```go\npackage main\n```\n")
-		if err := os.WriteFile(file1, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
-		if err := os.WriteFile(file2, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		file1 := writeTestFile(t, tmpDir, "file1.md", content)
+		file2 := writeTestFile(t, tmpDir, "file2.md", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePaths(context.Background(), validator, []string{file1, file2})
@@ -269,13 +258,7 @@ func TestParseArgsFormatFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			cfg := parseArgs(tt.args)
-			if cfg.format != tt.wantFormat {
-				t.Errorf("format = %q, want %q", cfg.format, tt.wantFormat)
-			}
-		})
+		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantFormat, func(cfg config) output.Format { return cfg.format })
 	}
 }
 
@@ -293,13 +276,7 @@ func TestParseArgsColorFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			cfg := parseArgs(tt.args)
-			if cfg.colorMode != tt.wantColorMode {
-				t.Errorf("colorMode = %q, want %q", cfg.colorMode, tt.wantColorMode)
-			}
-		})
+		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantColorMode, func(cfg config) output.ColorMode { return cfg.colorMode })
 	}
 }
 
@@ -317,13 +294,7 @@ func TestParseArgsOutputFlag(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			cfg := parseArgs(tt.args)
-			if cfg.outputFile != tt.wantOutputFile {
-				t.Errorf("outputFile = %q, want %q", cfg.outputFile, tt.wantOutputFile)
-			}
-		})
+		runParseArgsFieldTest(t, tt.name, tt.args, tt.wantOutputFile, func(cfg config) string { return cfg.outputFile })
 	}
 }
 
@@ -477,6 +448,15 @@ func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
 	if err := writeOutputToFile(results, cfg); err != nil {
 		t.Fatalf("writeOutputToFile failed: %v", err)
 	}
+}
+
+func writeTestFile(t *testing.T, tmpDir, filename string, content []byte) string {
+	t.Helper()
+	path := filepath.Join(tmpDir, filename)
+	if err := os.WriteFile(path, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return path
 }
 
 func assertFileContains(t *testing.T, path, substr string) {

@@ -71,6 +71,21 @@ func (c ContextConfig) WithParent(parent context.Context) ContextConfig {
 	return c
 }
 
+// wrapContextWithCancel wraps a context with a derived context and chains
+// the cancel functions so both are called when the returned cancel is invoked.
+func wrapContextWithCancel(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	wrap func(context.Context) (context.Context, context.CancelFunc),
+) (context.Context, context.CancelFunc) {
+	derivedCtx, derivedCancel := wrap(ctx)
+	originalCancel := cancel
+	return derivedCtx, func() {
+		derivedCancel()
+		originalCancel()
+	}
+}
+
 // Build creates a context.Context from this configuration.
 // It chains context.WithCancel, context.WithTimeout, and context.WithDeadline
 // based on the configuration values.
@@ -85,26 +100,16 @@ func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 
 	// Apply timeout if set
 	if c.Timeout > 0 {
-		var timeoutCancel context.CancelFunc
-		ctx, timeoutCancel = context.WithTimeout(ctx, c.Timeout)
-		// Chain the cancel functions
-		originalCancel := cancel
-		cancel = func() {
-			timeoutCancel()
-			originalCancel()
-		}
+		ctx, cancel = wrapContextWithCancel(ctx, cancel, func(parent context.Context) (context.Context, context.CancelFunc) {
+			return context.WithTimeout(parent, c.Timeout)
+		})
 	}
 
 	// Apply deadline if set
 	if !c.Deadline.IsZero() {
-		var deadlineCancel context.CancelFunc
-		ctx, deadlineCancel = context.WithDeadline(ctx, c.Deadline)
-		// Chain the cancel functions
-		originalCancel := cancel
-		cancel = func() {
-			deadlineCancel()
-			originalCancel()
-		}
+		ctx, cancel = wrapContextWithCancel(ctx, cancel, func(parent context.Context) (context.Context, context.CancelFunc) {
+			return context.WithDeadline(parent, c.Deadline)
+		})
 	}
 
 	return ctx, cancel

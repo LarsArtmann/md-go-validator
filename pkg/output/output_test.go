@@ -6,19 +6,13 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-func assertSingleError(t *testing.T, report *types.ReportData) {
-	t.Helper()
-	if len(report.Errors) != 1 {
-		t.Fatalf("expected 1 error entry, got %d", len(report.Errors))
-	}
-}
-
 func testParseFunc[T any](t *testing.T, funcName string, tests []struct {
 	name    string
 	input   string
 	want    T
 	wantErr bool
-}, parseFunc func(string) (T, error)) {
+}, parseFunc func(string) (T, error),
+) {
 	t.Helper()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -87,12 +81,7 @@ func TestBuildReportData(t *testing.T) {
 		results := []types.Result{}
 		report := types.BuildReportData(results, false)
 
-		if report.Summary.Total != 0 {
-			t.Errorf("expected Total 0, got %d", report.Summary.Total)
-		}
-		if report.Summary.Valid != 0 {
-			t.Errorf("expected Valid 0, got %d", report.Summary.Valid)
-		}
+		types.AssertReportTotalAndValid(t, &report, 0, 0)
 	})
 
 	t.Run("all valid", func(t *testing.T) {
@@ -103,39 +92,18 @@ func TestBuildReportData(t *testing.T) {
 		}
 		report := types.BuildReportData(results, false)
 
-		if report.Summary.Total != 2 {
-			t.Errorf("expected Total 2, got %d", report.Summary.Total)
-		}
-		if report.Summary.Valid != 2 {
-			t.Errorf("expected Valid 2, got %d", report.Summary.Valid)
-		}
-		if report.Summary.Errors != 0 {
-			t.Errorf("expected Errors 0, got %d", report.Summary.Errors)
-		}
+		types.AssertReportSummary(t, &report, 2, 2, 0, 0)
 	})
 
 	t.Run("with skipped", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewSkippedResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"",
-			),
+			newSkippedResultWithReason("a.md", 1, 1, ""),
 			newValidResultWithCode("b.md", 2, 1, ""),
 		}
 		report := types.BuildReportData(results, false)
 
-		if report.Summary.Total != 2 {
-			t.Errorf("expected Total 2, got %d", report.Summary.Total)
-		}
-		if report.Summary.Valid != 1 {
-			t.Errorf("expected Valid 1, got %d", report.Summary.Valid)
-		}
-		if report.Summary.Skipped != 1 {
-			t.Errorf("expected Skipped 1, got %d", report.Summary.Skipped)
-		}
+		types.AssertReportSummary(t, &report, 2, 1, 0, 1)
 	})
 
 	t.Run("with errors", func(t *testing.T) {
@@ -148,24 +116,11 @@ func TestBuildReportData(t *testing.T) {
 				"",
 				&testError{msg: "syntax error"},
 			),
-			types.NewValidResult(
-				types.NewFileID("b.md"),
-				types.NewLineNumber(2),
-				types.NewBlockIndex(1),
-				"",
-			),
+			newValidResultWithCode("b.md", 2, 1, ""),
 		}
 		report := types.BuildReportData(results, false)
 
-		if report.Summary.Total != 2 {
-			t.Errorf("expected Total 2, got %d", report.Summary.Total)
-		}
-		if report.Summary.Valid != 1 {
-			t.Errorf("expected Valid 1, got %d", report.Summary.Valid)
-		}
-		if report.Summary.Errors != 1 {
-			t.Errorf("expected Errors 1, got %d", report.Summary.Errors)
-		}
+		types.AssertReportSummary(t, &report, 2, 1, 1, 0)
 		if len(report.Errors) != 1 {
 			t.Errorf("expected 1 error entry, got %d", len(report.Errors))
 		}
@@ -179,10 +134,7 @@ func TestBuildReportData(t *testing.T) {
 		results := []types.Result{newErrorResultWithCode("package main")}
 		report := types.BuildReportData(results, true)
 
-		assertSingleError(t, &report)
-		if report.Errors[0].Code != "package main" {
-			t.Errorf("expected code 'package main', got %q", report.Errors[0].Code)
-		}
+		types.AssertSingleErrorWithCode(t, &report, "package main")
 	})
 
 	t.Run("hide code", func(t *testing.T) {
@@ -190,10 +142,7 @@ func TestBuildReportData(t *testing.T) {
 		results := []types.Result{newErrorResultWithCode("package main")}
 		report := types.BuildReportData(results, false)
 
-		assertSingleError(t, &report)
-		if report.Errors[0].Code != "" {
-			t.Errorf("expected empty code, got %q", report.Errors[0].Code)
-		}
+		types.AssertSingleErrorWithCode(t, &report, "")
 	})
 }
 
@@ -285,12 +234,7 @@ func TestPrintReport(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
 			newValidResultWithCode("a.md", 1, 1, "package main"),
-			types.NewSkippedResult(
-				types.NewFileID("b.md"),
-				types.NewLineNumber(2),
-				types.NewBlockIndex(1),
-				"// skip",
-			),
+			newSkippedResultWithReason("b.md", 2, 1, "// skip"),
 		}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 	})
@@ -354,6 +298,15 @@ func newErrorResultWithCode(code string) types.Result {
 		types.NewBlockIndex(1),
 		code,
 		&testError{msg: "syntax error"},
+	)
+}
+
+func newSkippedResultWithReason(fileID string, lineNumber, blockIndex int, reason string) types.Result {
+	return types.NewSkippedResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(lineNumber),
+		types.NewBlockIndex(blockIndex),
+		reason,
 	)
 }
 

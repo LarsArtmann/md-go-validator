@@ -28,40 +28,33 @@ type Result struct {
 	Error error
 }
 
-// NewValidResult creates a new valid result.
-func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
+// newResult creates a Result with the given status and no error.
+func newResult(file FileID, line LineNumber, block BlockIndex, code string, status ValidationStatus) Result {
 	return Result{
 		File:       file,
 		LineNumber: line,
 		Block:      block,
 		Code:       code,
-		Status:     StatusValid,
+		Status:     status,
 		Error:      nil,
 	}
+}
+
+// NewValidResult creates a new valid result.
+func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
+	return newResult(file, line, block, code, StatusValid)
 }
 
 // NewSkippedResult creates a new skipped result.
 func NewSkippedResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
-	return Result{
-		File:       file,
-		LineNumber: line,
-		Block:      block,
-		Code:       code,
-		Status:     StatusSkipped,
-		Error:      nil,
-	}
+	return newResult(file, line, block, code, StatusSkipped)
 }
 
 // NewErrorResult creates a new error result.
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
-	return Result{
-		File:       file,
-		LineNumber: line,
-		Block:      block,
-		Code:       code,
-		Status:     StatusError,
-		Error:      err,
-	}
+	result := newResult(file, line, block, code, StatusError)
+	result.Error = err
+	return result
 }
 
 // String returns a human-readable summary of the result.

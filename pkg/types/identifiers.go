@@ -27,6 +27,22 @@ func (f FileID) Validate() error {
 	return nil
 }
 
+// Validatable is an interface for types that can be validated.
+type Validatable interface {
+	Validate() error
+}
+
+func formatUintValue[T ~uint](v T) string {
+	return strconv.FormatUint(uint64(v), 10)
+}
+
+func validateUintMinOne[T ~uint](v T, typeName string) error {
+	if v == 0 {
+		return errors.New(typeName + " must be >= 1, got 0")
+	}
+	return nil
+}
+
 // LineNumber is a branded type representing a line number in a file.
 // Uses uint for natural alignment (lines start at 1, not 0).
 type LineNumber uint
@@ -54,15 +70,12 @@ func (l LineNumber) Int() int {
 
 // String returns the LineNumber as string.
 func (l LineNumber) String() string {
-	return strconv.FormatUint(uint64(l), 10)
+	return formatUintValue(l)
 }
 
 // Validate checks if the LineNumber is valid (>= 1).
 func (l LineNumber) Validate() error {
-	if l == 0 {
-		return errors.New("LineNumber must be >= 1, got 0")
-	}
-	return nil
+	return validateUintMinOne(l, "LineNumber")
 }
 
 // BlockIndex is a branded type representing a code block index within a file.
@@ -92,13 +105,10 @@ func (b BlockIndex) Int() int {
 
 // String returns the BlockIndex as string.
 func (b BlockIndex) String() string {
-	return strconv.FormatUint(uint64(b), 10)
+	return formatUintValue(b)
 }
 
 // Validate checks if the BlockIndex is valid (>= 1).
 func (b BlockIndex) Validate() error {
-	if b == 0 {
-		return errors.New("BlockIndex must be >= 1, got 0")
-	}
-	return nil
+	return validateUintMinOne(b, "BlockIndex")
 }

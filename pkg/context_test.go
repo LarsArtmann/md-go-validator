@@ -69,6 +69,46 @@ func TestContextConfigWithMaxBlocksPerFile(t *testing.T) {
 	}
 }
 
+func TestContextConfigWithMaxLimits(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name              string
+		setMax            func(ContextConfig) ContextConfig
+		getMax            func(ContextConfig) int
+		expected          int
+		expectedFieldName string
+	}{
+		{
+			name:              "WithMaxFiles",
+			setMax:            func(c ContextConfig) ContextConfig { return c.WithMaxFiles(100) },
+			getMax:            func(c ContextConfig) int { return c.MaxFiles },
+			expected:          100,
+			expectedFieldName: "maxFiles",
+		},
+		{
+			name:              "WithMaxBlocksPerFile",
+			setMax:            func(c ContextConfig) ContextConfig { return c.WithMaxBlocksPerFile(50) },
+			getMax:            func(c ContextConfig) int { return c.MaxBlocksPerFile },
+			expected:          50,
+			expectedFieldName: "maxBlocksPerFile",
+		},
+	}
+
+	for _, tc := range tests {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfg := tc.setMax(DefaultContextConfig())
+
+			if got := tc.getMax(cfg); got != tc.expected {
+				t.Errorf("expected %s %d, got %d", tc.expectedFieldName, tc.expected, got)
+			}
+		})
+	}
+}
+
 func TestContextConfigWithParent(t *testing.T) {
 	t.Parallel()
 

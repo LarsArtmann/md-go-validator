@@ -135,28 +135,30 @@ func (r *Registry) Languages() []Language {
 func (r *Registry) Validate(ctx context.Context, lang Language, code string) error {
 	v := r.Get(lang)
 	if v == nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("no validator registered for language: %s", lang),
-			Code:    ErrCodeNotRegistered,
-			Line:    0,
-			Column:  0,
-		}
+		return newValidationError(
+			fmt.Sprintf("no validator registered for language: %s", lang),
+			ErrCodeNotRegistered,
+		)
 	}
 	if !v.IsAvailable() {
-		return &ValidationError{
-			Message: fmt.Sprintf(
-				"validator for %s is not available (required tools not installed)",
-				lang,
-			),
-			Code:   ErrCodeNotAvailable,
-			Line:   0,
-			Column: 0,
-		}
+		return newValidationError(
+			fmt.Sprintf("validator for %s is not available (required tools not installed)", lang),
+			ErrCodeNotAvailable,
+		)
 	}
 	if err := v.Validate(ctx, code); err != nil {
 		return fmt.Errorf("validation failed for %s: %w", lang, err)
 	}
 	return nil
+}
+
+func newValidationError(message string, code ErrorCode) *ValidationError {
+	return &ValidationError{
+		Message: message,
+		Code:    code,
+		Line:    0,
+		Column:  0,
+	}
 }
 
 // DefaultRegistry creates a registry with all built-in validators.

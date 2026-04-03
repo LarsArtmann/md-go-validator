@@ -37,14 +37,12 @@ func New(verbose bool) *FileValidator {
 
 // WithMaxFiles sets the maximum number of files to process.
 func (v *FileValidator) WithMaxFiles(maxFiles int) *FileValidator {
-	v.maxFiles = maxFiles
-	return v
+	return v.withInt(&v.maxFiles, maxFiles)
 }
 
 // WithMaxBlocks sets the maximum number of blocks per file to process.
 func (v *FileValidator) WithMaxBlocks(maxBlocks int) *FileValidator {
-	v.maxBlocks = maxBlocks
-	return v
+	return v.withInt(&v.maxBlocks, maxBlocks)
 }
 
 // WithConcurrency sets the number of concurrent workers for directory validation.
@@ -399,18 +397,25 @@ type resultCollector struct {
 	mu      sync.Mutex
 }
 
-// addResult adds a result safely.
-func (rc *resultCollector) addResult(r []types.Result) {
+// withLock executes fn under mutex protection.
+func (rc *resultCollector) withLock(fn func()) {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
-	rc.results = append(rc.results, r...)
+	fn()
+}
+
+// addResult adds a result safely.
+func (rc *resultCollector) addResult(r []types.Result) {
+	rc.withLock(func() {
+		rc.results = append(rc.results, r...)
+	})
 }
 
 // addError adds an error safely.
 func (rc *resultCollector) addError(err error) {
-	rc.mu.Lock()
-	defer rc.mu.Unlock()
-	rc.errors = append(rc.errors, err)
+	rc.withLock(func() {
+		rc.errors = append(rc.errors, err)
+	})
 }
 
 // finalize returns results or first error.
@@ -421,6 +426,19 @@ func (rc *resultCollector) finalize() ([]types.Result, error) {
 		return rc.results, fmt.Errorf("encountered %d errors: %w", len(rc.errors), rc.errors[0])
 	}
 	return rc.results, nil
+}
+
+// collectFromChan runs a collection loop for a typed channel with context cancellation.
+func collectFromChan[T any](ctx context.Context, ch <-chan T, wg *sync.WaitGroup, fn func(T)) {
+	defer wg.Done()
+	for item := range ch {
+		select {
+		case <-ctx.Done():
+			return
+		default:
+			fn(item)
+		}
+	}
 }
 
 // collectResultsLoop runs collection loops concurrently.
@@ -434,32 +452,17 @@ func (v *FileValidator) collectResultsLoop(
 	var wg sync.WaitGroup
 	wg.Add(2)
 
-	go func() {
-		defer wg.Done()
-		for fileResults := range results {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				collector.addResult(fileResults)
-			}
-		}
-	}()
+	go collectFromChan(ctx, results, &wg, collector.addResult)
 
-	go func() {
-		defer wg.Done()
-		for err := range errorsChan {
-			select {
-			case <-ctx.Done():
-				return
-			default:
-				collector.addError(err)
-			}
-		}
-	}()
+	go collectFromChan(ctx, errorsChan, &wg, collector.addError)
 
 	wg.Wait()
 	close(done)
+}
+
+func (v *FileValidator) withInt(field *int, value int) *FileValidator {
+	*field = value
+	return v
 }
 
 func shouldSkipDir(name string) bool {

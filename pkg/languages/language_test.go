@@ -7,9 +7,9 @@ import (
 func TestLanguage_String(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	testStringMethod(t, "Language.String", []struct {
 		name     string
-		lang     Language
+		value    Language
 		expected string
 	}{
 		{"Go", LangGo, "go"},
@@ -18,16 +18,7 @@ func TestLanguage_String(t *testing.T) {
 		{"Nix", LangNix, "nix"},
 		{"Rust", LangRust, "rust"},
 		{"HCL", LangHCL, "hcl"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			if got := tt.lang.String(); got != tt.expected {
-				t.Errorf("Language.String() = %v, want %v", got, tt.expected)
-			}
-		})
-	}
+	}, func(l Language) string { return l.String() })
 }
 
 func TestParseLanguage(t *testing.T) {

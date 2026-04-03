@@ -31,57 +31,57 @@ func (v *TreeSitterValidator) IsAvailable() bool {
 func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 	entry := grammars.DetectLanguageByName(v.langName)
 	if entry == nil || entry.Language == nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("language %q not available", v.langName),
-			Code:    ErrCodeNotAvailable,
-			Line:    0,
-			Column:  0,
-		}
+		return v.newValidationError(
+			fmt.Sprintf("language %q not available", v.langName),
+			ErrCodeNotAvailable,
+		)
 	}
 
 	lang := entry.Language()
 	if lang == nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("failed to load language %q", v.langName),
-			Code:    ErrCodeNotAvailable,
-			Line:    0,
-			Column:  0,
-		}
+		return v.newValidationError(
+			fmt.Sprintf("failed to load language %q", v.langName),
+			ErrCodeNotAvailable,
+		)
 	}
 
 	parser := gotreesitter.NewParser(lang)
 
 	tree, err := parser.Parse([]byte(code))
 	if err != nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("failed to parse %s code: %v", v.langName, err),
-			Code:    ErrCodeSyntax,
-			Line:    0,
-			Column:  0,
-		}
+		return v.newValidationError(
+			fmt.Sprintf("failed to parse %s code: %v", v.langName, err),
+			ErrCodeSyntax,
+		)
 	}
 	defer tree.Release()
 
 	root := tree.RootNode()
 	if root == nil {
-		return &ValidationError{
-			Message: fmt.Sprintf("failed to get root node for %s code", v.langName),
-			Code:    ErrCodeSyntax,
-			Line:    0,
-			Column:  0,
-		}
+		return v.newValidationError(
+			fmt.Sprintf("failed to get root node for %s code", v.langName),
+			ErrCodeSyntax,
+		)
 	}
 
 	if root.HasError() {
-		return &ValidationError{
-			Message: v.langName + " syntax error: code contains parse errors",
-			Code:    ErrCodeSyntax,
-			Line:    0,
-			Column:  0,
-		}
+		return v.newValidationError(
+			v.langName+" syntax error: code contains parse errors",
+			ErrCodeSyntax,
+		)
 	}
 
 	return nil
+}
+
+// newValidationError creates a ValidationError with zero line/column.
+func (v *TreeSitterValidator) newValidationError(message string, code ErrorCode) *ValidationError {
+	return &ValidationError{
+		Message: message,
+		Code:    code,
+		Line:    0,
+		Column:  0,
+	}
 }
 
 // NewTreeSitterValidator creates a new tree-sitter based validator.

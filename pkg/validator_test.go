@@ -77,10 +77,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Run("golang tag", func(t *testing.T) {
 		t.Parallel()
 		content := "```golang\nfmt.Println(\"hello\")\n```"
-		blocks := ExtractGoCodeBlocks(content)
-		if len(blocks) != 1 {
-			t.Fatalf("expected 1 block, got %d", len(blocks))
-		}
+		_ = extractAndAssertBlockCount(t, content, 1)
 	})
 }
 
@@ -93,10 +90,7 @@ type Partial struct {
 }
 ` + "```"
 
-	blocks := ExtractGoCodeBlocks(content)
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
+	blocks := extractAndAssertBlockCount(t, content, 1)
 	assertBlockSkipped(t, blocks[0])
 }
 
@@ -104,10 +98,7 @@ func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 	t.Parallel()
 	content := "```go\n//nolint\ntype Partial struct{}\n```"
 
-	blocks := ExtractGoCodeBlocks(content)
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
+	blocks := extractAndAssertBlockCount(t, content, 1)
 	assertBlockSkipped(t, blocks[0])
 }
 
@@ -188,10 +179,7 @@ func main() {
 `)
 
 	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "test.md")
-	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-		t.Fatal(err)
-	}
+	tmpFile := writeTestFile(t, tmpDir, "test.md", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -220,12 +208,8 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	content := []byte("```go\npackage main\n```\n")
 
 	tmpDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	if err := os.WriteFile(filepath.Join(tmpDir, "test.txt"), content, 0o600); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, tmpDir, "test.md", content)
+	writeTestFile(t, tmpDir, "test.txt", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -263,12 +247,7 @@ func TestHasErrors(t *testing.T) {
 	t.Run("skipped doesn't count", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			types.NewSkippedResult(
-				types.NewFileID("test.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"skipped",
-			),
+			newSkippedResultWithReason("test.md", 1, 1, "skipped"),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for skipped error")
@@ -301,9 +280,7 @@ func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
 
 	content := []byte("```go\npackage main\n```\n")
 	tmpDir := t.TempDir()
-	if err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o600); err != nil {
-		t.Fatal(err)
-	}
+	writeTestFile(t, tmpDir, "test.md", content)
 
 	v := New(false)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -347,10 +324,7 @@ func TestValidator_ValidateFile_Empty(t *testing.T) {
 	content := []byte("No code blocks here")
 
 	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "empty.md")
-	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-		t.Fatal(err)
-	}
+	tmpFile := writeTestFile(t, tmpDir, "empty.md", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -377,9 +351,7 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 		if err := os.MkdirAll(dirPath, 0o750); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(dirPath, "test.md"), content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		writeTestFile(t, dirPath, "test.md", content)
 	}
 
 	v := New(false)
@@ -398,7 +370,7 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 func TestValidator_WithMaxFiles(t *testing.T) {
 	t.Parallel()
 
-	validateDirectoryWithFiles(t, 10, func(v *Validator) *Validator {
+	validateDirectoryWithFiles(t, 10, func(v *FileValidator) *FileValidator {
 		return v.WithMaxFiles(3)
 	}, 3, "expected 3 results (max files limit)")
 }
@@ -406,7 +378,7 @@ func TestValidator_WithMaxFiles(t *testing.T) {
 func TestValidator_WithConcurrency(t *testing.T) {
 	t.Parallel()
 
-	validateDirectoryWithFiles(t, 4, func(v *Validator) *Validator {
+	validateDirectoryWithFiles(t, 4, func(v *FileValidator) *FileValidator {
 		return v.WithConcurrency(2)
 	}, 4, "expected 4 results")
 }
@@ -418,10 +390,7 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 	block := "```go\npackage main\n```\n"
 	content := []byte(block + block + block + block + block)
 	tmpDir := t.TempDir()
-	tmpFile := filepath.Join(tmpDir, "multi.md")
-	if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-		t.Fatal(err)
-	}
+	tmpFile := writeTestFile(t, tmpDir, "multi.md", content)
 
 	v := New(false).WithMaxBlocks(3)
 	ctx := context.Background()
@@ -443,10 +412,7 @@ func TestValidator_ParallelValidation(t *testing.T) {
 
 	// Create 8 files
 	for i := range 8 {
-		tmpFile := filepath.Join(tmpDir, fmt.Sprintf("file%d.md", i))
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		writeTestFile(t, tmpDir, fmt.Sprintf("file%d.md", i), content)
 	}
 
 	v := New(false).WithConcurrency(4)
@@ -491,14 +457,11 @@ func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 	t.Helper()
 	content := []byte("```go\npackage main\n```\n")
 	for i := range count {
-		tmpFile := filepath.Join(tmpDir, fmt.Sprintf(pattern, i))
-		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
-			t.Fatal(err)
-		}
+		writeTestFile(t, tmpDir, fmt.Sprintf(pattern, i), content)
 	}
 }
 
-func validateDirectoryWithFiles(t *testing.T, fileCount int, configure func(*Validator) *Validator, expectedResults int, msg string) {
+func validateDirectoryWithFiles(t *testing.T, fileCount int, configure func(*FileValidator) *FileValidator, expectedResults int, msg string) {
 	t.Helper()
 	tmpDir := t.TempDir()
 	createTestMarkdownFiles(t, tmpDir, "file%d.md", fileCount)
@@ -513,6 +476,15 @@ func validateDirectoryWithFiles(t *testing.T, fileCount int, configure func(*Val
 	if len(results) != expectedResults {
 		t.Errorf("%s, got %d", msg, len(results))
 	}
+}
+
+func writeTestFile(t *testing.T, tmpDir, filename string, content []byte) string {
+	t.Helper()
+	path := filepath.Join(tmpDir, filename)
+	if err := os.WriteFile(path, content, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	return path
 }
 
 func assertBlockAtLine(t *testing.T, block types.CodeBlock, expectedLine int) {
@@ -536,4 +508,13 @@ func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int)
 		t.Fatalf("expected %d block(s), got %d", expectedCount, len(blocks))
 	}
 	return blocks
+}
+
+func newSkippedResultWithReason(fileID string, lineNumber, blockIndex int, reason string) types.Result {
+	return types.NewSkippedResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(lineNumber),
+		types.NewBlockIndex(blockIndex),
+		reason,
+	)
 }

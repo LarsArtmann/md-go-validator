@@ -1,4 +1,5 @@
 // Package types provides data structures for code block validation results.
+//
 //nolint:revive // Package name "types" is descriptive and widely used in Go projects
 package types
 

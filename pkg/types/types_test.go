@@ -322,9 +322,7 @@ func TestBuildReportData(t *testing.T) {
 	t.Run("empty results", func(t *testing.T) {
 		t.Parallel()
 		report := BuildReportData([]Result{}, false)
-		if report.Summary.Total != 0 {
-			t.Errorf("expected Total 0, got %d", report.Summary.Total)
-		}
+		AssertReportTotalAndValid(t, &report, 0, 0)
 	})
 
 	t.Run("all valid", func(t *testing.T) {
@@ -334,52 +332,37 @@ func TestBuildReportData(t *testing.T) {
 			NewValidResult(NewFileID("b.md"), NewLineNumber(1), NewBlockIndex(1), "pkg"),
 		}
 		report := BuildReportData(results, false)
-		if report.Summary.Total != 2 {
-			t.Errorf("expected Total 2, got %d", report.Summary.Total)
-		}
-		if report.Summary.Valid != 2 {
-			t.Errorf("expected Valid 2, got %d", report.Summary.Valid)
-		}
-		if report.Summary.Errors != 0 {
-			t.Errorf("expected Errors 0, got %d", report.Summary.Errors)
-		}
+		AssertReportSummary(t, &report, 2, 2, 0, 0)
 	})
+}
+
+func errorResultsForTesting() []Result {
+	return []Result{
+		NewErrorResult(
+			NewFileID("a.md"),
+			NewLineNumber(1),
+			NewBlockIndex(1),
+			"pkg",
+			&testError{msg: "err"},
+		),
+	}
+}
+
+func TestReportData_BuildReportData(t *testing.T) {
+	t.Parallel()
 
 	t.Run("with errors and show code", func(t *testing.T) {
 		t.Parallel()
-		results := []Result{
-			NewErrorResult(
-				NewFileID("a.md"),
-				NewLineNumber(1),
-				NewBlockIndex(1),
-				"pkg",
-				&testError{msg: "err"},
-			),
-		}
+		results := errorResultsForTesting()
 		report := BuildReportData(results, true)
-		if len(report.Errors) != 1 {
-			t.Fatalf("expected 1 error, got %d", len(report.Errors))
-		}
-		if report.Errors[0].Code != "pkg" {
-			t.Errorf("expected code 'pkg', got %q", report.Errors[0].Code)
-		}
+		AssertSingleErrorWithCode(t, &report, "pkg")
 	})
 
 	t.Run("with errors and hide code", func(t *testing.T) {
 		t.Parallel()
-		results := []Result{
-			NewErrorResult(
-				NewFileID("a.md"),
-				NewLineNumber(1),
-				NewBlockIndex(1),
-				"pkg",
-				&testError{msg: "err"},
-			),
-		}
+		results := errorResultsForTesting()
 		report := BuildReportData(results, false)
-		if report.Errors[0].Code != "" {
-			t.Errorf("expected empty code, got %q", report.Errors[0].Code)
-		}
+		AssertSingleErrorWithCode(t, &report, "")
 	})
 }
 
