@@ -11,8 +11,8 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-// OutputFormat represents the output format for validation reports.
-type OutputFormat = output.Format
+// Format represents the output format for validation reports.
+type Format = output.Format
 
 const (
 	// FormatTable outputs a formatted table for terminal display.
@@ -26,7 +26,7 @@ const (
 	// FormatCSV outputs CSV format for spreadsheet import.
 	FormatCSV = output.FormatCSV
 	// FormatQuiet outputs only summary information.
-	FormatQuiet OutputFormat = "quiet"
+	FormatQuiet Format = "quiet"
 )
 
 const (
@@ -41,8 +41,8 @@ const (
 // ColorMode determines when to use ANSI color codes in output.
 type ColorMode = output.ColorMode
 
-// ParseFormat converts a string format name to an OutputFormat.
-func ParseFormat(s string) (OutputFormat, error) {
+// ParseFormat converts a string format name to a Format.
+func ParseFormat(s string) (Format, error) {
 	switch s {
 	case "table":
 		return FormatTable, nil
@@ -74,7 +74,7 @@ func ParseColorMode(s string) (ColorMode, error) {
 }
 
 // PrintReport outputs validation results to stdout.
-func PrintReport(results []types.Result, format OutputFormat, colorMode ColorMode, showCode bool) {
+func PrintReport(results []types.Result, format Format, colorMode ColorMode, showCode bool) {
 	//nolint:errcheck,gosec // Writing to stdout, cannot recover from write errors
 	PrintReportTo(os.Stdout, results, format, colorMode, showCode)
 }
@@ -83,7 +83,7 @@ func PrintReport(results []types.Result, format OutputFormat, colorMode ColorMod
 func PrintReportTo(
 	w io.Writer,
 	results []types.Result,
-	format OutputFormat,
+	format Format,
 	colorMode ColorMode,
 	showCode bool,
 ) error {

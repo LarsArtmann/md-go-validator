@@ -34,7 +34,6 @@ func TestFileID(t *testing.T) {
 	})
 }
 
-//nolint:dupl // Test structure mirrors TestBlockIndex for consistency
 func TestLineNumber(t *testing.T) {
 	t.Parallel()
 
@@ -51,32 +50,10 @@ func TestLineNumber(t *testing.T) {
 
 	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		tests := []struct {
-			value int
-			valid bool
-			desc  string
-		}{
-			{1, true, "LineNumber >= 1"},
-			{0, false, "LineNumber == 0"},
-			{1000000, true, "large LineNumber"},
-		}
-		for _, tc := range tests {
-			t.Run(tc.desc, func(t *testing.T) {
-				t.Parallel()
-				ln := NewLineNumber(tc.value)
-				err := ln.Validate()
-				if tc.valid && err != nil {
-					t.Errorf("expected no error for %s, got %v", tc.desc, err)
-				}
-				if !tc.valid && err == nil {
-					t.Error("expected error for " + tc.desc)
-				}
-			})
-		}
+		testPositiveIntValidator(t, "LineNumber", NewLineNumber, "LineNumber must be >= 1")
 	})
 }
 
-//nolint:dupl // Test structure mirrors TestLineNumber for consistency
 func TestBlockIndex(t *testing.T) {
 	t.Parallel()
 
@@ -93,29 +70,38 @@ func TestBlockIndex(t *testing.T) {
 
 	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		tests := []struct {
-			value int
-			valid bool
-			desc  string
-		}{
-			{1, true, "BlockIndex >= 1"},
-			{0, false, "BlockIndex == 0"},
-			{500000, true, "large BlockIndex"},
-		}
-		for _, tc := range tests {
-			t.Run(tc.desc, func(t *testing.T) {
-				t.Parallel()
-				bi := NewBlockIndex(tc.value)
-				err := bi.Validate()
-				if tc.valid && err != nil {
-					t.Errorf("expected no error for %s, got %v", tc.desc, err)
-				}
-				if !tc.valid && err == nil {
-					t.Error("expected error for " + tc.desc)
-				}
-			})
-		}
+		testPositiveIntValidator(t, "BlockIndex", NewBlockIndex, "BlockIndex must be >= 1")
 	})
+}
+
+// positiveIntValidator is a constraint for types with a Validate method.
+type positiveIntValidator interface {
+	Validate() error
+}
+
+func testPositiveIntValidator[TP positiveIntValidator](t *testing.T, name string, newFunc func(int) TP, _ string) {
+	tests := []struct {
+		value int
+		valid bool
+		desc  string
+	}{
+		{1, true, name + " >= 1"},
+		{0, false, name + " == 0"},
+		{1000000, true, "large " + name},
+	}
+	for _, tc := range tests {
+		t.Run(tc.desc, func(t *testing.T) {
+			t.Parallel()
+			v := newFunc(tc.value)
+			err := v.Validate()
+			if tc.valid && err != nil {
+				t.Errorf("expected no error for %s, got %v", tc.desc, err)
+			}
+			if !tc.valid && err == nil {
+				t.Errorf("expected error for %s", tc.desc)
+			}
+		})
+	}
 }
 
 func TestValidationStatus(t *testing.T) {
@@ -387,51 +373,36 @@ func TestBuildReportData(t *testing.T) {
 func TestReportData_HasErrors(t *testing.T) {
 	t.Parallel()
 
-	t.Run("has errors", func(t *testing.T) {
-		t.Parallel()
-		report := ReportData{
-			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
-			Errors:  nil,
-		}
-		if !report.HasErrors() {
-			t.Error("expected HasErrors() to return true")
-		}
+	testReportDataBoolCase(t, "has errors", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, true, func(r ReportData) bool {
+		return r.HasErrors()
 	})
 
-	t.Run("no errors", func(t *testing.T) {
-		t.Parallel()
-		report := ReportData{
-			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0},
-			Errors:  nil,
-		}
-		if report.HasErrors() {
-			t.Error("expected HasErrors() to return false")
-		}
+	testReportDataBoolCase(t, "no errors", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0}, false, func(r ReportData) bool {
+		return r.HasErrors()
 	})
 }
 
 func TestReportData_Success(t *testing.T) {
 	t.Parallel()
 
-	t.Run("success", func(t *testing.T) {
-		t.Parallel()
-		report := ReportData{
-			Summary: ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0},
-			Errors:  nil,
-		}
-		if !report.Success() {
-			t.Error("expected Success() to return true")
-		}
+	testReportDataBoolCase(t, "success", ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0}, true, func(r ReportData) bool {
+		return r.Success()
 	})
 
-	t.Run("failure", func(t *testing.T) {
+	testReportDataBoolCase(t, "failure", ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1}, false, func(r ReportData) bool {
+		return r.Success()
+	})
+}
+
+func testReportDataBoolCase(t *testing.T, name string, summary ReportSummary, expected bool, method func(ReportData) bool) {
+	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		report := ReportData{
-			Summary: ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
+			Summary: summary,
 			Errors:  nil,
 		}
-		if report.Success() {
-			t.Error("expected Success() to return false")
+		if method(report) != expected {
+			t.Errorf("expected %s to return %v, got %v", name, expected, method(report))
 		}
 	})
 }

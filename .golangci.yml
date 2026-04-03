@@ -80,6 +80,12 @@ formatters:
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10
+  exclude-rules:
+    - linters:
+        - revive
+      path: "_test\\.go"
+      rules:
+        - "context-as-argument"
 linters-settings:
   gosec:
     excludes:

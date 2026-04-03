@@ -254,7 +254,7 @@ func TestParseArgsFormatFlag(t *testing.T) {
 	tests := []struct {
 		name       string
 		args       []string
-		wantFormat output.OutputFormat
+		wantFormat output.Format
 	}{
 		{"json short", []string{"-f", "json", "."}, output.FormatJSON},
 		{"json long", []string{"--format", "json", "."}, output.FormatJSON},
@@ -458,7 +458,7 @@ func newErrorResultForFile(fileID string, line, block int, code, errMsg string) 
 	}
 }
 
-func newTestConfig(outputFile string, format output.OutputFormat) config {
+func newTestConfig(outputFile string, format output.Format) config {
 	return config{
 		verbose:    false,
 		showCode:   true,

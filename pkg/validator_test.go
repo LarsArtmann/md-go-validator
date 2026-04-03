@@ -13,6 +13,30 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+type validResultSpec struct {
+	fileID string
+	line   int
+	block  int
+	code   string
+}
+
+func newValidResult(spec validResultSpec) types.Result {
+	return types.NewValidResult(
+		types.NewFileID(spec.fileID),
+		types.NewLineNumber(spec.line),
+		types.NewBlockIndex(spec.block),
+		spec.code,
+	)
+}
+
+func newValidResults(specs ...validResultSpec) []types.Result {
+	results := make([]types.Result, len(specs))
+	for i, s := range specs {
+		results[i] = newValidResult(s)
+	}
+	return results
+}
+
 func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Parallel()
 
@@ -227,20 +251,10 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{
-			types.NewValidResult(
-				types.NewFileID("test.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"package main",
-			),
-			types.NewValidResult(
-				types.NewFileID("test.md"),
-				types.NewLineNumber(5),
-				types.NewBlockIndex(2),
-				"package main",
-			),
-		}
+		results := newValidResults(
+			validResultSpec{fileID: "test.md", line: 1, block: 1, code: "package main"},
+			validResultSpec{fileID: "test.md", line: 5, block: 2, code: "package main"},
+		)
 		if HasErrors(results) {
 			t.Error("expected false for valid results")
 		}
@@ -384,19 +398,17 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 func TestValidator_WithMaxFiles(t *testing.T) {
 	t.Parallel()
 
-	tmpDir := t.TempDir()
-	createTestMarkdownFiles(t, tmpDir, "file%d.md", 10)
+	validateDirectoryWithFiles(t, 10, func(v *Validator) *Validator {
+		return v.WithMaxFiles(3)
+	}, 3, "expected 3 results (max files limit)")
+}
 
-	v := New(false).WithMaxFiles(3)
-	ctx := context.Background()
-	results, err := v.ValidateDirectory(ctx, tmpDir)
-	if err != nil {
-		t.Fatalf("ValidateDirectory error: %v", err)
-	}
+func TestValidator_WithConcurrency(t *testing.T) {
+	t.Parallel()
 
-	if len(results) != 3 {
-		t.Errorf("expected 3 results (max files limit), got %d", len(results))
-	}
+	validateDirectoryWithFiles(t, 4, func(v *Validator) *Validator {
+		return v.WithConcurrency(2)
+	}, 4, "expected 4 results")
 }
 
 func TestValidator_WithMaxBlocks(t *testing.T) {
@@ -420,24 +432,6 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 
 	if len(results) != 3 {
 		t.Errorf("expected 3 results (max blocks limit), got %d", len(results))
-	}
-}
-
-func TestValidator_WithConcurrency(t *testing.T) {
-	t.Parallel()
-
-	tmpDir := t.TempDir()
-	createTestMarkdownFiles(t, tmpDir, "file%d.md", 4)
-
-	v := New(false).WithConcurrency(2)
-	ctx := context.Background()
-	results, err := v.ValidateDirectory(ctx, tmpDir)
-	if err != nil {
-		t.Fatalf("ValidateDirectory error: %v", err)
-	}
-
-	if len(results) != 4 {
-		t.Errorf("expected 4 results, got %d", len(results))
 	}
 }
 
@@ -501,6 +495,23 @@ func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 		if err := os.WriteFile(tmpFile, content, 0o600); err != nil {
 			t.Fatal(err)
 		}
+	}
+}
+
+func validateDirectoryWithFiles(t *testing.T, fileCount int, configure func(*Validator) *Validator, expectedResults int, msg string) {
+	t.Helper()
+	tmpDir := t.TempDir()
+	createTestMarkdownFiles(t, tmpDir, "file%d.md", fileCount)
+
+	v := configure(New(false))
+	ctx := context.Background()
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	if len(results) != expectedResults {
+		t.Errorf("%s, got %d", msg, len(results))
 	}
 }
 

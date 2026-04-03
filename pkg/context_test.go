@@ -195,6 +195,7 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	assertContextDeadlineExceeded(t, ctx, "context should be done after deadline")
 }
 
+//nolint:revive // Test helper function, t must be first for consistency with testing package
 func assertContextDeadlineExceeded(t *testing.T, ctx context.Context, msg string) {
 	t.Helper()
 	select {

@@ -23,7 +23,7 @@ var osExit = os.Exit
 type config struct {
 	verbose    bool
 	showCode   bool
-	format     output.OutputFormat
+	format     output.Format
 	colorMode  output.ColorMode
 	outputFile string
 	paths      []string
