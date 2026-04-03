@@ -49,27 +49,29 @@ func TestLineNumber(t *testing.T) {
 		}
 	})
 
-	t.Run("Validate valid", func(t *testing.T) {
+	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		ln := NewLineNumber(1)
-		if err := ln.Validate(); err != nil {
-			t.Errorf("expected no error for LineNumber >= 1, got %v", err)
+		tests := []struct {
+			value int
+			valid bool
+			desc  string
+		}{
+			{1, true, "LineNumber >= 1"},
+			{0, false, "LineNumber == 0"},
+			{1000000, true, "large LineNumber"},
 		}
-	})
-
-	t.Run("Validate zero", func(t *testing.T) {
-		t.Parallel()
-		ln := NewLineNumber(0)
-		if err := ln.Validate(); err == nil {
-			t.Error("expected error for LineNumber == 0")
-		}
-	})
-
-	t.Run("Validate large value", func(t *testing.T) {
-		t.Parallel()
-		ln := NewLineNumber(1000000)
-		if err := ln.Validate(); err != nil {
-			t.Errorf("expected no error for large LineNumber, got %v", err)
+		for _, tc := range tests {
+			t.Run(tc.desc, func(t *testing.T) {
+				t.Parallel()
+				ln := NewLineNumber(tc.value)
+				err := ln.Validate()
+				if tc.valid && err != nil {
+					t.Errorf("expected no error for %s, got %v", tc.desc, err)
+				}
+				if !tc.valid && err == nil {
+					t.Error("expected error for " + tc.desc)
+				}
+			})
 		}
 	})
 }
@@ -89,27 +91,29 @@ func TestBlockIndex(t *testing.T) {
 		}
 	})
 
-	t.Run("Validate valid", func(t *testing.T) {
+	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		bi := NewBlockIndex(1)
-		if err := bi.Validate(); err != nil {
-			t.Errorf("expected no error for BlockIndex >= 1, got %v", err)
+		tests := []struct {
+			value int
+			valid bool
+			desc  string
+		}{
+			{1, true, "BlockIndex >= 1"},
+			{0, false, "BlockIndex == 0"},
+			{500000, true, "large BlockIndex"},
 		}
-	})
-
-	t.Run("Validate zero", func(t *testing.T) {
-		t.Parallel()
-		bi := NewBlockIndex(0)
-		if err := bi.Validate(); err == nil {
-			t.Error("expected error for BlockIndex == 0")
-		}
-	})
-
-	t.Run("Validate large value", func(t *testing.T) {
-		t.Parallel()
-		bi := NewBlockIndex(500000)
-		if err := bi.Validate(); err != nil {
-			t.Errorf("expected no error for large BlockIndex, got %v", err)
+		for _, tc := range tests {
+			t.Run(tc.desc, func(t *testing.T) {
+				t.Parallel()
+				bi := NewBlockIndex(tc.value)
+				err := bi.Validate()
+				if tc.valid && err != nil {
+					t.Errorf("expected no error for %s, got %v", tc.desc, err)
+				}
+				if !tc.valid && err == nil {
+					t.Error("expected error for " + tc.desc)
+				}
+			})
 		}
 	})
 }

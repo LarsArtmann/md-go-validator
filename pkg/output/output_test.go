@@ -380,8 +380,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("default format", func(t *testing.T) {
 		t.Parallel()
-		results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
-		PrintReport(results, FormatTable, ColorModeNever, false)
+		assertPrintReportTable(t, "a.md", 1, 1, "package main")
 	})
 }
 
@@ -402,4 +401,10 @@ func newErrorResultWithCode(code, errorMsg string) types.Result {
 		code,
 		&testError{msg: errorMsg},
 	)
+}
+
+func assertPrintReportTable(t *testing.T, fileID string, line, block int, code string) {
+	t.Helper()
+	results := []types.Result{newValidResultWithCode(fileID, line, block, code)}
+	PrintReport(results, FormatTable, ColorModeNever, false)
 }

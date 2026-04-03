@@ -7,7 +7,8 @@ import (
 	"go/parser"
 	"go/scanner"
 	"go/token"
-	"strings"
+
+	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
 )
 
 // GoValidator validates Go code using the standard library parser.
@@ -39,7 +40,7 @@ func (v *GoValidator) Validate(_ context.Context, code string) error {
 	}
 
 	// Strategy 3: Try wrapping in package main with func main
-	indented := indentCode(code)
+	indented := codeutil.IndentCode(code)
 	wrappedFunc := "package main\n\nfunc main() {\n" + indented + "\n}"
 	_, err = parser.ParseFile(token.NewFileSet(), "snippet.go", wrappedFunc, parser.AllErrors)
 	if err == nil {
@@ -95,18 +96,4 @@ func (v *GoValidator) createValidationError(code string) error {
 		Column:  column,
 		Code:    ErrCodeUnknown,
 	}).WithCode(ErrCodeSyntax)
-}
-
-// indentCode indents each non-empty line of code with a tab.
-func indentCode(code string) string {
-	lines := strings.Split(code, "\n")
-	var result strings.Builder
-	for _, line := range lines {
-		if strings.TrimSpace(line) != "" {
-			result.WriteString("\t")
-		}
-		result.WriteString(line)
-		result.WriteString("\n")
-	}
-	return result.String()
 }

@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -26,25 +27,15 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Run("single go block", func(t *testing.T) {
 		t.Parallel()
 		content := "Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text"
-		blocks := ExtractGoCodeBlocks(content)
-		if len(blocks) != 1 {
-			t.Fatalf("expected 1 block, got %d", len(blocks))
-		}
-		if blocks[0].LineNumber != types.NewLineNumber(2) {
-			t.Errorf("expected line 2, got %d", blocks[0].LineNumber)
-		}
+		blocks := extractAndAssertBlockCount(t, content, 1)
+		assertBlockAtLine(t, blocks[0], 2)
 	})
 
 	t.Run("skip other languages", func(t *testing.T) {
 		t.Parallel()
 		content := "```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```"
-		blocks := ExtractGoCodeBlocks(content)
-		if len(blocks) != 1 {
-			t.Fatalf("expected 1 block, got %d", len(blocks))
-		}
-		if blocks[0].LineNumber != types.NewLineNumber(4) {
-			t.Errorf("expected line 4, got %d", blocks[0].LineNumber)
-		}
+		blocks := extractAndAssertBlockCount(t, content, 1)
+		assertBlockAtLine(t, blocks[0], 4)
 	})
 
 	t.Run("skip directive before block", func(t *testing.T) {
@@ -82,9 +73,7 @@ type Partial struct {
 	if len(blocks) != 1 {
 		t.Fatalf("expected 1 block, got %d", len(blocks))
 	}
-	if !blocks[0].IsSkipped() {
-		t.Error("expected block to be skipped")
-	}
+	assertBlockSkipped(t, blocks[0])
 }
 
 func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
@@ -95,9 +84,7 @@ func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 	if len(blocks) != 1 {
 		t.Fatalf("expected 1 block, got %d", len(blocks))
 	}
-	if !blocks[0].IsSkipped() {
-		t.Error("expected block to be skipped due to //nolint in code")
-	}
+	assertBlockSkipped(t, blocks[0])
 }
 
 func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
@@ -157,7 +144,7 @@ func TestIndentCode(t *testing.T) {
 	input := "line1\nline2\n\nline4"
 	expected := "\tline1\n\tline2\n\n\tline4\n"
 
-	result := indentCode(input)
+	result := codeutil.IndentCode(input)
 	if result != expected {
 		t.Errorf("expected %q, got %q", expected, result)
 	}
@@ -515,4 +502,27 @@ func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 			t.Fatal(err)
 		}
 	}
+}
+
+func assertBlockAtLine(t *testing.T, block types.CodeBlock, expectedLine int) {
+	t.Helper()
+	if block.LineNumber != types.NewLineNumber(expectedLine) {
+		t.Errorf("expected line %d, got %d", expectedLine, block.LineNumber)
+	}
+}
+
+func assertBlockSkipped(t *testing.T, block types.CodeBlock) {
+	t.Helper()
+	if !block.IsSkipped() {
+		t.Error("expected block to be skipped")
+	}
+}
+
+func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int) []types.CodeBlock {
+	t.Helper()
+	blocks := ExtractGoCodeBlocks(content)
+	if len(blocks) != expectedCount {
+		t.Fatalf("expected %d block(s), got %d", expectedCount, len(blocks))
+	}
+	return blocks
 }

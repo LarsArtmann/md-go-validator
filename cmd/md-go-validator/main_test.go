@@ -336,31 +336,11 @@ func TestWriteOutputToFile(t *testing.T) {
 		outputPath := filepath.Join(tmpDir, "subdir", "nested", "report.json")
 
 		results := []types.Result{
-			{
-				File:       types.FileID("test.md"),
-				LineNumber: types.LineNumber(1),
-				Block:      types.BlockIndex(1),
-				Code:       "package main",
-				Status:     types.StatusValid,
-				Error:      nil,
-			},
+			newValidResultForFile("test.md", 1, 1, "package main"),
 		}
 
-		cfg := config{
-			verbose:    false,
-			showCode:   true,
-			format:     output.FormatJSON,
-			colorMode:  output.ColorModeNever,
-			outputFile: outputPath,
-			paths:      nil,
-			timeout:    0,
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-		}
-
-		err := writeOutputToFile(results, cfg)
-		if err != nil {
-			t.Fatalf("writeOutputToFile failed: %v", err)
-		}
+		cfg := newTestConfig(outputPath, output.FormatJSON)
+		assertWriteOutputToFile(t, results, cfg)
 
 		if _, statErr := os.Stat(outputPath); os.IsNotExist(statErr) {
 			t.Error("output file was not created")
@@ -374,40 +354,12 @@ func TestWriteOutputToFile(t *testing.T) {
 		outputPath := filepath.Join(tmpDir, "report.json")
 
 		results := []types.Result{
-			{
-				File:       types.FileID("test.md"),
-				LineNumber: types.LineNumber(10),
-				Block:      types.BlockIndex(1),
-				Code:       "bad code",
-				Status:     types.StatusError,
-				Error:      errors.New("syntax error"),
-			},
+			newErrorResultForFile("test.md", 10, 1, "bad code", "syntax error"),
 		}
 
-		cfg := config{
-			verbose:    false,
-			showCode:   true,
-			format:     output.FormatJSON,
-			colorMode:  output.ColorModeNever,
-			outputFile: outputPath,
-			paths:      nil,
-			timeout:    0,
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-		}
-
-		err := writeOutputToFile(results, cfg)
-		if err != nil {
-			t.Fatalf("writeOutputToFile failed: %v", err)
-		}
-
-		content, err := os.ReadFile(outputPath)
-		if err != nil {
-			t.Fatalf("failed to read output file: %v", err)
-		}
-
-		if !strings.Contains(string(content), "test.md") {
-			t.Errorf("output file should contain 'test.md', got: %s", string(content))
-		}
+		cfg := newTestConfig(outputPath, output.FormatJSON)
+		assertWriteOutputToFile(t, results, cfg)
+		assertFileContains(t, outputPath, "test.md")
 	})
 
 	t.Run("writes CSV content", func(t *testing.T) {
@@ -417,40 +369,12 @@ func TestWriteOutputToFile(t *testing.T) {
 		outputPath := filepath.Join(tmpDir, "report.csv")
 
 		results := []types.Result{
-			{
-				File:       types.FileID("test.md"),
-				LineNumber: types.LineNumber(5),
-				Block:      types.BlockIndex(1),
-				Code:       "package main",
-				Status:     types.StatusValid,
-				Error:      nil,
-			},
+			newValidResultForFile("test.md", 5, 1, "package main"),
 		}
 
-		cfg := config{
-			verbose:    false,
-			showCode:   true,
-			format:     output.FormatCSV,
-			colorMode:  output.ColorModeNever,
-			outputFile: outputPath,
-			paths:      nil,
-			timeout:    0,
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-		}
-
-		err := writeOutputToFile(results, cfg)
-		if err != nil {
-			t.Fatalf("writeOutputToFile failed: %v", err)
-		}
-
-		content, err := os.ReadFile(outputPath)
-		if err != nil {
-			t.Fatalf("failed to read output file: %v", err)
-		}
-
-		if !strings.Contains(string(content), "test.md") {
-			t.Errorf("output file should contain 'test.md', got: %s", string(content))
-		}
+		cfg := newTestConfig(outputPath, output.FormatCSV)
+		assertWriteOutputToFile(t, results, cfg)
+		assertFileContains(t, outputPath, "test.md")
 	})
 }
 
@@ -508,5 +432,58 @@ func TestValidatePathsCapacity(t *testing.T) {
 	results := validatePaths(ctx, validator, []string{tmpDir})
 	if len(results) < 5 {
 		t.Errorf("expected at least 5 results, got %d", len(results))
+	}
+}
+
+func newValidResultForFile(fileID string, line, block int, code string) types.Result {
+	return types.Result{
+		File:       types.FileID(fileID),
+		LineNumber: types.LineNumber(line),
+		Block:      types.BlockIndex(block),
+		Code:       code,
+		Status:     types.StatusValid,
+		Error:      nil,
+	}
+}
+
+func newErrorResultForFile(fileID string, line, block int, code, errMsg string) types.Result {
+	return types.Result{
+		File:       types.FileID(fileID),
+		LineNumber: types.LineNumber(line),
+		Block:      types.BlockIndex(block),
+		Code:       code,
+		Status:     types.StatusError,
+		Error:      errors.New(errMsg),
+	}
+}
+
+func newTestConfig(outputFile string, format output.OutputFormat) config {
+	return config{
+		verbose:     false,
+		showCode:    true,
+		format:      format,
+		colorMode:   output.ColorModeNever,
+		outputFile:  outputFile,
+		paths:       nil,
+		timeout:     0,
+		contextCfg:  mdgovalidator.DefaultContextConfig(),
+	}
+}
+
+func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
+	t.Helper()
+	if err := writeOutputToFile(results, cfg); err != nil {
+		t.Fatalf("writeOutputToFile failed: %v", err)
+	}
+}
+
+func assertFileContains(t *testing.T, path, substr string) {
+	t.Helper()
+	content, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("failed to read output file: %v", err)
+	}
+	if !strings.Contains(string(content), substr) {
+		t.Errorf("output file should contain %q, got: %s", substr, string(content))
 	}
 }

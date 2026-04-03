@@ -130,17 +130,9 @@ func TestContextConfigBuildTimeout(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	// Wait for timeout
 	time.Sleep(20 * time.Millisecond)
 
-	select {
-	case <-ctx.Done():
-		if ctx.Err() != context.DeadlineExceeded {
-			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
-		}
-	default:
-		t.Fatal("context should be done after timeout")
-	}
+	assertContextDeadlineExceeded(t, ctx, "context should be done after timeout")
 }
 
 func TestContextConfigBranch(t *testing.T) {
@@ -169,17 +161,9 @@ func TestContextConfigBranchWithTimeout(t *testing.T) {
 	ctx, cancel := cfg.BranchWithTimeout(10 * time.Millisecond)
 	defer cancel()
 
-	// Wait for timeout
 	time.Sleep(20 * time.Millisecond)
 
-	select {
-	case <-ctx.Done():
-		if ctx.Err() != context.DeadlineExceeded {
-			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
-		}
-	default:
-		t.Fatal("context should be done after timeout")
-	}
+	assertContextDeadlineExceeded(t, ctx, "context should be done after timeout")
 }
 
 func TestContextConfigBranchWithDeadline(t *testing.T) {
@@ -190,23 +174,14 @@ func TestContextConfigBranchWithDeadline(t *testing.T) {
 	ctx, cancel := cfg.BranchWithDeadline(deadline)
 	defer cancel()
 
-	// Wait for deadline
 	time.Sleep(20 * time.Millisecond)
 
-	select {
-	case <-ctx.Done():
-		if ctx.Err() != context.DeadlineExceeded {
-			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
-		}
-	default:
-		t.Fatal("context should be done after deadline")
-	}
+	assertContextDeadlineExceeded(t, ctx, "context should be done after deadline")
 }
 
 func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	t.Parallel()
 
-	// When both timeout and deadline are set, the earliest one wins
 	deadline := time.Now().Add(50 * time.Millisecond)
 	cfg := DefaultContextConfig().
 		WithTimeout(100 * time.Millisecond).
@@ -215,15 +190,19 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	// Wait for deadline (earlier than timeout)
 	time.Sleep(60 * time.Millisecond)
 
+	assertContextDeadlineExceeded(t, ctx, "context should be done after deadline")
+}
+
+func assertContextDeadlineExceeded(t *testing.T, ctx context.Context, msg string) {
+	t.Helper()
 	select {
 	case <-ctx.Done():
 		if ctx.Err() != context.DeadlineExceeded {
 			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
 		}
 	default:
-		t.Fatal("context should be done after deadline")
+		t.Fatal(msg)
 	}
 }
