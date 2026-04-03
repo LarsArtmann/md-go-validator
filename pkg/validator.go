@@ -379,7 +379,11 @@ func (v *FileValidator) collectResults(
 	errorsChan <-chan error,
 ) ([]types.Result, error) {
 	done := make(chan struct{})
-	allResults := &resultCollector{}
+	allResults := &resultCollector{
+		results: []types.Result{},
+		errors:  []error{},
+		mu:      sync.Mutex{},
+	}
 
 	go v.collectResultsLoop(ctx, results, errorsChan, done, allResults)
 

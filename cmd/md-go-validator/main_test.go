@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
@@ -467,6 +468,7 @@ func newTestConfig(outputFile string, format output.OutputFormat) config {
 		paths:      nil,
 		timeout:    0,
 		contextCfg: mdgovalidator.DefaultContextConfig(),
+		languages:  []languages.Language{languages.LangGo},
 	}
 }
 

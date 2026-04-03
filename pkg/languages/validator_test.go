@@ -243,7 +243,7 @@ func TestValidationError(t *testing.T) {
 	}{
 		{
 			name:     "with line and column",
-			err:      ValidationError{Message: "syntax error", Line: 10, Column: 5},
+			err:      ValidationError{Message: "syntax error", Line: 10, Column: 5, Code: ErrCodeSyntax},
 			expected: "10:5: syntax error",
 		},
 		{

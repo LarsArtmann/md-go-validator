@@ -34,6 +34,8 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 		return &ValidationError{
 			Message: fmt.Sprintf("language %q not available", v.langName),
 			Code:    ErrCodeNotAvailable,
+			Line:    0,
+			Column:  0,
 		}
 	}
 
@@ -42,6 +44,8 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 		return &ValidationError{
 			Message: fmt.Sprintf("failed to load language %q", v.langName),
 			Code:    ErrCodeNotAvailable,
+			Line:    0,
+			Column:  0,
 		}
 	}
 
@@ -52,6 +56,8 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 		return &ValidationError{
 			Message: fmt.Sprintf("failed to parse %s code: %v", v.langName, err),
 			Code:    ErrCodeSyntax,
+			Line:    0,
+			Column:  0,
 		}
 	}
 	defer tree.Release()
@@ -61,6 +67,8 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 		return &ValidationError{
 			Message: fmt.Sprintf("failed to get root node for %s code", v.langName),
 			Code:    ErrCodeSyntax,
+			Line:    0,
+			Column:  0,
 		}
 	}
 
@@ -68,6 +76,8 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 		return &ValidationError{
 			Message: v.langName + " syntax error: code contains parse errors",
 			Code:    ErrCodeSyntax,
+			Line:    0,
+			Column:  0,
 		}
 	}
 

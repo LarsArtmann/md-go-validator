@@ -138,6 +138,8 @@ func (r *Registry) Validate(ctx context.Context, lang Language, code string) err
 		return &ValidationError{
 			Message: fmt.Sprintf("no validator registered for language: %s", lang),
 			Code:    ErrCodeNotRegistered,
+			Line:    0,
+			Column:  0,
 		}
 	}
 	if !v.IsAvailable() {
@@ -146,7 +148,9 @@ func (r *Registry) Validate(ctx context.Context, lang Language, code string) err
 				"validator for %s is not available (required tools not installed)",
 				lang,
 			),
-			Code: ErrCodeNotAvailable,
+			Code:   ErrCodeNotAvailable,
+			Line:   0,
+			Column: 0,
 		}
 	}
 	if err := v.Validate(ctx, code); err != nil {
