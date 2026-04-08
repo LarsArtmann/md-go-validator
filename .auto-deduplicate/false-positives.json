@@ -1,9 +1,7 @@
 [
   {
     "fingerprint": "4ba4b108d3f9cb59b9a06a4d979c5192daeeed4ae57855aaac0d987f8199d8a9",
-    "files": [
-      "/Users/larsartmann/projects/md-go-validator/pkg/validator_interface.go"
-    ],
+    "files": ["/Users/larsartmann/projects/md-go-validator/pkg/validator_interface.go"],
     "reason": "These are two distinct interface method signatures (`ValidateFile` and `ValidateDirectory`) that happen to share the same return type `([]types.Result, error)`. They have different method names, different parameter names, and different semantics. The similarity detection is incorrectly flagging the return type declaration as duplicate code, but identical return types across interface methods are normal and expected Go patterns. No refactoring needed.\n\n{\"strategy\": \"false_positive\", \"files_modified\": [], \"new_abstraction\": null, \"confidence\": 1.0}\nINFO Running in non-interactive mode\nINFO Overriding large model for non-interactive run provider=minimax model=MiniMax-M2.7-highspeed\nINFO Using provider default small model provider=minimax model=MiniMax-M2.7\nINFO Created session for non-interactive run session_id=8649ef8c-4e4d-4474-b3c9-78ef0fc9270a\nERRO Language server stderr command=golangci-lint-langserver\n  output=\n  │ 2026/04/03 06:10:50 golangci-lint-langserver: connections opened\n\nERRO Failed to enqueue PostHog event event=\"app exited\" props=\"[app duration pretty 17s app duration in seconds 17]\" error=\"the client was already closed\"\nERRO Failed to flush PostHog events error=\"the client was already closed\"",
     "marked_at": "2026-04-03T06:11:01.776289+02:00",
     "marked_by": "auto-deduplicate"
