@@ -49,17 +49,10 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 		}
 	})
 
-	t.Run("single go block", func(t *testing.T) {
-		t.Parallel()
-		content := "Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text"
-		extractAndAssertBlockAtLine(t, content, 2)
-	})
-
-	t.Run("skip other languages", func(t *testing.T) {
-		t.Parallel()
-		content := "```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```"
-		extractAndAssertBlockAtLine(t, content, 4)
-	})
+	runExtractGoBlockAtLineTest(t, "single go block",
+		"Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text", 2)
+	runExtractGoBlockAtLineTest(t, "skip other languages",
+		"```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```", 4)
 
 	t.Run("skip directive before block", func(t *testing.T) {
 		t.Parallel()
@@ -178,7 +171,7 @@ func main() {
 `)
 
 	tmpDir := t.TempDir()
-	tmpFile := writeTestFile(t, tmpDir, "test.md", content)
+	tmpFile := testutil.WriteTestFile(t, tmpDir, "test.md", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -207,8 +200,8 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	content := []byte("```go\npackage main\n```\n")
 
 	tmpDir := t.TempDir()
-	writeTestFile(t, tmpDir, "test.md", content)
-	writeTestFile(t, tmpDir, "test.txt", content)
+	testutil.WriteTestFile(t, tmpDir, "test.md", content)
+	testutil.WriteTestFile(t, tmpDir, "test.txt", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -279,7 +272,7 @@ func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
 
 	content := []byte("```go\npackage main\n```\n")
 	tmpDir := t.TempDir()
-	writeTestFile(t, tmpDir, "test.md", content)
+	testutil.WriteTestFile(t, tmpDir, "test.md", content)
 
 	v := New(false)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -323,7 +316,7 @@ func TestValidator_ValidateFile_Empty(t *testing.T) {
 	content := []byte("No code blocks here")
 
 	tmpDir := t.TempDir()
-	tmpFile := writeTestFile(t, tmpDir, "empty.md", content)
+	tmpFile := testutil.WriteTestFile(t, tmpDir, "empty.md", content)
 
 	v := New(false)
 	ctx := context.Background()
@@ -350,7 +343,7 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 		if err := os.MkdirAll(dirPath, 0o750); err != nil {
 			t.Fatal(err)
 		}
-		writeTestFile(t, dirPath, "test.md", content)
+		testutil.WriteTestFile(t, dirPath, "test.md", content)
 	}
 
 	v := New(false)
@@ -389,7 +382,7 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 	block := "```go\npackage main\n```\n"
 	content := []byte(block + block + block + block + block)
 	tmpDir := t.TempDir()
-	tmpFile := writeTestFile(t, tmpDir, "multi.md", content)
+	tmpFile := testutil.WriteTestFile(t, tmpDir, "multi.md", content)
 
 	v := New(false).WithMaxBlocks(3)
 	ctx := context.Background()
@@ -411,7 +404,7 @@ func TestValidator_ParallelValidation(t *testing.T) {
 
 	// Create 8 files
 	for i := range 8 {
-		writeTestFile(t, tmpDir, fmt.Sprintf("file%d.md", i), content)
+		testutil.WriteTestFile(t, tmpDir, fmt.Sprintf("file%d.md", i), content)
 	}
 
 	v := New(false).WithConcurrency(4)
@@ -456,7 +449,7 @@ func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 	t.Helper()
 	content := []byte("```go\npackage main\n```\n")
 	for i := range count {
-		writeTestFile(t, tmpDir, fmt.Sprintf(pattern, i), content)
+		testutil.WriteTestFile(t, tmpDir, fmt.Sprintf(pattern, i), content)
 	}
 }
 
@@ -481,15 +474,6 @@ func validateDirectoryWithFiles(
 	if len(results) != expectedResults {
 		t.Errorf("%s, got %d", msg, len(results))
 	}
-}
-
-func writeTestFile(t *testing.T, tmpDir, filename string, content []byte) string {
-	t.Helper()
-	path := filepath.Join(tmpDir, filename)
-	if err := os.WriteFile(path, content, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	return path
 }
 
 func assertBlockAtLine(t *testing.T, block types.CodeBlock, expectedLine int) {
@@ -520,4 +504,11 @@ func extractAndAssertBlockAtLine(t *testing.T, content string, expectedLine int)
 	blocks := extractAndAssertBlockCount(t, content, 1)
 	assertBlockAtLine(t, blocks[0], expectedLine)
 	return blocks
+}
+
+func runExtractGoBlockAtLineTest(t *testing.T, name, content string, expectedLine int) {
+	t.Run(name, func(t *testing.T) {
+		t.Parallel()
+		extractAndAssertBlockAtLine(t, content, expectedLine)
+	})
 }

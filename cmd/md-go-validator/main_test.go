@@ -12,6 +12,7 @@ import (
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/output"
+	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -178,7 +179,7 @@ func TestValidatePath(t *testing.T) {
 
 		tmpDir := t.TempDir()
 		content := []byte("```go\npackage main\n```\n")
-		tmpFile := writeTestFile(t, tmpDir, "test.md", content)
+		tmpFile := testutil.WriteTestFile(t, tmpDir, "test.md", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpFile)
@@ -193,8 +194,8 @@ func TestValidatePath(t *testing.T) {
 
 		tmpDir := t.TempDir()
 		content := []byte("```go\npackage main\n```\n")
-		writeTestFile(t, tmpDir, "test.md", content)
-		writeTestFile(t, tmpDir, "test.txt", content)
+		testutil.WriteTestFile(t, tmpDir, "test.md", content)
+		testutil.WriteTestFile(t, tmpDir, "test.txt", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpDir)
@@ -213,8 +214,8 @@ func TestValidatePaths(t *testing.T) {
 
 		tmpDir := t.TempDir()
 		content := []byte("```go\npackage main\n```\n")
-		file1 := writeTestFile(t, tmpDir, "file1.md", content)
-		file2 := writeTestFile(t, tmpDir, "file2.md", content)
+		file1 := testutil.WriteTestFile(t, tmpDir, "file1.md", content)
+		file2 := testutil.WriteTestFile(t, tmpDir, "file2.md", content)
 
 		validator := mdgovalidator.New(false)
 		results := validatePaths(context.Background(), validator, []string{file1, file2})
@@ -472,15 +473,6 @@ func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
 	if err := writeOutputToFile(results, cfg); err != nil {
 		t.Fatalf("writeOutputToFile failed: %v", err)
 	}
-}
-
-func writeTestFile(t *testing.T, tmpDir, filename string, content []byte) string {
-	t.Helper()
-	path := filepath.Join(tmpDir, filename)
-	if err := os.WriteFile(path, content, 0o600); err != nil {
-		t.Fatal(err)
-	}
-	return path
 }
 
 func assertFileContains(t *testing.T, path, substr string) {

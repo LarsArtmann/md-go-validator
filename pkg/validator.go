@@ -290,7 +290,7 @@ func (v *FileValidator) processFilesParallel(
 	results := make(chan []types.Result, len(filesToProcess))
 	errors := make(chan error, len(filesToProcess))
 
-	v.startWorkers(ctx, jobs, results, errors)
+	v.startWorkers(ctx, workerChannels{jobs, results, errors})
 	v.feedJobs(ctx, jobs, filesToProcess)
 
 	return v.collectResults(ctx, results, errors)
@@ -304,36 +304,32 @@ func (v *FileValidator) limitFiles(filePaths []string) []string {
 	return filePaths
 }
 
+type workerChannels struct {
+	jobs    <-chan string
+	results chan<- []types.Result
+	errors  chan<- error
+}
+
 // startWorkers starts concurrent workers to process files.
-func (v *FileValidator) startWorkers(
-	ctx context.Context,
-	jobs <-chan string,
-	results chan<- []types.Result,
-	errors chan<- error,
-) {
+func (v *FileValidator) startWorkers(ctx context.Context, chans workerChannels) {
 	var wg sync.WaitGroup
 
 	for range v.concurrency {
 		wg.Go(func() {
-			v.processJob(ctx, jobs, results, errors)
+			v.processJob(ctx, chans)
 		})
 	}
 
 	go func() {
 		wg.Wait()
-		close(results)
-		close(errors)
+		close(chans.results)
+		close(chans.errors)
 	}()
 }
 
 // processJob processes a single job from the jobs channel.
-func (v *FileValidator) processJob(
-	ctx context.Context,
-	jobs <-chan string,
-	results chan<- []types.Result,
-	errors chan<- error,
-) {
-	for path := range jobs {
+func (v *FileValidator) processJob(ctx context.Context, chans workerChannels) {
+	for path := range chans.jobs {
 		select {
 		case <-ctx.Done():
 			return
@@ -345,10 +341,10 @@ func (v *FileValidator) processJob(
 		cancel()
 
 		if err != nil {
-			errors <- fmt.Errorf("file %s: %w", path, err)
+			chans.errors <- fmt.Errorf("file %s: %w", path, err)
 			continue
 		}
-		results <- fileResults
+		chans.results <- fileResults
 	}
 }
 

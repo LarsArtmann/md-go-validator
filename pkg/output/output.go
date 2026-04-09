@@ -296,13 +296,22 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 	_, _ = fmt.Fprintln(w)
 }
 
+const (
+	ansiReset    = "\033[0m"
+	ansiBold     = "\033[1m"
+	ansiYellow   = "\033[1;33m"
+	ansiRed      = "\033[1;31m"
+	ansiLocation = "📍"
+	ansiError    = "Error:"
+)
+
 func printErrorEntry(w io.Writer, fileLoc, errMsg string, shouldColor bool) {
 	if shouldColor {
-		_, _ = fmt.Fprintf(w, "\n\033[1;33m📍 %s\033[0m\n", fileLoc)
-		_, _ = fmt.Fprintf(w, "   \033[1;31mError:\033[0m %s\n", errMsg)
+		_, _ = fmt.Fprintf(w, "\n%s%s %s%s\n", ansiBold, ansiYellow, fileLoc, ansiReset)
+		_, _ = fmt.Fprintf(w, "   %s%s%s %s\n", ansiBold, ansiRed, ansiError, ansiReset, errMsg)
 	} else {
-		_, _ = fmt.Fprintf(w, "\n📍 %s\n", fileLoc)
-		_, _ = fmt.Fprintf(w, "   Error: %s\n", errMsg)
+		_, _ = fmt.Fprintf(w, "\n%s %s\n", ansiLocation, fileLoc)
+		_, _ = fmt.Fprintf(w, "   %s %s\n", ansiError, errMsg)
 	}
 }
 
