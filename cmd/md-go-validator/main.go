@@ -158,8 +158,7 @@ func handleFormat(args []string, i int, cfg *config) (int, bool) {
 	}
 	format, err := output.ParseFormat(args[i+1])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		printUsage()
+		returnParseError("format", err)
 		return 0, false
 	}
 	cfg.format = format
@@ -172,12 +171,16 @@ func handleColor(args []string, i int, cfg *config) (int, bool) {
 	}
 	colorMode, err := output.ParseColorMode(args[i+1])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		printUsage()
+		returnParseError("color", err)
 		return 0, false
 	}
 	cfg.colorMode = colorMode
 	return 1, true
+}
+
+func returnParseError(name string, err error) {
+	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+	printUsage()
 }
 
 func handleOutput(args []string, i int, cfg *config) (int, bool) {

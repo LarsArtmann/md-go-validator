@@ -10,6 +10,7 @@ import (
 	"time"
 
 	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
+	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -51,15 +52,13 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Run("single go block", func(t *testing.T) {
 		t.Parallel()
 		content := "Some text\n```go\nfmt.Println(\"hello\")\n```\nMore text"
-		blocks := extractAndAssertBlockCount(t, content, 1)
-		assertBlockAtLine(t, blocks[0], 2)
+		extractAndAssertBlockAtLine(t, content, 2)
 	})
 
 	t.Run("skip other languages", func(t *testing.T) {
 		t.Parallel()
 		content := "```python\nprint('hello')\n```\n```go\nfmt.Println(\"hello\")\n```"
-		blocks := extractAndAssertBlockCount(t, content, 1)
-		assertBlockAtLine(t, blocks[0], 4)
+		extractAndAssertBlockAtLine(t, content, 4)
 	})
 
 	t.Run("skip directive before block", func(t *testing.T) {
@@ -247,7 +246,7 @@ func TestHasErrors(t *testing.T) {
 	t.Run("skipped doesn't count", func(t *testing.T) {
 		t.Parallel()
 		results := []types.Result{
-			newSkippedResultWithReason("test.md", 1, 1, "skipped"),
+			types.NewSkippedResultForTest("test.md", 1, 1, "skipped"),
 		}
 		if HasErrors(results) {
 			t.Error("expected false for skipped error")
@@ -516,15 +515,9 @@ func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int)
 	return blocks
 }
 
-func newSkippedResultWithReason(
-	fileID string,
-	lineNumber, blockIndex int,
-	reason string,
-) types.Result {
-	return types.NewSkippedResult(
-		types.NewFileID(fileID),
-		types.NewLineNumber(lineNumber),
-		types.NewBlockIndex(blockIndex),
-		reason,
-	)
+func extractAndAssertBlockAtLine(t *testing.T, content string, expectedLine int) []types.CodeBlock {
+	t.Helper()
+	blocks := extractAndAssertBlockCount(t, content, 1)
+	assertBlockAtLine(t, blocks[0], expectedLine)
+	return blocks
 }

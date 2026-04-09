@@ -29,16 +29,24 @@ func AssertReportTotalAndValid(t *testing.T, report *ReportData, total, valid ui
 
 func AssertReportSummary(t *testing.T, report *ReportData, total, valid, errors, skipped uint) {
 	t.Helper()
-	if report.Summary.Total != total {
-		t.Errorf("expected Total %d, got %d", total, report.Summary.Total)
-	}
-	if report.Summary.Valid != valid {
-		t.Errorf("expected Valid %d, got %d", valid, report.Summary.Valid)
-	}
+	AssertReportTotalAndValid(t, report, total, valid)
 	if report.Summary.Errors != errors {
 		t.Errorf("expected Errors %d, got %d", errors, report.Summary.Errors)
 	}
 	if report.Summary.Skipped != skipped {
 		t.Errorf("expected Skipped %d, got %d", skipped, report.Summary.Skipped)
 	}
+}
+
+func NewSkippedResultForTest(
+	fileID string,
+	lineNumber, blockIndex int,
+	reason string,
+) Result {
+	return NewSkippedResult(
+		NewFileID(fileID),
+		NewLineNumber(lineNumber),
+		NewBlockIndex(blockIndex),
+		reason,
+	)
 }

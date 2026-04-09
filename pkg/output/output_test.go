@@ -306,12 +306,7 @@ func newSkippedResultWithReason(
 	lineNumber, blockIndex int,
 	reason string,
 ) types.Result {
-	return types.NewSkippedResult(
-		types.NewFileID(fileID),
-		types.NewLineNumber(lineNumber),
-		types.NewBlockIndex(blockIndex),
-		reason,
-	)
+	return types.NewSkippedResultForTest(fileID, lineNumber, blockIndex, reason)
 }
 
 func assertPrintReportValid(t *testing.T, format Format, colorMode ColorMode, quiet bool) {

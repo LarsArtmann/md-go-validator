@@ -282,13 +282,7 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 
 	for _, e := range errors {
 		fileLoc := fmt.Sprintf("%s:%s (block #%s)", e.File, e.Line, e.Block)
-		if shouldColor {
-			_, _ = fmt.Fprintf(w, "\n\033[1;33m📍 %s\033[0m\n", fileLoc)
-			_, _ = fmt.Fprintf(w, "   \033[1;31mError:\033[0m %s\n", e.Error)
-		} else {
-			_, _ = fmt.Fprintf(w, "\n📍 %s\n", fileLoc)
-			_, _ = fmt.Fprintf(w, "   Error: %s\n", e.Error)
-		}
+		printErrorEntry(w, fileLoc, e.Error, shouldColor)
 
 		if showCode && e.Code != "" {
 			_, _ = fmt.Fprintln(w, "\n   Code:")
@@ -300,6 +294,16 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 		}
 	}
 	_, _ = fmt.Fprintln(w)
+}
+
+func printErrorEntry(w io.Writer, fileLoc, errMsg string, shouldColor bool) {
+	if shouldColor {
+		_, _ = fmt.Fprintf(w, "\n\033[1;33m📍 %s\033[0m\n", fileLoc)
+		_, _ = fmt.Fprintf(w, "   \033[1;31mError:\033[0m %s\n", errMsg)
+	} else {
+		_, _ = fmt.Fprintf(w, "\n📍 %s\n", fileLoc)
+		_, _ = fmt.Fprintf(w, "   Error: %s\n", errMsg)
+	}
 }
 
 func truncateCode(code string, maxLen uint) string {
