@@ -109,16 +109,7 @@ func printJSONTo(w io.Writer, results []types.Result, showCode bool) error {
 	if err != nil {
 		return fmt.Errorf("marshal JSON (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
-	_, err = fmt.Fprintln(w, string(data))
-	if err != nil {
-		return fmt.Errorf(
-			"write JSON output (%d results, showCode=%t): %w",
-			len(results),
-			showCode,
-			err,
-		)
-	}
-	return nil
+	return writeOutput(w, data, len(results), showCode, "JSON")
 }
 
 func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
@@ -163,11 +154,17 @@ func printYAMLTo(w io.Writer, results []types.Result, showCode bool) error {
 	if err != nil {
 		return fmt.Errorf("marshal YAML (%d results, showCode=%t): %w", len(results), showCode, err)
 	}
-	_, err = fmt.Fprintln(w, string(data))
+	return writeOutput(w, data, len(results), showCode, "YAML")
+}
+
+// writeOutput writes marshaled data to the writer with consistent error handling.
+func writeOutput(w io.Writer, data []byte, resultCount int, showCode bool, formatName string) error {
+	_, err := fmt.Fprintln(w, string(data))
 	if err != nil {
 		return fmt.Errorf(
-			"write YAML output (%d results, showCode=%t): %w",
-			len(results),
+			"write %s output (%d results, showCode=%t): %w",
+			formatName,
+			resultCount,
 			showCode,
 			err,
 		)

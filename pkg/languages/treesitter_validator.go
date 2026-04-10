@@ -31,7 +31,7 @@ func (v *TreeSitterValidator) IsAvailable() bool {
 func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 	entry := grammars.DetectLanguageByName(v.langName)
 	if entry == nil || entry.Language == nil {
-		return v.newValidationError(
+		return newValidationError(
 			fmt.Sprintf("language %q not available", v.langName),
 			ErrCodeNotAvailable,
 		)
@@ -39,7 +39,7 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 
 	lang := entry.Language()
 	if lang == nil {
-		return v.newValidationError(
+		return newValidationError(
 			fmt.Sprintf("failed to load language %q", v.langName),
 			ErrCodeNotAvailable,
 		)
@@ -49,7 +49,7 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 
 	tree, err := parser.Parse([]byte(code))
 	if err != nil {
-		return v.newValidationError(
+		return newValidationError(
 			fmt.Sprintf("failed to parse %s code: %v", v.langName, err),
 			ErrCodeSyntax,
 		)
@@ -58,30 +58,20 @@ func (v *TreeSitterValidator) Validate(_ context.Context, code string) error {
 
 	root := tree.RootNode()
 	if root == nil {
-		return v.newValidationError(
+		return newValidationError(
 			fmt.Sprintf("failed to get root node for %s code", v.langName),
 			ErrCodeSyntax,
 		)
 	}
 
 	if root.HasError() {
-		return v.newValidationError(
+		return newValidationError(
 			v.langName+" syntax error: code contains parse errors",
 			ErrCodeSyntax,
 		)
 	}
 
 	return nil
-}
-
-// newValidationError creates a ValidationError with zero line/column.
-func (v *TreeSitterValidator) newValidationError(message string, code ErrorCode) *ValidationError {
-	return &ValidationError{
-		Message: message,
-		Code:    code,
-		Line:    0,
-		Column:  0,
-	}
 }
 
 // NewTreeSitterValidator creates a new tree-sitter based validator.

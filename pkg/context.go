@@ -90,10 +90,7 @@ func wrapContextWithCancel(
 // It chains context.WithCancel, context.WithTimeout, and context.WithDeadline
 // based on the configuration values.
 func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
-	parent := c.Parent
-	if parent == nil {
-		parent = context.Background()
-	}
+	parent := c.getParent()
 
 	// Start with a cancelable context
 	ctx, cancel := context.WithCancel(parent)
@@ -127,10 +124,7 @@ func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 // This is useful when validating multiple files concurrently,
 // where each file should get its own context that can be cancelled independently.
 func (c ContextConfig) Branch() (context.Context, context.CancelFunc) {
-	parent := c.Parent
-	if parent == nil {
-		parent = context.Background()
-	}
+	parent := c.getParent()
 
 	// Create a new cancelable context branching from the parent
 	return context.WithCancel(parent)
@@ -140,10 +134,7 @@ func (c ContextConfig) Branch() (context.Context, context.CancelFunc) {
 func (c ContextConfig) BranchWithTimeout(
 	timeout time.Duration,
 ) (context.Context, context.CancelFunc) {
-	parent := c.Parent
-	if parent == nil {
-		parent = context.Background()
-	}
+	parent := c.getParent()
 
 	if timeout > 0 {
 		return context.WithTimeout(parent, timeout)
@@ -156,14 +147,19 @@ func (c ContextConfig) BranchWithTimeout(
 func (c ContextConfig) BranchWithDeadline(
 	deadline time.Time,
 ) (context.Context, context.CancelFunc) {
-	parent := c.Parent
-	if parent == nil {
-		parent = context.Background()
-	}
+	parent := c.getParent()
 
 	if !deadline.IsZero() {
 		return context.WithDeadline(parent, deadline)
 	}
 
 	return context.WithCancel(parent)
+}
+
+// getParent returns the parent context, defaulting to context.Background if nil.
+func (c ContextConfig) getParent() context.Context {
+	if c.Parent != nil {
+		return c.Parent
+	}
+	return context.Background()
 }

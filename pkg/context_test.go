@@ -127,16 +127,8 @@ func TestContextConfigBuild(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	if ctx == nil {
-		t.Fatal("expected non-nil context")
-	}
-
-	// Context should not be done immediately
-	select {
-	case <-ctx.Done():
-		t.Fatal("context should not be done immediately")
-	default:
-	}
+	assertContextNotNil(t, ctx)
+	assertContextNotDone(t, ctx, "context should not be done immediately")
 }
 
 func TestContextConfigBuildWithParent(t *testing.T) {
@@ -149,9 +141,7 @@ func TestContextConfigBuildWithParent(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	if ctx == nil {
-		t.Fatal("expected non-nil context")
-	}
+	assertContextNotNil(t, ctx)
 
 	// Cancelling parent should cancel the context chain
 	parentCancel()
@@ -182,16 +172,8 @@ func TestContextConfigBranch(t *testing.T) {
 	ctx, cancel := cfg.Branch()
 	defer cancel()
 
-	if ctx == nil {
-		t.Fatal("expected non-nil context")
-	}
-
-	// Branch should not be done immediately
-	select {
-	case <-ctx.Done():
-		t.Fatal("branch should not be done immediately")
-	default:
-	}
+	assertContextNotNil(t, ctx)
+	assertContextNotDone(t, ctx, "branch should not be done immediately")
 }
 
 func TestContextConfigBranchWithTimeout(t *testing.T) {
@@ -233,6 +215,24 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	time.Sleep(60 * time.Millisecond)
 
 	assertContextDeadlineExceeded(t, ctx, "context should be done after deadline")
+}
+
+//nolint:revive // Test helper function, t must be first for consistency with testing package
+func assertContextNotNil(t *testing.T, ctx context.Context) {
+	t.Helper()
+	if ctx == nil {
+		t.Fatal("expected non-nil context")
+	}
+}
+
+//nolint:revive // Test helper function, t must be first for consistency with testing package
+func assertContextNotDone(t *testing.T, ctx context.Context, msg string) {
+	t.Helper()
+	select {
+	case <-ctx.Done():
+		t.Fatal(msg)
+	default:
+	}
 }
 
 //nolint:revive // Test helper function, t must be first for consistency with testing package

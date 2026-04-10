@@ -27,15 +27,8 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 
 // ExtractCodeBlocks extracts code blocks for specified languages from markdown content.
 func ExtractCodeBlocks(content string, langs []languages.Language) []types.CodeBlock {
-	var blocks []types.CodeBlock
-	lines := strings.Split(content, "\n")
-
 	state := newExtractorState(langs)
-	for i, line := range lines {
-		state.processLine(i, line, &blocks)
-	}
-
-	return blocks
+	return extractWithState(content, state)
 }
 
 // ExtractGoCodeBlocks extracts Go code blocks from markdown content (backwards compatible).
@@ -49,10 +42,15 @@ func ExtractCodeBlocksWithConfig(
 	langs []languages.Language,
 	config SkipDirectivesConfig,
 ) []types.CodeBlock {
+	state := newExtractorStateWithConfig(langs, config)
+	return extractWithState(content, state)
+}
+
+// extractWithState extracts code blocks using the provided extractor state.
+func extractWithState(content string, state *extractorState) []types.CodeBlock {
 	var blocks []types.CodeBlock
 	lines := strings.Split(content, "\n")
 
-	state := newExtractorStateWithConfig(langs, config)
 	for i, line := range lines {
 		state.processLine(i, line, &blocks)
 	}
