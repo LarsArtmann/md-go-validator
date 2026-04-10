@@ -158,7 +158,13 @@ func printYAMLTo(w io.Writer, results []types.Result, showCode bool) error {
 }
 
 // writeOutput writes marshaled data to the writer with consistent error handling.
-func writeOutput(w io.Writer, data []byte, resultCount int, showCode bool, formatName string) error {
+func writeOutput(
+	w io.Writer,
+	data []byte,
+	resultCount int,
+	showCode bool,
+	formatName string,
+) error {
 	_, err := fmt.Fprintln(w, string(data))
 	if err != nil {
 		return fmt.Errorf(
