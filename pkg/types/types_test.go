@@ -204,7 +204,7 @@ func TestCodeBlockMarkMethods(t *testing.T) {
 	tests := []struct {
 		name           string
 		markFunc       func(*CodeBlock)
-		expectedStatus Status
+		expectedStatus ValidationStatus
 		checkFunc      func(*CodeBlock) bool
 		expectedLabel  string
 	}{
