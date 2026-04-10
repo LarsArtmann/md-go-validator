@@ -1,6 +1,7 @@
 package output
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/larsartmann/md-go-validator/pkg/types"
@@ -22,7 +23,7 @@ func testParseFunc[T any](t *testing.T, funcName string, tests []struct {
 				t.Errorf("%s(%q) error = %v, wantErr %v", funcName, tt.input, err, tt.wantErr)
 				return
 			}
-			if got != tt.want {
+			if fmt.Sprintf("%v", got) != fmt.Sprintf("%v", tt.want) {
 				t.Errorf("%s(%q) = %v, want %v", funcName, tt.input, got, tt.want)
 			}
 		})
