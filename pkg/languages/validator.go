@@ -39,6 +39,7 @@ func (e *ValidationError) Error() string {
 	if e.Line > 0 && e.Column > 0 {
 		return fmt.Sprintf("%d:%d: %s", e.Line, e.Column, e.Message)
 	}
+
 	return e.Message
 }
 
@@ -89,11 +90,13 @@ func (r *Registry) Register(v Validator) error {
 	}
 
 	lang := v.Language()
-	if err := lang.Validate(); err != nil {
+	err := lang.Validate()
+	if err != nil {
 		return fmt.Errorf("cannot register validator: %w", err)
 	}
 
 	r.validators[lang] = v
+
 	return nil
 }
 
@@ -108,17 +111,20 @@ func (r *Registry) GetByString(lang string) Validator {
 	if !ok {
 		return nil
 	}
+
 	return r.Get(l)
 }
 
 // GetAvailable returns all validators that are available (tools installed).
 func (r *Registry) GetAvailable() []Validator {
 	var available []Validator
+
 	for _, v := range r.validators {
 		if v.IsAvailable() {
 			available = append(available, v)
 		}
 	}
+
 	return available
 }
 
@@ -128,6 +134,7 @@ func (r *Registry) Languages() []Language {
 	for lang := range r.validators {
 		langs = append(langs, lang)
 	}
+
 	return langs
 }
 
@@ -140,15 +147,19 @@ func (r *Registry) Validate(ctx context.Context, lang Language, code string) err
 			ErrCodeNotRegistered,
 		)
 	}
+
 	if !v.IsAvailable() {
 		return newValidationError(
 			fmt.Sprintf("validator for %s is not available (required tools not installed)", lang),
 			ErrCodeNotAvailable,
 		)
 	}
-	if err := v.Validate(ctx, code); err != nil {
+
+	err := v.Validate(ctx, code)
+	if err != nil {
 		return fmt.Errorf("validation failed for %s: %w", lang, err)
 	}
+
 	return nil
 }
 
@@ -166,7 +177,8 @@ func DefaultRegistry() *Registry {
 	r := NewRegistry()
 
 	// Register Go validator (always available, built-in)
-	if err := r.Register(&GoValidator{}); err != nil {
+	err := r.Register(&GoValidator{})
+	if err != nil {
 		panic(fmt.Sprintf("failed to register Go validator: %v", err))
 	}
 

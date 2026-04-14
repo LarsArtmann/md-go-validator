@@ -6,3 +6,9 @@
 /dist/
 # Dependencies
 node_modules/
+Test coverage
+/coverage
+Copy/paste detection report
+/report/jscpd-report.json
+# Sensitive files
+*.db

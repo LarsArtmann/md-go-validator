@@ -9,10 +9,11 @@ func testStringMethod[T any](t *testing.T, methodName string, cases []struct {
 }, getString func(T) string,
 ) {
 	t.Helper()
+
 	for _, tt := range cases {
-		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			if got := getString(tt.value); got != tt.expected {
 				t.Errorf("%s() = %v, want %v", methodName, got, tt.expected)
 			}

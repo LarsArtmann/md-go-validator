@@ -23,6 +23,14 @@ func (m *MockValidator) IsAvailable() bool {
 	return m.available
 }
 
+// registerValidator registers a validator and fails the test if it errors.
+func registerValidator(t *testing.T, r *Registry, v *MockValidator) {
+	t.Helper()
+	if err := r.Register(v); err != nil {
+		t.Fatalf("register %s: %v", v.lang, err)
+	}
+}
+
 func TestNewRegistry(t *testing.T) {
 	t.Parallel()
 
@@ -41,10 +49,12 @@ func TestRegistry_Register(t *testing.T) {
 
 	t.Run("register valid validator", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 		v := &MockValidator{lang: LangGo, available: true}
 
-		if err := r.Register(v); err != nil {
+		err := r.Register(v)
+		if err != nil {
 			t.Errorf("Register() error = %v", err)
 		}
 
@@ -55,6 +65,7 @@ func TestRegistry_Register(t *testing.T) {
 
 	t.Run("register nil validator", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 
 		err := r.Register(nil)
@@ -65,6 +76,7 @@ func TestRegistry_Register(t *testing.T) {
 
 	t.Run("register invalid language", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 		v := &MockValidator{lang: Language("invalid"), available: true}
 
@@ -80,9 +92,7 @@ func TestRegistry_Get(t *testing.T) {
 
 	r := NewRegistry()
 	v := &MockValidator{lang: LangGo, available: true}
-	if err := r.Register(v); err != nil {
-		t.Fatalf("failed to register validator: %v", err)
-	}
+	registerValidator(t, r, v)
 
 	testRegistryLookup(t, "Get", r, r.Get, []struct {
 		name     string
@@ -99,9 +109,7 @@ func TestRegistry_GetByString(t *testing.T) {
 
 	r := NewRegistry()
 	v := &MockValidator{lang: LangGo, available: true}
-	if err := r.Register(v); err != nil {
-		t.Fatalf("failed to register validator: %v", err)
-	}
+	registerValidator(t, r, v)
 
 	testRegistryLookup(t, "GetByString", r, r.GetByString, []struct {
 		name     string
@@ -128,6 +136,7 @@ func testRegistryLookup[T any](
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			if got := lookup(tt.key); got != tt.expected {
 				t.Errorf("%s() = %v, want %v", name, got, tt.expected)
 			}
@@ -141,12 +150,8 @@ func TestRegistry_GetAvailable(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: false}
-	if err := r.Register(v1); err != nil {
-		t.Fatalf("failed to register v1: %v", err)
-	}
-	if err := r.Register(v2); err != nil {
-		t.Fatalf("failed to register v2: %v", err)
-	}
+	registerValidator(t, r, v1)
+	registerValidator(t, r, v2)
 
 	available := r.GetAvailable()
 	if len(available) != 1 {
@@ -164,12 +169,8 @@ func TestRegistry_Languages(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: true}
-	if err := r.Register(v1); err != nil {
-		t.Fatalf("failed to register v1: %v", err)
-	}
-	if err := r.Register(v2); err != nil {
-		t.Fatalf("failed to register v2: %v", err)
-	}
+	registerValidator(t, r, v1)
+	registerValidator(t, r, v2)
 
 	langs := r.Languages()
 	if len(langs) != 2 {
@@ -182,13 +183,13 @@ func TestRegistry_Validate(t *testing.T) {
 
 	t.Run("validate with registered validator", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 		v := &MockValidator{lang: LangGo, available: true}
-		if err := r.Register(v); err != nil {
-			t.Fatalf("failed to register validator: %v", err)
-		}
+		registerValidator(t, r, v)
 
 		ctx := context.Background()
+
 		err := r.Validate(ctx, LangGo, "code")
 		if err != nil {
 			t.Errorf("Validate() error = %v", err)
@@ -197,9 +198,11 @@ func TestRegistry_Validate(t *testing.T) {
 
 	t.Run("validate unregistered language", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 
 		ctx := context.Background()
+
 		err := r.Validate(ctx, LangGo, "code")
 		if err == nil {
 			t.Error("Validate() with unregistered language should return error")
@@ -208,13 +211,13 @@ func TestRegistry_Validate(t *testing.T) {
 
 	t.Run("validate unavailable validator", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewRegistry()
 		v := &MockValidator{lang: LangTypeScript, available: false}
-		if err := r.Register(v); err != nil {
-			t.Fatalf("failed to register validator: %v", err)
-		}
+		registerValidator(t, r, v)
 
 		ctx := context.Background()
+
 		err := r.Validate(ctx, LangTypeScript, "code")
 		if err == nil {
 			t.Error("Validate() with unavailable validator should return error")

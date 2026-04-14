@@ -31,11 +31,7 @@ func newValidResult(spec validResultSpec) types.Result {
 }
 
 func newValidResults(specs ...validResultSpec) []types.Result {
-	results := make([]types.Result, len(specs))
-	for i, s := range specs {
-		results[i] = newValidResult(s)
-	}
-	return results
+	return testutil.NewValidResultsFromSpecs(specs)
 }
 
 func TestExtractGoCodeBlocks(t *testing.T) {
@@ -43,6 +39,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 
 	t.Run("no code blocks", func(t *testing.T) {
 		t.Parallel()
+
 		blocks := ExtractGoCodeBlocks("Just text\nNo code here")
 		testutil.AssertBlockCount(t, blocks, 0)
 	})
@@ -54,11 +51,14 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 
 	t.Run("skip directive before block", func(t *testing.T) {
 		t.Parallel()
+
 		content := "<!-- skip-validate -->\n```go\npartial code\n```"
+
 		blocks := ExtractGoCodeBlocks(content)
 		if len(blocks) != 1 {
 			t.Fatalf("expected 1 block, got %d", len(blocks))
 		}
+
 		if !blocks[0].IsSkipped() {
 			t.Error("expected block to be skipped")
 		}
@@ -66,6 +66,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 
 	t.Run("golang tag", func(t *testing.T) {
 		t.Parallel()
+
 		content := "```golang\nfmt.Println(\"hello\")\n```"
 		_ = extractAndAssertBlockCount(t, content, 1)
 	})
@@ -73,6 +74,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 
 func TestExtractGoCodeBlocks_SkipDirective(t *testing.T) {
 	t.Parallel()
+
 	content := `<!-- skip-validate -->
 ` + "```go" + `
 type Partial struct {
@@ -86,6 +88,7 @@ type Partial struct {
 
 func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 	t.Parallel()
+
 	content := "```go\n//nolint\ntype Partial struct{}\n```"
 
 	blocks := extractAndAssertBlockCount(t, content, 1)
@@ -94,6 +97,7 @@ func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
 
 func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
 	t.Parallel()
+
 	content := "```go\n\n```"
 
 	blocks := ExtractGoCodeBlocks(content)
@@ -118,7 +122,9 @@ func TestValidateGoCode(t *testing.T) {
 	for _, tc := range validCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			if err := ValidateGoCode(tc.code); err != nil {
+
+			err := ValidateGoCode(tc.code)
+			if err != nil {
 				t.Errorf("expected no error, got: %v", err)
 			}
 		})
@@ -135,7 +141,9 @@ func TestValidateGoCode(t *testing.T) {
 	for _, tc := range invalidCases {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
-			if err := ValidateGoCode(tc.code); err == nil {
+
+			err := ValidateGoCode(tc.code)
+			if err == nil {
 				t.Error("expected error for invalid syntax")
 			}
 		})
@@ -144,6 +152,7 @@ func TestValidateGoCode(t *testing.T) {
 
 func TestIndentCode(t *testing.T) {
 	t.Parallel()
+
 	input := "line1\nline2\n\nline4"
 	expected := "\tline1\n\tline2\n\n\tline4\n"
 
@@ -155,6 +164,7 @@ func TestIndentCode(t *testing.T) {
 
 func TestValidator_ValidateFile(t *testing.T) {
 	t.Parallel()
+
 	content := []byte(`# Test
 
 ` + "```go" + `
@@ -171,6 +181,7 @@ func main() {
 
 	v := New(false)
 	ctx := context.Background()
+
 	results, err := v.ValidateFile(ctx, tmpFile)
 	if err != nil {
 		t.Fatalf("ValidateFile error: %v", err)
@@ -181,8 +192,10 @@ func main() {
 
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {
 	t.Parallel()
+
 	v := New(false)
 	ctx := context.Background()
+
 	_, err := v.ValidateFile(ctx, "/nonexistent/path/file.md")
 	if err == nil {
 		t.Error("expected error for non-existent file")
@@ -191,6 +204,7 @@ func TestValidator_ValidateFile_NonExistent(t *testing.T) {
 
 func TestValidator_ValidateDirectory(t *testing.T) {
 	t.Parallel()
+
 	content := []byte("```go\npackage main\n```\n")
 
 	tmpDir := t.TempDir()
@@ -199,6 +213,7 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 
 	v := New(false)
 	ctx := context.Background()
+
 	results, err := v.ValidateDirectory(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("ValidateDirectory error: %v", err)
@@ -212,6 +227,7 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("empty results", func(t *testing.T) {
 		t.Parallel()
+
 		if HasErrors(nil) {
 			t.Error("expected false for nil results")
 		}
@@ -219,6 +235,7 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
+
 		results := newValidResults(
 			validResultSpec{fileID: "test.md", line: 1, block: 1, code: "package main"},
 			validResultSpec{fileID: "test.md", line: 5, block: 2, code: "package main"},
@@ -230,6 +247,7 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("skipped doesn't count", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			types.NewSkippedResultForTest("test.md", 1, 1, "skipped"),
 		}
@@ -240,13 +258,14 @@ func TestHasErrors(t *testing.T) {
 
 	t.Run("has error", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			types.NewErrorResult(
 				types.NewFileID("test.md"),
 				types.NewLineNumber(1),
 				types.NewBlockIndex(1),
 				"invalid",
-				&testError{},
+				types.NewTestError("test error"),
 			),
 		}
 		if !HasErrors(results) {
@@ -254,10 +273,6 @@ func TestHasErrors(t *testing.T) {
 		}
 	})
 }
-
-type testError struct{}
-
-func (e *testError) Error() string { return "test error" }
 
 func TestValidator_ValidateDirectory_Cancellation(t *testing.T) {
 	t.Parallel()
@@ -288,6 +303,7 @@ func TestValidator_ValidateDirectory_CancellationDuringProcessing(t *testing.T) 
 	createTestMarkdownFiles(t, tmpDir, "test%d.md", 5)
 
 	v := New(false).WithConcurrency(1) // Single worker for predictable cancellation
+
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Nanosecond)
 	defer cancel()
 
@@ -305,6 +321,7 @@ func TestValidator_ValidateDirectory_CancellationDuringProcessing(t *testing.T) 
 
 func TestValidator_ValidateFile_Empty(t *testing.T) {
 	t.Parallel()
+
 	content := []byte("No code blocks here")
 
 	tmpDir := t.TempDir()
@@ -312,6 +329,7 @@ func TestValidator_ValidateFile_Empty(t *testing.T) {
 
 	v := New(false)
 	ctx := context.Background()
+
 	results, err := v.ValidateFile(ctx, tmpFile)
 	if err != nil {
 		t.Fatalf("ValidateFile error: %v", err)
@@ -330,14 +348,17 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 	subdirs := []string{".hidden", "vendor", "node_modules", "build", "dist", "normal"}
 	for _, dir := range subdirs {
 		dirPath := filepath.Join(tmpDir, dir)
-		if err := os.MkdirAll(dirPath, 0o750); err != nil {
+		err := os.MkdirAll(dirPath, 0o750)
+		if err != nil {
 			t.Fatal(err)
 		}
+
 		testutil.WriteTestFile(t, dirPath, "test.md", content)
 	}
 
 	v := New(false)
 	ctx := context.Background()
+
 	results, err := v.ValidateDirectory(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("ValidateDirectory error: %v", err)
@@ -374,6 +395,7 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 
 	v := New(false).WithMaxBlocks(3)
 	ctx := context.Background()
+
 	results, err := v.ValidateFile(ctx, tmpFile)
 	if err != nil {
 		t.Fatalf("ValidateFile error: %v", err)
@@ -421,9 +443,11 @@ func TestValidator_ChainMethods(t *testing.T) {
 	if v.maxFiles != 10 {
 		t.Errorf("expected maxFiles 10, got %d", v.maxFiles)
 	}
+
 	if v.maxBlocks != 5 {
 		t.Errorf("expected maxBlocks 5, got %d", v.maxBlocks)
 	}
+
 	if v.concurrency != 3 {
 		t.Errorf("expected concurrency 3, got %d", v.concurrency)
 	}
@@ -431,6 +455,7 @@ func TestValidator_ChainMethods(t *testing.T) {
 
 func createTestMarkdownFiles(t *testing.T, tmpDir, pattern string, count int) {
 	t.Helper()
+
 	content := []byte("```go\npackage main\n```\n")
 	for i := range count {
 		testutil.WriteTestFile(t, tmpDir, fmt.Sprintf(pattern, i), content)
@@ -450,6 +475,7 @@ func validateDirectoryWithFiles(
 
 	v := configure(New(false))
 	ctx := context.Background()
+
 	results, err := v.ValidateDirectory(ctx, tmpDir)
 	if err != nil {
 		t.Fatalf("ValidateDirectory error: %v", err)
@@ -462,6 +488,7 @@ func validateDirectoryWithFiles(
 
 func assertBlockAtLine(t *testing.T, block types.CodeBlock, expectedLine int) {
 	t.Helper()
+
 	if block.LineNumber != types.NewLineNumber(expectedLine) {
 		t.Errorf("expected line %d, got %d", expectedLine, block.LineNumber)
 	}
@@ -469,6 +496,7 @@ func assertBlockAtLine(t *testing.T, block types.CodeBlock, expectedLine int) {
 
 func assertBlockSkipped(t *testing.T, block types.CodeBlock) {
 	t.Helper()
+
 	if !block.IsSkipped() {
 		t.Error("expected block to be skipped")
 	}
@@ -476,10 +504,12 @@ func assertBlockSkipped(t *testing.T, block types.CodeBlock) {
 
 func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int) []types.CodeBlock {
 	t.Helper()
+
 	blocks := ExtractGoCodeBlocks(content)
 	if len(blocks) != expectedCount {
 		t.Fatalf("expected %d block(s), got %d", expectedCount, len(blocks))
 	}
+
 	return blocks
 }
 
@@ -487,6 +517,7 @@ func extractAndAssertBlockAtLine(t *testing.T, content string, expectedLine int)
 	t.Helper()
 	blocks := extractAndAssertBlockCount(t, content, 1)
 	assertBlockAtLine(t, blocks[0], expectedLine)
+
 	return blocks
 }
 

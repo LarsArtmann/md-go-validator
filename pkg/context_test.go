@@ -2,6 +2,7 @@ package mdgovalidator
 
 import (
 	"context"
+	"errors"
 	"testing"
 	"time"
 )
@@ -11,18 +12,11 @@ func TestDefaultContextConfig(t *testing.T) {
 
 	cfg := DefaultContextConfig()
 
-	if cfg.Timeout != 0 {
-		t.Errorf("expected timeout 0, got %v", cfg.Timeout)
-	}
-	if !cfg.Deadline.IsZero() {
-		t.Errorf("expected zero deadline, got %v", cfg.Deadline)
-	}
-	if cfg.MaxFiles != 0 {
-		t.Errorf("expected maxFiles 0, got %d", cfg.MaxFiles)
-	}
-	if cfg.MaxBlocksPerFile != 0 {
-		t.Errorf("expected maxBlocksPerFile 0, got %d", cfg.MaxBlocksPerFile)
-	}
+	assertZeroValue(t, "Timeout", cfg.Timeout, time.Duration(0))
+	assertZeroValue(t, "Deadline", cfg.Deadline, time.Time{})
+	assertZeroValue(t, "MaxFiles", cfg.MaxFiles, 0)
+	assertZeroValue(t, "MaxBlocksPerFile", cfg.MaxBlocksPerFile, 0)
+
 	if cfg.Parent != nil {
 		t.Error("expected nil parent")
 	}
@@ -96,7 +90,6 @@ func TestContextConfigWithMaxLimits(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
@@ -124,6 +117,7 @@ func TestContextConfigBuild(t *testing.T) {
 	t.Parallel()
 
 	cfg := DefaultContextConfig().WithTimeout(100 * time.Millisecond)
+
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
@@ -138,6 +132,7 @@ func TestContextConfigBuildWithParent(t *testing.T) {
 	defer parentCancel()
 
 	cfg := DefaultContextConfig().WithParent(parent)
+
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
@@ -157,6 +152,7 @@ func TestContextConfigBuildTimeout(t *testing.T) {
 	t.Parallel()
 
 	cfg := DefaultContextConfig().WithTimeout(10 * time.Millisecond)
+
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
@@ -169,6 +165,7 @@ func TestContextConfigBranch(t *testing.T) {
 	t.Parallel()
 
 	cfg := DefaultContextConfig()
+
 	ctx, cancel := cfg.Branch()
 	defer cancel()
 
@@ -180,6 +177,7 @@ func TestContextConfigBranchWithTimeout(t *testing.T) {
 	t.Parallel()
 
 	cfg := DefaultContextConfig()
+
 	ctx, cancel := cfg.BranchWithTimeout(10 * time.Millisecond)
 	defer cancel()
 
@@ -193,6 +191,7 @@ func TestContextConfigBranchWithDeadline(t *testing.T) {
 
 	cfg := DefaultContextConfig()
 	deadline := time.Now().Add(10 * time.Millisecond)
+
 	ctx, cancel := cfg.BranchWithDeadline(deadline)
 	defer cancel()
 
@@ -220,14 +219,17 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 //nolint:revive // Test helper function, t must be first for consistency with testing package
 func assertContextNotNil(t *testing.T, ctx context.Context) {
 	t.Helper()
+
 	if ctx == nil {
 		t.Fatal("expected non-nil context")
 	}
 }
 
-//nolint:revive // Test helper function, t must be first for consistency with testing package
+// assertContextNotDone checks that the context is NOT done.
+// If the context is done, t.Fatal is called with msg.
 func assertContextNotDone(t *testing.T, ctx context.Context, msg string) {
 	t.Helper()
+
 	select {
 	case <-ctx.Done():
 		t.Fatal(msg)
@@ -235,15 +237,27 @@ func assertContextNotDone(t *testing.T, ctx context.Context, msg string) {
 	}
 }
 
-//nolint:revive // Test helper function, t must be first for consistency with testing package
+// assertContextDeadlineExceeded checks that the context IS done with DeadlineExceeded.
+// If the context is not done, t.Fatal is called with msg.
+// If the context is done with a different error, t.Errorf is called.
 func assertContextDeadlineExceeded(t *testing.T, ctx context.Context, msg string) {
 	t.Helper()
+
 	select {
 	case <-ctx.Done():
-		if ctx.Err() != context.DeadlineExceeded {
+		if !errors.Is(ctx.Err(), context.DeadlineExceeded) {
 			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
 		}
 	default:
 		t.Fatal(msg)
+	}
+}
+
+// assertZeroValue checks that got equals expected using == comparison.
+func assertZeroValue[T comparable](t *testing.T, name string, got, expected T) {
+	t.Helper()
+
+	if got != expected {
+		t.Errorf("expected %s %v, got %v", name, expected, got)
 	}
 }

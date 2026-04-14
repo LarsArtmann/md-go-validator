@@ -41,6 +41,7 @@ func (v *GoValidator) Validate(_ context.Context, code string) error {
 
 	// Strategy 3: Try wrapping in package main with func main
 	indented := codeutil.IndentCode(code)
+
 	wrappedFunc := "package main\n\nfunc main() {\n" + indented + "\n}"
 	if codeutil.ParseGo(fset, wrappedFunc) == nil {
 		return nil
@@ -69,13 +70,16 @@ func (v *GoValidator) createValidationError(fset *token.FileSet, code string) er
 		return nil
 	}
 
-	var line, column int
-	var message string
+	var (
+		line, column int
+		message      string
+	)
 
 	// Try to extract position information from scanner.ErrorList
 	var errList scanner.ErrorList
 	if errors.As(err, &errList) && len(errList) > 0 {
 		firstErr := errList[0]
+
 		message = firstErr.Msg
 		if firstErr.Pos.IsValid() {
 			line = firstErr.Pos.Line

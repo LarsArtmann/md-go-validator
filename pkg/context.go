@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// ContextWrapper is a function that wraps a context with additional behavior.
+type ContextWrapper func(context.Context) (context.Context, context.CancelFunc)
+
 // ContextConfig holds configuration for context behavior in validation flows.
 // This enables proper context propagation, timeouts, and cancellation support
 // throughout the validation pipeline.
@@ -44,30 +47,35 @@ func DefaultContextConfig() ContextConfig {
 // WithTimeout returns a new ContextConfig with the specified timeout.
 func (c ContextConfig) WithTimeout(timeout time.Duration) ContextConfig {
 	c.Timeout = timeout
+
 	return c
 }
 
 // WithDeadline returns a new ContextConfig with the specified deadline.
 func (c ContextConfig) WithDeadline(deadline time.Time) ContextConfig {
 	c.Deadline = deadline
+
 	return c
 }
 
 // WithMaxFiles returns a new ContextConfig with the specified max files.
 func (c ContextConfig) WithMaxFiles(maxFiles int) ContextConfig {
 	c.MaxFiles = maxFiles
+
 	return c
 }
 
 // WithMaxBlocksPerFile returns a new ContextConfig with the specified max blocks.
 func (c ContextConfig) WithMaxBlocksPerFile(maxBlocks int) ContextConfig {
 	c.MaxBlocksPerFile = maxBlocks
+
 	return c
 }
 
 // WithParent returns a new ContextConfig with the specified parent context.
 func (c ContextConfig) WithParent(parent context.Context) ContextConfig {
 	c.Parent = parent
+
 	return c
 }
 
@@ -76,13 +84,24 @@ func (c ContextConfig) WithParent(parent context.Context) ContextConfig {
 func wrapContextWithCancel(
 	ctx context.Context,
 	cancel context.CancelFunc,
-	wrap func(context.Context) (context.Context, context.CancelFunc),
+	wrap ContextWrapper,
 ) (context.Context, context.CancelFunc) {
 	derivedCtx, derivedCancel := wrap(ctx)
 	originalCancel := cancel
+
 	return derivedCtx, func() {
 		derivedCancel()
 		originalCancel()
+	}
+}
+
+// buildContextWrapper creates a wrapper function for context.WithCancel chaining.
+func buildContextWrapper[T any](
+	value T,
+	wrapFn func(context.Context, T) (context.Context, context.CancelFunc),
+) ContextWrapper {
+	return func(parent context.Context) (context.Context, context.CancelFunc) {
+		return wrapFn(parent, value)
 	}
 }
 
@@ -100,9 +119,7 @@ func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 		ctx, cancel = wrapContextWithCancel(
 			ctx,
 			cancel,
-			func(parent context.Context) (context.Context, context.CancelFunc) {
-				return context.WithTimeout(parent, c.Timeout)
-			},
+			buildContextWrapper(c.Timeout, context.WithTimeout),
 		)
 	}
 
@@ -111,9 +128,7 @@ func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 		ctx, cancel = wrapContextWithCancel(
 			ctx,
 			cancel,
-			func(parent context.Context) (context.Context, context.CancelFunc) {
-				return context.WithDeadline(parent, c.Deadline)
-			},
+			buildContextWrapper(c.Deadline, context.WithDeadline),
 		)
 	}
 
@@ -161,5 +176,6 @@ func (c ContextConfig) getParent() context.Context {
 	if c.Parent != nil {
 		return c.Parent
 	}
+
 	return context.Background()
 }

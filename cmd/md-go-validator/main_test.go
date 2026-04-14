@@ -25,7 +25,9 @@ func runParseArgsFieldTest[T comparable](
 ) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
+
 		cfg := parseArgs(args)
+
 		got := get(cfg)
 		if got != want {
 			t.Errorf("got %v, want %v", got, want)
@@ -41,15 +43,19 @@ func TestParseArgsDefaults(t *testing.T) {
 	if cfg.verbose {
 		t.Error("verbose should be false by default")
 	}
+
 	if !cfg.showCode {
 		t.Error("showCode should be true by default")
 	}
+
 	if cfg.format != output.FormatTable {
 		t.Errorf("format should be 'table' by default, got %q", cfg.format)
 	}
+
 	if cfg.colorMode != output.ColorModeAuto {
 		t.Errorf("colorMode should be 'auto' by default, got %q", cfg.colorMode)
 	}
+
 	if len(cfg.paths) != 1 || cfg.paths[0] != "." {
 		t.Errorf("paths should be ['.'], got %v", cfg.paths)
 	}
@@ -135,6 +141,7 @@ func TestParseArgsPaths(t *testing.T) {
 
 			if len(cfg.paths) != len(tt.wantPaths) {
 				t.Errorf("len(paths) = %d, want %d", len(cfg.paths), len(tt.wantPaths))
+
 				return
 			}
 
@@ -146,8 +153,10 @@ func TestParseArgsPaths(t *testing.T) {
 						p,
 						len(tt.wantPaths),
 					)
+
 					continue
 				}
+
 				if p != tt.wantPaths[i] {
 					t.Errorf("paths[%d] = %q, want %q", i, p, tt.wantPaths[i])
 				}
@@ -404,15 +413,19 @@ func TestValidatePathsCapacity(t *testing.T) {
 
 	// Create files with multiple code blocks each
 	tmpDir := t.TempDir()
+
 	for i := range 5 {
 		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
+
 		f, err := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
 		if err != nil {
 			t.Fatalf("failed to create test file: %v", err)
 		}
+
 		if _, err := f.Write(content); err != nil {
 			t.Fatalf("failed to write test file: %v", err)
 		}
+
 		if err := f.Close(); err != nil {
 			t.Fatalf("failed to close test file: %v", err)
 		}
@@ -462,17 +475,21 @@ func newTestConfig(outputFile string, format output.Format) config {
 
 func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
 	t.Helper()
-	if err := writeOutputToFile(results, cfg); err != nil {
+
+	err := writeOutputToFile(results, cfg)
+	if err != nil {
 		t.Fatalf("writeOutputToFile failed: %v", err)
 	}
 }
 
 func assertFileContains(t *testing.T, path, substr string) {
 	t.Helper()
+
 	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("failed to read output file: %v", err)
 	}
+
 	if !strings.Contains(string(content), substr) {
 		t.Errorf("output file should contain %q, got: %s", substr, string(content))
 	}

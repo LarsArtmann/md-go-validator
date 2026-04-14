@@ -11,6 +11,7 @@ func TestFileID(t *testing.T) {
 
 	t.Run("NewFileID", func(t *testing.T) {
 		t.Parallel()
+
 		fid := NewFileID("path/to/file.md")
 		if fid.String() != "path/to/file.md" {
 			t.Errorf("expected 'path/to/file.md', got %q", fid.String())
@@ -19,16 +20,20 @@ func TestFileID(t *testing.T) {
 
 	t.Run("Validate non-empty", func(t *testing.T) {
 		t.Parallel()
+
 		fid := NewFileID("path/to/file.md")
-		if err := fid.Validate(); err != nil {
+		err := fid.Validate()
+		if err != nil {
 			t.Errorf("expected no error for non-empty FileID, got %v", err)
 		}
 	})
 
 	t.Run("Validate empty", func(t *testing.T) {
 		t.Parallel()
+
 		fid := FileID("")
-		if err := fid.Validate(); err == nil {
+		err := fid.Validate()
+		if err == nil {
 			t.Error("expected error for empty FileID")
 		}
 	})
@@ -39,10 +44,12 @@ func TestLineNumber(t *testing.T) {
 
 	t.Run("NewLineNumber", func(t *testing.T) {
 		t.Parallel()
+
 		ln := NewLineNumber(42)
 		if ln.Int() != 42 {
 			t.Errorf("expected 42, got %d", ln.Int())
 		}
+
 		if ln.String() != "42" {
 			t.Errorf("expected '42', got %q", ln.String())
 		}
@@ -59,10 +66,12 @@ func TestBlockIndex(t *testing.T) {
 
 	t.Run("NewBlockIndex", func(t *testing.T) {
 		t.Parallel()
+
 		bi := NewBlockIndex(7)
 		if bi.Int() != 7 {
 			t.Errorf("expected 7, got %d", bi.Int())
 		}
+
 		if bi.String() != "7" {
 			t.Errorf("expected '7', got %q", bi.String())
 		}
@@ -97,11 +106,14 @@ func testPositiveIntValidator[TP positiveIntValidator](
 	for _, tc := range tests {
 		t.Run(tc.desc, func(t *testing.T) {
 			t.Parallel()
+
 			v := newFunc(tc.value)
+
 			err := v.Validate()
 			if tc.valid && err != nil {
 				t.Errorf("expected no error for %s, got %v", tc.desc, err)
 			}
+
 			if !tc.valid && err == nil {
 				t.Errorf("expected error for %s", tc.desc)
 			}
@@ -114,6 +126,7 @@ func TestValidationStatus(t *testing.T) {
 
 	t.Run("String", func(t *testing.T) {
 		t.Parallel()
+
 		tests := []struct {
 			status   ValidationStatus
 			expected string
@@ -133,15 +146,19 @@ func TestValidationStatus(t *testing.T) {
 
 	t.Run("IsTerminal", func(t *testing.T) {
 		t.Parallel()
+
 		if !StatusValid.IsTerminal() {
 			t.Error("StatusValid should be terminal")
 		}
+
 		if !StatusSkipped.IsTerminal() {
 			t.Error("StatusSkipped should be terminal")
 		}
+
 		if !StatusError.IsTerminal() {
 			t.Error("StatusError should be terminal")
 		}
+
 		if StatusUnknown.IsTerminal() {
 			t.Error("StatusUnknown should not be terminal")
 		}
@@ -149,6 +166,7 @@ func TestValidationStatus(t *testing.T) {
 
 	t.Run("ParseValidationStatus", func(t *testing.T) {
 		t.Parallel()
+
 		tests := []struct {
 			input    string
 			expected ValidationStatus
@@ -165,6 +183,7 @@ func TestValidationStatus(t *testing.T) {
 			if ok != tc.ok {
 				t.Errorf("ParseValidationStatus(%q): expected ok=%v, got %v", tc.input, tc.ok, ok)
 			}
+
 			if got != tc.expected {
 				t.Errorf(
 					"ParseValidationStatus(%q): expected %v, got %v",
@@ -182,16 +201,20 @@ func TestCodeBlock(t *testing.T) {
 
 	t.Run("NewCodeBlock", func(t *testing.T) {
 		t.Parallel()
+
 		block := NewCodeBlock(NewLineNumber(10), languages.LangGo, "package main")
 		if block.LineNumber.Int() != 10 {
 			t.Errorf("expected LineNumber 10, got %d", block.LineNumber.Int())
 		}
+
 		if block.Language != languages.LangGo {
 			t.Errorf("expected Language Go, got %v", block.Language)
 		}
+
 		if block.Code != "package main" {
 			t.Errorf("expected 'package main', got %q", block.Code)
 		}
+
 		if block.Status != StatusUnknown {
 			t.Errorf("expected StatusUnknown, got %v", block.Status)
 		}
@@ -232,14 +255,16 @@ func TestCodeBlockMarkMethods(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		tc := tc
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
+
 			var block CodeBlock
 			tc.markFunc(&block)
+
 			if block.Status != tc.expectedStatus {
 				t.Errorf("expected %v, got %v", tc.expectedStatus, block.Status)
 			}
+
 			if !tc.checkFunc(&block) {
 				t.Errorf("expected %s to return true", tc.expectedLabel)
 			}
@@ -252,6 +277,7 @@ func TestResult(t *testing.T) {
 
 	t.Run("NewValidResult", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewValidResult(
 			NewFileID("test.md"),
 			NewLineNumber(5),
@@ -261,6 +287,7 @@ func TestResult(t *testing.T) {
 		if r.File != NewFileID("test.md") {
 			t.Errorf("expected FileID test.md, got %v", r.File)
 		}
+
 		if r.Status != StatusValid {
 			t.Errorf("expected StatusValid, got %v", r.Status)
 		}
@@ -268,6 +295,7 @@ func TestResult(t *testing.T) {
 
 	t.Run("NewSkippedResult", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewSkippedResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "skip me")
 		if r.Status != StatusSkipped {
 			t.Errorf("expected StatusSkipped, got %v", r.Status)
@@ -276,7 +304,9 @@ func TestResult(t *testing.T) {
 
 	t.Run("NewErrorResult", func(t *testing.T) {
 		t.Parallel()
-		err := &testError{msg: "syntax error"}
+
+		err := NewTestError("syntax error")
+
 		r := NewErrorResult(
 			NewFileID("test.md"),
 			NewLineNumber(5),
@@ -287,6 +317,7 @@ func TestResult(t *testing.T) {
 		if r.Status != StatusError {
 			t.Errorf("expected StatusError, got %v", r.Status)
 		}
+
 		if !r.HasError() {
 			t.Error("expected HasError() to return true")
 		}
@@ -294,12 +325,14 @@ func TestResult(t *testing.T) {
 
 	t.Run("String", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewValidResult(
 			NewFileID("test.md"),
 			NewLineNumber(5),
 			NewBlockIndex(1),
 			"package main",
 		)
+
 		s := r.String()
 		if s != "test.md:5 (block #1): valid" {
 			t.Errorf("unexpected string: %q", s)
@@ -308,12 +341,14 @@ func TestResult(t *testing.T) {
 
 	t.Run("Summary", func(t *testing.T) {
 		t.Parallel()
+
 		r := NewValidResult(
 			NewFileID("test.md"),
 			NewLineNumber(5),
 			NewBlockIndex(1),
 			"package main",
 		)
+
 		summary := r.Summary()
 		if summary == "" {
 			t.Error("expected non-empty summary")
@@ -326,12 +361,14 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("empty results", func(t *testing.T) {
 		t.Parallel()
+
 		report := BuildReportData([]Result{}, false)
 		AssertReportTotalAndValid(t, &report, 0, 0)
 	})
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
+
 		results := []Result{
 			NewValidResult(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg"),
 			NewValidResult(NewFileID("b.md"), NewLineNumber(1), NewBlockIndex(1), "pkg"),
@@ -348,7 +385,7 @@ func errorResultsForTesting() []Result {
 			NewLineNumber(1),
 			NewBlockIndex(1),
 			"pkg",
-			&testError{msg: "err"},
+			NewTestError("err"),
 		),
 	}
 }
@@ -358,6 +395,7 @@ func TestReportData_BuildReportData(t *testing.T) {
 
 	t.Run("with errors and show code", func(t *testing.T) {
 		t.Parallel()
+
 		results := errorResultsForTesting()
 		report := BuildReportData(results, true)
 		AssertSingleErrorWithCode(t, &report, "pkg")
@@ -365,6 +403,7 @@ func TestReportData_BuildReportData(t *testing.T) {
 
 	t.Run("with errors and hide code", func(t *testing.T) {
 		t.Parallel()
+
 		results := errorResultsForTesting()
 		report := BuildReportData(results, false)
 		AssertSingleErrorWithCode(t, &report, "")
@@ -428,6 +467,7 @@ func testReportDataBoolCase(
 ) {
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
+
 		report := ReportData{
 			Summary: summary,
 			Errors:  nil,
@@ -436,12 +476,4 @@ func testReportDataBoolCase(
 			t.Errorf("expected %s to return %v, got %v", name, expected, method(report))
 		}
 	})
-}
-
-type testError struct {
-	msg string
-}
-
-func (e *testError) Error() string {
-	return e.msg
 }

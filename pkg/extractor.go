@@ -28,6 +28,7 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 // ExtractCodeBlocks extracts code blocks for specified languages from markdown content.
 func ExtractCodeBlocks(content string, langs []languages.Language) []types.CodeBlock {
 	state := newExtractorState(langs)
+
 	return extractWithState(content, state)
 }
 
@@ -43,12 +44,14 @@ func ExtractCodeBlocksWithConfig(
 	config SkipDirectivesConfig,
 ) []types.CodeBlock {
 	state := newExtractorStateWithConfig(langs, config)
+
 	return extractWithState(content, state)
 }
 
 // extractWithState extracts code blocks using the provided extractor state.
 func extractWithState(content string, state *extractorState) []types.CodeBlock {
 	var blocks []types.CodeBlock
+
 	lines := strings.Split(content, "\n")
 
 	for i, line := range lines {
@@ -104,6 +107,7 @@ func (s *extractorState) processLine(lineNum int, line string, blocks *[]types.C
 
 	if !strings.HasPrefix(trimmed, "```") {
 		s.handleCodeContent(line)
+
 		return
 	}
 
@@ -120,6 +124,7 @@ func (s *extractorState) hasSkipDirective(line string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
@@ -132,6 +137,7 @@ func (s *extractorState) handleCodeContent(line string) {
 
 func (s *extractorState) startCodeBlock(trimmed string, lineNum int) {
 	lang := strings.TrimSpace(strings.TrimPrefix(trimmed, "```"))
+
 	parsedLang, ok := languages.ParseLanguage(lang)
 	if !ok {
 		return // Not a supported language
@@ -159,19 +165,23 @@ func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 	if strings.TrimSpace(code) == "" {
 		s.skipNext = false
 		s.currentLang = ""
+
 		return
 	}
 
 	skipped := s.skipNext || s.hasSkipDirective(code)
+
 	block := types.NewCodeBlock(types.NewLineNumber(s.blockStartLine), s.currentLang, code)
 	if skipped {
 		block.MarkSkipped()
 	} else {
 		block.MarkValid()
 	}
+
 	if blocks != nil {
 		*blocks = append(*blocks, block)
 	}
+
 	s.skipNext = false
 	s.currentLang = ""
 }

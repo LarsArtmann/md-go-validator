@@ -43,9 +43,11 @@ func main() {
 	allResults := validatePaths(ctx, validator, cfg.paths)
 
 	if cfg.outputFile != "" {
-		if err := writeOutputToFile(allResults, cfg); err != nil {
+		err := writeOutputToFile(allResults, cfg)
+		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing output file: %v\n", err)
 			osExit(1)
+
 			return
 		}
 	} else {
@@ -60,27 +62,54 @@ func main() {
 // argHandler defines a function type for handling an argument.
 type argHandler func(args []string, i int, cfg *config) (int, bool)
 
+func requireArg(args []string, i int, flagName string) bool {
+	if i+1 >= len(args) {
+		fmt.Fprintf(os.Stderr, "Error: --%s requires an argument\n", flagName)
+		printUsage()
+
+		return false
+	}
+
+	return true
+}
+
 // newArgHandlers creates the map of flag names to their handler functions.
 // This is a function instead of a global to avoid gochecknoglobals lint violation.
 func newArgHandlers() map[string]argHandler {
 	return map[string]argHandler{
-		"-v":         handleVerbose,
-		"--verbose":  handleVerbose,
-		"-q":         handleQuiet,
-		"--quiet":    handleQuiet,
-		"--no-code":  handleNoCode,
-		"-f":         handleFormat,
-		"--format":   handleFormat,
-		"--color":    handleColor,
-		"-o":         handleOutput,
-		"--output":   handleOutput,
-		"--timeout":  handleTimeout,
-		"-t":         handleTimeout,
-		"-l":         handleLanguages,
-		"--language": handleLanguages,
-		"-h":         handleHelp,
-		"--help":     handleHelp,
+		"-v":           handleVerbose,
+		"--verbose":     handleVerbose,
+		"-q":           handleQuiet,
+		"--quiet":      handleQuiet,
+		"--no-code":     handleNoCode,
+		"-f":           handleFormat,
+		"--format":     handleFormat,
+		"--color":      handleColor,
+		"-o":           handleOutput,
+		"--output":     handleOutput,
+		"--timeout":    handleTimeout,
+		"-t":           handleTimeout,
+		"-l":           handleLanguages,
+		"--language":   handleLanguages,
+		"-h":           handleHelp,
+		"--help":       handleHelp,
 	}
+}
+
+func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.verbose = true
+	return 0, true
+}
+
+func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.format = output.FormatQuiet
+	cfg.showCode = false
+	return 0, true
+}
+
+func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
+	cfg.showCode = false
+	return 0, true
 }
 
 func parseArgs(args []string) config {
@@ -105,14 +134,18 @@ func parseArgs(args []string) config {
 			if !ok {
 				os.Exit(1)
 			}
+
 			i += advance
+
 			continue
 		}
+
 		if strings.HasPrefix(arg, "-") {
 			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", arg)
 			printUsage()
 			os.Exit(1)
 		}
+
 		cfg.paths = append(cfg.paths, arg)
 	}
 
@@ -123,55 +156,14 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func requireArg(args []string, i int, flagName string) bool {
-	if i+1 >= len(args) {
-		fmt.Fprintf(os.Stderr, "Error: --%s requires an argument\n", flagName)
-		printUsage()
-		return false
-	}
-	return true
-}
-
-func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.verbose = true
-	return 0, true
-}
-
-func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.format = output.FormatQuiet
-	cfg.showCode = false
-	return 0, true
-}
-
-func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.showCode = false
-	return 0, true
-}
-
 func handleFormat(args []string, i int, cfg *config) (int, bool) {
-	if !requireArg(args, i, "format") {
-		return 0, false
-	}
-	format, err := output.ParseFormat(args[i+1])
-	if err != nil {
-		returnParseError("format", err)
-		return 0, false
-	}
-	cfg.format = format
-	return 1, true
+	return handleParsedArg(args, i, cfg, "format", output.ParseFormat,
+		func(c *config, f output.Format) { c.format = f })
 }
 
 func handleColor(args []string, i int, cfg *config) (int, bool) {
-	if !requireArg(args, i, "color") {
-		return 0, false
-	}
-	colorMode, err := output.ParseColorMode(args[i+1])
-	if err != nil {
-		returnParseError("color", err)
-		return 0, false
-	}
-	cfg.colorMode = colorMode
-	return 1, true
+	return handleParsedArg(args, i, cfg, "color", output.ParseColorMode,
+		func(c *config, cm output.ColorMode) { c.colorMode = cm })
 }
 
 func returnParseError(name string, err error) {
@@ -179,17 +171,56 @@ func returnParseError(name string, err error) {
 	printUsage()
 }
 
-func handleOutput(args []string, i int, cfg *config) (int, bool) {
-	if !requireArg(args, i, "output") {
+// handleParsedArg handles flags that take a single string argument and parse it.
+func handleParsedArg[T any](
+	args []string,
+	i int,
+	cfg *config,
+	flagName string,
+	parse func(string) (T, error),
+	setter func(*config, T),
+) (int, bool) {
+	if !requireArg(args, i, flagName) {
 		return 0, false
 	}
-	cfg.outputFile = args[i+1]
+
+	val, err := parse(args[i+1])
+	if err != nil {
+		returnParseError(flagName, err)
+
+		return 0, false
+	}
+
+	setter(cfg, val)
+
 	return 1, true
+}
+
+// handleStringArg handles flags that take a single string argument.
+func handleStringArg(
+	args []string,
+	i int,
+	cfg *config,
+	flagName string,
+	setter func(*config, string),
+) (int, bool) {
+	if !requireArg(args, i, flagName) {
+		return 0, false
+	}
+
+	setter(cfg, args[i+1])
+
+	return 1, true
+}
+
+func handleOutput(args []string, i int, cfg *config) (int, bool) {
+	return handleStringArg(args, i, cfg, "output", func(c *config, s string) { c.outputFile = s })
 }
 
 func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	printUsage()
 	os.Exit(0)
+
 	return 0, false // exit called, but we need to return something
 }
 
@@ -197,14 +228,18 @@ func handleTimeout(args []string, i int, cfg *config) (int, bool) {
 	if !requireArg(args, i, "timeout") {
 		return 0, false
 	}
+
 	duration, err := time.ParseDuration(args[i+1])
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: invalid timeout value %q: %v\n", args[i+1], err)
 		printUsage()
+
 		return 0, false
 	}
+
 	cfg.timeout = duration
 	cfg.contextCfg = cfg.contextCfg.WithTimeout(duration)
+
 	return 1, true
 }
 
@@ -219,6 +254,7 @@ func handleLanguages(args []string, i int, cfg *config) (int, bool) {
 
 	for _, lang := range langs {
 		lang = strings.TrimSpace(strings.ToLower(lang))
+
 		parsed, ok := languages.ParseLanguage(lang)
 		if !ok {
 			fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
@@ -227,8 +263,10 @@ func handleLanguages(args []string, i int, cfg *config) (int, bool) {
 				"Supported languages: %s\n",
 				strings.Join(getLanguageNames(), ", "),
 			)
+
 			return 0, false
 		}
+
 		cfg.languages = append(cfg.languages, parsed)
 	}
 
@@ -240,6 +278,7 @@ func getLanguageNames() []string {
 	for _, lang := range languages.AllLanguages() {
 		names = append(names, string(lang))
 	}
+
 	return names
 }
 
@@ -266,12 +305,14 @@ func validatePath(
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
+
 		return nil
 	}
 
 	info, err := os.Stat(absPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
+
 		return nil
 	}
 
@@ -281,8 +322,10 @@ func validatePath(
 	} else {
 		results, err = validator.ValidateFile(ctx, absPath)
 	}
+
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
+
 		return nil
 	}
 
@@ -292,7 +335,8 @@ func validatePath(
 func writeOutputToFile(results []types.Result, cfg config) error {
 	dir := filepath.Dir(cfg.outputFile)
 	if dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o750); err != nil {
+		err := os.MkdirAll(dir, 0o750)
+		if err != nil {
 			return fmt.Errorf("create parent directories (%d results): %w", len(results), err)
 		}
 	}
@@ -302,8 +346,10 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 		return fmt.Errorf("open output file for writing (%d results, path=%s): %w",
 			len(results), cfg.outputFile, err)
 	}
+
 	defer func() {
-		if closeErr := file.Close(); closeErr != nil {
+		closeErr := file.Close()
+		if closeErr != nil {
 			err = fmt.Errorf("close output file (%d results, path=%s): %w",
 				len(results), cfg.outputFile, closeErr)
 		}
@@ -318,6 +364,7 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 	); err != nil {
 		return fmt.Errorf("write report (%d results, format=%s): %w", len(results), cfg.format, err)
 	}
+
 	return nil
 }
 

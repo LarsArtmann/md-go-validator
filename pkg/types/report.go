@@ -1,6 +1,6 @@
 // Package types provides data structures for code block validation results.
 //
-//nolint:revive // Package name "types" is descriptive and widely used in Go projects
+
 package types
 
 // ReportData contains aggregated validation results for reporting.
@@ -48,8 +48,10 @@ type ErrorEntry struct {
 
 // BuildReportData aggregates a slice of Results into ReportData.
 func BuildReportData(results []Result, showCode bool) ReportData {
-	var valid, skipped, errorCount uint
-	var errorEntries []ErrorEntry
+	var (
+		valid, skipped, errorCount uint
+		errorEntries               []ErrorEntry
+	)
 
 	for _, r := range results {
 		switch r.Status {
@@ -61,6 +63,7 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 			skipped++
 		case StatusError:
 			errorCount++
+
 			entry := ErrorEntry{
 				File:  r.File,
 				Line:  r.LineNumber,
@@ -71,6 +74,7 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 			if showCode {
 				entry.Code = r.Code
 			}
+
 			errorEntries = append(errorEntries, entry)
 		}
 	}

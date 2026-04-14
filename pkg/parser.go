@@ -28,6 +28,7 @@ func ValidateGoCode(code string) error {
 	// Strategy 3: Try wrapping in package main with func main
 	// For code that looks like statements
 	indented := codeutil.IndentCode(code)
+
 	wrappedFunc := "package main\n\nfunc main() {\n" + indented + "\n}"
 	if codeutil.ParseGo(fset, wrappedFunc) == nil {
 		return nil
@@ -50,5 +51,6 @@ func ValidateGoCode(code string) error {
 	if originalErr != nil {
 		return fmt.Errorf("operation on %q failed: %w", code, originalErr)
 	}
+
 	return nil
 }

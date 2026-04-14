@@ -28,8 +28,18 @@ type Result struct {
 	Error error
 }
 
-// newResult creates a Result with the given status and no error.
-func newResult(
+// NewValidResult creates a new valid result.
+func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
+	return newResultWithStatus(file, line, block, code, StatusValid)
+}
+
+// NewSkippedResult creates a new skipped result.
+func NewSkippedResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
+	return newResultWithStatus(file, line, block, code, StatusSkipped)
+}
+
+// newResultWithStatus creates a Result with the given status.
+func newResultWithStatus(
 	file FileID,
 	line LineNumber,
 	block BlockIndex,
@@ -46,19 +56,9 @@ func newResult(
 	}
 }
 
-// NewValidResult creates a new valid result.
-func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
-	return newResult(file, line, block, code, StatusValid)
-}
-
-// NewSkippedResult creates a new skipped result.
-func NewSkippedResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
-	return newResult(file, line, block, code, StatusSkipped)
-}
-
 // NewErrorResult creates a new error result.
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
-	result := newResult(file, line, block, code, StatusError)
+	result := newResultWithStatus(file, line, block, code, StatusError)
 	result.Error = err
 	return result
 }
@@ -68,6 +68,7 @@ func (r Result) String() string {
 	if r.Error != nil {
 		return fmt.Sprintf("%s:%s (block #%s): %v", r.File, r.LineNumber, r.Block, r.Error)
 	}
+
 	return fmt.Sprintf("%s:%s (block #%s): %s", r.File, r.LineNumber, r.Block, r.Status)
 }
 
@@ -79,12 +80,15 @@ func (r Result) HasError() bool {
 // Summary returns a one-line summary suitable for logging.
 func (r Result) Summary() string {
 	var parts []string
+
 	parts = append(parts, fmt.Sprintf("file=%s", r.File))
 	parts = append(parts, fmt.Sprintf("line=%s", r.LineNumber))
 	parts = append(parts, fmt.Sprintf("block=%s", r.Block))
+
 	parts = append(parts, fmt.Sprintf("status=%s", r.Status))
 	if r.Error != nil {
 		parts = append(parts, fmt.Sprintf("error=%v", r.Error))
 	}
+
 	return strings.Join(parts, " ")
 }

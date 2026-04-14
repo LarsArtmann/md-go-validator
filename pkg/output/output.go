@@ -70,6 +70,7 @@ func ParseColorMode(s string) (ColorMode, error) {
 	if err != nil {
 		return "", fmt.Errorf("parse color mode %q: %w", s, err)
 	}
+
 	return cm, nil
 }
 
@@ -89,11 +90,13 @@ func PrintReportTo(
 ) error {
 	switch format {
 	case FormatJSON:
-		return printJSONTo(w, results, showCode)
+		return marshalReport(w, results, showCode, func(r any) ([]byte, error) {
+			return output.MarshalJSONIndent(r, "", "  ")
+		}, "JSON")
 	case FormatMarkdown:
 		return printMarkdownTo(w, results, showCode)
 	case FormatYAML:
-		return printYAMLTo(w, results, showCode)
+		return marshalReport(w, results, showCode, output.MarshalYAML, "YAML")
 	case FormatCSV:
 		return printCSVTo(w, results, showCode)
 	case FormatQuiet:
@@ -101,15 +104,6 @@ func PrintReportTo(
 	default:
 		return printTableTo(w, results, colorMode, showCode)
 	}
-}
-
-func printJSONTo(w io.Writer, results []types.Result, showCode bool) error {
-	report := types.BuildReportData(results, showCode)
-	data, err := output.MarshalJSONIndent(report, "", "  ")
-	if err != nil {
-		return fmt.Errorf("marshal JSON (%d results, showCode=%t): %w", len(results), showCode, err)
-	}
-	return writeOutput(w, data, len(results), showCode, "JSON")
 }
 
 func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
@@ -127,10 +121,12 @@ func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
 
 	if len(report.Errors) > 0 {
 		_, _ = fmt.Fprintln(w, "## Errors")
+
 		_, _ = fmt.Fprintln(w)
 		if showCode {
 			_, _ = fmt.Fprintln(w, "| File | Line | Block | Error | Code |")
 			_, _ = fmt.Fprintln(w, "|------|------|-------|-------|------|")
+
 			for _, e := range report.Errors {
 				code := truncateCode(e.Code, 50)
 				_, _ = fmt.Fprintf(w, "| %s | %s | %s | %s | %s |\n",
@@ -138,6 +134,7 @@ func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
 			}
 		} else {
 			_, _ = fmt.Fprintln(w, "| File | Line | Block | Error |")
+
 			_, _ = fmt.Fprintln(w, "|------|------|-------|-------|")
 			for _, e := range report.Errors {
 				_, _ = fmt.Fprintf(w, "| %s | %s | %s | %s |\n",
@@ -145,16 +142,25 @@ func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
 			}
 		}
 	}
+
 	return nil
 }
 
-func printYAMLTo(w io.Writer, results []types.Result, showCode bool) error {
+func marshalReport(
+	w io.Writer,
+	results []types.Result,
+	showCode bool,
+	marshalFn func(any) ([]byte, error),
+	formatName string,
+) error {
 	report := types.BuildReportData(results, showCode)
-	data, err := output.MarshalYAML(report)
+
+	data, err := marshalFn(report)
 	if err != nil {
-		return fmt.Errorf("marshal YAML (%d results, showCode=%t): %w", len(results), showCode, err)
+		return fmt.Errorf("marshal %s (%d results, showCode=%t): %w", formatName, len(results), showCode, err)
 	}
-	return writeOutput(w, data, len(results), showCode, "YAML")
+
+	return writeOutput(w, data, len(results), showCode, formatName)
 }
 
 // writeOutput writes marshaled data to the writer with consistent error handling.
@@ -175,14 +181,16 @@ func writeOutput(
 			err,
 		)
 	}
+
 	return nil
 }
 
 func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 	csvWriter := output.NewCSVWriter(w)
-	if err := csvWriter.WriteHeader(
+	err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
-	); err != nil {
+	)
+	if err != nil {
 		return fmt.Errorf(
 			"write CSV header (%d results, showCode=%t): %w",
 			len(results),
@@ -196,25 +204,32 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 		if r.Error != nil {
 			errMsg = r.Error.Error()
 		}
+
 		if showCode {
 			code = r.Code
 		}
-		if err := csvWriter.WriteRow([]string{
+
+		err := csvWriter.WriteRow([]string{
 			r.File.String(),
 			r.LineNumber.String(),
 			r.Block.String(),
 			r.Status.String(),
 			errMsg,
 			code,
-		}); err != nil {
+		})
+		if err != nil {
 			return fmt.Errorf("write CSV row (file=%s, line=%s, block=%s, code=%q, errMsg=%q): %w",
 				r.File, r.LineNumber, r.Block, code, errMsg, err)
 		}
 	}
+
 	csvWriter.Flush()
-	if err := csvWriter.Error(); err != nil {
+
+	err = csvWriter.Error()
+	if err != nil {
 		return fmt.Errorf("flush CSV (%d rows, showCode=%t): %w", len(results), showCode, err)
 	}
+
 	return nil
 }
 
@@ -226,13 +241,16 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 			return fmt.Errorf("write quiet output (%d results, %d errors): %w",
 				len(results), report.Summary.Errors, err)
 		}
+
 		return nil
 	}
+
 	_, err := fmt.Fprintf(w, "All %d code blocks valid\n", report.Summary.Valid)
 	if err != nil {
 		return fmt.Errorf("write quiet output (%d valid results): %w",
 			len(results), err)
 	}
+
 	return nil
 }
 
@@ -242,6 +260,7 @@ func printTableTo(w io.Writer, results []types.Result, colorMode ColorMode, show
 
 	printTableHeaderTo(w, report.Summary, shouldColor)
 	printTableErrorsTo(w, report.Errors, showCode, shouldColor)
+
 	return nil
 }
 
@@ -267,6 +286,7 @@ func printTableHeaderTo(w io.Writer, summary types.ReportSummary, shouldColor bo
 		_, _ = fmt.Fprintln(w, skippedLabel)
 		_, _ = fmt.Fprintln(w, errorsLabel)
 	}
+
 	_, _ = fmt.Fprintln(w, divider)
 }
 
@@ -281,6 +301,7 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 	} else {
 		_, _ = fmt.Fprintln(w, "ERRORS FOUND:")
 	}
+
 	_, _ = fmt.Fprintln(w, "------------------------------------------------------------")
 
 	for _, e := range errors {
@@ -289,13 +310,16 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 
 		if showCode && e.Code != "" {
 			_, _ = fmt.Fprintln(w, "\n   Code:")
+
 			_, _ = fmt.Fprintln(w, "   "+"------------------------------------------------")
 			for i, line := range strings.Split(e.Code, "\n") {
 				_, _ = fmt.Fprintf(w, "   %3d | %s\n", i+1, line)
 			}
+
 			_, _ = fmt.Fprintln(w, "   "+"------------------------------------------------")
 		}
 	}
+
 	_, _ = fmt.Fprintln(w)
 }
 
@@ -322,9 +346,11 @@ func truncateCode(code string, maxLen uint) string {
 	if code == "" {
 		return ""
 	}
+
 	if uint(len(code)) <= maxLen {
 		return code
 	}
+
 	if maxLen <= 3 {
 		return "..."
 	}

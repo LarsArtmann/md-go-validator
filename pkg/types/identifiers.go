@@ -24,6 +24,7 @@ func (f FileID) Validate() error {
 	if f == "" {
 		return errors.New("FileID cannot be empty")
 	}
+
 	return nil
 }
 
@@ -40,6 +41,7 @@ func validateUintMinOne[T ~uint](v T, typeName string) error {
 	if v == 0 {
 		return errors.New(typeName + " must be >= 1, got 0")
 	}
+
 	return nil
 }
 
@@ -53,6 +55,7 @@ func NewLineNumber(n int) LineNumber {
 	if n < 0 {
 		return 0
 	}
+
 	return LineNumber(n)
 }
 
@@ -88,6 +91,7 @@ func NewBlockIndex(n int) BlockIndex {
 	if n < 0 {
 		return 0
 	}
+
 	return BlockIndex(n)
 }
 

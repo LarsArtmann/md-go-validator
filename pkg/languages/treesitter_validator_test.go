@@ -62,11 +62,13 @@ func TestTreeSitterValidator(t *testing.T) {
 				t.Skipf("language %q not available", tt.langName)
 			}
 
-			if err := validator.Validate(context.Background(), tt.validCode); err != nil {
+			err := validator.Validate(context.Background(), tt.validCode)
+			if err != nil {
 				t.Errorf("expected valid code to pass, got error: %v", err)
 			}
 
-			if err := validator.Validate(context.Background(), tt.invalidCode); err == nil {
+			err = validator.Validate(context.Background(), tt.invalidCode)
+			if err == nil {
 				t.Error("expected invalid code to fail, got no error")
 			}
 		})

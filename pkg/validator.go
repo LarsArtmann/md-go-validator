@@ -50,18 +50,21 @@ func (v *FileValidator) WithConcurrency(n int) *FileValidator {
 	if n > 0 {
 		v.concurrency = n
 	}
+
 	return v
 }
 
 // WithLanguages sets the target languages to validate.
 func (v *FileValidator) WithLanguages(langs []languages.Language) *FileValidator {
 	v.targetLangs = langs
+
 	return v
 }
 
 // WithRegistry sets a custom validator registry.
 func (v *FileValidator) WithRegistry(r *languages.Registry) *FileValidator {
 	v.registry = r
+
 	return v
 }
 
@@ -94,7 +97,8 @@ func (v *FileValidator) validateBlocks(
 	cleanPath string,
 	blocks []types.CodeBlock,
 ) ([]types.Result, error) {
-	if err := checkContext(ctx); err != nil {
+	err := checkContext(ctx)
+	if err != nil {
 		return nil, fmt.Errorf(
 			"validate blocks (file=%s, blocks=%d): %w",
 			cleanPath,
@@ -163,7 +167,8 @@ func (v *FileValidator) validateBlock(
 		return newSkippedResultFromBlock(filePath, block, blockIndex)
 	}
 
-	if err := validator.Validate(ctx, block.Code); err != nil {
+	err := validator.Validate(ctx, block.Code)
+	if err != nil {
 		return newErrorResultFromBlock(filePath, block, blockIndex, err)
 	}
 
@@ -175,7 +180,11 @@ func (v *FileValidator) validateBlock(
 	)
 }
 
-func newSkippedResultFromBlock(filePath string, block types.CodeBlock, blockIndex types.BlockIndex) types.Result {
+func newSkippedResultFromBlock(
+	filePath string,
+	block types.CodeBlock,
+	blockIndex types.BlockIndex,
+) types.Result {
 	return types.NewSkippedResult(
 		types.NewFileID(filePath),
 		block.LineNumber,
@@ -184,11 +193,17 @@ func newSkippedResultFromBlock(filePath string, block types.CodeBlock, blockInde
 	)
 }
 
-func newErrorResultFromBlock(filePath string, block types.CodeBlock, blockIndex types.BlockIndex, err error) types.Result {
+func newErrorResultFromBlock(
+	filePath string,
+	block types.CodeBlock,
+	blockIndex types.BlockIndex,
+	err error,
+) types.Result {
 	codePreview := block.Code
 	if len(codePreview) > 30 {
 		codePreview = codePreview[:30] + "..."
 	}
+
 	return types.NewErrorResult(
 		types.NewFileID(filePath),
 		block.LineNumber,
@@ -203,6 +218,7 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 	if !v.verbose {
 		return
 	}
+
 	switch result.Status {
 	case types.StatusUnknown:
 		fmt.Printf("  ❓ Block %d (line %s): UNKNOWN\n", i+1, block.LineNumber)
@@ -259,12 +275,14 @@ func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 			if shouldSkipDir(info.Name()) {
 				return filepath.SkipDir
 			}
+
 			return nil
 		}
 
 		if isMarkdownFile(path) {
 			files = append(files, path)
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -282,7 +300,8 @@ func (v *FileValidator) processFilesParallel(
 	ctx context.Context,
 	filePaths []string,
 ) ([]types.Result, error) {
-	if err := checkContext(ctx); err != nil {
+	err := checkContext(ctx)
+	if err != nil {
 		return nil, fmt.Errorf("context cancelled before processing files: %w", err)
 	}
 
@@ -302,6 +321,7 @@ func (v *FileValidator) limitFiles(filePaths []string) []string {
 	if v.maxFiles > 0 && len(filePaths) > v.maxFiles {
 		return filePaths[:v.maxFiles]
 	}
+
 	return filePaths
 }
 
@@ -339,12 +359,15 @@ func (v *FileValidator) processJob(ctx context.Context, chans workerChannels) {
 
 		branchCtx, cancel := context.WithCancel(ctx)
 		fileResults, err := v.ValidateFile(branchCtx, path)
+
 		cancel()
 
 		if err != nil {
 			chans.errors <- fmt.Errorf("file %s: %w", path, err)
+
 			continue
 		}
+
 		chans.results <- fileResults
 	}
 }
@@ -357,11 +380,14 @@ func (v *FileValidator) feedJobs(
 ) {
 	go func() {
 		for _, path := range filesToProcess {
-			if err := checkContext(ctx); err != nil {
+			err := checkContext(ctx)
+			if err != nil {
 				break
 			}
+
 			jobs <- path
 		}
+
 		close(jobs)
 	}()
 }
@@ -398,6 +424,7 @@ type resultCollector struct {
 func (rc *resultCollector) withLock(fn func()) {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
+
 	fn()
 }
 
@@ -419,15 +446,18 @@ func (rc *resultCollector) addError(err error) {
 func (rc *resultCollector) finalize() ([]types.Result, error) {
 	rc.mu.Lock()
 	defer rc.mu.Unlock()
+
 	if len(rc.errors) > 0 {
 		return rc.results, fmt.Errorf("encountered %d errors: %w", len(rc.errors), rc.errors[0])
 	}
+
 	return rc.results, nil
 }
 
 // collectFromChan runs a collection loop for a typed channel with context cancellation.
 func collectFromChan[T any](ctx context.Context, ch <-chan T, wg *sync.WaitGroup, fn func(T)) {
 	defer wg.Done()
+
 	for item := range ch {
 		select {
 		case <-ctx.Done():
@@ -459,6 +489,7 @@ func (v *FileValidator) collectResultsLoop(
 
 func (v *FileValidator) withInt(field *int, value int) *FileValidator {
 	*field = value
+
 	return v
 }
 
@@ -469,11 +500,13 @@ func shouldSkipDir(name string) bool {
 			return true
 		}
 	}
+
 	return false
 }
 
 func isMarkdownFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
+
 	return ext == ".md" || ext == ".markdown"
 }
 
@@ -507,5 +540,6 @@ func HasErrors(results []types.Result) bool {
 			return true
 		}
 	}
+
 	return false
 }

@@ -23,6 +23,7 @@ func (v *TreeSitterValidator) Language() Language {
 // IsAvailable always returns true for tree-sitter validators (embedded grammars).
 func (v *TreeSitterValidator) IsAvailable() bool {
 	entry := grammars.DetectLanguageByName(v.langName)
+
 	return entry != nil && entry.Language != nil
 }
 

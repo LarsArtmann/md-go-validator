@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -15,14 +16,18 @@ func testParseFunc[T any](t *testing.T, funcName string, tests []struct {
 }, parseFunc func(string) (T, error),
 ) {
 	t.Helper()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			got, err := parseFunc(tt.input)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("%s(%q) error = %v, wantErr %v", funcName, tt.input, err, tt.wantErr)
+
 				return
 			}
+
 			if fmt.Sprintf("%v", got) != fmt.Sprintf("%v", tt.want) {
 				t.Errorf("%s(%q) = %v, want %v", funcName, tt.input, got, tt.want)
 			}
@@ -79,6 +84,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("empty results", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{}
 		report := types.BuildReportData(results, false)
 
@@ -87,6 +93,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("all valid", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			newValidResultWithCode("a.md", 1, 1, ""),
 			newValidResultWithCode("b.md", 2, 1, ""),
@@ -98,6 +105,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("with skipped", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			newSkippedResultWithReason("a.md", 1, 1, ""),
 			newValidResultWithCode("b.md", 2, 1, ""),
@@ -109,22 +117,25 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("with errors", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			types.NewErrorResult(
 				types.NewFileID("a.md"),
 				types.NewLineNumber(1),
 				types.NewBlockIndex(1),
 				"",
-				&testError{msg: "syntax error"},
+				testutil.NewTestError("syntax error"),
 			),
 			newValidResultWithCode("b.md", 2, 1, ""),
 		}
 		report := types.BuildReportData(results, false)
 
 		types.AssertReportSummary(t, &report, 2, 1, 1, 0)
+
 		if len(report.Errors) != 1 {
 			t.Errorf("expected 1 error entry, got %d", len(report.Errors))
 		}
+
 		if report.Errors[0].Error != "syntax error" {
 			t.Errorf("expected error message 'syntax error', got %q", report.Errors[0].Error)
 		}
@@ -132,6 +143,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("show code", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{newErrorResultWithCode("package main")}
 		report := types.BuildReportData(results, true)
 
@@ -140,6 +152,7 @@ func TestBuildReportData(t *testing.T) {
 
 	t.Run("hide code", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{newErrorResultWithCode("package main")}
 		report := types.BuildReportData(results, false)
 
@@ -171,6 +184,7 @@ func TestTruncateCode(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			got := truncateCode(tt.input, tt.maxLen)
 			if got != tt.want {
 				t.Errorf("truncateCode(%q, %d) = %q, want %q", tt.input, tt.maxLen, got, tt.want)
@@ -178,12 +192,6 @@ func TestTruncateCode(t *testing.T) {
 		})
 	}
 }
-
-type testError struct {
-	msg string
-}
-
-func (e *testError) Error() string { return e.msg }
 
 func TestPrintReport(t *testing.T) {
 	t.Parallel()
@@ -216,6 +224,7 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("CSV format with error", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{newErrorResultWithCode("bad code")}
 		PrintReport(results, FormatCSV, ColorModeNever, true)
 	})
@@ -227,12 +236,14 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Quiet format with errors", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{newErrorResultWithCode("bad code")}
 		PrintReport(results, FormatQuiet, ColorModeNever, false)
 	})
 
 	t.Run("Table format", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{
 			newValidResultWithCode("a.md", 1, 1, "package main"),
 			newSkippedResultWithReason("b.md", 2, 1, "// skip"),
@@ -252,12 +263,14 @@ func TestPrintReport(t *testing.T) {
 
 	t.Run("Table format with no errors", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 	})
 
 	t.Run("Table format empty results", func(t *testing.T) {
 		t.Parallel()
+
 		results := []types.Result{}
 		PrintReport(results, FormatTable, ColorModeNever, false)
 	})
@@ -277,28 +290,13 @@ func newValidResultWithCode(fileID string, lineNumber, blockIndex int, code stri
 	)
 }
 
-type validResultSpec struct {
-	fileID string
-	line   int
-	block  int
-	code   string
-}
-
-func newValidResults(specs ...validResultSpec) []types.Result {
-	results := make([]types.Result, len(specs))
-	for i, s := range specs {
-		results[i] = newValidResultWithCode(s.fileID, s.line, s.block, s.code)
-	}
-	return results
-}
-
 func newErrorResultWithCode(code string) types.Result {
 	return types.NewErrorResult(
 		types.NewFileID("a.md"),
 		types.NewLineNumber(1),
 		types.NewBlockIndex(1),
 		code,
-		&testError{msg: "syntax error"},
+		testutil.NewTestError("syntax error"),
 	)
 }
 
@@ -312,18 +310,21 @@ func newSkippedResultWithReason(
 
 func assertPrintReportValid(t *testing.T, format Format, colorMode ColorMode, quiet bool) {
 	t.Helper()
+
 	results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
 	PrintReport(results, format, colorMode, quiet)
 }
 
 func assertPrintReportTable(t *testing.T, fileID string, line, block int, code string) {
 	t.Helper()
+
 	results := []types.Result{newValidResultWithCode(fileID, line, block, code)}
 	PrintReport(results, FormatTable, ColorModeNever, false)
 }
 
 func assertPrintReportWithErrors(t *testing.T, format Format, code string) {
 	t.Helper()
+
 	results := []types.Result{newErrorResultWithCode(code)}
 	PrintReport(results, format, ColorModeNever, false)
 	PrintReport(results, format, ColorModeNever, true)

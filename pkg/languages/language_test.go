@@ -51,11 +51,14 @@ func TestParseLanguage(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			gotLang, gotOk := ParseLanguage(tt.input)
 			if gotOk != tt.wantOk {
 				t.Errorf("ParseLanguage() ok = %v, want %v", gotOk, tt.wantOk)
+
 				return
 			}
+
 			if gotOk && gotLang != tt.wantLang {
 				t.Errorf("ParseLanguage() lang = %v, want %v", gotLang, tt.wantLang)
 			}
@@ -80,6 +83,7 @@ func TestIsSupported(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			if got := IsSupported(tt.lang); got != tt.expected {
 				t.Errorf("IsSupported() = %v, want %v", got, tt.expected)
 			}
@@ -104,11 +108,14 @@ func TestLanguage_Extensions(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			got := tt.lang.Extensions()
 			if len(got) != len(tt.expected) {
 				t.Errorf("Extensions() length = %v, want %v", len(got), len(tt.expected))
+
 				return
 			}
+
 			for i := range got {
 				if got[i] != tt.expected[i] {
 					t.Errorf("Extensions()[%d] = %v, want %v", i, got[i], tt.expected[i])
@@ -134,6 +141,7 @@ func TestLanguage_Validate(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+
 			err := tt.lang.Validate()
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Validate() error = %v, wantErr %v", err, tt.wantErr)
@@ -152,7 +160,8 @@ func TestAllLanguages(t *testing.T) {
 
 	// Check that all languages are valid
 	for _, lang := range langs {
-		if err := lang.Validate(); err != nil {
+		err := lang.Validate()
+		if err != nil {
 			t.Errorf("Language %q failed validation: %v", lang, err)
 		}
 	}
