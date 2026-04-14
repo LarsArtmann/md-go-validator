@@ -185,18 +185,18 @@ func writeOutput(
 	return nil
 }
 
+// newOutputError creates a formatted error for output write operations.
+func newOutputError(action string, results []types.Result, showCode bool, err error) error {
+	return fmt.Errorf("write %s (%d results, showCode=%t): %w", action, len(results), showCode, err)
+}
+
 func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 	csvWriter := output.NewCSVWriter(w)
 	err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
 	)
 	if err != nil {
-		return fmt.Errorf(
-			"write CSV header (%d results, showCode=%t): %w",
-			len(results),
-			showCode,
-			err,
-		)
+		return newOutputError("CSV header", results, showCode, err)
 	}
 
 	for _, r := range results {
@@ -227,7 +227,7 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 
 	err = csvWriter.Error()
 	if err != nil {
-		return fmt.Errorf("flush CSV (%d rows, showCode=%t): %w", len(results), showCode, err)
+		return newOutputError("CSV flush", results, showCode, err)
 	}
 
 	return nil
@@ -238,8 +238,7 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 	if report.Summary.Errors > 0 {
 		_, err := fmt.Fprintf(w, "%d errors found\n", report.Summary.Errors)
 		if err != nil {
-			return fmt.Errorf("write quiet output (%d results, %d errors): %w",
-				len(results), report.Summary.Errors, err)
+			return newOutputError("quiet output", results, false, err)
 		}
 
 		return nil
@@ -247,8 +246,7 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 
 	_, err := fmt.Fprintf(w, "All %d code blocks valid\n", report.Summary.Valid)
 	if err != nil {
-		return fmt.Errorf("write quiet output (%d valid results): %w",
-			len(results), err)
+		return newOutputError("quiet output", results, false, err)
 	}
 
 	return nil

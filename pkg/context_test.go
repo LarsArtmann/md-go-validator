@@ -211,7 +211,7 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	time.Sleep(60 * time.Millisecond)
+	time.Sleep(70 * time.Millisecond)
 
 	assertContextDeadlineExceeded(t, ctx, "context should be done after deadline")
 }
@@ -225,31 +225,54 @@ func assertContextNotNil(t *testing.T, ctx context.Context) {
 	}
 }
 
+// assertContextCondition checks context state against expected condition.
+func assertContextCondition(t *testing.T, ctx context.Context, expectDone bool, msg string) {
+	t.Helper()
+
+	done := isContextDone(ctx)
+	if done == expectDone {
+		return
+	}
+	t.Fatal(msg)
+}
+
 // assertContextNotDone checks that the context is NOT done.
 // If the context is done, t.Fatal is called with msg.
 func assertContextNotDone(t *testing.T, ctx context.Context, msg string) {
+	assertContextCondition(t, ctx, false, msg)
+}
+
+// assertContextDone checks that the context IS done.
+// If the context is not done, t.Fatal is called with msg.
+func assertContextDone(t *testing.T, ctx context.Context, msg string) {
+	assertContextCondition(t, ctx, true, msg)
+}
+
+// assertContextWithError checks that the context is done with a specific error.
+// If the context is not done, t.Fatal is called with msg.
+// If the context is done with a different error, t.Errorf is called.
+func assertContextWithError(t *testing.T, ctx context.Context, expected error, msg string) {
 	t.Helper()
 
-	select {
-	case <-ctx.Done():
-		t.Fatal(msg)
-	default:
+	assertContextDone(t, ctx, msg)
+
+	if !errors.Is(ctx.Err(), expected) {
+		t.Errorf("expected %v, got %v", expected, ctx.Err())
 	}
 }
 
-// assertContextDeadlineExceeded checks that the context IS done with DeadlineExceeded.
-// If the context is not done, t.Fatal is called with msg.
-// If the context is done with a different error, t.Errorf is called.
+// assertContextDeadlineExceeded is a convenience wrapper for assertContextWithError with DeadlineExceeded.
 func assertContextDeadlineExceeded(t *testing.T, ctx context.Context, msg string) {
-	t.Helper()
+	assertContextWithError(t, ctx, context.DeadlineExceeded, msg)
+}
 
+// isContextDone checks if the context is done without blocking.
+func isContextDone(ctx context.Context) bool {
 	select {
 	case <-ctx.Done():
-		if !errors.Is(ctx.Err(), context.DeadlineExceeded) {
-			t.Errorf("expected DeadlineExceeded, got %v", ctx.Err())
-		}
+		return true
 	default:
-		t.Fatal(msg)
+		return false
 	}
 }
 

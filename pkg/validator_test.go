@@ -31,7 +31,12 @@ func newValidResult(spec validResultSpec) types.Result {
 }
 
 func newValidResults(specs ...validResultSpec) []types.Result {
-	return testutil.NewValidResultsFromSpecs(specs)
+	results := make([]types.Result, len(specs))
+	for i, s := range specs {
+		results[i] = newValidResult(s)
+	}
+
+	return results
 }
 
 func TestExtractGoCodeBlocks(t *testing.T) {

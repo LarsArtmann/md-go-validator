@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -124,7 +123,7 @@ func TestBuildReportData(t *testing.T) {
 				types.NewLineNumber(1),
 				types.NewBlockIndex(1),
 				"",
-				testutil.NewTestError("syntax error"),
+				types.NewTestError("syntax error"),
 			),
 			newValidResultWithCode("b.md", 2, 1, ""),
 		}
@@ -296,7 +295,7 @@ func newErrorResultWithCode(code string) types.Result {
 		types.NewLineNumber(1),
 		types.NewBlockIndex(1),
 		code,
-		testutil.NewTestError("syntax error"),
+		types.NewTestError("syntax error"),
 	)
 }
 

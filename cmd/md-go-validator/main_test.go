@@ -391,17 +391,13 @@ func TestValidatePathWithErrors(t *testing.T) {
 	})
 }
 
+// mockValidator implements mdgovalidator.Validator for testing.
 type mockValidator struct{}
 
-func (m *mockValidator) ValidateFile(_ context.Context, _ string) ([]types.Result, error) {
-	return nil, nil
-}
+func (mockValidator) ValidateFile(context.Context, string) ([]types.Result, error) { return nil, nil }
 
-func (m *mockValidator) ValidateDirectory(
-	_ context.Context,
-	_ string,
-) ([]types.Result, error) {
-	return nil, nil
+func (mockValidator) ValidateDirectory(ctx context.Context, path string) ([]types.Result, error) {
+	return mockValidator{}.ValidateFile(ctx, path)
 }
 
 func TestValidatePathsCapacity(t *testing.T) {
@@ -438,25 +434,22 @@ func TestValidatePathsCapacity(t *testing.T) {
 }
 
 func newValidResultForFile(fileID string, line, block int, code string) types.Result {
-	return types.Result{
-		File:       types.FileID(fileID),
-		LineNumber: types.LineNumber(line),
-		Block:      types.BlockIndex(block),
-		Code:       code,
-		Status:     types.StatusValid,
-		Error:      nil,
-	}
+	return types.NewValidResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(line),
+		types.NewBlockIndex(block),
+		code,
+	)
 }
 
 func newErrorResultForFile(fileID string, line, block int, code, errMsg string) types.Result {
-	return types.Result{
-		File:       types.FileID(fileID),
-		LineNumber: types.LineNumber(line),
-		Block:      types.BlockIndex(block),
-		Code:       code,
-		Status:     types.StatusError,
-		Error:      errors.New(errMsg),
-	}
+	return types.NewErrorResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(line),
+		types.NewBlockIndex(block),
+		code,
+		errors.New(errMsg),
+	)
 }
 
 func newTestConfig(outputFile string, format output.Format) config {

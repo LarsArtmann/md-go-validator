@@ -2,7 +2,6 @@ package mdgovalidator
 
 import (
 	"fmt"
-	"go/parser"
 	"go/token"
 
 	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
@@ -47,7 +46,7 @@ func ValidateGoCode(code string) error {
 	}
 
 	// All strategies failed - return the original error for reporting
-	_, originalErr := parser.ParseFile(fset, "snippet.go", code, parser.AllErrors)
+	originalErr := codeutil.ParseGo(fset, code)
 	if originalErr != nil {
 		return fmt.Errorf("operation on %q failed: %w", code, originalErr)
 	}

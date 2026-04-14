@@ -4,7 +4,6 @@ package languages
 import (
 	"context"
 	"errors"
-	"go/parser"
 	"go/scanner"
 	"go/token"
 
@@ -65,7 +64,7 @@ func (v *GoValidator) Validate(_ context.Context, code string) error {
 
 // createValidationError extracts line/column from Go parser errors.
 func (v *GoValidator) createValidationError(fset *token.FileSet, code string) error {
-	_, err := parser.ParseFile(fset, "snippet.go", code, parser.AllErrors)
+	err := codeutil.ParseGo(fset, code)
 	if err == nil {
 		return nil
 	}

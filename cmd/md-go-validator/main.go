@@ -76,12 +76,16 @@ func requireArg(args []string, i int, flagName string) bool {
 // newArgHandlers creates the map of flag names to their handler functions.
 // This is a function instead of a global to avoid gochecknoglobals lint violation.
 func newArgHandlers() map[string]argHandler {
+	verboseHandler := boolFlagHandler(func(c *config) { c.verbose = true })
+	quietHandler := boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false })
+	noCodeHandler := boolFlagHandler(func(c *config) { c.showCode = false })
+
 	return map[string]argHandler{
-		"-v":           handleVerbose,
-		"--verbose":     handleVerbose,
-		"-q":           handleQuiet,
-		"--quiet":      handleQuiet,
-		"--no-code":     handleNoCode,
+		"-v":           verboseHandler,
+		"--verbose":     verboseHandler,
+		"-q":           quietHandler,
+		"--quiet":      quietHandler,
+		"--no-code":     noCodeHandler,
 		"-f":           handleFormat,
 		"--format":     handleFormat,
 		"--color":      handleColor,
@@ -96,20 +100,13 @@ func newArgHandlers() map[string]argHandler {
 	}
 }
 
-func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.verbose = true
-	return 0, true
-}
+// boolFlagHandler creates a handler for boolean flags.
+func boolFlagHandler(setter func(*config)) argHandler {
+	return func(_ []string, _ int, cfg *config) (int, bool) {
+		setter(cfg)
 
-func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.format = output.FormatQuiet
-	cfg.showCode = false
-	return 0, true
-}
-
-func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
-	cfg.showCode = false
-	return 0, true
+		return 0, true
+	}
 }
 
 func parseArgs(args []string) config {
@@ -231,10 +228,7 @@ func handleTimeout(args []string, i int, cfg *config) (int, bool) {
 
 	duration, err := time.ParseDuration(args[i+1])
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: invalid timeout value %q: %v\n", args[i+1], err)
-		printUsage()
-
-		return 0, false
+		return handleParseError("timeout", args[i+1], err)
 	}
 
 	cfg.timeout = duration
@@ -248,29 +242,41 @@ func handleLanguages(args []string, i int, cfg *config) (int, bool) {
 		return 0, false
 	}
 
-	// Parse comma-separated list of languages
 	langs := strings.Split(args[i+1], ",")
-	cfg.languages = nil // Reset to empty slice
+	cfg.languages = nil
 
 	for _, lang := range langs {
 		lang = strings.TrimSpace(strings.ToLower(lang))
 
 		parsed, ok := languages.ParseLanguage(lang)
 		if !ok {
-			fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
-			fmt.Fprintf(
-				os.Stderr,
-				"Supported languages: %s\n",
-				strings.Join(getLanguageNames(), ", "),
-			)
-
-			return 0, false
+			return handleUnsupportedLanguageError(lang)
 		}
 
 		cfg.languages = append(cfg.languages, parsed)
 	}
 
 	return 1, true
+}
+
+// handleParseError prints a parse error for a flag value and returns failure.
+func handleParseError(flagName, value string, err error) (int, bool) {
+	fmt.Fprintf(os.Stderr, "Error: invalid %s value %q: %v\n", flagName, value, err)
+	printUsage()
+
+	return 0, false
+}
+
+// handleUnsupportedLanguageError prints an error for unsupported language and returns failure.
+func handleUnsupportedLanguageError(lang string) (int, bool) {
+	fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
+	fmt.Fprintf(
+		os.Stderr,
+		"Supported languages: %s\n",
+		strings.Join(getLanguageNames(), ", "),
+	)
+
+	return 0, false
 }
 
 func getLanguageNames() []string {

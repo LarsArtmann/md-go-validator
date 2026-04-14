@@ -418,9 +418,7 @@ func TestReportData_HasErrors(t *testing.T) {
 		"has errors",
 		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
 		true,
-		func(r ReportData) bool {
-			return r.HasErrors()
-		},
+		ReportData.HasErrors,
 	)
 
 	testReportDataBoolCase(
@@ -428,9 +426,7 @@ func TestReportData_HasErrors(t *testing.T) {
 		"no errors",
 		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 0},
 		false,
-		func(r ReportData) bool {
-			return r.HasErrors()
-		},
+		ReportData.HasErrors,
 	)
 }
 
@@ -442,9 +438,7 @@ func TestReportData_Success(t *testing.T) {
 		"success",
 		ReportSummary{Total: 7, Valid: 5, Skipped: 2, Errors: 0},
 		true,
-		func(r ReportData) bool {
-			return r.Success()
-		},
+		ReportData.Success,
 	)
 
 	testReportDataBoolCase(
@@ -452,9 +446,7 @@ func TestReportData_Success(t *testing.T) {
 		"failure",
 		ReportSummary{Total: 0, Valid: 0, Skipped: 0, Errors: 1},
 		false,
-		func(r ReportData) bool {
-			return r.Success()
-		},
+		ReportData.Success,
 	)
 }
 
