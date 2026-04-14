@@ -89,22 +89,22 @@ func newArgHandlers() map[string]argHandler {
 	languagesHandler := languagesArgHandler()
 
 	return map[string]argHandler{
-		"-v":           verboseHandler,
-		"--verbose":     verboseHandler,
-		"-q":           quietHandler,
-		"--quiet":      quietHandler,
-		"--no-code":    noCodeHandler,
-		"-f":           formatHandler,
-		"--format":     formatHandler,
-		"--color":      colorHandler,
-		"-o":           outputHandler,
-		"--output":     outputHandler,
-		"-t":           timeoutHandler,
-		"--timeout":     timeoutHandler,
-		"-l":           languagesHandler,
-		"--language":   languagesHandler,
-		"-h":           handleHelp,
-		"--help":       handleHelp,
+		"-v":         verboseHandler,
+		"--verbose":  verboseHandler,
+		"-q":         quietHandler,
+		"--quiet":    quietHandler,
+		"--no-code":  noCodeHandler,
+		"-f":         formatHandler,
+		"--format":   formatHandler,
+		"--color":    colorHandler,
+		"-o":         outputHandler,
+		"--output":   outputHandler,
+		"-t":         timeoutHandler,
+		"--timeout":  timeoutHandler,
+		"-l":         languagesHandler,
+		"--language": languagesHandler,
+		"-h":         handleHelp,
+		"--help":     handleHelp,
 	}
 }
 
@@ -194,14 +194,10 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-
-
 func returnParseError(name string, err error) {
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	printUsage()
 }
-
-
 
 func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	printUsage()
