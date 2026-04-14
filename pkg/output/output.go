@@ -190,15 +190,29 @@ func newOutputError(action string, results []types.Result, showCode bool, err er
 	return fmt.Errorf("write %s (%d results, showCode=%t): %w", action, len(results), showCode, err)
 }
 
-func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
-	csvWriter := output.NewCSVWriter(w)
-	err := csvWriter.WriteHeader(
+func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
+	csvWriter := output.NewCSVWriter(writer)
+
+	if err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
-	)
-	if err != nil {
+	); err != nil {
 		return newOutputError("CSV header", results, showCode, err)
 	}
 
+	if err := writeCSVRows(csvWriter, results, showCode); err != nil {
+		return err
+	}
+
+	csvWriter.Flush()
+
+	if err := csvWriter.Error(); err != nil {
+		return newOutputError("CSV flush", results, showCode, err)
+	}
+
+	return nil
+}
+
+func writeCSVRows(csvWriter *output.CSVWriter, results []types.Result, showCode bool) error {
 	for _, r := range results {
 		var errMsg, code string
 		if r.Error != nil {
@@ -209,25 +223,20 @@ func printCSVTo(w io.Writer, results []types.Result, showCode bool) error {
 			code = r.Code
 		}
 
-		err := csvWriter.WriteRow([]string{
+		row := []string{
 			r.File.String(),
 			r.LineNumber.String(),
 			r.Block.String(),
 			r.Status.String(),
 			errMsg,
 			code,
-		})
-		if err != nil {
-			return fmt.Errorf("write CSV row (file=%s, line=%s, block=%s, code=%q, errMsg=%q): %w",
-				r.File, r.LineNumber, r.Block, code, errMsg, err)
 		}
-	}
-
-	csvWriter.Flush()
-
-	err = csvWriter.Error()
-	if err != nil {
-		return newOutputError("CSV flush", results, showCode, err)
+		if err := csvWriter.WriteRow(row); err != nil {
+			return fmt.Errorf(
+				"write CSV row (file=%s, line=%s, block=%s): %w",
+				r.File, r.LineNumber, r.Block, err,
+			)
+		}
 	}
 
 	return nil

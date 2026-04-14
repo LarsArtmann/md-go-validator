@@ -79,22 +79,30 @@ func newArgHandlers() map[string]argHandler {
 	verboseHandler := boolFlagHandler(func(c *config) { c.verbose = true })
 	quietHandler := boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false })
 	noCodeHandler := boolFlagHandler(func(c *config) { c.showCode = false })
+	formatHandler := parsedArgHandler("format", output.ParseFormat, func(c *config, f output.Format) { c.format = f })
+	colorHandler := parsedArgHandler("color", output.ParseColorMode, func(c *config, cm output.ColorMode) { c.colorMode = cm })
+	outputHandler := parsedArgHandler("output", func(s string) (string, error) { return s, nil }, func(c *config, s string) { c.outputFile = s })
+	timeoutHandler := parsedArgHandler("timeout", time.ParseDuration, func(c *config, d time.Duration) {
+		c.timeout = d
+		c.contextCfg = c.contextCfg.WithTimeout(d)
+	})
+	languagesHandler := languagesArgHandler()
 
 	return map[string]argHandler{
 		"-v":           verboseHandler,
 		"--verbose":     verboseHandler,
 		"-q":           quietHandler,
 		"--quiet":      quietHandler,
-		"--no-code":     noCodeHandler,
-		"-f":           handleFormat,
-		"--format":     handleFormat,
-		"--color":      handleColor,
-		"-o":           handleOutput,
-		"--output":     handleOutput,
-		"--timeout":    handleTimeout,
-		"-t":           handleTimeout,
-		"-l":           handleLanguages,
-		"--language":   handleLanguages,
+		"--no-code":    noCodeHandler,
+		"-f":           formatHandler,
+		"--format":     formatHandler,
+		"--color":      colorHandler,
+		"-o":           outputHandler,
+		"--output":     outputHandler,
+		"-t":           timeoutHandler,
+		"--timeout":     timeoutHandler,
+		"-l":           languagesHandler,
+		"--language":   languagesHandler,
 		"-h":           handleHelp,
 		"--help":       handleHelp,
 	}
@@ -107,6 +115,33 @@ func boolFlagHandler(setter func(*config)) argHandler {
 
 		return 0, true
 	}
+}
+
+func parsedArgHandler[T any](
+	flagName string,
+	parse func(string) (T, error),
+	setter func(*config, T),
+) argHandler {
+	return func(args []string, i int, cfg *config) (int, bool) {
+		if !requireArg(args, i, flagName) {
+			return 0, false
+		}
+
+		val, err := parse(args[i+1])
+		if err != nil {
+			returnParseError(flagName, err)
+
+			return 0, false
+		}
+
+		setter(cfg, val)
+
+		return 1, true
+	}
+}
+
+func stringArgHandler(flagName string, setter func(*config, string)) argHandler {
+	return parsedArgHandler(flagName, func(s string) (string, error) { return s, nil }, setter)
 }
 
 func parseArgs(args []string) config {
@@ -153,66 +188,14 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func handleFormat(args []string, i int, cfg *config) (int, bool) {
-	return handleParsedArg(args, i, cfg, "format", output.ParseFormat,
-		func(c *config, f output.Format) { c.format = f })
-}
 
-func handleColor(args []string, i int, cfg *config) (int, bool) {
-	return handleParsedArg(args, i, cfg, "color", output.ParseColorMode,
-		func(c *config, cm output.ColorMode) { c.colorMode = cm })
-}
 
 func returnParseError(name string, err error) {
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	printUsage()
 }
 
-// handleParsedArg handles flags that take a single string argument and parse it.
-func handleParsedArg[T any](
-	args []string,
-	i int,
-	cfg *config,
-	flagName string,
-	parse func(string) (T, error),
-	setter func(*config, T),
-) (int, bool) {
-	if !requireArg(args, i, flagName) {
-		return 0, false
-	}
 
-	val, err := parse(args[i+1])
-	if err != nil {
-		returnParseError(flagName, err)
-
-		return 0, false
-	}
-
-	setter(cfg, val)
-
-	return 1, true
-}
-
-// handleStringArg handles flags that take a single string argument.
-func handleStringArg(
-	args []string,
-	i int,
-	cfg *config,
-	flagName string,
-	setter func(*config, string),
-) (int, bool) {
-	if !requireArg(args, i, flagName) {
-		return 0, false
-	}
-
-	setter(cfg, args[i+1])
-
-	return 1, true
-}
-
-func handleOutput(args []string, i int, cfg *config) (int, bool) {
-	return handleStringArg(args, i, cfg, "output", func(c *config, s string) { c.outputFile = s })
-}
 
 func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	printUsage()
@@ -221,42 +204,55 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	return 0, false // exit called, but we need to return something
 }
 
-func handleTimeout(args []string, i int, cfg *config) (int, bool) {
-	if !requireArg(args, i, "timeout") {
-		return 0, false
-	}
-
-	duration, err := time.ParseDuration(args[i+1])
-	if err != nil {
-		return handleParseError("timeout", args[i+1], err)
-	}
-
-	cfg.timeout = duration
-	cfg.contextCfg = cfg.contextCfg.WithTimeout(duration)
-
-	return 1, true
+// durationArgHandler creates a handler for duration flags like timeout.
+func durationArgHandler(flagName string, setter func(*config, time.Duration)) argHandler {
+	return parsedArgHandler(flagName, time.ParseDuration, setter)
 }
 
-func handleLanguages(args []string, i int, cfg *config) (int, bool) {
-	if !requireArg(args, i, "language") {
-		return 0, false
-	}
+// languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
+func languagesArgHandler() argHandler {
+	return listArgHandler("language", parseLanguages, func(cfg *config, langs []languages.Language) {
+		cfg.languages = langs
+	})
+}
 
-	langs := strings.Split(args[i+1], ",")
-	cfg.languages = nil
-
-	for _, lang := range langs {
-		lang = strings.TrimSpace(strings.ToLower(lang))
-
-		parsed, ok := languages.ParseLanguage(lang)
-		if !ok {
-			return handleUnsupportedLanguageError(lang)
+// listArgHandler creates a handler for flags that accept comma-separated values.
+func listArgHandler[T any](
+	flagName string,
+	parser func(string) ([]T, error),
+	setter func(*config, []T),
+) argHandler {
+	return func(args []string, idx int, cfg *config) (int, bool) {
+		if !requireArg(args, idx, flagName) {
+			return 0, false
 		}
 
-		cfg.languages = append(cfg.languages, parsed)
+		values, err := parser(args[idx+1])
+		if err != nil {
+			return handleParseError(flagName, args[idx+1], err)
+		}
+
+		setter(cfg, values)
+
+		return 1, true
+	}
+}
+
+// parseLanguages parses a comma-separated string of language names.
+func parseLanguages(s string) ([]languages.Language, error) {
+	langStrs := strings.Split(s, ",")
+	result := make([]languages.Language, 0, len(langStrs))
+
+	for _, lang := range langStrs {
+		lang = strings.TrimSpace(strings.ToLower(lang))
+		parsed, ok := languages.ParseLanguage(lang)
+		if !ok {
+			return nil, fmt.Errorf("unsupported language: %s", lang)
+		}
+		result = append(result, parsed)
 	}
 
-	return 1, true
+	return result, nil
 }
 
 // handleParseError prints a parse error for a flag value and returns failure.

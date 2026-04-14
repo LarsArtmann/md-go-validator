@@ -64,10 +64,11 @@ func NewSkippedResultForTest(
 	lineNumber, blockIndex int,
 	reason string,
 ) Result {
-	return NewSkippedResult(
+	return NewResultWithStatus(
 		NewFileID(fileID),
 		NewLineNumber(lineNumber),
 		NewBlockIndex(blockIndex),
 		reason,
+		StatusSkipped,
 	)
 }

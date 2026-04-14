@@ -22,11 +22,12 @@ type validResultSpec struct {
 }
 
 func newValidResult(spec validResultSpec) types.Result {
-	return types.NewValidResult(
+	return types.NewResultWithStatus(
 		types.NewFileID(spec.fileID),
 		types.NewLineNumber(spec.line),
 		types.NewBlockIndex(spec.block),
 		spec.code,
+		types.StatusValid,
 	)
 }
 
@@ -319,9 +320,7 @@ func TestValidator_ValidateDirectory_CancellationDuringProcessing(t *testing.T) 
 	}
 
 	// Some results may have been collected before cancellation
-	if len(results) > 5 {
-		t.Errorf("expected at most 5 results, got %d", len(results))
-	}
+	testutil.AssertMaxResults(t, results, 5)
 }
 
 func TestValidator_ValidateFile_Empty(t *testing.T) {

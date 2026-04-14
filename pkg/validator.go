@@ -13,6 +13,18 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+// Validator defines the interface for validating Go code blocks in markdown files.
+// This interface enables dependency injection and easier testing.
+type Validator interface {
+	// ValidateFile validates a single markdown file and returns validation results.
+	// The context can be used for cancellation and timeout.
+	ValidateFile(ctx context.Context, filePath string) ([]types.Result, error)
+
+	// ValidateDirectory validates all markdown files in a directory recursively.
+	// The context can be used for cancellation and timeout.
+	ValidateDirectory(ctx context.Context, dirPath string) ([]types.Result, error)
+}
+
 // FileValidator validates code blocks in markdown files.
 type FileValidator struct {
 	registry    *languages.Registry
@@ -68,15 +80,25 @@ func (v *FileValidator) WithRegistry(r *languages.Registry) *FileValidator {
 	return v
 }
 
+// validatePath validates and cleans a path with a descriptive error message.
+func validatePath(pathType, path string) (string, error) {
+	cleanPath, err := validateAndCleanPath(path)
+	if err != nil {
+		return "", fmt.Errorf("invalid %s %s: %w", pathType, path, err)
+	}
+
+	return cleanPath, nil
+}
+
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	if err := checkContext(ctx); err != nil {
 		return nil, fmt.Errorf("validate file %s: %w", filePath, err)
 	}
 
-	cleanPath, err := validateAndCleanPath(filePath)
+	cleanPath, err := validatePath("file", filePath)
 	if err != nil {
-		return nil, fmt.Errorf("invalid file path %s: %w", filePath, err)
+		return nil, err
 	}
 
 	content, err := os.ReadFile(cleanPath)
@@ -97,16 +119,6 @@ func (v *FileValidator) validateBlocks(
 	cleanPath string,
 	blocks []types.CodeBlock,
 ) ([]types.Result, error) {
-	err := checkContext(ctx)
-	if err != nil {
-		return nil, fmt.Errorf(
-			"validate blocks (file=%s, blocks=%d): %w",
-			cleanPath,
-			len(blocks),
-			err,
-		)
-	}
-
 	blocksToProcess := blocks
 	if v.maxBlocks > 0 && len(blocks) > v.maxBlocks {
 		blocksToProcess = blocks[:v.maxBlocks]
@@ -172,11 +184,12 @@ func (v *FileValidator) validateBlock(
 		return newErrorResultFromBlock(filePath, block, blockIndex, err)
 	}
 
-	return types.NewValidResult(
+	return types.NewResultWithStatus(
 		types.NewFileID(filePath),
 		block.LineNumber,
 		blockIndex,
 		block.Code,
+		types.StatusValid,
 	)
 }
 
@@ -185,11 +198,12 @@ func newSkippedResultFromBlock(
 	block types.CodeBlock,
 	blockIndex types.BlockIndex,
 ) types.Result {
-	return types.NewSkippedResult(
+	return types.NewResultWithStatus(
 		types.NewFileID(filePath),
 		block.LineNumber,
 		blockIndex,
 		block.Code,
+		types.StatusSkipped,
 	)
 }
 
@@ -237,9 +251,9 @@ func (v *FileValidator) ValidateDirectory(
 	ctx context.Context,
 	dirPath string,
 ) ([]types.Result, error) {
-	cleanPath, err := validateAndCleanPath(dirPath)
+	cleanPath, err := validatePath("directory", dirPath)
 	if err != nil {
-		return nil, fmt.Errorf("invalid directory path %s: %w", dirPath, err)
+		return nil, err
 	}
 
 	filePaths, err := v.collectMarkdownFiles(cleanPath)

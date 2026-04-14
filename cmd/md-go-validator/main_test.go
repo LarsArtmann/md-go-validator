@@ -428,17 +428,16 @@ func TestValidatePathsCapacity(t *testing.T) {
 	}
 
 	results := validatePaths(ctx, validator, []string{tmpDir})
-	if len(results) < 5 {
-		t.Errorf("expected at least 5 results, got %d", len(results))
-	}
+	testutil.AssertMinResults(t, results, 5)
 }
 
 func newValidResultForFile(fileID string, line, block int, code string) types.Result {
-	return types.NewValidResult(
+	return types.NewResultWithStatus(
 		types.NewFileID(fileID),
 		types.NewLineNumber(line),
 		types.NewBlockIndex(block),
 		code,
+		types.StatusValid,
 	)
 }
 

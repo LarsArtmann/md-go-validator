@@ -281,11 +281,12 @@ func TestPrintReport(t *testing.T) {
 }
 
 func newValidResultWithCode(fileID string, lineNumber, blockIndex int, code string) types.Result {
-	return types.NewValidResult(
+	return types.NewResultWithStatus(
 		types.NewFileID(fileID),
 		types.NewLineNumber(lineNumber),
 		types.NewBlockIndex(blockIndex),
 		code,
+		types.StatusValid,
 	)
 }
 

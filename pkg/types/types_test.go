@@ -6,6 +6,10 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
+func newTestResult(status ValidationStatus) Result {
+	return NewResultWithStatus(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "package main", status)
+}
+
 func TestFileID(t *testing.T) {
 	t.Parallel()
 
@@ -278,12 +282,7 @@ func TestResult(t *testing.T) {
 	t.Run("NewValidResult", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewValidResult(
-			NewFileID("test.md"),
-			NewLineNumber(5),
-			NewBlockIndex(1),
-			"package main",
-		)
+		r := newTestResult(StatusValid)
 		if r.File != NewFileID("test.md") {
 			t.Errorf("expected FileID test.md, got %v", r.File)
 		}
@@ -296,7 +295,7 @@ func TestResult(t *testing.T) {
 	t.Run("NewSkippedResult", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewSkippedResult(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "skip me")
+		r := NewResultWithStatus(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "skip me", StatusSkipped)
 		if r.Status != StatusSkipped {
 			t.Errorf("expected StatusSkipped, got %v", r.Status)
 		}
@@ -326,12 +325,7 @@ func TestResult(t *testing.T) {
 	t.Run("String", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewValidResult(
-			NewFileID("test.md"),
-			NewLineNumber(5),
-			NewBlockIndex(1),
-			"package main",
-		)
+		r := newTestResult(StatusValid)
 
 		s := r.String()
 		if s != "test.md:5 (block #1): valid" {
@@ -342,12 +336,7 @@ func TestResult(t *testing.T) {
 	t.Run("Summary", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewValidResult(
-			NewFileID("test.md"),
-			NewLineNumber(5),
-			NewBlockIndex(1),
-			"package main",
-		)
+		r := newTestResult(StatusValid)
 
 		summary := r.Summary()
 		if summary == "" {
@@ -370,8 +359,8 @@ func TestBuildReportData(t *testing.T) {
 		t.Parallel()
 
 		results := []Result{
-			NewValidResult(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg"),
-			NewValidResult(NewFileID("b.md"), NewLineNumber(1), NewBlockIndex(1), "pkg"),
+			NewResultWithStatus(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", StatusValid),
+			NewResultWithStatus(NewFileID("b.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", StatusValid),
 		}
 		report := BuildReportData(results, false)
 		AssertReportSummary(t, &report, 2, 2, 0, 0)

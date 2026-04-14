@@ -28,40 +28,39 @@ type Result struct {
 	Error error
 }
 
-// newResultWithStatus creates a Result with the given status.
-func newResultWithStatus(
+// newResultWithStatusAndError creates a Result with status and optional error.
+func newResultWithStatusAndError(
+	file FileID,
+	line LineNumber,
+	block BlockIndex,
+	code string,
+	status ValidationStatus,
+	err error,
+) Result {
+	return Result{
+		File:       file,
+		LineNumber: line,
+		Block:     block,
+		Code:      code,
+		Status:    status,
+		Error:     err,
+	}
+}
+
+// NewResultWithStatus creates a Result with the given status.
+func NewResultWithStatus(
 	file FileID,
 	line LineNumber,
 	block BlockIndex,
 	code string,
 	status ValidationStatus,
 ) Result {
-	return Result{
-		File:       file,
-		LineNumber: line,
-		Block:      block,
-		Code:       code,
-		Status:     status,
-		Error:      nil,
-	}
-}
-
-// NewValidResult creates a new valid result.
-func NewValidResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
-	return newResultWithStatus(file, line, block, code, StatusValid)
-}
-
-// NewSkippedResult creates a new skipped result.
-func NewSkippedResult(file FileID, line LineNumber, block BlockIndex, code string) Result {
-	return newResultWithStatus(file, line, block, code, StatusSkipped)
+	return newResultWithStatusAndError(file, line, block, code, status, nil)
 }
 
 // NewErrorResult creates a new error result.
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
-	result := newResultWithStatus(file, line, block, code, StatusError)
-	result.Error = err
-
-	return result
+	return newResultWithStatusAndError(file, line, block, code, StatusError, err)
 }
 
 // String returns a human-readable summary of the result.
