@@ -79,10 +79,10 @@ func newArgHandlers() map[string]argHandler {
 	verboseHandler := boolFlagHandler(func(c *config) { c.verbose = true })
 	quietHandler := boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false })
 	noCodeHandler := boolFlagHandler(func(c *config) { c.showCode = false })
-	formatHandler := parsedArgHandler("format", output.ParseFormat, func(c *config, f output.Format) { c.format = f })
-	colorHandler := parsedArgHandler("color", output.ParseColorMode, func(c *config, cm output.ColorMode) { c.colorMode = cm })
-	outputHandler := parsedArgHandler("output", func(s string) (string, error) { return s, nil }, func(c *config, s string) { c.outputFile = s })
-	timeoutHandler := parsedArgHandler("timeout", time.ParseDuration, func(c *config, d time.Duration) {
+	formatHandler := singleValueArgHandler("format", output.ParseFormat, func(c *config, f output.Format) { c.format = f })
+	colorHandler := singleValueArgHandler("color", output.ParseColorMode, func(c *config, cm output.ColorMode) { c.colorMode = cm })
+	outputHandler := stringArgHandler("output", func(c *config, s string) { c.outputFile = s })
+	timeoutHandler := singleValueArgHandler("timeout", time.ParseDuration, func(c *config, d time.Duration) {
 		c.timeout = d
 		c.contextCfg = c.contextCfg.WithTimeout(d)
 	})
@@ -117,17 +117,18 @@ func boolFlagHandler(setter func(*config)) argHandler {
 	}
 }
 
-func parsedArgHandler[T any](
+// singleValueArgHandler creates a handler for single-value parsed arguments.
+func singleValueArgHandler[T any](
 	flagName string,
 	parse func(string) (T, error),
 	setter func(*config, T),
 ) argHandler {
-	return func(args []string, i int, cfg *config) (int, bool) {
-		if !requireArg(args, i, flagName) {
+	return func(args []string, idx int, cfg *config) (int, bool) {
+		if !requireArg(args, idx, flagName) {
 			return 0, false
 		}
 
-		val, err := parse(args[i+1])
+		val, err := parse(args[idx+1])
 		if err != nil {
 			returnParseError(flagName, err)
 
@@ -140,8 +141,13 @@ func parsedArgHandler[T any](
 	}
 }
 
+// parseStringValue is a parse function that returns the input string unchanged.
+func parseStringValue(s string) (string, error) {
+	return s, nil
+}
+
 func stringArgHandler(flagName string, setter func(*config, string)) argHandler {
-	return parsedArgHandler(flagName, func(s string) (string, error) { return s, nil }, setter)
+	return singleValueArgHandler(flagName, parseStringValue, setter)
 }
 
 func parseArgs(args []string) config {
@@ -206,7 +212,7 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 
 // durationArgHandler creates a handler for duration flags like timeout.
 func durationArgHandler(flagName string, setter func(*config, time.Duration)) argHandler {
-	return parsedArgHandler(flagName, time.ParseDuration, setter)
+	return singleValueArgHandler(flagName, time.ParseDuration, setter)
 }
 
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
@@ -222,20 +228,12 @@ func listArgHandler[T any](
 	parser func(string) ([]T, error),
 	setter func(*config, []T),
 ) argHandler {
-	return func(args []string, idx int, cfg *config) (int, bool) {
-		if !requireArg(args, idx, flagName) {
-			return 0, false
-		}
+	return singleValueArgHandler(flagName, wrapListParser(parser), setter)
+}
 
-		values, err := parser(args[idx+1])
-		if err != nil {
-			return handleParseError(flagName, args[idx+1], err)
-		}
-
-		setter(cfg, values)
-
-		return 1, true
-	}
+// wrapListParser wraps a list parser to return a single-element slice.
+func wrapListParser[T any](parser func(string) ([]T, error)) func(string) ([]T, error) {
+	return parser
 }
 
 // parseLanguages parses a comma-separated string of language names.
@@ -286,7 +284,7 @@ func getLanguageNames() []string {
 
 func validatePaths(
 	ctx context.Context,
-	validator mdgovalidator.Validator,
+	validator *mdgovalidator.FileValidator,
 	paths []string,
 ) []types.Result {
 	allResults := make([]types.Result, 0, len(paths)*10)
@@ -301,7 +299,7 @@ func validatePaths(
 
 func validatePath(
 	ctx context.Context,
-	validator mdgovalidator.Validator,
+	validator *mdgovalidator.FileValidator,
 	path string,
 ) []types.Result {
 	absPath, err := filepath.Abs(path)

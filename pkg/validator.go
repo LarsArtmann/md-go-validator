@@ -90,13 +90,24 @@ func validatePath(pathType, path string) (string, error) {
 	return cleanPath, nil
 }
 
+// validateAndReturnPath validates path and returns it, or returns error.
+// This consolidates the common validatePath + error check pattern.
+func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, error) {
+	cleanPath, err := validatePath(pathType, path)
+	if err != nil {
+		return "", err
+	}
+
+	return cleanPath, nil
+}
+
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	if err := checkContext(ctx); err != nil {
 		return nil, fmt.Errorf("validate file %s: %w", filePath, err)
 	}
 
-	cleanPath, err := validatePath("file", filePath)
+	cleanPath, err := v.validateAndReturnPath("file", filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -251,7 +262,7 @@ func (v *FileValidator) ValidateDirectory(
 	ctx context.Context,
 	dirPath string,
 ) ([]types.Result, error) {
-	cleanPath, err := validatePath("directory", dirPath)
+	cleanPath, err := v.validateAndReturnPath("directory", dirPath)
 	if err != nil {
 		return nil, err
 	}

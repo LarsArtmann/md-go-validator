@@ -381,23 +381,13 @@ func TestValidatePathWithErrors(t *testing.T) {
 
 	t.Run("path resolution error", func(t *testing.T) {
 		t.Parallel()
-		// Create a mock validator that returns an error
-		mockValidator := &mockValidator{}
+		validator := mdgovalidator.New(false)
 
-		results := validatePath(context.Background(), mockValidator, "/valid/path.md")
+		results := validatePath(context.Background(), validator, "/valid/path.md")
 		if results != nil {
 			t.Error("expected nil for non-existent path")
 		}
 	})
-}
-
-// mockValidator implements mdgovalidator.Validator for testing.
-type mockValidator struct{}
-
-func (mockValidator) ValidateFile(context.Context, string) ([]types.Result, error) { return nil, nil }
-
-func (mockValidator) ValidateDirectory(ctx context.Context, path string) ([]types.Result, error) {
-	return mockValidator{}.ValidateFile(ctx, path)
 }
 
 func TestValidatePathsCapacity(t *testing.T) {
