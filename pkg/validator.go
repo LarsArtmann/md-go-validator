@@ -145,15 +145,9 @@ func (v *FileValidator) validateBlock(
 	blockIndex := types.NewBlockIndex(index + 1)
 
 	if block.IsSkipped() {
-		return types.NewSkippedResult(
-			types.NewFileID(filePath),
-			block.LineNumber,
-			blockIndex,
-			block.Code,
-		)
+		return newSkippedResultFromBlock(filePath, block, blockIndex)
 	}
 
-	// Get the validator for this language
 	validator := v.registry.Get(block.Language)
 	if validator == nil {
 		return types.NewErrorResult(
@@ -166,28 +160,11 @@ func (v *FileValidator) validateBlock(
 	}
 
 	if !validator.IsAvailable() {
-		return types.NewSkippedResult(
-			types.NewFileID(filePath),
-			block.LineNumber,
-			blockIndex,
-			block.Code,
-		)
+		return newSkippedResultFromBlock(filePath, block, blockIndex)
 	}
 
-	// Validate using the language-specific validator
 	if err := validator.Validate(ctx, block.Code); err != nil {
-		codePreview := block.Code
-		if len(codePreview) > 30 {
-			codePreview = codePreview[:30] + "..."
-		}
-		return types.NewErrorResult(
-			types.NewFileID(filePath),
-			block.LineNumber,
-			blockIndex,
-			block.Code,
-			fmt.Errorf("validating %s block (block=%d, file=%s, code=%q, line=%s): %w",
-				block.Language, index, filePath, codePreview, block.LineNumber, err),
-		)
+		return newErrorResultFromBlock(filePath, block, blockIndex, err)
 	}
 
 	return types.NewValidResult(
@@ -195,6 +172,30 @@ func (v *FileValidator) validateBlock(
 		block.LineNumber,
 		blockIndex,
 		block.Code,
+	)
+}
+
+func newSkippedResultFromBlock(filePath string, block types.CodeBlock, blockIndex types.BlockIndex) types.Result {
+	return types.NewSkippedResult(
+		types.NewFileID(filePath),
+		block.LineNumber,
+		blockIndex,
+		block.Code,
+	)
+}
+
+func newErrorResultFromBlock(filePath string, block types.CodeBlock, blockIndex types.BlockIndex, err error) types.Result {
+	codePreview := block.Code
+	if len(codePreview) > 30 {
+		codePreview = codePreview[:30] + "..."
+	}
+	return types.NewErrorResult(
+		types.NewFileID(filePath),
+		block.LineNumber,
+		blockIndex,
+		block.Code,
+		fmt.Errorf("validating %s block (block=%d, file=%s, code=%q, line=%s): %w",
+			block.Language, blockIndex.Int()-1, filePath, codePreview, block.LineNumber, err),
 	)
 }
 

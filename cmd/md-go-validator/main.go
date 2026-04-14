@@ -132,10 +132,6 @@ func requireArg(args []string, i int, flagName string) bool {
 	return true
 }
 
-func hideCode(cfg *config) {
-	cfg.showCode = false
-}
-
 func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
 	cfg.verbose = true
 	return 0, true
@@ -143,12 +139,12 @@ func handleVerbose(_ []string, _ int, cfg *config) (int, bool) {
 
 func handleQuiet(_ []string, _ int, cfg *config) (int, bool) {
 	cfg.format = output.FormatQuiet
-	hideCode(cfg)
+	cfg.showCode = false
 	return 0, true
 }
 
 func handleNoCode(_ []string, _ int, cfg *config) (int, bool) {
-	hideCode(cfg)
+	cfg.showCode = false
 	return 0, true
 }
 
@@ -301,25 +297,7 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 		}
 	}
 
-	file, err := os.Create(cfg.outputFile)
-	if err != nil {
-		return fmt.Errorf(
-			"create output file (%d results, path=%s): %w",
-			len(results),
-			cfg.outputFile,
-			err,
-		)
-	}
-	if err := file.Close(); err != nil {
-		return fmt.Errorf(
-			"close output file (%d results, path=%s): %w",
-			len(results),
-			cfg.outputFile,
-			err,
-		)
-	}
-
-	file, err = os.OpenFile(cfg.outputFile, os.O_WRONLY, 0o600)
+	file, err := os.OpenFile(cfg.outputFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 	if err != nil {
 		return fmt.Errorf("open output file for writing (%d results, path=%s): %w",
 			len(results), cfg.outputFile, err)
