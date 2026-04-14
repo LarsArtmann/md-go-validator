@@ -44,9 +44,7 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Run("no code blocks", func(t *testing.T) {
 		t.Parallel()
 		blocks := ExtractGoCodeBlocks("Just text\nNo code here")
-		if len(blocks) != 0 {
-			t.Errorf("expected 0 blocks, got %d", len(blocks))
-		}
+		testutil.AssertBlockCount(t, blocks, 0)
 	})
 
 	runExtractGoBlockAtLineTest(t, "single go block",
@@ -99,9 +97,7 @@ func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {
 	content := "```go\n\n```"
 
 	blocks := ExtractGoCodeBlocks(content)
-	if len(blocks) != 0 {
-		t.Errorf("expected 0 blocks for empty code, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 0)
 }
 
 func TestValidateGoCode(t *testing.T) {
@@ -180,9 +176,7 @@ func main() {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 1 {
-		t.Errorf("expected 1 result, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 1)
 }
 
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {
@@ -210,9 +204,7 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 		t.Fatalf("ValidateDirectory error: %v", err)
 	}
 
-	if len(results) != 1 {
-		t.Errorf("expected 1 result (only .md files), got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 1)
 }
 
 func TestHasErrors(t *testing.T) {
@@ -325,9 +317,7 @@ func TestValidator_ValidateFile_Empty(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 0 {
-		t.Errorf("expected 0 results for empty file, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 0)
 }
 
 func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
@@ -354,9 +344,7 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 	}
 
 	// Only normal directory should be processed
-	if len(results) != 1 {
-		t.Errorf("expected 1 result (only normal dir), got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 1)
 }
 
 func TestValidator_WithMaxFiles(t *testing.T) {
@@ -391,9 +379,7 @@ func TestValidator_WithMaxBlocks(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 3 {
-		t.Errorf("expected 3 results (max blocks limit), got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 3)
 }
 
 func TestValidator_ParallelValidation(t *testing.T) {
@@ -418,9 +404,7 @@ func TestValidator_ParallelValidation(t *testing.T) {
 		t.Fatalf("ValidateDirectory error: %v", err)
 	}
 
-	if len(results) != 8 {
-		t.Errorf("expected 8 results, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 8)
 
 	// With parallel processing, this should complete reasonably fast
 	// Sequential would take longer with file I/O overhead

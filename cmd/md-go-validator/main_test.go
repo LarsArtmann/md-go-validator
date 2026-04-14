@@ -184,9 +184,7 @@ func TestValidatePath(t *testing.T) {
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpFile)
 
-		if len(results) != 1 {
-			t.Errorf("expected 1 result, got %d", len(results))
-		}
+		testutil.AssertResultCount(t, results, 1)
 	})
 
 	t.Run("directory with markdown files", func(t *testing.T) {
@@ -200,9 +198,7 @@ func TestValidatePath(t *testing.T) {
 		validator := mdgovalidator.New(false)
 		results := validatePath(context.Background(), validator, tmpDir)
 
-		if len(results) != 1 {
-			t.Errorf("expected 1 result (only .md files), got %d", len(results))
-		}
+		testutil.AssertResultCount(t, results, 1)
 	})
 }
 
@@ -220,9 +216,7 @@ func TestValidatePaths(t *testing.T) {
 		validator := mdgovalidator.New(false)
 		results := validatePaths(context.Background(), validator, []string{file1, file2})
 
-		if len(results) != 2 {
-			t.Errorf("expected 2 results, got %d", len(results))
-		}
+		testutil.AssertResultCount(t, results, 2)
 	})
 
 	t.Run("empty paths returns empty results", func(t *testing.T) {
@@ -231,9 +225,7 @@ func TestValidatePaths(t *testing.T) {
 		validator := mdgovalidator.New(false)
 		results := validatePaths(context.Background(), validator, []string{})
 
-		if len(results) != 0 {
-			t.Errorf("expected 0 results for empty paths, got %d", len(results))
-		}
+		testutil.AssertResultCount(t, results, 0)
 	})
 }
 
