@@ -141,7 +141,12 @@ func TestContextConfigBuildWithParent(t *testing.T) {
 
 	parentCancel()
 
-	testutil.AssertContextErr(t, ctx, context.Canceled, "context should be done after parent is cancelled")
+	testutil.AssertContextErr(
+		t,
+		ctx,
+		context.Canceled,
+		"context should be done after parent is cancelled",
+	)
 }
 
 func TestContextConfigBuildTimeout(t *testing.T) {
@@ -154,7 +159,12 @@ func TestContextConfigBuildTimeout(t *testing.T) {
 
 	time.Sleep(20 * time.Millisecond)
 
-	testutil.AssertContextErr(t, ctx, context.DeadlineExceeded, "context should be done after timeout")
+	testutil.AssertContextErr(
+		t,
+		ctx,
+		context.DeadlineExceeded,
+		"context should be done after timeout",
+	)
 }
 
 func TestContextConfigBranch(t *testing.T) {
@@ -179,7 +189,12 @@ func TestContextConfigBranchWithTimeout(t *testing.T) {
 
 	time.Sleep(20 * time.Millisecond)
 
-	testutil.AssertContextErr(t, ctx, context.DeadlineExceeded, "context should be done after timeout")
+	testutil.AssertContextErr(
+		t,
+		ctx,
+		context.DeadlineExceeded,
+		"context should be done after timeout",
+	)
 }
 
 func TestContextConfigBranchWithDeadline(t *testing.T) {
@@ -193,7 +208,12 @@ func TestContextConfigBranchWithDeadline(t *testing.T) {
 
 	time.Sleep(20 * time.Millisecond)
 
-	testutil.AssertContextErr(t, ctx, context.DeadlineExceeded, "context should be done after deadline")
+	testutil.AssertContextErr(
+		t,
+		ctx,
+		context.DeadlineExceeded,
+		"context should be done after deadline",
+	)
 }
 
 func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
@@ -209,5 +229,10 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 
 	time.Sleep(70 * time.Millisecond)
 
-	testutil.AssertContextErr(t, ctx, context.DeadlineExceeded, "context should be done after deadline")
+	testutil.AssertContextErr(
+		t,
+		ctx,
+		context.DeadlineExceeded,
+		"context should be done after deadline",
+	)
 }

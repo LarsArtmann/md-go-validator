@@ -7,7 +7,13 @@ import (
 )
 
 func newTestResult(status ValidationStatus) Result {
-	return NewResultWithStatus(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "package main", status)
+	return NewResultWithStatus(
+		NewFileID("test.md"),
+		NewLineNumber(5),
+		NewBlockIndex(1),
+		"package main",
+		status,
+	)
 }
 
 func TestFileID(t *testing.T) {
@@ -26,6 +32,7 @@ func TestFileID(t *testing.T) {
 		t.Parallel()
 
 		fid := NewFileID("path/to/file.md")
+
 		err := fid.Validate()
 		if err != nil {
 			t.Errorf("expected no error for non-empty FileID, got %v", err)
@@ -36,6 +43,7 @@ func TestFileID(t *testing.T) {
 		t.Parallel()
 
 		fid := FileID("")
+
 		err := fid.Validate()
 		if err == nil {
 			t.Error("expected error for empty FileID")
@@ -295,7 +303,13 @@ func TestResult(t *testing.T) {
 	t.Run("NewSkippedResult", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewResultWithStatus(NewFileID("test.md"), NewLineNumber(5), NewBlockIndex(1), "skip me", StatusSkipped)
+		r := NewResultWithStatus(
+			NewFileID("test.md"),
+			NewLineNumber(5),
+			NewBlockIndex(1),
+			"skip me",
+			StatusSkipped,
+		)
 		if r.Status != StatusSkipped {
 			t.Errorf("expected StatusSkipped, got %v", r.Status)
 		}
@@ -359,8 +373,20 @@ func TestBuildReportData(t *testing.T) {
 		t.Parallel()
 
 		results := []Result{
-			NewResultWithStatus(NewFileID("a.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", StatusValid),
-			NewResultWithStatus(NewFileID("b.md"), NewLineNumber(1), NewBlockIndex(1), "pkg", StatusValid),
+			NewResultWithStatus(
+				NewFileID("a.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				StatusValid,
+			),
+			NewResultWithStatus(
+				NewFileID("b.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				StatusValid,
+			),
 		}
 		report := BuildReportData(results, false)
 		AssertReportSummary(t, &report, 2, 2, 0, 0)

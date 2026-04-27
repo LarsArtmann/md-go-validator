@@ -381,6 +381,7 @@ func TestValidatePathWithErrors(t *testing.T) {
 
 	t.Run("path resolution error", func(t *testing.T) {
 		t.Parallel()
+
 		validator := mdgovalidator.New(false)
 
 		results := validatePath(context.Background(), validator, "/valid/path.md")

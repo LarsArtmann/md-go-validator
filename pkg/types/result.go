@@ -40,10 +40,10 @@ func newResultWithStatusAndError(
 	return Result{
 		File:       file,
 		LineNumber: line,
-		Block:     block,
-		Code:      code,
-		Status:    status,
-		Error:     err,
+		Block:      block,
+		Code:       code,
+		Status:     status,
+		Error:      err,
 	}
 }
 

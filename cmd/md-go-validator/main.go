@@ -77,15 +77,29 @@ func requireArg(args []string, i int, flagName string) bool {
 // This is a function instead of a global to avoid gochecknoglobals lint violation.
 func newArgHandlers() map[string]argHandler {
 	verboseHandler := boolFlagHandler(func(c *config) { c.verbose = true })
-	quietHandler := boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false })
+	quietHandler := boolFlagHandler(
+		func(c *config) { c.format = output.FormatQuiet; c.showCode = false },
+	)
 	noCodeHandler := boolFlagHandler(func(c *config) { c.showCode = false })
-	formatHandler := singleValueArgHandler("format", output.ParseFormat, func(c *config, f output.Format) { c.format = f })
-	colorHandler := singleValueArgHandler("color", output.ParseColorMode, func(c *config, cm output.ColorMode) { c.colorMode = cm })
+	formatHandler := singleValueArgHandler(
+		"format",
+		output.ParseFormat,
+		func(c *config, f output.Format) { c.format = f },
+	)
+	colorHandler := singleValueArgHandler(
+		"color",
+		output.ParseColorMode,
+		func(c *config, cm output.ColorMode) { c.colorMode = cm },
+	)
 	outputHandler := stringArgHandler("output", func(c *config, s string) { c.outputFile = s })
-	timeoutHandler := singleValueArgHandler("timeout", time.ParseDuration, func(c *config, d time.Duration) {
-		c.timeout = d
-		c.contextCfg = c.contextCfg.WithTimeout(d)
-	})
+	timeoutHandler := singleValueArgHandler(
+		"timeout",
+		time.ParseDuration,
+		func(c *config, d time.Duration) {
+			c.timeout = d
+			c.contextCfg = c.contextCfg.WithTimeout(d)
+		},
+	)
 	languagesHandler := languagesArgHandler()
 
 	return map[string]argHandler{
@@ -213,9 +227,13 @@ func durationArgHandler(flagName string, setter func(*config, time.Duration)) ar
 
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
 func languagesArgHandler() argHandler {
-	return listArgHandler("language", parseLanguages, func(cfg *config, langs []languages.Language) {
-		cfg.languages = langs
-	})
+	return listArgHandler(
+		"language",
+		parseLanguages,
+		func(cfg *config, langs []languages.Language) {
+			cfg.languages = langs
+		},
+	)
 }
 
 // listArgHandler creates a handler for flags that accept comma-separated values.
@@ -239,10 +257,12 @@ func parseLanguages(s string) ([]languages.Language, error) {
 
 	for _, lang := range langStrs {
 		lang = strings.TrimSpace(strings.ToLower(lang))
+
 		parsed, ok := languages.ParseLanguage(lang)
 		if !ok {
 			return nil, fmt.Errorf("unsupported language: %s", lang)
 		}
+
 		result = append(result, parsed)
 	}
 

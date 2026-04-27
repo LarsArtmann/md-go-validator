@@ -157,7 +157,13 @@ func marshalReport(
 
 	data, err := marshalFn(report)
 	if err != nil {
-		return fmt.Errorf("marshal %s (%d results, showCode=%t): %w", formatName, len(results), showCode, err)
+		return fmt.Errorf(
+			"marshal %s (%d results, showCode=%t): %w",
+			formatName,
+			len(results),
+			showCode,
+			err,
+		)
 	}
 
 	return writeOutput(w, data, len(results), showCode, formatName)
@@ -193,19 +199,22 @@ func newOutputError(action string, results []types.Result, showCode bool, err er
 func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
 	csvWriter := output.NewCSVWriter(writer)
 
-	if err := csvWriter.WriteHeader(
+	err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
-	); err != nil {
+	)
+	if err != nil {
 		return newOutputError("CSV header", results, showCode, err)
 	}
 
-	if err := writeCSVRows(csvWriter, results, showCode); err != nil {
+	err := writeCSVRows(csvWriter, results, showCode)
+	if err != nil {
 		return err
 	}
 
 	csvWriter.Flush()
 
-	if err := csvWriter.Error(); err != nil {
+	err := csvWriter.Error()
+	if err != nil {
 		return newOutputError("CSV flush", results, showCode, err)
 	}
 
@@ -231,7 +240,8 @@ func writeCSVRows(csvWriter *output.CSVWriter, results []types.Result, showCode 
 			errMsg,
 			code,
 		}
-		if err := csvWriter.WriteRow(row); err != nil {
+		err := csvWriter.WriteRow(row)
+		if err != nil {
 			return fmt.Errorf(
 				"write CSV row (file=%s, line=%s, block=%s): %w",
 				r.File, r.LineNumber, r.Block, err,

@@ -14,6 +14,7 @@ func WriteTestFile(t *testing.T, tmpDir, filename string, content []byte) string
 	t.Helper()
 
 	path := filepath.Join(tmpDir, filename)
+
 	err := os.WriteFile(path, content, 0o600)
 	if err != nil {
 		t.Fatal(err)
@@ -78,6 +79,7 @@ func AssertContextCondition(t *testing.T, ctx context.Context, expectDone bool, 
 	if done == expectDone {
 		return
 	}
+
 	t.Fatal(msg)
 }
 

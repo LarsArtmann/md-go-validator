@@ -90,6 +90,7 @@ func (r *Registry) Register(v Validator) error {
 	}
 
 	lang := v.Language()
+
 	err := lang.Validate()
 	if err != nil {
 		return fmt.Errorf("cannot register validator: %w", err)

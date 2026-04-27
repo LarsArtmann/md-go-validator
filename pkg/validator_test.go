@@ -352,6 +352,7 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 	subdirs := []string{".hidden", "vendor", "node_modules", "build", "dist", "normal"}
 	for _, dir := range subdirs {
 		dirPath := filepath.Join(tmpDir, dir)
+
 		err := os.MkdirAll(dirPath, 0o750)
 		if err != nil {
 			t.Fatal(err)

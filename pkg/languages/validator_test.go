@@ -26,7 +26,9 @@ func (m *MockValidator) IsAvailable() bool {
 // registerValidator registers a validator and fails the test if it errors.
 func registerValidator(t *testing.T, r *Registry, v *MockValidator) {
 	t.Helper()
-	if err := r.Register(v); err != nil {
+
+	err := r.Register(v)
+	if err != nil {
 		t.Fatalf("register %s: %v", v.lang, err)
 	}
 }
@@ -150,6 +152,7 @@ func TestRegistry_GetAvailable(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: false}
+
 	registerValidator(t, r, v1)
 	registerValidator(t, r, v2)
 
@@ -169,6 +172,7 @@ func TestRegistry_Languages(t *testing.T) {
 	r := NewRegistry()
 	v1 := &MockValidator{lang: LangGo, available: true}
 	v2 := &MockValidator{lang: LangTypeScript, available: true}
+
 	registerValidator(t, r, v1)
 	registerValidator(t, r, v2)
 
