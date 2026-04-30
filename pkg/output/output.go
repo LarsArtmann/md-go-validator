@@ -206,16 +206,16 @@ func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
 		return newOutputError("CSV header", results, showCode, err)
 	}
 
-	err := writeCSVRows(csvWriter, results, showCode)
-	if err != nil {
-		return err
+	writeErr := writeCSVRows(csvWriter, results, showCode)
+	if writeErr != nil {
+		return writeErr
 	}
 
 	csvWriter.Flush()
 
-	err := csvWriter.Error()
-	if err != nil {
-		return newOutputError("CSV flush", results, showCode, err)
+	flushErr := csvWriter.Error()
+	if flushErr != nil {
+		return newOutputError("CSV flush", results, showCode, flushErr)
 	}
 
 	return nil
