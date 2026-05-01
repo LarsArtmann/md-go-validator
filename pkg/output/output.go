@@ -240,6 +240,7 @@ func writeCSVRows(csvWriter *output.CSVWriter, results []types.Result, showCode 
 			errMsg,
 			code,
 		}
+
 		err := csvWriter.WriteRow(row)
 		if err != nil {
 			return fmt.Errorf(
