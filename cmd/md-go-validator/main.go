@@ -3,6 +3,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -14,6 +15,8 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
+
+var errUnsupportedLanguage = errors.New("unsupported language")
 
 // osExit allows mocking os.Exit in tests.
 //
@@ -220,11 +223,6 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	return 0, false // exit called, but we need to return something
 }
 
-// durationArgHandler creates a handler for duration flags like timeout.
-func durationArgHandler(flagName string, setter func(*config, time.Duration)) argHandler {
-	return singleValueArgHandler(flagName, time.ParseDuration, setter)
-}
-
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
 func languagesArgHandler() argHandler {
 	return listArgHandler(
@@ -260,42 +258,13 @@ func parseLanguages(s string) ([]languages.Language, error) {
 
 		parsed, ok := languages.ParseLanguage(lang)
 		if !ok {
-			return nil, fmt.Errorf("unsupported language: %s", lang)
+			return nil, fmt.Errorf("%w: %s", errUnsupportedLanguage, lang)
 		}
 
 		result = append(result, parsed)
 	}
 
 	return result, nil
-}
-
-// handleParseError prints a parse error for a flag value and returns failure.
-func handleParseError(flagName, value string, err error) (int, bool) {
-	fmt.Fprintf(os.Stderr, "Error: invalid %s value %q: %v\n", flagName, value, err)
-	printUsage()
-
-	return 0, false
-}
-
-// handleUnsupportedLanguageError prints an error for unsupported language and returns failure.
-func handleUnsupportedLanguageError(lang string) (int, bool) {
-	fmt.Fprintf(os.Stderr, "Error: unsupported language %q\n", lang)
-	fmt.Fprintf(
-		os.Stderr,
-		"Supported languages: %s\n",
-		strings.Join(getLanguageNames(), ", "),
-	)
-
-	return 0, false
-}
-
-func getLanguageNames() []string {
-	names := make([]string, 0, len(languages.AllLanguages()))
-	for _, lang := range languages.AllLanguages() {
-		names = append(names, string(lang))
-	}
-
-	return names
 }
 
 func validatePaths(
@@ -385,6 +354,7 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 }
 
 func printUsage() {
+	//nolint:forbidigo // CLI help output requires direct stdout writing
 	fmt.Println(`md-go-validator - Validate code blocks in Markdown files
 
 USAGE:

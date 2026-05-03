@@ -13,6 +13,12 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+var (
+	errPathEmpty          = errors.New("path cannot be empty")
+	errPathNullByte       = errors.New("path contains null byte")
+	errNoValidatorForLang = errors.New("no validator available for language")
+)
+
 // FileValidator validates code blocks in markdown files.
 type FileValidator struct {
 	registry    *languages.Registry
@@ -170,7 +176,7 @@ func (v *FileValidator) validateBlock(
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			fmt.Errorf("no validator available for language: %s", block.Language),
+			fmt.Errorf("%w: %s", errNoValidatorForLang, block.Language),
 		)
 	}
 
@@ -227,11 +233,13 @@ func newErrorResultFromBlock(
 	)
 }
 
+// logProgress logs validation progress when verbose mode is enabled.
 func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.Result) {
 	if !v.verbose {
 		return
 	}
 
+	//nolint:forbidigo // Verbose progress output requires direct stdout writing
 	switch result.Status {
 	case types.StatusUnknown:
 		fmt.Printf("  ❓ Block %d (line %s): UNKNOWN\n", i+1, block.LineNumber)
@@ -264,6 +272,7 @@ func (v *FileValidator) ValidateDirectory(
 		return []types.Result{}, nil
 	}
 
+	//nolint:forbidigo // Verbose progress output requires direct stdout writing
 	if v.verbose {
 		fmt.Printf(
 			"📁 Processing %d markdown files with %d workers\n",
@@ -526,12 +535,12 @@ func isMarkdownFile(path string) bool {
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.
 func validateAndCleanPath(path string) (string, error) {
 	if path == "" {
-		return "", errors.New("path cannot be empty")
+		return "", errPathEmpty
 	}
 
 	// Check for null bytes (common attack vector)
 	if strings.Contains(path, "\x00") {
-		return "", errors.New("path contains null byte")
+		return "", errPathNullByte
 	}
 
 	// Clean the path to resolve any ".." or similar path traversal

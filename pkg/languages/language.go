@@ -2,10 +2,13 @@
 package languages
 
 import (
+	"errors"
 	"fmt"
 	"slices"
 	"strings"
 )
+
+var errUnsupportedLang = errors.New("unsupported language")
 
 // Language represents a supported programming language.
 type Language string
@@ -111,5 +114,5 @@ func (l Language) Validate() error {
 		return nil
 	}
 
-	return fmt.Errorf("unsupported language: %s", l)
+	return fmt.Errorf("%w: %s", errUnsupportedLang, l)
 }

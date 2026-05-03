@@ -2,6 +2,7 @@
 package output
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -10,6 +11,8 @@ import (
 	"github.com/larsartmann/go-output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
+
+var errInvalidFormat = errors.New("invalid format")
 
 // Format represents the output format for validation reports.
 type Format = output.Format
@@ -58,7 +61,8 @@ func ParseFormat(s string) (Format, error) {
 		return FormatQuiet, nil
 	default:
 		return "", fmt.Errorf(
-			"invalid format: %q (allowed: table, json, markdown, yaml, csv, quiet)",
+			"%w: %q (allowed: table, json, markdown, yaml, csv, quiet)",
+			errInvalidFormat,
 			s,
 		)
 	}

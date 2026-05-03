@@ -438,7 +438,7 @@ func newErrorResultForFile(fileID string, line, block int, code, errMsg string) 
 		types.NewLineNumber(line),
 		types.NewBlockIndex(block),
 		code,
-		errors.New(errMsg),
+		errors.New(errMsg), //nolint:err113 // Test helper - errMsg is controlled test data
 	)
 }
 

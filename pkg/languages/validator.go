@@ -7,6 +7,8 @@ import (
 	"fmt"
 )
 
+var errValidatorNil = errors.New("validator cannot be nil")
+
 // ErrorCode represents the type of validation error for programmatic handling.
 type ErrorCode uint
 
@@ -86,7 +88,7 @@ func NewRegistry() *Registry {
 // Register adds a validator to the registry.
 func (r *Registry) Register(v Validator) error {
 	if v == nil {
-		return errors.New("validator cannot be nil")
+		return errValidatorNil
 	}
 
 	lang := v.Language()

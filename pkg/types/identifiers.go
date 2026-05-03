@@ -2,7 +2,13 @@ package types
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
+)
+
+var (
+	errFileIDEmpty = errors.New("FileID cannot be empty")
+	errUintMinOne  = errors.New("value must be >= 1, got 0")
 )
 
 // FileID is a branded type representing a file path.
@@ -22,7 +28,7 @@ func (f FileID) String() string {
 // Validate checks if the FileID is non-empty.
 func (f FileID) Validate() error {
 	if f == "" {
-		return errors.New("FileID cannot be empty")
+		return errFileIDEmpty
 	}
 
 	return nil
@@ -39,7 +45,7 @@ func formatUintValue[T ~uint](v T) string {
 
 func validateUintMinOne[T ~uint](v T, typeName string) error {
 	if v == 0 {
-		return errors.New(typeName + " must be >= 1, got 0")
+		return fmt.Errorf("%w: %s", errUintMinOne, typeName)
 	}
 
 	return nil
