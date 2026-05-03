@@ -106,6 +106,8 @@ func testPositiveIntValidator[TP positiveIntValidator](
 	newFunc func(int) TP,
 	_ string,
 ) {
+	t.Helper()
+
 	tests := []struct {
 		value int
 		valid bool
@@ -472,6 +474,8 @@ func testReportDataBoolCase(
 	expected bool,
 	method func(ReportData) bool,
 ) {
+	t.Helper()
+
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 

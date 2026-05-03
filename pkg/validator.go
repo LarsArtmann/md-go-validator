@@ -97,8 +97,9 @@ func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, er
 
 // ValidateFile validates a single markdown file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
-	if err := checkContext(ctx); err != nil {
-		return nil, fmt.Errorf("validate file %s: %w", filePath, err)
+	ctxErr := checkContext(ctx)
+	if ctxErr != nil {
+		return nil, fmt.Errorf("validate file %s: %w", filePath, ctxErr)
 	}
 
 	cleanPath, err := v.validateAndReturnPath("file", filePath)
@@ -106,6 +107,8 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 		return nil, err
 	}
 
+	// Path is already validated and cleaned by validateAndReturnPath
+	//nolint:gosec // G304: Path is validated via validateAndCleanPath before use
 	content, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("reading file %s: %w", filePath, err)

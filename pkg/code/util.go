@@ -2,6 +2,7 @@
 package code
 
 import (
+	"fmt"
 	"go/parser"
 	"go/token"
 	"strings"
@@ -29,6 +30,9 @@ func IndentCode(code string) string {
 // Returns nil on success, or the parse error on failure.
 func ParseGo(fset *token.FileSet, code string) error {
 	_, err := parser.ParseFile(fset, "snippet.go", code, parser.AllErrors)
+	if err != nil {
+		return fmt.Errorf("parse Go code: %w", err)
+	}
 
-	return err
+	return nil
 }

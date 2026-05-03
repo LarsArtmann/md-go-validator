@@ -1,4 +1,3 @@
-// md-go-validator validates Go code blocks in Markdown files.
 package main
 
 import (
@@ -23,6 +22,8 @@ func runParseArgsFieldTest[T comparable](
 	want T,
 	get func(config) T,
 ) {
+	t.Helper()
+
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 
@@ -133,32 +134,32 @@ func TestParseArgsPaths(t *testing.T) {
 		},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			cfg := parseArgs(tt.args)
+			cfg := parseArgs(testCase.args)
 
-			if len(cfg.paths) != len(tt.wantPaths) {
-				t.Errorf("len(paths) = %d, want %d", len(cfg.paths), len(tt.wantPaths))
+			if len(cfg.paths) != len(testCase.wantPaths) {
+				t.Errorf("len(paths) = %d, want %d", len(cfg.paths), len(testCase.wantPaths))
 
 				return
 			}
 
-			for i, p := range cfg.paths {
-				if i >= len(tt.wantPaths) {
+			for idx, pathEntry := range cfg.paths {
+				if idx >= len(testCase.wantPaths) {
 					t.Errorf(
 						"paths[%d] = %q, out of bounds (wantPaths has %d elements)",
-						i,
-						p,
-						len(tt.wantPaths),
+						idx,
+						pathEntry,
+						len(testCase.wantPaths),
 					)
 
 					continue
 				}
 
-				if p != tt.wantPaths[i] {
-					t.Errorf("paths[%d] = %q, want %q", i, p, tt.wantPaths[i])
+				if pathEntry != testCase.wantPaths[idx] {
+					t.Errorf("paths[%d] = %q, want %q", idx, pathEntry, testCase.wantPaths[idx])
 				}
 			}
 		})
@@ -340,7 +341,8 @@ func TestWriteOutputToFile(t *testing.T) {
 		cfg := newTestConfig(outputPath, output.FormatJSON)
 		assertWriteOutputToFile(t, results, cfg)
 
-		if _, statErr := os.Stat(outputPath); os.IsNotExist(statErr) {
+		_, statErr := os.Stat(outputPath)
+		if os.IsNotExist(statErr) {
 			t.Error("output file was not created")
 		}
 	})
@@ -404,17 +406,20 @@ func TestValidatePathsCapacity(t *testing.T) {
 	for i := range 5 {
 		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
 
-		f, err := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
+		//nolint:gosec // G304: Controlled test data in temp directory
+		testFile, err := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
 		if err != nil {
 			t.Fatalf("failed to create test file: %v", err)
 		}
 
-		if _, err := f.Write(content); err != nil {
-			t.Fatalf("failed to write test file: %v", err)
+		_, writeErr := testFile.Write(content)
+		if writeErr != nil {
+			t.Fatalf("failed to write test file: %v", writeErr)
 		}
 
-		if err := f.Close(); err != nil {
-			t.Fatalf("failed to close test file: %v", err)
+		closeErr := testFile.Close()
+		if closeErr != nil {
+			t.Fatalf("failed to close test file: %v", closeErr)
 		}
 	}
 
@@ -468,6 +473,7 @@ func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
 func assertFileContains(t *testing.T, path, substr string) {
 	t.Helper()
 
+	//nolint:gosec // G304: Controlled test data path
 	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("failed to read output file: %v", err)

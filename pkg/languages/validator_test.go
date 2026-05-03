@@ -126,8 +126,8 @@ func TestRegistry_GetByString(t *testing.T) {
 
 func testRegistryLookup[T any](
 	t *testing.T,
-	name string,
-	r *Registry,
+	testName string,
+	_ *Registry,
 	lookup func(T) Validator,
 	tests []struct {
 		name     string
@@ -135,12 +135,14 @@ func testRegistryLookup[T any](
 		expected Validator
 	},
 ) {
+	t.Helper()
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			if got := lookup(tt.key); got != tt.expected {
-				t.Errorf("%s() = %v, want %v", name, got, tt.expected)
+				t.Errorf("%s() = %v, want %v", testName, got, tt.expected)
 			}
 		})
 	}

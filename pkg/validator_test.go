@@ -507,12 +507,12 @@ func assertBlockSkipped(t *testing.T, block types.CodeBlock) {
 	}
 }
 
-func extractAndAssertBlockCount(t *testing.T, content string, expectedCount int) []types.CodeBlock {
+func extractAndAssertBlockCount(t *testing.T, content string, _ int) []types.CodeBlock {
 	t.Helper()
 
 	blocks := ExtractGoCodeBlocks(content)
-	if len(blocks) != expectedCount {
-		t.Fatalf("expected %d block(s), got %d", expectedCount, len(blocks))
+	if len(blocks) != 1 {
+		t.Fatalf("expected 1 block(s), got %d", len(blocks))
 	}
 
 	return blocks
@@ -527,6 +527,8 @@ func extractAndAssertBlockAtLine(t *testing.T, content string, expectedLine int)
 }
 
 func runExtractGoBlockAtLineTest(t *testing.T, name, content string, expectedLine int) {
+	t.Helper()
+
 	t.Run(name, func(t *testing.T) {
 		t.Parallel()
 		extractAndAssertBlockAtLine(t, content, expectedLine)

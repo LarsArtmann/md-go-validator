@@ -30,6 +30,7 @@ type ContextConfig struct {
 
 	// Parent is the parent context for propagation.
 	// If nil, context.Background() is used as base.
+	//nolint:containedctx // Context config intentionally wraps parent context for propagation
 	Parent context.Context
 }
 

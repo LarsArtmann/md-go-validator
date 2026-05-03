@@ -340,14 +340,20 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 		}
 	}()
 
-	if err := output.PrintReportTo(
+	printErr := output.PrintReportTo(
 		file,
 		results,
 		cfg.format,
 		cfg.colorMode,
 		cfg.showCode,
-	); err != nil {
-		return fmt.Errorf("write report (%d results, format=%s): %w", len(results), cfg.format, err)
+	)
+	if printErr != nil {
+		return fmt.Errorf(
+			"write report (%d results, format=%s): %w",
+			len(results),
+			cfg.format,
+			printErr,
+		)
 	}
 
 	return nil
