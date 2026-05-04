@@ -311,7 +311,7 @@ func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 			return nil
 		}
 
-		if isMarkdownFile(path) {
+		if isSupportedFile(path) {
 			files = append(files, path)
 		}
 
@@ -536,7 +536,7 @@ func shouldSkipDir(name string) bool {
 	return false
 }
 
-func isMarkdownFile(path string) bool {
+func isSupportedFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
 	return supportedExtensions[ext]
