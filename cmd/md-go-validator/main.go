@@ -1,4 +1,4 @@
-// md-go-validator validates code blocks in Markdown files.
+// md-go-validator validates code blocks in Markdown and MDX files.
 package main
 
 import (
@@ -361,7 +361,7 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 
 func printUsage() {
 	//nolint:forbidigo // CLI help output requires direct stdout writing
-	fmt.Println(`md-go-validator - Validate code blocks in Markdown files
+	fmt.Println(`md-go-validator - Validate code blocks in Markdown and MDX files
 
 USAGE:
     md-go-validator [OPTIONS] [PATH...]
@@ -401,6 +401,11 @@ SUPPORTED LANGUAGES:
     hcl         HCL/Terraform (requires 'terraform' or 'hclfmt')
     terraform   Alias for HCL
 
+SUPPORTED FILE TYPES:
+    .md        Markdown
+    .markdown  Markdown (alternative extension)
+    .mdx       MDX (Markdown + JSX)
+
 SKIP DIRECTIVES:
     Add these to skip validation of specific code blocks:
     <!-- skip-validate -->
@@ -411,7 +416,7 @@ SKIP DIRECTIVES:
     //nolint
 
 EXAMPLES:
-    md-go-validator .                           # Validate all .md files
+    md-go-validator .                           # Validate all .md and .mdx files
     md-go-validator README.md                   # Validate a specific file
     md-go-validator -v .                        # Verbose output
     md-go-validator -f json .                 # JSON output for CI
