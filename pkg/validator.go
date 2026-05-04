@@ -19,7 +19,14 @@ var (
 	errNoValidatorForLang = errors.New("no validator available for language")
 )
 
-// FileValidator validates code blocks in markdown files.
+// supportedExtensions is the single source of truth for recognized file types.
+var supportedExtensions = map[string]bool{
+	".md":       true,
+	".markdown": true,
+	".mdx":      true,
+}
+
+// FileValidator validates code blocks in markdown and MDX files.
 type FileValidator struct {
 	registry    *languages.Registry
 	verbose     bool
@@ -278,7 +285,7 @@ func (v *FileValidator) ValidateDirectory(
 	//nolint:forbidigo // Verbose progress output requires direct stdout writing
 	if v.verbose {
 		fmt.Printf(
-			"📁 Processing %d markdown files with %d workers\n",
+			"Processing %d files (.md, .mdx) with %d workers\n",
 			len(filePaths),
 			v.concurrency,
 		)
@@ -287,7 +294,7 @@ func (v *FileValidator) ValidateDirectory(
 	return v.processFilesParallel(ctx, filePaths)
 }
 
-// collectMarkdownFiles gathers all markdown files from a directory recursively.
+// collectMarkdownFiles gathers all markdown and MDX files from a directory recursively.
 func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
 	var files []string
 
@@ -532,7 +539,7 @@ func shouldSkipDir(name string) bool {
 func isMarkdownFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
-	return ext == ".md" || ext == ".markdown"
+	return supportedExtensions[ext]
 }
 
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.
