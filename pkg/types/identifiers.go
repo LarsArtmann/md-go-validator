@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	errFileIDEmpty = errors.New("FileID cannot be empty")
-	errUintMinOne  = errors.New("value must be >= 1, got 0")
+	errFileIDEmpty         = errors.New("FileID cannot be empty")
+	errUintMinOne          = errors.New("value must be >= 1, got 0")
+	errUnsupportedFileType = errors.New("unsupported file type")
 )
 
 // FileID is a branded type representing a file path.
@@ -91,6 +92,8 @@ func (l LineNumber) Validate() error {
 
 // FileType is a branded type representing a supported file type.
 // Prevents accidentally mixing file extensions with other strings.
+//
+//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
 type FileType string
 
 // Supported file type constants.
@@ -121,6 +124,31 @@ func (f FileType) IsSupported() bool {
 // AllFileTypes returns all supported file types.
 func AllFileTypes() []FileType {
 	return []FileType{FileTypeMarkdown, FileTypeMarkdownAlt, FileTypeMdx}
+}
+
+// ParseFileType parses a string into a FileType.
+// Returns the FileType and true if recognized, zero value and false otherwise.
+func ParseFileType(s string) (FileType, bool) {
+	ft := FileType(s)
+
+	return ft, ft.IsSupported()
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler for deserialization.
+func (f *FileType) UnmarshalText(text []byte) error {
+	parsed, ok := ParseFileType(string(text))
+	if !ok {
+		return fmt.Errorf("%w: %s", errUnsupportedFileType, string(text))
+	}
+
+	*f = parsed
+
+	return nil
+}
+
+// MarshalText implements encoding.TextMarshaler for serialization.
+func (f FileType) MarshalText() ([]byte, error) {
+	return []byte(f.String()), nil
 }
 
 // BlockIndex is a branded type representing a code block index within a file.

@@ -501,47 +501,108 @@ func testReportDataBoolCase(
 	})
 }
 
-func TestFileType(t *testing.T) {
+func TestFileType_Constants(t *testing.T) {
 	t.Parallel()
 
-	t.Run("constants", func(t *testing.T) {
+	if FileTypeMarkdown.String() != ".md" {
+		t.Errorf("expected .md, got %s", FileTypeMarkdown.String())
+	}
+
+	if FileTypeMarkdownAlt.String() != ".markdown" {
+		t.Errorf("expected .markdown, got %s", FileTypeMarkdownAlt.String())
+	}
+
+	if FileTypeMdx.String() != ".mdx" {
+		t.Errorf("expected .mdx, got %s", FileTypeMdx.String())
+	}
+}
+
+func TestFileType_IsSupported(t *testing.T) {
+	t.Parallel()
+
+	if !FileTypeMarkdown.IsSupported() {
+		t.Error("expected .md to be supported")
+	}
+
+	if !FileTypeMdx.IsSupported() {
+		t.Error("expected .mdx to be supported")
+	}
+
+	if FileType(".txt").IsSupported() {
+		t.Error("expected .txt to not be supported")
+	}
+}
+
+func TestFileType_AllFileTypes(t *testing.T) {
+	t.Parallel()
+
+	all := AllFileTypes()
+	if len(all) != 3 {
+		t.Errorf("expected 3 file types, got %d", len(all))
+	}
+}
+
+func TestFileType_ParseFileType(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid", func(t *testing.T) {
 		t.Parallel()
 
-		if FileTypeMarkdown.String() != ".md" {
-			t.Errorf("expected .md, got %s", FileTypeMarkdown.String())
-		}
-
-		if FileTypeMarkdownAlt.String() != ".markdown" {
-			t.Errorf("expected .markdown, got %s", FileTypeMarkdownAlt.String())
-		}
-
-		if FileTypeMdx.String() != ".mdx" {
-			t.Errorf("expected .mdx, got %s", FileTypeMdx.String())
+		parsed, ok := ParseFileType(".md")
+		if !ok || parsed != FileTypeMarkdown {
+			t.Errorf("expected (.md, true), got (%s, %v)", parsed, ok)
 		}
 	})
 
-	t.Run("IsSupported", func(t *testing.T) {
+	t.Run("invalid", func(t *testing.T) {
 		t.Parallel()
 
-		if !FileTypeMarkdown.IsSupported() {
-			t.Error("expected .md to be supported")
+		parsed, ok := ParseFileType(".txt")
+		if ok {
+			t.Errorf("expected false for .txt, got (%s, %v)", parsed, ok)
+		}
+	})
+}
+
+func TestFileType_MarshalText(t *testing.T) {
+	t.Parallel()
+
+	data, err := FileTypeMarkdown.MarshalText()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if string(data) != ".md" {
+		t.Errorf("expected .md, got %s", string(data))
+	}
+}
+
+func TestFileType_UnmarshalText(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid", func(t *testing.T) {
+		t.Parallel()
+
+		var fileType FileType
+
+		err := fileType.UnmarshalText([]byte(".mdx"))
+		if err != nil {
+			t.Fatal(err)
 		}
 
-		if !FileTypeMdx.IsSupported() {
-			t.Error("expected .mdx to be supported")
-		}
-
-		if FileType(".txt").IsSupported() {
-			t.Error("expected .txt to not be supported")
+		if fileType != FileTypeMdx {
+			t.Errorf("expected .mdx, got %s", fileType)
 		}
 	})
 
-	t.Run("AllFileTypes", func(t *testing.T) {
+	t.Run("invalid", func(t *testing.T) {
 		t.Parallel()
 
-		all := AllFileTypes()
-		if len(all) != 3 {
-			t.Errorf("expected 3 file types, got %d", len(all))
+		var fileType FileType
+
+		err := fileType.UnmarshalText([]byte(".txt"))
+		if err == nil {
+			t.Error("expected error for unsupported file type")
 		}
 	})
 }
