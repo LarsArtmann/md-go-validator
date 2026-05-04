@@ -547,6 +547,27 @@ func shouldSkipDir(name string) bool {
 	return false
 }
 
+// SupportedExtensions returns all supported file extensions in sorted order.
+// These are the extensions that the validator will process.
+func SupportedExtensions() []string {
+	exts := make([]string, 0, len(supportedExtensions))
+	for ext := range supportedExtensions {
+		exts = append(exts, ext)
+	}
+
+	slices.Sort(exts)
+
+	return exts
+}
+
+// IsSupportedFile returns true if the file has a supported extension.
+// Supports .md, .markdown, and .mdx files.
+func IsSupportedFile(path string) bool {
+	ext := strings.ToLower(filepath.Ext(path))
+
+	return supportedExtensions[ext]
+}
+
 func isSupportedFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
@@ -554,12 +575,7 @@ func isSupportedFile(path string) bool {
 }
 
 func formatSupportedExtensions() string {
-	exts := make([]string, 0, len(supportedExtensions))
-	for ext := range supportedExtensions {
-		exts = append(exts, ext)
-	}
-
-	slices.Sort(exts)
+	exts := SupportedExtensions()
 
 	return strings.Join(exts, ", ")
 }

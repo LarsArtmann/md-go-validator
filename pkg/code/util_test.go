@@ -1,9 +1,8 @@
 package code
 
 import (
-	"testing"
-
 	"go/token"
+	"testing"
 )
 
 func TestIndentCode(t *testing.T) {
@@ -63,77 +62,67 @@ func TestIndentCode(t *testing.T) {
 	}
 }
 
-func TestParseGo(t *testing.T) {
-	t.Parallel()
-
-	fset := token.NewFileSet()
-
-	tests := []struct {
-		name    string
-		code    string
-		wantErr bool
+func parseGoValidCases() []struct {
+	name string
+	code string
+} {
+	return []struct {
+		name string
+		code string
 	}{
-		{
-			name:    "valid package",
-			code:    "package main",
-			wantErr: false,
-		},
-		{
-			name:    "valid with imports",
-			code:    "package main\n\nimport \"fmt\"",
-			wantErr: false,
-		},
-		{
-			name:    "valid function",
-			code:    "package main\n\nfunc main() {}",
-			wantErr: false,
-		},
-		{
-			name:    "valid full program",
-			code: `package main
+		{name: "valid package", code: "package main"},
+		{name: "valid with imports", code: "package main\n\nimport \"fmt\""},
+		{name: "valid function", code: "package main\n\nfunc main() {}"},
+		{name: "valid full program", code: `package main
 
 import "fmt"
 
 func main() {
 	fmt.Println("hello")
 }
-`,
-			wantErr: false,
-		},
-		{
-			name:    "valid type declaration",
-			code:    "package main\n\ntype Foo struct {}",
-			wantErr: false,
-		},
-		{
-			name:    "invalid syntax",
-			code:    "package main\n\nfunc {",
-			wantErr: true,
-		},
-		{
-			name:    "invalid - missing paren",
-			code:    "package main\n\nfunc main() {",
-			wantErr: true,
-		},
-		{
-			name:    "invalid - bad import",
-			code:    "import \"fmt\"",
-			wantErr: true,
-		},
-		{
-			name:    "empty string",
-			code:    "",
-			wantErr: true,
-		},
+`},
+		{name: "valid type declaration", code: "package main\n\ntype Foo struct {}"},
 	}
+}
 
-	for _, tt := range tests {
+func parseGoInvalidCases() []struct {
+	name string
+	code string
+} {
+	return []struct {
+		name string
+		code string
+	}{
+		{name: "invalid syntax", code: "package main\n\nfunc {"},
+		{name: "invalid - missing paren", code: "package main\n\nfunc main() {"},
+		{name: "invalid - bad import", code: "import \"fmt\""},
+		{name: "empty string", code: ""},
+	}
+}
+
+func TestParseGo(t *testing.T) {
+	t.Parallel()
+
+	fset := token.NewFileSet()
+
+	for _, tt := range parseGoValidCases() {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			err := ParseGo(fset, tt.code)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ParseGo() error = %v, wantErr %v", err, tt.wantErr)
+			if err != nil {
+				t.Errorf("ParseGo() unexpected error = %v", err)
+			}
+		})
+	}
+
+	for _, tt := range parseGoInvalidCases() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			err := ParseGo(fset, tt.code)
+			if err == nil {
+				t.Error("ParseGo() expected error, got nil")
 			}
 		})
 	}
