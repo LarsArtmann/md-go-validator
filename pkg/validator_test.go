@@ -196,6 +196,34 @@ func main() {
 	testutil.AssertResultCount(t, results, 1)
 }
 
+func TestValidator_ValidateFile_MDX(t *testing.T) {
+	t.Parallel()
+
+	content := []byte(`# Test
+
+` + "```go" + `
+package main
+
+func main() {
+    fmt.Println("hello")
+}
+` + "```" + `
+`)
+
+	tmpDir := t.TempDir()
+	tmpFile := testutil.WriteTestFile(t, tmpDir, "test.mdx", content)
+
+	v := New(false)
+	ctx := context.Background()
+
+	results, err := v.ValidateFile(ctx, tmpFile)
+	if err != nil {
+		t.Fatalf("ValidateFile error: %v", err)
+	}
+
+	testutil.AssertResultCount(t, results, 1)
+}
+
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {
 	t.Parallel()
 
@@ -226,6 +254,27 @@ func TestValidator_ValidateDirectory(t *testing.T) {
 	}
 
 	testutil.AssertResultCount(t, results, 1)
+}
+
+func TestValidator_ValidateDirectory_MDX(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+
+	tmpDir := t.TempDir()
+	testutil.WriteTestFile(t, tmpDir, "test.md", content)
+	testutil.WriteTestFile(t, tmpDir, "doc.mdx", content)
+	testutil.WriteTestFile(t, tmpDir, "test.txt", content)
+
+	v := New(false)
+	ctx := context.Background()
+
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory error: %v", err)
+	}
+
+	testutil.AssertResultCount(t, results, 2)
 }
 
 func TestHasErrors(t *testing.T) {
@@ -455,6 +504,37 @@ func TestValidator_ChainMethods(t *testing.T) {
 
 	if v.concurrency != 3 {
 		t.Errorf("expected concurrency 3, got %d", v.concurrency)
+	}
+}
+
+func TestIsSupportedFile(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		path     string
+		expected bool
+	}{
+		{"README.md", true},
+		{"docs/guide.markdown", true},
+		{"blog/post.mdx", true},
+		{"README.MD", true},
+		{"readme.Mdx", true},
+		{"file.txt", false},
+		{"script.go", false},
+		{"style.css", false},
+		{"Makefile", false},
+		{"noext", false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.path, func(t *testing.T) {
+			t.Parallel()
+
+			got := isSupportedFile(tt.path)
+			if got != tt.expected {
+				t.Errorf("isSupportedFile(%q) = %v, want %v", tt.path, got, tt.expected)
+			}
+		})
 	}
 }
 
