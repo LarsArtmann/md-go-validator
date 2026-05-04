@@ -103,15 +103,11 @@ func (r *Registry) Register(v Validator) error {
 }
 
 // Get returns the validator for a language, or nil if not registered.
-//
-//nolint:ireturn // Registry API returns interface
 func (r *Registry) Get(lang Language) Validator {
 	return r.validators[lang]
 }
 
 // GetByString looks up a validator by language string (e.g., "go", "typescript").
-//
-//nolint:ireturn // Registry API returns interface
 func (r *Registry) GetByString(lang string) Validator {
 	l, ok := ParseLanguage(lang)
 	if !ok {

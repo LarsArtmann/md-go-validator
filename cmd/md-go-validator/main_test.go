@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/languages"
@@ -496,5 +497,209 @@ func assertFileContains(t *testing.T, path, substr string) {
 
 	if !strings.Contains(string(content), substr) {
 		t.Errorf("output file should contain %q, got: %s", substr, string(content))
+	}
+}
+
+func TestParseArgsTimeoutFlag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name        string
+		args        []string
+		wantTimeout time.Duration
+	}{
+		{"short form", []string{"-t", "30s", "."}, 30 * time.Second},
+		{"long form", []string{"--timeout", "5m", "."}, 5 * time.Minute},
+	}
+
+	for _, tt := range tests {
+		runParseArgsFieldTest(
+			t,
+			tt.name,
+			tt.args,
+			tt.wantTimeout,
+			func(cfg config) time.Duration { return cfg.timeout },
+		)
+	}
+}
+
+func TestParseArgsLanguageFlag(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name         string
+		args         []string
+		wantLanguage languages.Language
+	}{
+		{"short go", []string{"-l", "go", "."}, languages.LangGo},
+		{"long typescript", []string{"--language", "typescript", "."}, languages.LangTypeScript},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfg := parseArgs(tt.args)
+			if len(cfg.languages) == 0 {
+				t.Fatal("expected at least one language")
+			}
+
+			if cfg.languages[0] != tt.wantLanguage {
+				t.Errorf("got %s, want %s", cfg.languages[0], tt.wantLanguage)
+			}
+		})
+	}
+}
+
+func TestWriteOutputToFile_AllFormats(t *testing.T) {
+	t.Parallel()
+
+	formats := []struct {
+		name   string
+		format output.Format
+	}{
+		{"table", output.FormatTable},
+		{"json", output.FormatJSON},
+		{"markdown", output.FormatMarkdown},
+		{"yaml", output.FormatYAML},
+		{"csv", output.FormatCSV},
+		{"quiet", output.FormatQuiet},
+	}
+
+	results := []types.Result{
+		newValidResultForFile("test.md", 1, 1, "package main"),
+	}
+
+	for _, tt := range formats {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			tmpDir := t.TempDir()
+			outputPath := filepath.Join(tmpDir, "report."+tt.name)
+			cfg := newTestConfig(outputPath, tt.format)
+
+			err := writeOutputToFile(results, cfg)
+			if err != nil {
+				t.Errorf("format %s: writeOutputToFile error: %v", tt.name, err)
+			}
+
+			_, statErr := os.Stat(outputPath)
+			if statErr != nil {
+				t.Errorf("format %s: output file not created: %v", tt.name, statErr)
+			}
+		})
+	}
+}
+
+func TestUsageHeader(t *testing.T) {
+	t.Parallel()
+
+	h := usageHeader()
+	if !strings.Contains(h, "md-go-validator") {
+		t.Error("expected usage header to contain program name")
+	}
+
+	if !strings.Contains(h, "OPTIONS") {
+		t.Error("expected usage header to contain OPTIONS")
+	}
+}
+
+func TestUsageDetails(t *testing.T) {
+	t.Parallel()
+
+	details := usageDetails()
+
+	sections := []string{
+		"OUTPUT FORMATS",
+		"COLOR MODES",
+		"SUPPORTED LANGUAGES",
+		"SUPPORTED FILE TYPES",
+		"SKIP DIRECTIVES",
+		"EXAMPLES",
+	}
+	for _, section := range sections {
+		if !strings.Contains(details, section) {
+			t.Errorf("expected usage details to contain %q", section)
+		}
+	}
+}
+
+func TestParseLanguagesDirect(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		input   string
+		wantLen int
+		wantErr bool
+	}{
+		{"single go", "go", 1, false},
+		{"multiple", "go,typescript,nix", 3, false},
+		{"with spaces", "go , typescript", 2, false},
+		{"unsupported", "python", 0, true},
+		{"mixed valid invalid", "go,python", 0, true},
+		{"rust alias", "rs", 1, false},
+		{"golang", "golang", 1, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			langs, err := parseLanguages(tt.input)
+			if tt.wantErr {
+				if err == nil {
+					t.Error("expected error")
+				}
+
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+
+			if len(langs) != tt.wantLen {
+				t.Errorf("expected %d languages, got %d", tt.wantLen, len(langs))
+			}
+		})
+	}
+}
+
+func TestParseArgsCombinedFlags(t *testing.T) {
+	t.Parallel()
+
+	args := []string{
+		"-v", "-f", "json",
+		"--color", "never",
+		"-o", "out.json",
+		"-l", "go",
+		"src/",
+	}
+
+	cfg := parseArgs(args)
+
+	if !cfg.verbose {
+		t.Error("expected verbose=true")
+	}
+
+	if cfg.format != output.FormatJSON {
+		t.Errorf("expected format=json, got %s", cfg.format)
+	}
+
+	if cfg.colorMode != output.ColorModeNever {
+		t.Errorf("expected colorMode=never, got %s", cfg.colorMode)
+	}
+
+	if cfg.outputFile != "out.json" {
+		t.Errorf("expected outputFile=out.json, got %s", cfg.outputFile)
+	}
+
+	if len(cfg.languages) != 1 || cfg.languages[0] != languages.LangGo {
+		t.Errorf("expected languages=[go], got %v", cfg.languages)
+	}
+
+	if len(cfg.paths) != 1 || cfg.paths[0] != "src/" {
+		t.Errorf("expected paths=[src/], got %v", cfg.paths)
 	}
 }

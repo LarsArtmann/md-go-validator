@@ -4,7 +4,7 @@ go 1.26.2
 
 require (
 	github.com/larsartmann/go-output v0.2.0
-	github.com/odvcencio/gotreesitter v0.13.4
+	github.com/odvcencio/gotreesitter v0.15.3
 )
 
 require (

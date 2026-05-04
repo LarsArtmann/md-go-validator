@@ -141,6 +141,11 @@ linters:
         - ln
         - bi
         - v1
+  exclusions:
+    rules:
+      - linters:
+          - ireturn
+        text: "returns interface"
 formatters:
   enable:
     - gci

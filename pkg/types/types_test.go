@@ -500,3 +500,145 @@ func testReportDataBoolCase(
 		}
 	})
 }
+
+func TestFileType(t *testing.T) {
+	t.Parallel()
+
+	t.Run("constants", func(t *testing.T) {
+		t.Parallel()
+
+		if FileTypeMarkdown.String() != ".md" {
+			t.Errorf("expected .md, got %s", FileTypeMarkdown.String())
+		}
+
+		if FileTypeMarkdownAlt.String() != ".markdown" {
+			t.Errorf("expected .markdown, got %s", FileTypeMarkdownAlt.String())
+		}
+
+		if FileTypeMdx.String() != ".mdx" {
+			t.Errorf("expected .mdx, got %s", FileTypeMdx.String())
+		}
+	})
+
+	t.Run("IsSupported", func(t *testing.T) {
+		t.Parallel()
+
+		if !FileTypeMarkdown.IsSupported() {
+			t.Error("expected .md to be supported")
+		}
+
+		if !FileTypeMdx.IsSupported() {
+			t.Error("expected .mdx to be supported")
+		}
+
+		if FileType(".txt").IsSupported() {
+			t.Error("expected .txt to not be supported")
+		}
+	})
+
+	t.Run("AllFileTypes", func(t *testing.T) {
+		t.Parallel()
+
+		all := AllFileTypes()
+		if len(all) != 3 {
+			t.Errorf("expected 3 file types, got %d", len(all))
+		}
+	})
+}
+
+func TestNewLineNumber_Negative(t *testing.T) {
+	t.Parallel()
+
+	ln := NewLineNumber(-1)
+	if ln.Int() != 0 {
+		t.Errorf("expected 0 for negative input, got %d", ln.Int())
+	}
+}
+
+func TestNewLineNumberFromUint(t *testing.T) {
+	t.Parallel()
+
+	ln := NewLineNumberFromUint(42)
+	if ln.Int() != 42 {
+		t.Errorf("expected 42, got %d", ln.Int())
+	}
+}
+
+func TestNewBlockIndex_Negative(t *testing.T) {
+	t.Parallel()
+
+	bi := NewBlockIndex(-1)
+	if bi.Int() != 0 {
+		t.Errorf("expected 0 for negative input, got %d", bi.Int())
+	}
+}
+
+func TestNewBlockIndexFromUint(t *testing.T) {
+	t.Parallel()
+
+	bi := NewBlockIndexFromUint(7)
+	if bi.Int() != 7 {
+		t.Errorf("expected 7, got %d", bi.Int())
+	}
+}
+
+func TestValidationStatus_MarshalText(t *testing.T) {
+	t.Parallel()
+
+	data, err := StatusValid.MarshalText()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if string(data) != StatusValid.String() {
+		t.Errorf("expected %q, got %q", StatusValid.String(), string(data))
+	}
+}
+
+func TestResult_String_WithError(t *testing.T) {
+	t.Parallel()
+
+	r := NewErrorResult(
+		NewFileID("test.md"),
+		NewLineNumber(5),
+		NewBlockIndex(1),
+		"code",
+		NewTestError("syntax error"),
+	)
+
+	s := r.String()
+	if s == "" {
+		t.Error("expected non-empty string")
+	}
+}
+
+func TestResult_Summary_WithError(t *testing.T) {
+	t.Parallel()
+
+	r := NewErrorResult(
+		NewFileID("test.md"),
+		NewLineNumber(5),
+		NewBlockIndex(1),
+		"code",
+		NewTestError("syntax error"),
+	)
+
+	summary := r.Summary()
+	if summary == "" {
+		t.Error("expected non-empty summary")
+	}
+}
+
+func TestNewSkippedResultForTest(t *testing.T) {
+	t.Parallel()
+
+	r := NewSkippedResultForTest("test.md", 1, 1, "reason")
+
+	if r.Status != StatusSkipped {
+		t.Errorf("expected StatusSkipped, got %v", r.Status)
+	}
+
+	if r.File.String() != "test.md" {
+		t.Errorf("expected test.md, got %s", r.File)
+	}
+}

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
 	"strings"
 	"sync"
 
@@ -30,10 +29,10 @@ const (
 // supportedExtensions is the single source of truth for recognized file types.
 //
 //nolint:gochecknoglobals // Configuration: immutable runtime-supported extensions
-var supportedExtensions = map[string]bool{
-	".md":       true,
-	".markdown": true,
-	".mdx":      true,
+var supportedExtensions = map[types.FileType]bool{
+	types.FileTypeMarkdown:    true,
+	types.FileTypeMarkdownAlt: true,
+	types.FileTypeMdx:         true,
 }
 
 // FileValidator validates code blocks in markdown and MDX files.
@@ -549,15 +548,8 @@ func shouldSkipDir(name string) bool {
 
 // SupportedExtensions returns all supported file extensions in sorted order.
 // These are the extensions that the validator will process.
-func SupportedExtensions() []string {
-	exts := make([]string, 0, len(supportedExtensions))
-	for ext := range supportedExtensions {
-		exts = append(exts, ext)
-	}
-
-	slices.Sort(exts)
-
-	return exts
+func SupportedExtensions() []types.FileType {
+	return types.AllFileTypes()
 }
 
 // IsSupportedFile returns true if the file has a supported extension.
@@ -565,13 +557,18 @@ func SupportedExtensions() []string {
 func IsSupportedFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
-	return supportedExtensions[ext]
+	return supportedExtensions[types.FileType(ext)]
 }
 
 func formatSupportedExtensions() string {
 	exts := SupportedExtensions()
 
-	return strings.Join(exts, ", ")
+	names := make([]string, len(exts))
+	for i, ext := range exts {
+		names[i] = ext.String()
+	}
+
+	return strings.Join(names, ", ")
 }
 
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.

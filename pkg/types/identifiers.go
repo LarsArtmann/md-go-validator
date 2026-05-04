@@ -89,6 +89,40 @@ func (l LineNumber) Validate() error {
 	return validateUintMinOne(l, "LineNumber")
 }
 
+// FileType is a branded type representing a supported file type.
+// Prevents accidentally mixing file extensions with other strings.
+type FileType string
+
+// Supported file type constants.
+const (
+	// FileTypeMarkdown represents standard Markdown files (.md).
+	FileTypeMarkdown FileType = ".md"
+	// FileTypeMarkdownAlt represents alternative Markdown extension (.markdown).
+	FileTypeMarkdownAlt FileType = ".markdown"
+	// FileTypeMdx represents MDX files (.mdx).
+	FileTypeMdx FileType = ".mdx"
+)
+
+// String returns the underlying string value.
+func (f FileType) String() string {
+	return string(f)
+}
+
+// IsSupported returns true if this FileType is a recognized file type.
+func (f FileType) IsSupported() bool {
+	switch f {
+	case FileTypeMarkdown, FileTypeMarkdownAlt, FileTypeMdx:
+		return true
+	default:
+		return false
+	}
+}
+
+// AllFileTypes returns all supported file types.
+func AllFileTypes() []FileType {
+	return []FileType{FileTypeMarkdown, FileTypeMarkdownAlt, FileTypeMdx}
+}
+
 // BlockIndex is a branded type representing a code block index within a file.
 // Uses uint for natural indexing (blocks start at 1 for user display).
 type BlockIndex uint
