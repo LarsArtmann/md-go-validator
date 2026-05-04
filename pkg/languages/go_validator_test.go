@@ -128,18 +128,6 @@ func TestValidationError_WithCode(t *testing.T) {
 	}
 }
 
-func TestValidationError_Unwrap(t *testing.T) {
-	t.Parallel()
-
-	//nolint:exhaustruct // Intentionally testing partial initialization
-	e := &ValidationError{Message: "test"}
-
-	unwrapped := e.Unwrap()
-	if unwrapped != nil {
-		t.Errorf("expected nil unwrap, got %v", unwrapped)
-	}
-}
-
 func TestTreeSitterValidator_UnavailableLanguage(t *testing.T) {
 	t.Parallel()
 

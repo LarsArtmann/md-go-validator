@@ -78,13 +78,6 @@ func ParseLanguage(lang string) (Language, bool) {
 	}
 }
 
-// IsSupported returns true if the language is supported for validation.
-func IsSupported(lang string) bool {
-	_, ok := ParseLanguage(lang)
-
-	return ok
-}
-
 // Extensions returns common file extensions for the language.
 func (l Language) Extensions() []string {
 	switch l {

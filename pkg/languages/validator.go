@@ -54,11 +54,6 @@ func (e *ValidationError) WithCode(code ErrorCode) *ValidationError {
 	}
 }
 
-// Unwrap returns the wrapped error if any. Implements errors.Unwrap.
-func (e *ValidationError) Unwrap() error {
-	return nil
-}
-
 // Validator validates code for a specific language.
 type Validator interface {
 	// Language returns the language this validator handles.

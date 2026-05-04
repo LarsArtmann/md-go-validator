@@ -66,31 +66,6 @@ func TestParseLanguage(t *testing.T) {
 	}
 }
 
-func TestIsSupported(t *testing.T) {
-	t.Parallel()
-
-	tests := []struct {
-		name     string
-		lang     string
-		expected bool
-	}{
-		{"go", "go", true},
-		{"typescript", "typescript", true},
-		{"python", "python", false},
-		{"", "", false},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			if got := IsSupported(tt.lang); got != tt.expected {
-				t.Errorf("IsSupported() = %v, want %v", got, tt.expected)
-			}
-		})
-	}
-}
-
 func TestLanguage_Extensions(t *testing.T) {
 	t.Parallel()
 
