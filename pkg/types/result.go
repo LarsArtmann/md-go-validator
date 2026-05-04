@@ -8,7 +8,7 @@ import (
 // Result contains the result of validating a single code block.
 // This is the primary output type of the validation process.
 type Result struct {
-	// File is the path to the markdown file being validated.
+	// File is the path to the file being validated.
 	File FileID
 
 	// LineNumber is the 1-based line number where the code block starts.

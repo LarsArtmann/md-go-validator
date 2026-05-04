@@ -2,7 +2,7 @@ package types
 
 import "github.com/larsartmann/md-go-validator/pkg/languages"
 
-// CodeBlock represents a code block extracted from markdown.
+// CodeBlock represents a code block extracted from a markdown or MDX file.
 // This is the internal representation used during extraction.
 type CodeBlock struct {
 	// LineNumber is the 1-based line number where the code block starts.

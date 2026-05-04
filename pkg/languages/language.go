@@ -51,7 +51,7 @@ func AllLanguages() []Language {
 	}
 }
 
-// ParseLanguage parses a language identifier from markdown code block info string.
+// ParseLanguage parses a language identifier from a markdown/MDX code block info string.
 // Returns the language and true if recognized, zero value and false otherwise.
 func ParseLanguage(lang string) (Language, bool) {
 	lang = strings.ToLower(strings.TrimSpace(lang))

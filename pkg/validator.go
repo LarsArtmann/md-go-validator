@@ -103,7 +103,7 @@ func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, er
 	return cleanPath, nil
 }
 
-// ValidateFile validates a single markdown file.
+// ValidateFile validates a single markdown or MDX file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	ctxErr := checkContext(ctx)
 	if ctxErr != nil {
@@ -263,7 +263,7 @@ func (v *FileValidator) logProgress(i int, block types.CodeBlock, result types.R
 	}
 }
 
-// ValidateDirectory validates all markdown files in a directory (recursively).
+// ValidateDirectory validates all supported files (.md, .markdown, .mdx) in a directory (recursively).
 // Uses parallel processing with configurable concurrency for improved performance.
 func (v *FileValidator) ValidateDirectory(
 	ctx context.Context,

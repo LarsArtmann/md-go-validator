@@ -1,4 +1,4 @@
-// Package mdgovalidator validates code blocks in Markdown files.
+// Package mdgovalidator validates code blocks in Markdown and MDX files.
 package mdgovalidator
 
 import (
@@ -9,7 +9,7 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-// SkipDirectivesConfig contains markdown directives to skip validation.
+// SkipDirectivesConfig contains directives to skip validation in markdown/MDX files.
 // This is a configuration list that can be customized before extraction.
 type SkipDirectivesConfig []string
 
@@ -25,14 +25,14 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 	}
 }
 
-// ExtractCodeBlocks extracts code blocks for specified languages from markdown content.
+// ExtractCodeBlocks extracts code blocks for specified languages from markdown/MDX content.
 func ExtractCodeBlocks(content string, langs []languages.Language) []types.CodeBlock {
 	state := newExtractorState(langs)
 
 	return extractWithState(content, state)
 }
 
-// ExtractGoCodeBlocks extracts Go code blocks from markdown content (backwards compatible).
+// ExtractGoCodeBlocks extracts Go code blocks from markdown/MDX content (backwards compatible).
 func ExtractGoCodeBlocks(content string) []types.CodeBlock {
 	return ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
 }
