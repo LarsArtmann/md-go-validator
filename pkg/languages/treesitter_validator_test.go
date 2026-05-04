@@ -8,7 +8,37 @@ import (
 func TestTreeSitterValidator(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	for _, tt := range treeSitterValidatorTests() {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			validator := NewTreeSitterValidator(tt.language, tt.langName)
+
+			if !validator.IsAvailable() {
+				t.Skipf("language %q not available", tt.langName)
+			}
+
+			err := validator.Validate(context.Background(), tt.validCode)
+			if err != nil {
+				t.Errorf("expected valid code to pass, got error: %v", err)
+			}
+
+			err = validator.Validate(context.Background(), tt.invalidCode)
+			if err == nil {
+				t.Error("expected invalid code to fail, got no error")
+			}
+		})
+	}
+}
+
+func treeSitterValidatorTests() []struct {
+	name        string
+	language    Language
+	langName    string
+	validCode   string
+	invalidCode string
+} {
+	return []struct {
 		name        string
 		language    Language
 		langName    string
@@ -50,28 +80,6 @@ func TestTreeSitterValidator(t *testing.T) {
 			validCode:   "package main\ntempl Hello() { <p>Hello</p> }",
 			invalidCode: "package main\ntempl Hello() { <p>Hello",
 		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			validator := NewTreeSitterValidator(tt.language, tt.langName)
-
-			if !validator.IsAvailable() {
-				t.Skipf("language %q not available", tt.langName)
-			}
-
-			err := validator.Validate(context.Background(), tt.validCode)
-			if err != nil {
-				t.Errorf("expected valid code to pass, got error: %v", err)
-			}
-
-			err = validator.Validate(context.Background(), tt.invalidCode)
-			if err == nil {
-				t.Error("expected invalid code to fail, got no error")
-			}
-		})
 	}
 }
 

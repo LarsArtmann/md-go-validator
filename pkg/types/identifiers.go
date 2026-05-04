@@ -35,6 +35,8 @@ func (f FileID) Validate() error {
 }
 
 // Validatable is an interface for types that can be validated.
+//
+//nolint:iface // Mirrors positiveUintValidator constraint in test helpers for type validation
 type Validatable interface {
 	Validate() error
 }

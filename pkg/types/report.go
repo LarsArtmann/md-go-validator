@@ -1,6 +1,3 @@
-// Package types provides data structures for code block validation results.
-//
-
 package types
 
 // ReportData contains aggregated validation results for reporting.

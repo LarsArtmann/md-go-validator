@@ -18,6 +18,13 @@ import (
 
 var errUnsupportedLanguage = errors.New("unsupported language")
 
+// Magic number constants.
+const (
+	resultsCapacityMultiplier = 10
+	defaultDirPermissions     = 0o750
+	defaultFilePermissions    = 0o600
+)
+
 // osExit allows mocking os.Exit in tests.
 //
 //nolint:gochecknoglobals // Required for testing os.Exit behavior
@@ -211,7 +218,7 @@ func parseArgs(args []string) config {
 	return cfg
 }
 
-func returnParseError(name string, err error) {
+func returnParseError(_ string, err error) {
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	printUsage()
 }
@@ -272,7 +279,7 @@ func validatePaths(
 	validator *mdgovalidator.FileValidator,
 	paths []string,
 ) []types.Result {
-	allResults := make([]types.Result, 0, len(paths)*10)
+	allResults := make([]types.Result, 0, len(paths)*resultsCapacityMultiplier)
 
 	for _, path := range paths {
 		results := validatePath(ctx, validator, path)
@@ -320,13 +327,17 @@ func validatePath(
 func writeOutputToFile(results []types.Result, cfg config) error {
 	dir := filepath.Dir(cfg.outputFile)
 	if dir != "" && dir != "." {
-		err := os.MkdirAll(dir, 0o750)
+		err := os.MkdirAll(dir, defaultDirPermissions)
 		if err != nil {
 			return fmt.Errorf("create parent directories (%d results): %w", len(results), err)
 		}
 	}
 
-	file, err := os.OpenFile(cfg.outputFile, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	file, err := os.OpenFile(
+		cfg.outputFile,
+		os.O_CREATE|os.O_WRONLY|os.O_TRUNC,
+		defaultFilePermissions,
+	)
 	if err != nil {
 		return fmt.Errorf("open output file for writing (%d results, path=%s): %w",
 			len(results), cfg.outputFile, err)
@@ -361,7 +372,13 @@ func writeOutputToFile(results []types.Result, cfg config) error {
 
 func printUsage() {
 	//nolint:forbidigo // CLI help output requires direct stdout writing
-	fmt.Println(`md-go-validator - Validate code blocks in Markdown and MDX files
+	fmt.Print(usageHeader())
+	//nolint:forbidigo // CLI help output requires direct stdout writing
+	fmt.Print(usageDetails())
+}
+
+func usageHeader() string {
+	return `md-go-validator - Validate code blocks in Markdown and MDX files
 
 USAGE:
     md-go-validator [OPTIONS] [PATH...]
@@ -378,7 +395,11 @@ OPTIONS:
                       (go, templ, typescript, tsx, nix, rust, hcl, terraform)
     -h, --help        Show this help message
 
-OUTPUT FORMATS:
+`
+}
+
+func usageDetails() string {
+	return `OUTPUT FORMATS:
     table    Terminal table (default)
     json     JSON output (machine-readable)
     markdown Markdown table
@@ -424,5 +445,6 @@ EXAMPLES:
     md-go-validator -l templ,nix .            # Validate Templ and Nix
     md-go-validator --color never .             # Disable colors
     md-go-validator -o report.json -f json .  # Write JSON to file
-    md-go-validator --timeout 30s .           # 30 second timeout`)
+    md-go-validator --timeout 30s .           # 30 second timeout
+`
 }

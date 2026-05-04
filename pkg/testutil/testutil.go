@@ -1,3 +1,4 @@
+// Package testutil provides test utility functions for the md-go-validator package.
 package testutil
 
 import (
@@ -10,12 +11,16 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+// Magic number constants.
+const defaultFilePermissions = 0o600
+
+// WriteTestFile writes test content to a file and returns the path.
 func WriteTestFile(t *testing.T, tmpDir, filename string, content []byte) string {
 	t.Helper()
 
 	path := filepath.Join(tmpDir, filename)
 
-	err := os.WriteFile(path, content, 0o600)
+	err := os.WriteFile(path, content, defaultFilePermissions)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -23,6 +28,7 @@ func WriteTestFile(t *testing.T, tmpDir, filename string, content []byte) string
 	return path
 }
 
+// AssertResultCount fails if the number of results doesn't match the expected count.
 func AssertResultCount(t *testing.T, results []types.Result, expected int) {
 	t.Helper()
 
@@ -31,22 +37,25 @@ func AssertResultCount(t *testing.T, results []types.Result, expected int) {
 	}
 }
 
-func AssertMinResults(t *testing.T, results []types.Result, min int) {
+// AssertMinResults fails if the number of results is less than minVal.
+func AssertMinResults(t *testing.T, results []types.Result, minVal int) {
 	t.Helper()
 
-	if len(results) < min {
-		t.Errorf("expected at least %d results, got %d", min, len(results))
+	if len(results) < minVal {
+		t.Errorf("expected at least %d results, got %d", minVal, len(results))
 	}
 }
 
-func AssertMaxResults(t *testing.T, results []types.Result, max int) {
+// AssertMaxResults fails if the number of results is greater than maxVal.
+func AssertMaxResults(t *testing.T, results []types.Result, maxVal int) {
 	t.Helper()
 
-	if len(results) > max {
-		t.Errorf("expected at most %d results, got %d", max, len(results))
+	if len(results) > maxVal {
+		t.Errorf("expected at most %d results, got %d", maxVal, len(results))
 	}
 }
 
+// AssertBlockCount fails if the number of code blocks doesn't match the expected count.
 func AssertBlockCount(t *testing.T, blocks []types.CodeBlock, expected int) {
 	t.Helper()
 
@@ -64,7 +73,8 @@ func isContextDone(ctx context.Context) bool {
 	}
 }
 
-func AssertContextNotNil(t *testing.T, ctx context.Context) {
+// AssertContextNotNil fails if ctx is nil.
+func AssertContextNotNil(ctx context.Context, t *testing.T) {
 	t.Helper()
 
 	if ctx == nil {
@@ -72,7 +82,8 @@ func AssertContextNotNil(t *testing.T, ctx context.Context) {
 	}
 }
 
-func AssertContextCondition(t *testing.T, ctx context.Context, expectDone bool, msg string) {
+// AssertContextCondition fails if ctx done state doesn't match expectDone.
+func AssertContextCondition(ctx context.Context, t *testing.T, expectDone bool, msg string) {
 	t.Helper()
 
 	done := isContextDone(ctx)
@@ -83,7 +94,8 @@ func AssertContextCondition(t *testing.T, ctx context.Context, expectDone bool, 
 	t.Fatal(msg)
 }
 
-func AssertContextErr(t *testing.T, ctx context.Context, expected error, msg string) {
+// AssertContextErr fails if ctx.Err() != expected.
+func AssertContextErr(ctx context.Context, t *testing.T, expected error, msg string) {
 	t.Helper()
 
 	done := isContextDone(ctx)
@@ -96,6 +108,7 @@ func AssertContextErr(t *testing.T, ctx context.Context, expected error, msg str
 	}
 }
 
+// AssertZeroValue fails if got != expected.
 func AssertZeroValue[T comparable](t *testing.T, name string, got, expected T) {
 	t.Helper()
 

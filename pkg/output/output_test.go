@@ -81,82 +81,89 @@ func TestParseColorMode(t *testing.T) {
 func TestBuildReportData(t *testing.T) {
 	t.Parallel()
 
-	t.Run("empty results", func(t *testing.T) {
-		t.Parallel()
+	t.Run("empty results", testBuildReportDataEmpty)
+	t.Run("all valid", testBuildReportDataAllValid)
+	t.Run("with skipped", testBuildReportDataSkipped)
+	t.Run("with errors", testBuildReportDataErrors)
+	t.Run("show code", testBuildReportDataShowCode)
+	t.Run("hide code", testBuildReportDataHideCode)
+}
 
-		results := []types.Result{}
-		report := types.BuildReportData(results, false)
+func testBuildReportDataEmpty(t *testing.T) {
+	t.Parallel()
 
-		types.AssertReportTotalAndValid(t, &report, 0, 0)
-	})
+	results := []types.Result{}
+	report := types.BuildReportData(results, false)
 
-	t.Run("all valid", func(t *testing.T) {
-		t.Parallel()
+	types.AssertReportTotalAndValid(t, &report, 0, 0)
+}
 
-		results := []types.Result{
-			newValidResultWithCode("a.md", 1, 1, ""),
-			newValidResultWithCode("b.md", 2, 1, ""),
-		}
-		report := types.BuildReportData(results, false)
+func testBuildReportDataAllValid(t *testing.T) {
+	t.Parallel()
 
-		types.AssertReportSummary(t, &report, 2, 2, 0, 0)
-	})
+	results := []types.Result{
+		newValidResultWithCode("a.md", 1, 1, ""),
+		newValidResultWithCode("b.md", 2, 1, ""),
+	}
+	report := types.BuildReportData(results, false)
 
-	t.Run("with skipped", func(t *testing.T) {
-		t.Parallel()
+	types.AssertReportSummary(t, &report, 2, 2, 0, 0)
+}
 
-		results := []types.Result{
-			newSkippedResultWithReason("a.md", 1, 1, ""),
-			newValidResultWithCode("b.md", 2, 1, ""),
-		}
-		report := types.BuildReportData(results, false)
+func testBuildReportDataSkipped(t *testing.T) {
+	t.Parallel()
 
-		types.AssertReportSummary(t, &report, 2, 1, 0, 1)
-	})
+	results := []types.Result{
+		newSkippedResultWithReason("a.md", 1, 1, ""),
+		newValidResultWithCode("b.md", 2, 1, ""),
+	}
+	report := types.BuildReportData(results, false)
 
-	t.Run("with errors", func(t *testing.T) {
-		t.Parallel()
+	types.AssertReportSummary(t, &report, 2, 1, 0, 1)
+}
 
-		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("a.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"",
-				types.NewTestError("syntax error"),
-			),
-			newValidResultWithCode("b.md", 2, 1, ""),
-		}
-		report := types.BuildReportData(results, false)
+func testBuildReportDataErrors(t *testing.T) {
+	t.Parallel()
 
-		types.AssertReportSummary(t, &report, 2, 1, 1, 0)
+	results := []types.Result{
+		types.NewErrorResult(
+			types.NewFileID("a.md"),
+			types.NewLineNumber(1),
+			types.NewBlockIndex(1),
+			"",
+			types.NewTestError("syntax error"),
+		),
+		newValidResultWithCode("b.md", 2, 1, ""),
+	}
+	report := types.BuildReportData(results, false)
 
-		if len(report.Errors) != 1 {
-			t.Errorf("expected 1 error entry, got %d", len(report.Errors))
-		}
+	types.AssertReportSummary(t, &report, 2, 1, 1, 0)
 
-		if report.Errors[0].Error != "syntax error" {
-			t.Errorf("expected error message 'syntax error', got %q", report.Errors[0].Error)
-		}
-	})
+	if len(report.Errors) != 1 {
+		t.Errorf("expected 1 error entry, got %d", len(report.Errors))
+	}
 
-	t.Run("show code", func(t *testing.T) {
-		t.Parallel()
+	if report.Errors[0].Error != "syntax error" {
+		t.Errorf("expected error message 'syntax error', got %q", report.Errors[0].Error)
+	}
+}
 
-		results := []types.Result{newErrorResultWithCode("package main")}
-		report := types.BuildReportData(results, true)
+func testBuildReportDataShowCode(t *testing.T) {
+	t.Parallel()
 
-		types.AssertSingleErrorWithCode(t, &report, "package main")
-	})
+	results := []types.Result{newErrorResultWithCode("package main")}
+	report := types.BuildReportData(results, true)
 
-	t.Run("hide code", func(t *testing.T) {
-		t.Parallel()
+	types.AssertSingleErrorWithCode(t, &report, "package main")
+}
 
-		results := []types.Result{newErrorResultWithCode("package main")}
-		report := types.BuildReportData(results, false)
+func testBuildReportDataHideCode(t *testing.T) {
+	t.Parallel()
 
-		types.AssertSingleErrorWithCode(t, &report, "")
-	})
+	results := []types.Result{newErrorResultWithCode("package main")}
+	report := types.BuildReportData(results, false)
+
+	types.AssertSingleErrorWithCode(t, &report, "")
 }
 
 func TestTruncateCode(t *testing.T) {
@@ -195,89 +202,104 @@ func TestTruncateCode(t *testing.T) {
 func TestPrintReport(t *testing.T) {
 	t.Parallel()
 
-	t.Run("JSON format", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatJSON, ColorModeNever, false)
-	})
+	t.Run("JSON format", testPrintReportJSON)
+	t.Run("Markdown format", testPrintReportMarkdown)
+	t.Run("Markdown format with errors", testPrintReportMarkdownErrors)
+	t.Run("YAML format", testPrintReportYAML)
+	t.Run("CSV format", testPrintReportCSV)
+	t.Run("CSV format with error", testPrintReportCSVError)
+	t.Run("Quiet format with no errors", testPrintReportQuietNoErrors)
+	t.Run("Quiet format with errors", testPrintReportQuietErrors)
+	t.Run("Table format", testPrintReportTable)
+	t.Run("Table format with errors", testPrintReportTableErrors)
+	t.Run("Table format with color", testPrintReportTableColor)
+	t.Run("Table format with no errors", testPrintReportTableNoErrors)
+	t.Run("Table format empty results", testPrintReportTableEmpty)
+	t.Run("default format", testPrintReportDefault)
+}
 
-	t.Run("Markdown format", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatMarkdown, ColorModeNever, false)
-	})
+func testPrintReportJSON(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatJSON, ColorModeNever, false)
+}
 
-	t.Run("Markdown format with errors", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportWithErrors(t, FormatMarkdown, "bad code")
-	})
+func testPrintReportMarkdown(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatMarkdown, ColorModeNever, false)
+}
 
-	t.Run("YAML format", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatYAML, ColorModeNever, false)
-	})
+func testPrintReportMarkdownErrors(t *testing.T) {
+	t.Parallel()
+	assertPrintReportWithErrors(t, FormatMarkdown, "bad code")
+}
 
-	t.Run("CSV format", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatCSV, ColorModeNever, false)
-		assertPrintReportValid(t, FormatCSV, ColorModeNever, true)
-	})
+func testPrintReportYAML(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatYAML, ColorModeNever, false)
+}
 
-	t.Run("CSV format with error", func(t *testing.T) {
-		t.Parallel()
+func testPrintReportCSV(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatCSV, ColorModeNever, false)
+	assertPrintReportValid(t, FormatCSV, ColorModeNever, true)
+}
 
-		results := []types.Result{newErrorResultWithCode("bad code")}
-		PrintReport(results, FormatCSV, ColorModeNever, true)
-	})
+func testPrintReportCSVError(t *testing.T) {
+	t.Parallel()
 
-	t.Run("Quiet format with no errors", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatQuiet, ColorModeNever, false)
-	})
+	results := []types.Result{newErrorResultWithCode("bad code")}
+	PrintReport(results, FormatCSV, ColorModeNever, true)
+}
 
-	t.Run("Quiet format with errors", func(t *testing.T) {
-		t.Parallel()
+func testPrintReportQuietNoErrors(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatQuiet, ColorModeNever, false)
+}
 
-		results := []types.Result{newErrorResultWithCode("bad code")}
-		PrintReport(results, FormatQuiet, ColorModeNever, false)
-	})
+func testPrintReportQuietErrors(t *testing.T) {
+	t.Parallel()
 
-	t.Run("Table format", func(t *testing.T) {
-		t.Parallel()
+	results := []types.Result{newErrorResultWithCode("bad code")}
+	PrintReport(results, FormatQuiet, ColorModeNever, false)
+}
 
-		results := []types.Result{
-			newValidResultWithCode("a.md", 1, 1, "package main"),
-			newSkippedResultWithReason("b.md", 2, 1, "// skip"),
-		}
-		PrintReport(results, FormatTable, ColorModeNever, false)
-	})
+func testPrintReportTable(t *testing.T) {
+	t.Parallel()
 
-	t.Run("Table format with errors", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportWithErrors(t, FormatTable, "bad\ncode")
-	})
+	results := []types.Result{
+		newValidResultWithCode("a.md", 1, 1, "package main"),
+		newSkippedResultWithReason("b.md", 2, 1, "// skip"),
+	}
+	PrintReport(results, FormatTable, ColorModeNever, false)
+}
 
-	t.Run("Table format with color", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportValid(t, FormatTable, ColorModeAlways, false)
-	})
+func testPrintReportTableErrors(t *testing.T) {
+	t.Parallel()
+	assertPrintReportWithErrors(t, FormatTable, "bad\ncode")
+}
 
-	t.Run("Table format with no errors", func(t *testing.T) {
-		t.Parallel()
+func testPrintReportTableColor(t *testing.T) {
+	t.Parallel()
+	assertPrintReportValid(t, FormatTable, ColorModeAlways, false)
+}
 
-		results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
-		PrintReport(results, FormatTable, ColorModeNever, false)
-	})
+func testPrintReportTableNoErrors(t *testing.T) {
+	t.Parallel()
 
-	t.Run("Table format empty results", func(t *testing.T) {
-		t.Parallel()
+	results := []types.Result{newValidResultWithCode("a.md", 1, 1, "package main")}
+	PrintReport(results, FormatTable, ColorModeNever, false)
+}
 
-		results := []types.Result{}
-		PrintReport(results, FormatTable, ColorModeNever, false)
-	})
+func testPrintReportTableEmpty(t *testing.T) {
+	t.Parallel()
 
-	t.Run("default format", func(t *testing.T) {
-		t.Parallel()
-		assertPrintReportTable(t, "a.md", 1, 1, "package main")
-	})
+	results := []types.Result{}
+	PrintReport(results, FormatTable, ColorModeNever, false)
+}
+
+func testPrintReportDefault(t *testing.T) {
+	t.Parallel()
+	assertPrintReportTable(t, "a.md", 1, 1, "package main")
 }
 
 func newValidResultWithCode(fileID string, lineNumber, blockIndex int, code string) types.Result {

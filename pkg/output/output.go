@@ -12,6 +12,12 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+// Magic number constants.
+const (
+	maxCodePreviewLength = 50
+	minTruncateLength    = 3
+)
+
 var errInvalidFormat = errors.New("invalid format")
 
 // Format represents the output format for validation reports.
@@ -132,7 +138,7 @@ func printMarkdownTo(w io.Writer, results []types.Result, showCode bool) error {
 			_, _ = fmt.Fprintln(w, "|------|------|-------|-------|------|")
 
 			for _, e := range report.Errors {
-				code := truncateCode(e.Code, 50)
+				code := truncateCode(e.Code, maxCodePreviewLength)
 				_, _ = fmt.Fprintf(w, "| %s | %s | %s | %s | %s |\n",
 					e.File, e.Line, e.Block, e.Error, code)
 			}
@@ -373,7 +379,7 @@ func truncateCode(code string, maxLen uint) string {
 		return code
 	}
 
-	if maxLen <= 3 {
+	if maxLen <= minTruncateLength {
 		return "..."
 	}
 	// maxLen > 3 and len(code) > maxLen, so this is safe

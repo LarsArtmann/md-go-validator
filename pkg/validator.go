@@ -20,7 +20,16 @@ var (
 	errNoValidatorForLang = errors.New("no validator available for language")
 )
 
+// Magic number constants.
+const (
+	defaultConcurrency = 4
+	codePreviewLength  = 30
+	goroutineCount     = 2
+)
+
 // supportedExtensions is the single source of truth for recognized file types.
+//
+//nolint:gochecknoglobals // Configuration: immutable runtime-supported extensions
 var supportedExtensions = map[string]bool{
 	".md":       true,
 	".markdown": true,
@@ -44,7 +53,7 @@ func New(verbose bool) *FileValidator {
 		verbose:     verbose,
 		maxFiles:    0,
 		maxBlocks:   0,
-		concurrency: 4,
+		concurrency: defaultConcurrency,
 		targetLangs: []languages.Language{languages.LangGo},
 	}
 }
@@ -230,8 +239,8 @@ func newErrorResultFromBlock(
 	err error,
 ) types.Result {
 	codePreview := block.Code
-	if len(codePreview) > 30 {
-		codePreview = codePreview[:30] + "..."
+	if len(codePreview) > codePreviewLength {
+		codePreview = codePreview[:codePreviewLength] + "..."
 	}
 
 	return types.NewErrorResult(
@@ -511,7 +520,7 @@ func (v *FileValidator) collectResultsLoop(
 	collector *resultCollector,
 ) {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(goroutineCount)
 
 	go collectFromChan(ctx, results, &wg, collector.addResult)
 

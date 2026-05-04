@@ -69,7 +69,7 @@ func TestLineNumber(t *testing.T) {
 
 	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		testPositiveIntValidator(t, "LineNumber", NewLineNumber, "LineNumber must be >= 1")
+		testPositiveUintValidator(t, "LineNumber", NewLineNumber, "LineNumber must be >= 1")
 	})
 }
 
@@ -91,16 +91,18 @@ func TestBlockIndex(t *testing.T) {
 
 	t.Run("Validate", func(t *testing.T) {
 		t.Parallel()
-		testPositiveIntValidator(t, "BlockIndex", NewBlockIndex, "BlockIndex must be >= 1")
+		testPositiveUintValidator(t, "BlockIndex", NewBlockIndex, "BlockIndex must be >= 1")
 	})
 }
 
-// positiveIntValidator is a constraint for types with a Validate method.
-type positiveIntValidator interface {
+// positiveUintValidator is a constraint for uint-based types with a Validate method.
+//
+//nolint:iface // Generic constraint intentionally mirrors Validatable for test helper
+type positiveUintValidator interface {
 	Validate() error
 }
 
-func testPositiveIntValidator[TP positiveIntValidator](
+func testPositiveUintValidator[TP positiveUintValidator](
 	t *testing.T,
 	name string,
 	newFunc func(int) TP,
@@ -138,76 +140,80 @@ func testPositiveIntValidator[TP positiveIntValidator](
 func TestValidationStatus(t *testing.T) {
 	t.Parallel()
 
-	t.Run("String", func(t *testing.T) {
-		t.Parallel()
+	t.Run("String", testValidationStatusString)
+	t.Run("IsTerminal", testValidationStatusIsTerminal)
+	t.Run("ParseValidationStatus", testParseValidationStatus)
+}
 
-		tests := []struct {
-			status   ValidationStatus
-			expected string
-		}{
-			{StatusUnknown, "unknown"},
-			{StatusValid, "valid"},
-			{StatusSkipped, "skipped"},
-			{StatusError, "error"},
-			{ValidationStatus(99), "unknown"},
+func testValidationStatusString(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		status   ValidationStatus
+		expected string
+	}{
+		{StatusUnknown, "unknown"},
+		{StatusValid, "valid"},
+		{StatusSkipped, "skipped"},
+		{StatusError, "error"},
+		{ValidationStatus(99), "unknown"},
+	}
+	for _, tc := range tests {
+		if got := tc.status.String(); got != tc.expected {
+			t.Errorf("Status %d: expected %q, got %q", tc.status, tc.expected, got)
 		}
-		for _, tc := range tests {
-			if got := tc.status.String(); got != tc.expected {
-				t.Errorf("Status %d: expected %q, got %q", tc.status, tc.expected, got)
-			}
+	}
+}
+
+func testValidationStatusIsTerminal(t *testing.T) {
+	t.Parallel()
+
+	if !StatusValid.IsTerminal() {
+		t.Error("StatusValid should be terminal")
+	}
+
+	if !StatusSkipped.IsTerminal() {
+		t.Error("StatusSkipped should be terminal")
+	}
+
+	if !StatusError.IsTerminal() {
+		t.Error("StatusError should be terminal")
+	}
+
+	if StatusUnknown.IsTerminal() {
+		t.Error("StatusUnknown should not be terminal")
+	}
+}
+
+func testParseValidationStatus(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		input    string
+		expected ValidationStatus
+		ok       bool
+	}{
+		{"valid", StatusValid, true},
+		{"skipped", StatusSkipped, true},
+		{"error", StatusError, true},
+		{"invalid", StatusUnknown, false},
+		{"", StatusUnknown, false},
+	}
+	for _, tc := range tests {
+		got, ok := ParseValidationStatus(tc.input)
+		if ok != tc.ok {
+			t.Errorf("ParseValidationStatus(%q): expected ok=%v, got %v", tc.input, tc.ok, ok)
 		}
-	})
 
-	t.Run("IsTerminal", func(t *testing.T) {
-		t.Parallel()
-
-		if !StatusValid.IsTerminal() {
-			t.Error("StatusValid should be terminal")
+		if got != tc.expected {
+			t.Errorf(
+				"ParseValidationStatus(%q): expected %v, got %v",
+				tc.input,
+				tc.expected,
+				got,
+			)
 		}
-
-		if !StatusSkipped.IsTerminal() {
-			t.Error("StatusSkipped should be terminal")
-		}
-
-		if !StatusError.IsTerminal() {
-			t.Error("StatusError should be terminal")
-		}
-
-		if StatusUnknown.IsTerminal() {
-			t.Error("StatusUnknown should not be terminal")
-		}
-	})
-
-	t.Run("ParseValidationStatus", func(t *testing.T) {
-		t.Parallel()
-
-		tests := []struct {
-			input    string
-			expected ValidationStatus
-			ok       bool
-		}{
-			{"valid", StatusValid, true},
-			{"skipped", StatusSkipped, true},
-			{"error", StatusError, true},
-			{"invalid", StatusUnknown, false},
-			{"", StatusUnknown, false},
-		}
-		for _, tc := range tests {
-			got, ok := ParseValidationStatus(tc.input)
-			if ok != tc.ok {
-				t.Errorf("ParseValidationStatus(%q): expected ok=%v, got %v", tc.input, tc.ok, ok)
-			}
-
-			if got != tc.expected {
-				t.Errorf(
-					"ParseValidationStatus(%q): expected %v, got %v",
-					tc.input,
-					tc.expected,
-					got,
-				)
-			}
-		}
-	})
+	}
 }
 
 func TestCodeBlock(t *testing.T) {
@@ -289,76 +295,82 @@ func TestCodeBlockMarkMethods(t *testing.T) {
 func TestResult(t *testing.T) {
 	t.Parallel()
 
-	t.Run("NewValidResult", func(t *testing.T) {
-		t.Parallel()
+	t.Run("NewValidResult", testResultValid)
+	t.Run("NewSkippedResult", testResultSkipped)
+	t.Run("NewErrorResult", testResultError)
+	t.Run("String", testResultString)
+	t.Run("Summary", testResultSummary)
+}
 
-		r := newTestResult(StatusValid)
-		if r.File != NewFileID("test.md") {
-			t.Errorf("expected FileID test.md, got %v", r.File)
-		}
+func testResultValid(t *testing.T) {
+	t.Parallel()
 
-		if r.Status != StatusValid {
-			t.Errorf("expected StatusValid, got %v", r.Status)
-		}
-	})
+	r := newTestResult(StatusValid)
+	if r.File != NewFileID("test.md") {
+		t.Errorf("expected FileID test.md, got %v", r.File)
+	}
 
-	t.Run("NewSkippedResult", func(t *testing.T) {
-		t.Parallel()
+	if r.Status != StatusValid {
+		t.Errorf("expected StatusValid, got %v", r.Status)
+	}
+}
 
-		r := NewResultWithStatus(
-			NewFileID("test.md"),
-			NewLineNumber(5),
-			NewBlockIndex(1),
-			"skip me",
-			StatusSkipped,
-		)
-		if r.Status != StatusSkipped {
-			t.Errorf("expected StatusSkipped, got %v", r.Status)
-		}
-	})
+func testResultSkipped(t *testing.T) {
+	t.Parallel()
 
-	t.Run("NewErrorResult", func(t *testing.T) {
-		t.Parallel()
+	r := NewResultWithStatus(
+		NewFileID("test.md"),
+		NewLineNumber(5),
+		NewBlockIndex(1),
+		"skip me",
+		StatusSkipped,
+	)
+	if r.Status != StatusSkipped {
+		t.Errorf("expected StatusSkipped, got %v", r.Status)
+	}
+}
 
-		err := NewTestError("syntax error")
+func testResultError(t *testing.T) {
+	t.Parallel()
 
-		r := NewErrorResult(
-			NewFileID("test.md"),
-			NewLineNumber(5),
-			NewBlockIndex(1),
-			"invalid",
-			err,
-		)
-		if r.Status != StatusError {
-			t.Errorf("expected StatusError, got %v", r.Status)
-		}
+	err := NewTestError("syntax error")
 
-		if !r.HasError() {
-			t.Error("expected HasError() to return true")
-		}
-	})
+	r := NewErrorResult(
+		NewFileID("test.md"),
+		NewLineNumber(5),
+		NewBlockIndex(1),
+		"invalid",
+		err,
+	)
+	if r.Status != StatusError {
+		t.Errorf("expected StatusError, got %v", r.Status)
+	}
 
-	t.Run("String", func(t *testing.T) {
-		t.Parallel()
+	if !r.HasError() {
+		t.Error("expected HasError() to return true")
+	}
+}
 
-		r := newTestResult(StatusValid)
+func testResultString(t *testing.T) {
+	t.Parallel()
 
-		s := r.String()
-		if s != "test.md:5 (block #1): valid" {
-			t.Errorf("unexpected string: %q", s)
-		}
-	})
+	r := newTestResult(StatusValid)
 
-	t.Run("Summary", func(t *testing.T) {
-		t.Parallel()
+	s := r.String()
+	if s != "test.md:5 (block #1): valid" {
+		t.Errorf("unexpected string: %q", s)
+	}
+}
 
-		r := newTestResult(StatusValid)
+func testResultSummary(t *testing.T) {
+	t.Parallel()
 
-		summary := r.Summary()
-		if summary == "" {
-			t.Error("expected non-empty summary")
-		}
-	})
+	r := newTestResult(StatusValid)
+
+	summary := r.Summary()
+	if summary == "" {
+		t.Error("expected non-empty summary")
+	}
 }
 
 func TestBuildReportData(t *testing.T) {

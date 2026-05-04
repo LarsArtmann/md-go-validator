@@ -107,7 +107,6 @@ linters:
     - tagliatelle
     - testableexamples
     - testifylint
-    - testpackage
     - thelper
     - tparallel
     - unconvert
@@ -122,6 +121,26 @@ linters:
     - wrapcheck
     - wsl_v5
     - zerologlint
+  settings:
+    funlen:
+      lines: 60
+      statements: 40
+    varnamelen:
+      ignore-names:
+        - w
+        - r
+        - v
+        - e
+        - s
+        - i
+        - fn
+        - wg
+        - ok
+        - tt
+        - tc
+        - ln
+        - bi
+        - v1
 formatters:
   enable:
     - gci

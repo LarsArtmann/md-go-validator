@@ -67,7 +67,7 @@ func TestContextConfigWithMaxBlocksPerFile(t *testing.T) {
 func TestContextConfigWithMaxLimits(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	testCases := []struct {
 		name              string
 		setMax            func(ContextConfig) ContextConfig
 		getMax            func(ContextConfig) int
@@ -90,14 +90,19 @@ func TestContextConfigWithMaxLimits(t *testing.T) {
 		},
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
 			t.Parallel()
 
-			cfg := tc.setMax(DefaultContextConfig())
+			cfg := testCase.setMax(DefaultContextConfig())
 
-			if got := tc.getMax(cfg); got != tc.expected {
-				t.Errorf("expected %s %d, got %d", tc.expectedFieldName, tc.expected, got)
+			if got := testCase.getMax(cfg); got != testCase.expected {
+				t.Errorf(
+					"expected %s %d, got %d",
+					testCase.expectedFieldName,
+					testCase.expected,
+					got,
+				)
 			}
 		})
 	}
@@ -122,8 +127,8 @@ func TestContextConfigBuild(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	testutil.AssertContextNotNil(t, ctx)
-	testutil.AssertContextCondition(t, ctx, false, "context should not be done immediately")
+	testutil.AssertContextNotNil(ctx, t)
+	testutil.AssertContextCondition(ctx, t, false, "context should not be done immediately")
 }
 
 func TestContextConfigBuildWithParent(t *testing.T) {
@@ -137,13 +142,12 @@ func TestContextConfigBuildWithParent(t *testing.T) {
 	ctx, cancel := cfg.Build()
 	defer cancel()
 
-	testutil.AssertContextNotNil(t, ctx)
+	testutil.AssertContextNotNil(ctx, t)
 
 	parentCancel()
 
 	testutil.AssertContextErr(
-		t,
-		ctx,
+		ctx, t,
 		context.Canceled,
 		"context should be done after parent is cancelled",
 	)
@@ -160,8 +164,7 @@ func TestContextConfigBuildTimeout(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	testutil.AssertContextErr(
-		t,
-		ctx,
+		ctx, t,
 		context.DeadlineExceeded,
 		"context should be done after timeout",
 	)
@@ -175,8 +178,8 @@ func TestContextConfigBranch(t *testing.T) {
 	ctx, cancel := cfg.Branch()
 	defer cancel()
 
-	testutil.AssertContextNotNil(t, ctx)
-	testutil.AssertContextCondition(t, ctx, false, "branch should not be done immediately")
+	testutil.AssertContextNotNil(ctx, t)
+	testutil.AssertContextCondition(ctx, t, false, "branch should not be done immediately")
 }
 
 func TestContextConfigBranchWithTimeout(t *testing.T) {
@@ -190,8 +193,7 @@ func TestContextConfigBranchWithTimeout(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	testutil.AssertContextErr(
-		t,
-		ctx,
+		ctx, t,
 		context.DeadlineExceeded,
 		"context should be done after timeout",
 	)
@@ -209,8 +211,7 @@ func TestContextConfigBranchWithDeadline(t *testing.T) {
 	time.Sleep(20 * time.Millisecond)
 
 	testutil.AssertContextErr(
-		t,
-		ctx,
+		ctx, t,
 		context.DeadlineExceeded,
 		"context should be done after deadline",
 	)
@@ -230,8 +231,7 @@ func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	time.Sleep(70 * time.Millisecond)
 
 	testutil.AssertContextErr(
-		t,
-		ctx,
+		ctx, t,
 		context.DeadlineExceeded,
 		"context should be done after deadline",
 	)
