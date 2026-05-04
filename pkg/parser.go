@@ -1,54 +1,19 @@
 package mdgovalidator
 
 import (
+	"context"
 	"fmt"
-	"go/token"
 
-	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 // ValidateGoCode validates Go code using multiple parsing strategies.
 // It tries various approaches to handle partial code snippets commonly
 // found in documentation.
 func ValidateGoCode(code string) error {
-	fset := token.NewFileSet()
-
-	// Strategy 1: Try parsing as a complete file
-	if codeutil.ParseGo(fset, code) == nil {
-		return nil
-	}
-
-	// Strategy 2: Try wrapping in a package main declaration
-	wrapped := "package main\n\n" + code
-	if codeutil.ParseGo(fset, wrapped) == nil {
-		return nil
-	}
-
-	// Strategy 3: Try wrapping in package main with func main
-	// For code that looks like statements
-	indented := codeutil.IndentCode(code)
-
-	wrappedFunc := "package main\n\nfunc main() {\n" + indented + "\n}"
-	if codeutil.ParseGo(fset, wrappedFunc) == nil {
-		return nil
-	}
-
-	// Strategy 4: Try as expression in a function
-	exprCode := "package main\n\nfunc _() {\n_ = " + code + "\n}"
-	if codeutil.ParseGo(fset, exprCode) == nil {
-		return nil
-	}
-
-	// Strategy 5: Try as multiple statements
-	stmtCode := "package main\n\nfunc _() {\n" + indented + "\n}"
-	if codeutil.ParseGo(fset, stmtCode) == nil {
-		return nil
-	}
-
-	// All strategies failed - return the original error for reporting
-	originalErr := codeutil.ParseGo(fset, code)
-	if originalErr != nil {
-		return fmt.Errorf("operation on %q failed: %w", code, originalErr)
+	err := (&languages.GoValidator{}).Validate(context.Background(), code)
+	if err != nil {
+		return fmt.Errorf("validate go code: %w", err)
 	}
 
 	return nil
