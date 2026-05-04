@@ -536,14 +536,18 @@ func (v *FileValidator) withInt(field *int, value int) *FileValidator {
 }
 
 func shouldSkipDir(name string) bool {
-	skipDirs := []string{".", "node_modules", "vendor", "build", "dist"}
-	for _, skip := range skipDirs {
-		if strings.HasPrefix(name, ".") || name == skip {
-			return true
-		}
+	if strings.HasPrefix(name, ".") {
+		return true
 	}
 
-	return false
+	skipDirs := map[string]bool{
+		"node_modules": true,
+		"vendor":       true,
+		"build":        true,
+		"dist":         true,
+	}
+
+	return skipDirs[name]
 }
 
 // SupportedExtensions returns all supported file extensions in sorted order.
