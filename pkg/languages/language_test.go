@@ -158,11 +158,35 @@ func TestAllLanguages(t *testing.T) {
 		t.Error("AllLanguages() returned empty slice")
 	}
 
-	// Check that all languages are valid
 	for _, lang := range langs {
 		err := lang.Validate()
 		if err != nil {
 			t.Errorf("Language %q failed validation: %v", lang, err)
 		}
+	}
+}
+
+func TestLanguage_IsSupported(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name     string
+		lang     Language
+		expected bool
+	}{
+		{"Go", LangGo, true},
+		{"Rust", LangRust, true},
+		{"Unknown", Language("python"), false},
+		{"Empty", Language(""), false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := tt.lang.IsSupported(); got != tt.expected {
+				t.Errorf("IsSupported() = %v, want %v", got, tt.expected)
+			}
+		})
 	}
 }

@@ -109,9 +109,14 @@ func (l Language) Extensions() []string {
 
 // Validate checks if the language identifier is valid.
 func (l Language) Validate() error {
-	if slices.Contains(AllLanguages(), l) {
+	if l.IsSupported() {
 		return nil
 	}
 
 	return fmt.Errorf("%w: %s", errUnsupportedLang, l)
+}
+
+// IsSupported returns true if this language is a recognized, supported language.
+func (l Language) IsSupported() bool {
+	return slices.Contains(AllLanguages(), l)
 }

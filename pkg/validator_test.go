@@ -10,6 +10,7 @@ import (
 	"time"
 
 	codeutil "github.com/larsartmann/md-go-validator/pkg/code"
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
@@ -613,4 +614,69 @@ func runExtractGoBlockAtLineTest(t *testing.T, name, content string, expectedLin
 		t.Parallel()
 		extractAndAssertBlockAtLine(t, content, expectedLine)
 	})
+}
+
+func TestValidator_WithLanguages(t *testing.T) {
+	t.Parallel()
+
+	v := New(false).WithLanguages([]languages.Language{languages.LangGo})
+
+	if len(v.targetLangs) != 1 || v.targetLangs[0] != languages.LangGo {
+		t.Errorf("expected [go], got %v", v.targetLangs)
+	}
+}
+
+func TestValidator_WithRegistry(t *testing.T) {
+	t.Parallel()
+
+	customReg := languages.NewRegistry()
+
+	v := New(false).WithRegistry(customReg)
+
+	if v.registry != customReg {
+		t.Error("expected custom registry to be set")
+	}
+}
+
+func TestSupportedExtensions(t *testing.T) {
+	t.Parallel()
+
+	exts := SupportedExtensions()
+
+	if len(exts) != 3 {
+		t.Fatalf("expected 3 extensions, got %d", len(exts))
+	}
+
+	expected := map[string]bool{".md": true, ".markdown": true, ".mdx": true}
+	for _, ext := range exts {
+		if !expected[ext.String()] {
+			t.Errorf("unexpected extension: %s", ext)
+		}
+	}
+}
+
+func TestExtractCodeBlocksWithConfig(t *testing.T) {
+	t.Parallel()
+
+	content := "```go\nfmt.Println(\"hello\")\n```\n"
+	customConfig := SkipDirectivesConfig{"// custom-skip"}
+
+	blocks := ExtractCodeBlocksWithConfig(
+		content,
+		[]languages.Language{languages.LangGo},
+		customConfig,
+	)
+	testutil.AssertBlockCount(t, blocks, 1)
+}
+
+func TestHasErrors_NoErrors(t *testing.T) {
+	t.Parallel()
+
+	results := []types.Result{
+		newValidResult(validResultSpec{fileID: "test.md", line: 1, block: 1, code: "package main"}),
+	}
+
+	if HasErrors(results) {
+		t.Error("expected no errors")
+	}
 }
