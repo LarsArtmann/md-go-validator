@@ -148,17 +148,18 @@ This handles:
 - Variable declarations
 - Individual expressions
 
-### External Language Validators
+### Tree-Sitter Language Validators
 
-For other languages, the tool uses external CLI tools:
+For other languages, the tool uses [gotreesitter](https://github.com/odvcencio/gotreesitter) — a pure Go tree-sitter binding embedded in the binary. No external CLI tools required:
 
-- **TypeScript**: `tsc --noEmit --allowJs`
-- **Rust**: `rustc --emit=metadata --crate-type lib`
-- **Nix**: `nix-instantiate --parse`
-- **HCL**: `terraform fmt -check`
-- **Templ**: `templ fmt -stdin`
+- **TypeScript** — tree-sitter parser
+- **TSX** — tree-sitter parser
+- **Rust** — tree-sitter parser
+- **Nix** — tree-sitter parser
+- **HCL/Terraform** — tree-sitter parser
+- **Templ** — tree-sitter parser
 
-These validators gracefully skip if the required tool is not installed.
+All parsers are compiled into the binary — no external dependencies needed.
 
 ## Output Formats
 
@@ -272,7 +273,6 @@ registry.Register(&MyLanguageValidator{})
 
 ## Future Enhancements
 
-- **Tree-sitter integration** - Pure Go parsing without external dependencies
 - **More languages** - Python, Java, C/C++, etc.
 - **Custom validators** - User-defined validation rules
 - **Fix suggestions** - Auto-fix common syntax errors
