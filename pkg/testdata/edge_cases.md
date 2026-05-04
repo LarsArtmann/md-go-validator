@@ -3,12 +3,13 @@
 Empty code block:
 
 ```go
+
 ```
 
 Whitespace only:
 
 ```go
-   
+
 ```
 
 No language specified:

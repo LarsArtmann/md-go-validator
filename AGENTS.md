@@ -55,6 +55,7 @@ goreleaser release
 ### pkg/types/
 
 Branded types for type safety:
+
 - `FileID(string)`, `LineNumber(uint)`, `BlockIndex(uint)`, `FileType(string)`
 - `ValidationStatus` — enum: unknown/valid/skipped/error
 - `CodeBlock`, `Result`, `ReportData`, `ErrorEntry`
@@ -124,14 +125,14 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 
 ## Coverage
 
-| Package | Coverage |
-|---------|----------|
-| pkg | 84.6% |
-| pkg/code | 100% |
-| pkg/languages | 92.5% |
-| pkg/output | 91.5% |
-| pkg/types | 92.8% |
-| cmd | 70.9% |
+| Package       | Coverage |
+| ------------- | -------- |
+| pkg           | 84.6%    |
+| pkg/code      | 100%     |
+| pkg/languages | 92.5%    |
+| pkg/output    | 91.5%    |
+| pkg/types     | 92.8%    |
+| cmd           | 70.9%    |
 
 ## Release
 
