@@ -1,7 +1,16 @@
 package types
 
+import (
+	"errors"
+	"fmt"
+)
+
+var errUnsupportedStatus = errors.New("unsupported validation status")
+
 // ValidationStatus represents the validation status of a code block.
 // Uses explicit enum instead of boolean for clarity.
+//
+//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
 type ValidationStatus uint
 
 // Validation status constants.
@@ -36,6 +45,18 @@ func (s ValidationStatus) IsTerminal() bool {
 // MarshalText implements encoding.TextMarshaler for JSON/YAML serialization.
 func (s ValidationStatus) MarshalText() ([]byte, error) {
 	return []byte(s.String()), nil
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler for JSON/YAML deserialization.
+func (s *ValidationStatus) UnmarshalText(text []byte) error {
+	parsed, ok := ParseValidationStatus(string(text))
+	if !ok {
+		return fmt.Errorf("%w: %s", errUnsupportedStatus, string(text))
+	}
+
+	*s = parsed
+
+	return nil
 }
 
 // ParseValidationStatus parses a string into ValidationStatus.

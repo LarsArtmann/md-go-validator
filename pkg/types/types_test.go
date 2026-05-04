@@ -656,6 +656,36 @@ func TestValidationStatus_MarshalText(t *testing.T) {
 	}
 }
 
+func TestValidationStatus_UnmarshalText(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid", func(t *testing.T) {
+		t.Parallel()
+
+		var status ValidationStatus
+
+		err := status.UnmarshalText([]byte("skipped"))
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		if status != StatusSkipped {
+			t.Errorf("expected skipped, got %s", status)
+		}
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		t.Parallel()
+
+		var status ValidationStatus
+
+		err := status.UnmarshalText([]byte("bogus"))
+		if err == nil {
+			t.Error("expected error for invalid status")
+		}
+	})
+}
+
 func TestResult_String_WithError(t *testing.T) {
 	t.Parallel()
 
