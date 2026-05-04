@@ -581,21 +581,11 @@ func validateAndCleanPath(path string) (string, error) {
 		return "", errPathEmpty
 	}
 
-	// Check for null bytes (common attack vector)
 	if strings.Contains(path, "\x00") {
 		return "", errPathNullByte
 	}
 
-	// Clean the path to resolve any ".." or similar path traversal
-	cleanPath := filepath.Clean(path)
-
-	// Ensure the path is not absolute when we don't expect it
-	// For security, we allow both but validate the cleaned path
-	if !filepath.IsAbs(cleanPath) && !strings.HasPrefix(cleanPath, "..") {
-		return cleanPath, nil
-	}
-
-	return cleanPath, nil
+	return filepath.Clean(path), nil
 }
 
 // HasErrors returns true if any results have errors (excluding skipped).
