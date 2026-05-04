@@ -2,10 +2,8 @@ module github.com/larsartmann/md-go-validator
 
 go 1.26.2
 
-replace github.com/larsartmann/go-output => ../go-output
-
 require (
-	github.com/larsartmann/go-output v0.0.0-00010101000000-000000000000
+	github.com/larsartmann/go-output v0.2.0
 	github.com/odvcencio/gotreesitter v0.13.4
 )
 
