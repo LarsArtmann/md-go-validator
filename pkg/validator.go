@@ -273,7 +273,7 @@ func (v *FileValidator) ValidateDirectory(
 		return nil, err
 	}
 
-	filePaths, err := v.collectMarkdownFiles(cleanPath)
+	filePaths, err := v.collectSupportedFiles(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("collecting files from %s: %w", cleanPath, err)
 	}
@@ -294,8 +294,8 @@ func (v *FileValidator) ValidateDirectory(
 	return v.processFilesParallel(ctx, filePaths)
 }
 
-// collectMarkdownFiles gathers all markdown and MDX files from a directory recursively.
-func (v *FileValidator) collectMarkdownFiles(dirPath string) ([]string, error) {
+// collectSupportedFiles gathers all supported files (markdown and MDX) from a directory recursively.
+func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) {
 	var files []string
 
 	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
