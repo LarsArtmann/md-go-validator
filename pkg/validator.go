@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 
@@ -285,8 +286,9 @@ func (v *FileValidator) ValidateDirectory(
 	//nolint:forbidigo // Verbose progress output requires direct stdout writing
 	if v.verbose {
 		fmt.Printf(
-			"Processing %d files (.md, .mdx) with %d workers\n",
+			"Processing %d files (%s) with %d workers\n",
 			len(filePaths),
+			formatSupportedExtensions(),
 			v.concurrency,
 		)
 	}
@@ -540,6 +542,17 @@ func isSupportedFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
 	return supportedExtensions[ext]
+}
+
+func formatSupportedExtensions() string {
+	exts := make([]string, 0, len(supportedExtensions))
+	for ext := range supportedExtensions {
+		exts = append(exts, ext)
+	}
+
+	slices.Sort(exts)
+
+	return strings.Join(exts, ", ")
 }
 
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.
