@@ -1,8 +1,10 @@
 # md-go-validator
 
-A CLI tool and Go library that validates code blocks in Markdown files.
+A CLI tool and Go library that validates code blocks in Markdown and MDX files.
 
 Ensures code examples in your documentation are syntactically valid. Uses multiple parsing strategies to handle partial code snippets (imports, type declarations, function bodies) commonly found in technical documentation.
+
+Supports `.md`, `.markdown`, and `.mdx` files.
 
 - **CLI tool** - Validate entire documentation repositories
 - **Go library** - Integrate validation into your own tools

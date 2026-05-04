@@ -210,6 +210,21 @@ func TestValidatePath(t *testing.T) {
 
 		testutil.AssertResultCount(t, results, 1)
 	})
+
+	t.Run("directory with MDX files", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		content := []byte("```go\npackage main\n```\n")
+		testutil.WriteTestFile(t, tmpDir, "test.md", content)
+		testutil.WriteTestFile(t, tmpDir, "doc.mdx", content)
+		testutil.WriteTestFile(t, tmpDir, "test.txt", content)
+
+		validator := mdgovalidator.New(false)
+		results := validatePath(context.Background(), validator, tmpDir)
+
+		testutil.AssertResultCount(t, results, 2)
+	})
 }
 
 func TestValidatePaths(t *testing.T) {

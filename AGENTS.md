@@ -2,7 +2,7 @@
 
 ## Overview
 
-A Go tool that validates Go code blocks embedded in Markdown documentation files.
+A Go tool that validates code blocks embedded in Markdown and MDX documentation files.
 Uses multiple parsing strategies to handle partial code snippets commonly found in technical documentation.
 
 ## Tech Stack

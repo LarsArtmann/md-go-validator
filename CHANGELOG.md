@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- MDX file support (`.mdx` files are now scanned alongside `.md` and `.markdown`)
 - Multi-format output support (JSON, YAML, Markdown, CSV, Table, Quiet)
 - `--format` / `-f` flag for output format selection
 - `--color` flag for color mode control (auto, always, never)
