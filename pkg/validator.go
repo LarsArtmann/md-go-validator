@@ -322,7 +322,7 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 			return nil
 		}
 
-		if isSupportedFile(path) {
+		if IsSupportedFile(path) {
 			files = append(files, path)
 		}
 
@@ -563,12 +563,6 @@ func SupportedExtensions() []string {
 // IsSupportedFile returns true if the file has a supported extension.
 // Supports .md, .markdown, and .mdx files.
 func IsSupportedFile(path string) bool {
-	ext := strings.ToLower(filepath.Ext(path))
-
-	return supportedExtensions[ext]
-}
-
-func isSupportedFile(path string) bool {
 	ext := strings.ToLower(filepath.Ext(path))
 
 	return supportedExtensions[ext]

@@ -530,9 +530,9 @@ func TestIsSupportedFile(t *testing.T) {
 		t.Run(tt.path, func(t *testing.T) {
 			t.Parallel()
 
-			got := isSupportedFile(tt.path)
+			got := IsSupportedFile(tt.path)
 			if got != tt.expected {
-				t.Errorf("isSupportedFile(%q) = %v, want %v", tt.path, got, tt.expected)
+				t.Errorf("IsSupportedFile(%q) = %v, want %v", tt.path, got, tt.expected)
 			}
 		})
 	}
