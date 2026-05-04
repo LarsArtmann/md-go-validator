@@ -247,12 +247,7 @@ func listArgHandler[T any](
 	parser func(string) ([]T, error),
 	setter func(*config, []T),
 ) argHandler {
-	return singleValueArgHandler(flagName, wrapListParser(parser), setter)
-}
-
-// wrapListParser wraps a list parser to return a single-element slice.
-func wrapListParser[T any](parser func(string) ([]T, error)) func(string) ([]T, error) {
-	return parser
+	return singleValueArgHandler(flagName, parser, setter)
 }
 
 // parseLanguages parses a comma-separated string of language names.
