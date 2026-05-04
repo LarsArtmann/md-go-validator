@@ -8,7 +8,8 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 ## Tech Stack
 
 - Go 1.26+
-- Pure stdlib (no external dependencies)
+- [gotreesitter](https://github.com/odvcencio/gotreesitter) — pure Go tree-sitter for multi-language parsing
+- [go-output](https://github.com/larsartmann/go-output) — multi-format output (JSON, YAML, CSV, table)
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
 
