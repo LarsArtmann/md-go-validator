@@ -85,6 +85,7 @@ sboms:
 
 brews:
   - name: md-go-validator
+    skip_upload: auto
     homepage: "https://github.com/LarsArtmann/md-go-validator"
     description: "Markdown validation tool for Go projects"
     license: MIT
@@ -102,6 +103,7 @@ brews:
 
 nix:
   - name: md-go-validator
+    skip_upload: auto
     repository:
       owner: LarsArtmann
       name: nur-packages
@@ -129,6 +131,7 @@ nfpms:
 
 scoops:
   - name: md-go-validator
+    skip_upload: auto
     repository:
       owner: LarsArtmann
       name: homebrew-tap
