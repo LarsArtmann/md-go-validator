@@ -5,6 +5,10 @@ import (
 	"testing"
 )
 
+const (
+	testSyntaxError = "syntax error"
+)
+
 // MockValidator is a mock validator for testing.
 type MockValidator struct {
 	lang      Language

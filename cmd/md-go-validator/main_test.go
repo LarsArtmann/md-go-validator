@@ -16,6 +16,20 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+const (
+	testShortForm      = "short form"
+	testLongForm       = "long form"
+	testReadmeFile     = "README.md"
+	testFormatJSON     = "json"
+	testFormatTable    = "table"
+	testFormatMarkdown = "markdown"
+	testFormatYAML     = "yaml"
+	testFormatCSV      = "csv"
+	testFormatQuiet    = "quiet"
+	testFlagColor      = "--color"
+	testColorModeNever = "never"
+)
+
 func runParseArgsFieldTest[T comparable](
 	t *testing.T,
 	name string,
@@ -70,8 +84,8 @@ func TestParseArgsVerboseFlag(t *testing.T) {
 		name string
 		args []string
 	}{
-		{"short form", []string{"-v", "."}},
-		{"long form", []string{"--verbose", "."}},
+		{testShortForm, []string{"-v", "."}},
+		{testLongForm, []string{"--verbose", "."}},
 	}
 
 	for _, tt := range tests {
@@ -120,12 +134,12 @@ func TestParseArgsPaths(t *testing.T) {
 	}{
 		{
 			name:      "single file",
-			args:      []string{"README.md"},
-			wantPaths: []string{"README.md"},
+			args:      []string{testReadmeFile},
+			wantPaths: []string{testReadmeFile},
 		},
 		{
 			name:      "multiple paths",
-			args:      []string{"docs/", "README.md", "CHANGELOG.md"},
+			args:      []string{"docs/", testReadmeFile, "CHANGELOG.md"},
 			wantPaths: []string{"docs/", "README.md", "CHANGELOG.md"},
 		},
 		{
@@ -270,15 +284,15 @@ func TestParseArgsFormatFlag(t *testing.T) {
 		args       []string
 		wantFormat output.Format
 	}{
-		{"json short", []string{"-f", "json", "."}, output.FormatJSON},
-		{"json long", []string{"--format", "json", "."}, output.FormatJSON},
-		{"table", []string{"-f", "table", "."}, output.FormatTable},
-		{"markdown", []string{"-f", "markdown", "."}, output.FormatMarkdown},
+		{"json short", []string{"-f", testFormatJSON, "."}, output.FormatJSON},
+		{"json long", []string{"--format", testFormatJSON, "."}, output.FormatJSON},
+		{testFormatTable, []string{"-f", testFormatTable, "."}, output.FormatTable},
+		{testFormatMarkdown, []string{"-f", testFormatMarkdown, "."}, output.FormatMarkdown},
 		{"markdown alias md", []string{"-f", "md", "."}, output.FormatMarkdown},
-		{"yaml", []string{"-f", "yaml", "."}, output.FormatYAML},
+		{"yaml", []string{"-f", testFormatYAML, "."}, output.FormatYAML},
 		{"yaml alias yml", []string{"-f", "yml", "."}, output.FormatYAML},
-		{"csv", []string{"-f", "csv", "."}, output.FormatCSV},
-		{"quiet", []string{"-f", "quiet", "."}, output.FormatQuiet},
+		{"csv", []string{"-f", testFormatCSV, "."}, output.FormatCSV},
+		{testFormatQuiet, []string{"-f", testFormatQuiet, "."}, output.FormatQuiet},
 		{"quiet alias q", []string{"-f", "q", "."}, output.FormatQuiet},
 	}
 
@@ -301,9 +315,13 @@ func TestParseArgsColorFlag(t *testing.T) {
 		args          []string
 		wantColorMode output.ColorMode
 	}{
-		{"always", []string{"--color", "always", "."}, output.ColorModeAlways},
-		{"never", []string{"--color", "never", "."}, output.ColorModeNever},
-		{"auto", []string{"--color", "auto", "."}, output.ColorModeAuto},
+		{"always", []string{testFlagColor, "always", "."}, output.ColorModeAlways},
+		{
+			testColorModeNever,
+			[]string{testFlagColor, testColorModeNever, "."},
+			output.ColorModeNever,
+		},
+		{"auto", []string{testFlagColor, "auto", "."}, output.ColorModeAuto},
 	}
 
 	for _, tt := range tests {

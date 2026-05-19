@@ -4,6 +4,21 @@ import (
 	"testing"
 )
 
+const (
+	testLangGo          = "Go"
+	testLangTempl       = "Templ"
+	testLangTypeScript  = "TypeScript"
+	testLangNix         = "Nix"
+	testLangRust        = "Rust"
+	testLangHCL         = "HCL"
+	testLangUnknown     = "Unknown"
+	testInputTempl      = "templ"
+	testInputTypeScript = "typescript"
+	testInputNix        = "nix"
+	testInputRust       = "rust"
+	testInputHCL        = "hcl"
+)
+
 func TestLanguage_String(t *testing.T) {
 	t.Parallel()
 
@@ -12,12 +27,12 @@ func TestLanguage_String(t *testing.T) {
 		value    Language
 		expected string
 	}{
-		{"Go", LangGo, "go"},
-		{"Templ", LangTempl, "templ"},
-		{"TypeScript", LangTypeScript, "typescript"},
-		{"Nix", LangNix, "nix"},
-		{"Rust", LangRust, "rust"},
-		{"HCL", LangHCL, "hcl"},
+		{testLangGo, LangGo, "go"},
+		{testLangTempl, LangTempl, string(LangTempl)},
+		{testLangTypeScript, LangTypeScript, string(LangTypeScript)},
+		{testLangNix, LangNix, string(LangNix)},
+		{testLangRust, LangRust, string(LangRust)},
+		{testLangHCL, LangHCL, string(LangHCL)},
 	}, func(l Language) string { return l.String() })
 }
 
@@ -33,16 +48,16 @@ func TestParseLanguage(t *testing.T) {
 		{"go lowercase", "go", LangGo, true},
 		{"Go uppercase", "Go", LangGo, true},
 		{"golang", "golang", LangGo, true},
-		{"templ", "templ", LangTempl, true},
-		{"typescript", "typescript", LangTypeScript, true},
-		{"ts", "ts", LangTypeScript, true},
-		{"tsx", "tsx", LangTSX, true},
-		{"nix", "nix", LangNix, true},
-		{"rust", "rust", LangRust, true},
-		{"rs", "rs", LangRust, true},
-		{"hcl", "hcl", LangHCL, true},
-		{"terraform", "terraform", LangTerraform, true},
-		{"tf", "tf", LangTerraform, true},
+		{testInputTempl, string(LangTempl), LangTempl, true},
+		{testInputTypeScript, string(LangTypeScript), LangTypeScript, true},
+		{"ts", string(LangTSX), LangTSX, true},
+		{"tsx", string(LangTSX), LangTSX, true},
+		{testInputNix, string(LangNix), LangNix, true},
+		{testInputRust, string(LangRust), LangRust, true},
+		{"rs", string(LangRust), LangRust, true},
+		{testInputHCL, string(LangHCL), LangHCL, true},
+		{"terraform", string(LangTerraform), LangTerraform, true},
+		{"tf", string(LangTerraform), LangTerraform, true},
 		{"unknown", "python", "", false},
 		{"empty", "", "", false},
 		{"whitespace", "  go  ", LangGo, true},
@@ -74,10 +89,10 @@ func TestLanguage_Extensions(t *testing.T) {
 		lang     Language
 		expected []string
 	}{
-		{"Go", LangGo, []string{".go"}},
-		{"TypeScript", LangTypeScript, []string{".ts"}},
-		{"Rust", LangRust, []string{".rs"}},
-		{"Unknown", Language("unknown"), nil},
+		{testLangGo, LangGo, []string{".go"}},
+		{testLangTypeScript, LangTypeScript, []string{".ts"}},
+		{testLangRust, LangRust, []string{".rs"}},
+		{testLangUnknown, Language("unknown"), nil},
 	}
 
 	for _, tt := range tests {
