@@ -124,22 +124,22 @@ func newArgHandlers() map[string]argHandler {
 	languagesHandler := languagesArgHandler()
 
 	return map[string]argHandler{
-		"-v":           verboseHandler,
-		flagVerbose:    verboseHandler,
-		"-q":           quietHandler,
-		flagQuiet:      quietHandler,
-		flagNoCode:     noCodeHandler,
-		"-f":           formatHandler,
-		flagFormat:     formatHandler,
-		flagColor:      colorHandler,
-		"-o":           outputHandler,
-		flagOutput:     outputHandler,
-		"-t":           timeoutHandler,
-		flagTimeout:    timeoutHandler,
-		"-l":           languagesHandler,
-		"--language":   languagesHandler,
-		"-h":           handleHelp,
-		"--help":       handleHelp,
+		"-v":         verboseHandler,
+		flagVerbose:  verboseHandler,
+		"-q":         quietHandler,
+		flagQuiet:    quietHandler,
+		flagNoCode:   noCodeHandler,
+		"-f":         formatHandler,
+		flagFormat:   formatHandler,
+		flagColor:    colorHandler,
+		"-o":         outputHandler,
+		flagOutput:   outputHandler,
+		"-t":         timeoutHandler,
+		flagTimeout:  timeoutHandler,
+		"-l":         languagesHandler,
+		"--language": languagesHandler,
+		"-h":         handleHelp,
+		"--help":     handleHelp,
 	}
 }
 
