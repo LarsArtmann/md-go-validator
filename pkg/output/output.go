@@ -18,6 +18,16 @@ const (
 	minTruncateLength    = 3
 )
 
+// Format string constants for parsing.
+const (
+	formatStrTable    = "table"
+	formatStrJSON     = "json"
+	formatStrMarkdown = "markdown"
+	formatStrYAML     = "yaml"
+	formatStrCSV      = "csv"
+	formatStrQuiet    = "quiet"
+)
+
 var errInvalidFormat = errors.New("invalid format")
 
 // Format represents the output format for validation reports.
@@ -53,17 +63,17 @@ type ColorMode = output.ColorMode
 // ParseFormat converts a string format name to a Format.
 func ParseFormat(s string) (Format, error) {
 	switch s {
-	case "table":
+	case formatStrTable:
 		return FormatTable, nil
-	case "json":
+	case formatStrJSON:
 		return FormatJSON, nil
-	case "markdown", "md":
+	case formatStrMarkdown, "md":
 		return FormatMarkdown, nil
-	case "yaml", "yml":
+	case formatStrYAML, "yml":
 		return FormatYAML, nil
-	case "csv":
+	case formatStrCSV:
 		return FormatCSV, nil
-	case "quiet", "q":
+	case formatStrQuiet, "q":
 		return FormatQuiet, nil
 	default:
 		return "", fmt.Errorf(

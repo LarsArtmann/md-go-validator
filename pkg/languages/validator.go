@@ -186,13 +186,13 @@ func DefaultRegistry() *Registry {
 		lang Language
 		name string
 	}{
-		{LangRust, "rust"},
-		{LangTypeScript, "typescript"},
-		{LangTSX, "tsx"},
-		{LangNix, "nix"},
-		{LangHCL, "hcl"},
-		{LangTerraform, "terraform"},
-		{LangTempl, "templ"},
+		{LangRust, string(LangRust)},
+		{LangTypeScript, string(LangTypeScript)},
+		{LangTSX, string(LangTSX)},
+		{LangNix, string(LangNix)},
+		{LangHCL, string(LangHCL)},
+		{LangTerraform, string(LangTerraform)},
+		{LangTempl, string(LangTempl)},
 	}
 
 	for _, v := range treeSitterValidators {

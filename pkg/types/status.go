@@ -21,19 +21,27 @@ const (
 	StatusError
 )
 
+// String representations for status values.
+const (
+	statusStrUnknown = "unknown"
+	statusStrValid   = "valid"
+	statusStrSkipped = "skipped"
+	statusStrError   = "error"
+)
+
 // String returns the string representation of the status.
 func (s ValidationStatus) String() string {
 	switch s {
 	case StatusUnknown:
-		return "unknown"
+		return statusStrUnknown
 	case StatusValid:
-		return "valid"
+		return statusStrValid
 	case StatusSkipped:
-		return "skipped"
+		return statusStrSkipped
 	case StatusError:
-		return "error"
+		return statusStrError
 	default:
-		return "unknown"
+		return statusStrUnknown
 	}
 }
 
@@ -62,11 +70,11 @@ func (s *ValidationStatus) UnmarshalText(text []byte) error {
 // ParseValidationStatus parses a string into ValidationStatus.
 func ParseValidationStatus(s string) (ValidationStatus, bool) {
 	switch s {
-	case "valid":
+	case statusStrValid:
 		return StatusValid, true
-	case "skipped":
+	case statusStrSkipped:
 		return StatusSkipped, true
-	case "error":
+	case statusStrError:
 		return StatusError, true
 	default:
 		return StatusUnknown, false

@@ -25,6 +25,17 @@ const (
 	defaultFilePermissions    = 0o600
 )
 
+// Flag name constants.
+const (
+	flagQuiet   = "--quiet"
+	flagNoCode  = "--no-code"
+	flagColor   = "--color"
+	flagVerbose = "--verbose"
+	flagFormat  = "--format"
+	flagOutput  = "--output"
+	flagTimeout = "--timeout"
+)
+
 // osExit allows mocking os.Exit in tests.
 //
 //nolint:gochecknoglobals // Required for testing os.Exit behavior
@@ -113,22 +124,22 @@ func newArgHandlers() map[string]argHandler {
 	languagesHandler := languagesArgHandler()
 
 	return map[string]argHandler{
-		"-v":         verboseHandler,
-		"--verbose":  verboseHandler,
-		"-q":         quietHandler,
-		"--quiet":    quietHandler,
-		"--no-code":  noCodeHandler,
-		"-f":         formatHandler,
-		"--format":   formatHandler,
-		"--color":    colorHandler,
-		"-o":         outputHandler,
-		"--output":   outputHandler,
-		"-t":         timeoutHandler,
-		"--timeout":  timeoutHandler,
-		"-l":         languagesHandler,
-		"--language": languagesHandler,
-		"-h":         handleHelp,
-		"--help":     handleHelp,
+		"-v":           verboseHandler,
+		flagVerbose:    verboseHandler,
+		"-q":           quietHandler,
+		flagQuiet:      quietHandler,
+		flagNoCode:     noCodeHandler,
+		"-f":           formatHandler,
+		flagFormat:     formatHandler,
+		flagColor:      colorHandler,
+		"-o":           outputHandler,
+		flagOutput:     outputHandler,
+		"-t":           timeoutHandler,
+		flagTimeout:    timeoutHandler,
+		"-l":           languagesHandler,
+		"--language":   languagesHandler,
+		"-h":           handleHelp,
+		"--help":       handleHelp,
 	}
 }
 

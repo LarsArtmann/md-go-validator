@@ -32,6 +32,19 @@ const (
 	LangTerraform Language = "terraform"
 )
 
+// Extension constants for file types.
+const (
+	extGo         = ".go"
+	extTempl      = ".templ"
+	extTypeScript = ".ts"
+	extTSX        = ".tsx"
+	extNix        = ".nix"
+	extRust       = ".rs"
+	extHCL        = ".hcl"
+	extTF         = ".tf"
+	extTFVars     = ".tfvars"
+)
+
 // String returns the string representation of the language.
 func (l Language) String() string {
 	return string(l)
@@ -51,27 +64,30 @@ func AllLanguages() []Language {
 	}
 }
 
+// golangAlias is an alias for the Go language identifier.
+const golangAlias = "golang"
+
 // ParseLanguage parses a language identifier from a markdown/MDX code block info string.
 // Returns the language and true if recognized, zero value and false otherwise.
 func ParseLanguage(lang string) (Language, bool) {
 	lang = strings.ToLower(strings.TrimSpace(lang))
 
 	switch lang {
-	case "go", "golang":
+	case string(LangGo), golangAlias:
 		return LangGo, true
-	case "templ":
+	case string(LangTempl):
 		return LangTempl, true
-	case "ts", "typescript":
+	case string(LangTypeScript), "ts":
 		return LangTypeScript, true
-	case "tsx":
+	case string(LangTSX):
 		return LangTSX, true
-	case "nix":
+	case string(LangNix):
 		return LangNix, true
-	case "rs", "rust":
+	case string(LangRust), "rs":
 		return LangRust, true
-	case "hcl":
+	case string(LangHCL):
 		return LangHCL, true
-	case "tf", "terraform":
+	case string(LangTerraform), "tf":
 		return LangTerraform, true
 	default:
 		return "", false
@@ -82,19 +98,19 @@ func ParseLanguage(lang string) (Language, bool) {
 func (l Language) Extensions() []string {
 	switch l {
 	case LangGo:
-		return []string{".go"}
+		return []string{extGo}
 	case LangTempl:
-		return []string{".templ"}
+		return []string{extTempl}
 	case LangTypeScript:
-		return []string{".ts"}
+		return []string{extTypeScript}
 	case LangTSX:
-		return []string{".tsx"}
+		return []string{extTSX}
 	case LangNix:
-		return []string{".nix"}
+		return []string{extNix}
 	case LangRust:
-		return []string{".rs"}
+		return []string{extRust}
 	case LangHCL, LangTerraform:
-		return []string{".hcl", ".tf", ".tfvars"}
+		return []string{extHCL, extTF, extTFVars}
 	default:
 		return nil
 	}

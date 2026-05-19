@@ -73,9 +73,7 @@ func NewLineNumberFromUint(n uint) LineNumber {
 	return LineNumber(n)
 }
 
-// Int returns the LineNumber as int.
-//
-
+// Int returns the LineNumber as a primitive int.
 func (l LineNumber) Int() int {
 	return int(l)
 }
@@ -170,9 +168,7 @@ func NewBlockIndexFromUint(n uint) BlockIndex {
 	return BlockIndex(n)
 }
 
-// Int returns the BlockIndex as int.
-//
-
+// Int returns the BlockIndex as a primitive int.
 func (b BlockIndex) Int() int {
 	return int(b)
 }
