@@ -182,8 +182,8 @@ func TestTruncateCode(t *testing.T) {
 		want   string
 	}{
 		{"empty", "", 50, ""},
-		{"short", "hello", 50, "hello"},
-		{"exact length", "hello", 5, "hello"},
+		{"short", testHello, 50, testHello},
+		{"exact length", testHello, 5, testHello},
 		{
 			"truncate",
 			"this is a very long code snippet that should be truncated",

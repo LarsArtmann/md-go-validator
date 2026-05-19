@@ -15,6 +15,11 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+const (
+	testPackageMain = "package main"
+	testFileID      = "test.md"
+)
+
 type validResultSpec struct {
 	fileID string
 	line   int
@@ -293,8 +298,8 @@ func TestHasErrors(t *testing.T) {
 		t.Parallel()
 
 		results := newValidResults(
-			validResultSpec{fileID: "test.md", line: 1, block: 1, code: "package main"},
-			validResultSpec{fileID: "test.md", line: 5, block: 2, code: "package main"},
+			validResultSpec{fileID: testFileID, line: 1, block: 1, code: testPackageMain},
+			validResultSpec{fileID: testFileID, line: 5, block: 2, code: testPackageMain},
 		)
 		if HasErrors(results) {
 			t.Error("expected false for valid results")
