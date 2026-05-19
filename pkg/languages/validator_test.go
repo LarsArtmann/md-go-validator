@@ -260,18 +260,18 @@ func TestValidationError(t *testing.T) {
 		{
 			name: "with line and column",
 			value: ValidationError{
-				Message: "syntax error",
+				Message: testSyntaxError,
 				Line:    10,
 				Column:  5,
 				Code:    ErrCodeSyntax,
 			},
-			expected: "10:5: syntax error",
+			expected: "10:5: " + testSyntaxError,
 		},
 		{
 			name: "without line and column",
 			//nolint:exhaustruct // Intentionally testing partial initialization
-			value:    ValidationError{Message: "syntax error"},
-			expected: "syntax error",
+			value:    ValidationError{Message: testSyntaxError},
+			expected: testSyntaxError,
 		},
 	}, func(e ValidationError) string { return e.Error() })
 }

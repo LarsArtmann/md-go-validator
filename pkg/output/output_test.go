@@ -7,6 +7,12 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
+const (
+	testInvalid = "invalid"
+	testEmpty   = "empty"
+	testHello   = "hello"
+)
+
 func testParseFunc[T any](t *testing.T, funcName string, tests []struct {
 	name    string
 	input   string
@@ -52,8 +58,8 @@ func TestParseFormat(t *testing.T) {
 		{"csv", "csv", FormatCSV, false},
 		{"quiet", "quiet", FormatQuiet, false},
 		{"q alias", "q", FormatQuiet, false},
-		{"invalid", "invalid", "", true},
-		{"empty", "", "", true},
+		{testInvalid, testInvalid, "", true},
+		{testEmpty, testEmpty, "", true},
 	}
 
 	testParseFunc(t, "ParseFormat", tests, ParseFormat)
@@ -71,8 +77,8 @@ func TestParseColorMode(t *testing.T) {
 		{"auto", "auto", ColorModeAuto, false},
 		{"always", "always", ColorModeAlways, false},
 		{"never", "never", ColorModeNever, false},
-		{"invalid", "invalid", "", true},
-		{"empty", "", "", true},
+		{"invalid", testInvalid, "", true},
+		{"empty", testEmpty, "", true},
 	}
 
 	testParseFunc(t, "ParseColorMode", tests, ParseColorMode)
