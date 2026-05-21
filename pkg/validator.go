@@ -101,11 +101,10 @@ func validatePath(pathType, path string) (string, error) {
 }
 
 // validateAndReturnPath validates path and returns it, or returns error.
-// This consolidates the common validatePath + error check pattern.
 func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, error) {
 	cleanPath, err := validatePath(pathType, path)
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("pathType=%s: %w", pathType, err)
 	}
 
 	return cleanPath, nil
@@ -195,7 +194,10 @@ func (v *FileValidator) validateBlock(
 			block.LineNumber,
 			blockIndex,
 			block.Code,
-			fmt.Errorf("%w: %s", errNoValidatorForLang, block.Language),
+			fmt.Errorf(
+				"%w: %s (blockIndex=%d)",
+				errNoValidatorForLang, block.Language, blockIndex.Int()-1,
+			),
 		)
 	}
 
@@ -279,7 +281,7 @@ func (v *FileValidator) ValidateDirectory(
 ) ([]types.Result, error) {
 	cleanPath, err := v.validateAndReturnPath("directory", dirPath)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("validating directory %s: %w", dirPath, err)
 	}
 
 	filePaths, err := v.collectSupportedFiles(cleanPath)

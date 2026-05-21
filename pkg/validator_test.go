@@ -188,46 +188,24 @@ func main() {
 ` + "```" + `
 `)
 
-	tmpDir := t.TempDir()
-	tmpFile := testutil.WriteTestFile(t, tmpDir, "test.md", content)
+	for _, ext := range []string{".md", ".mdx"} {
+		t.Run(ext, func(t *testing.T) {
+			t.Parallel()
 
-	v := New(false)
-	ctx := context.Background()
+			tmpDir := t.TempDir()
+			tmpFile := testutil.WriteTestFile(t, tmpDir, "test"+ext, content)
 
-	results, err := v.ValidateFile(ctx, tmpFile)
-	if err != nil {
-		t.Fatalf("ValidateFile error: %v", err)
+			v := New(false)
+			ctx := context.Background()
+
+			results, err := v.ValidateFile(ctx, tmpFile)
+			if err != nil {
+				t.Fatalf("ValidateFile error: %v", err)
+			}
+
+			testutil.AssertResultCount(t, results, 1)
+		})
 	}
-
-	testutil.AssertResultCount(t, results, 1)
-}
-
-func TestValidator_ValidateFile_MDX(t *testing.T) {
-	t.Parallel()
-
-	content := []byte(`# Test
-
-` + "```go" + `
-package main
-
-func main() {
-    fmt.Println("hello")
-}
-` + "```" + `
-`)
-
-	tmpDir := t.TempDir()
-	tmpFile := testutil.WriteTestFile(t, tmpDir, "test.mdx", content)
-
-	v := New(false)
-	ctx := context.Background()
-
-	results, err := v.ValidateFile(ctx, tmpFile)
-	if err != nil {
-		t.Fatalf("ValidateFile error: %v", err)
-	}
-
-	testutil.AssertResultCount(t, results, 1)
 }
 
 func TestValidator_ValidateFile_NonExistent(t *testing.T) {

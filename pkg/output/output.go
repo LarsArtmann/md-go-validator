@@ -264,8 +264,8 @@ func writeCSVRows(csvWriter *output.CSVWriter, results []types.Result, showCode 
 		err := csvWriter.WriteRow(row)
 		if err != nil {
 			return fmt.Errorf(
-				"write CSV row (file=%s, line=%s, block=%s): %w",
-				r.File, r.LineNumber, r.Block, err,
+				"write CSV row (file=%s, line=%s, block=%s, errMsg=%s, code=%s): %w",
+				r.File, r.LineNumber, r.Block, errMsg, code, err,
 			)
 		}
 	}

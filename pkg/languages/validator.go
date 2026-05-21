@@ -140,24 +140,42 @@ func (r *Registry) Validate(ctx context.Context, lang Language, code string) err
 	v := r.Get(lang)
 	if v == nil {
 		return newValidationError(
-			fmt.Sprintf("no validator registered for language: %s", lang),
+			fmt.Sprintf(
+				"no validator registered for language: %s (code=%q)",
+				lang, truncateCode(code),
+			),
 			ErrCodeNotRegistered,
 		)
 	}
 
 	if !v.IsAvailable() {
 		return newValidationError(
-			fmt.Sprintf("validator for %s is not available (required tools not installed)", lang),
+			fmt.Sprintf(
+				"validator for %s is not available (code=%q)",
+				lang, truncateCode(code),
+			),
 			ErrCodeNotAvailable,
 		)
 	}
 
 	err := v.Validate(ctx, code)
 	if err != nil {
-		return fmt.Errorf("validation failed for %s: %w", lang, err)
+		return fmt.Errorf(
+			"validation failed for %s (code=%q): %w",
+			lang, truncateCode(code), err,
+		)
 	}
 
 	return nil
+}
+
+func truncateCode(code string) string {
+	const maxLen = 50
+	if len(code) > maxLen {
+		return code[:maxLen] + "..."
+	}
+
+	return code
 }
 
 func newValidationError(message string, code ErrorCode) *ValidationError {

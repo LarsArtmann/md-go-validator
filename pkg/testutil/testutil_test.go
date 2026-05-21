@@ -277,40 +277,41 @@ func TestAssertZeroValue(t *testing.T) {
 		AssertZeroValue(t, "bool", true, true)
 	})
 
-	t.Run("fail when strings differ", func(t *testing.T) {
-		t.Parallel()
+	assertZeroValueFails := func(t *testing.T, typeName string, actual, expected any) {
+		t.Helper()
 
 		tt := &testing.T{}
-		AssertZeroValue(tt, "string", "a", "b")
+		AssertZeroValue(tt, typeName, actual, expected)
 
 		if !tt.Failed() {
 			t.Error("expected test to fail")
 		}
+	}
+
+	t.Run("fail when strings differ", func(t *testing.T) {
+		t.Parallel()
+
+		assertZeroValueFails(t, "string", "a", "b")
 	})
 
 	t.Run("fail when ints differ", func(t *testing.T) {
 		t.Parallel()
 
-		tt := &testing.T{}
-		AssertZeroValue(tt, "int", 1, 2)
-
-		if !tt.Failed() {
-			t.Error("expected test to fail")
-		}
+		assertZeroValueFails(t, "int", 1, 2)
 	})
 }
 
 func TestIsContextDone(t *testing.T) {
 	t.Parallel()
 
-	t.Run("returns true when done", func(t *testing.T) {
+	t.Run("returns true when cancelled", func(t *testing.T) {
 		t.Parallel()
 
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
 		if !isContextDone(ctx) {
-			t.Error("expected true for done context")
+			t.Error("expected true for cancelled context")
 		}
 	})
 
@@ -321,17 +322,6 @@ func TestIsContextDone(t *testing.T) {
 
 		if isContextDone(ctx) {
 			t.Error("expected false for not-done context")
-		}
-	})
-
-	t.Run("returns true when cancelled", func(t *testing.T) {
-		t.Parallel()
-
-		ctx, cancel := context.WithCancel(context.Background())
-		cancel()
-
-		if !isContextDone(ctx) {
-			t.Error("expected true for cancelled context")
 		}
 	})
 }
