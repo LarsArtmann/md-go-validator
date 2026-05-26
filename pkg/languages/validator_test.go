@@ -269,7 +269,7 @@ func TestValidationError(t *testing.T) {
 		},
 		{
 			name: "without line and column",
-			//nolint:exhaustruct // Intentionally testing partial initialization
+
 			value:    ValidationError{Message: testSyntaxError},
 			expected: testSyntaxError,
 		},

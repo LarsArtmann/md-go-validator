@@ -1,7 +1,7 @@
 version: "2"
 run:
   timeout: 5m
-  go: 1.26.2
+  go: 1.26.3
   build-tags:
     - goexperiment.arenas
     - goexperiment.goroutineleakprofile
@@ -124,6 +124,8 @@ linters:
     - wsl_v5
     - zerologlint
   settings:
+    cyclop:
+      max-complexity: 12
     exhaustruct:
       exclude:
         - os/exec.Cmd
@@ -143,6 +145,12 @@ linters:
         - anon
         - stdlib
         - generic
+    revive:
+      rules:
+        - disabled: true
+          name: exported
+        - disabled: true
+          name: package-comments
     varnamelen:
       ignore-names:
         - w
@@ -165,14 +173,35 @@ linters:
       - text: returns interface
         linters:
           - ireturn
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - testpackage
+          - gochecknoglobals
+          - funlen
+          - cyclop
+          - goconst
+      - path: _test\.go
+        text: unused
+        linters:
+          - unused
+    paths:
+      - \.gen\.go$
+      - _templ\.go$
+      - vendor/
 formatters:
   enable:
     - gci
     - goimports
     - gofumpt
     - golines
+  settings:
+    golines:
+      max-len: 120
   exclusions:
     generated: lax
+    paths:
+      - _templ\.go$
 issues:
   max-issues-per-linter: 50
   max-same-issues: 10

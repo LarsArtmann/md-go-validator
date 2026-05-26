@@ -146,7 +146,6 @@ func TestTreeSitterValidator_UnavailableLanguage(t *testing.T) {
 func TestValidationError_Error_NoPosition(t *testing.T) {
 	t.Parallel()
 
-	//nolint:exhaustruct // Intentionally testing partial initialization
 	e := &ValidationError{Message: "simple error"}
 
 	got := e.Error()
