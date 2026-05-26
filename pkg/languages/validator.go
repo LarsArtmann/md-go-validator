@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
+	"github.com/larsartmann/md-go-validator/pkg/code"
 )
 
 var errValidatorNil = errors.New("validator cannot be nil")
@@ -136,52 +138,48 @@ func (r *Registry) Languages() []Language {
 }
 
 // Validate validates code for a specific language.
-func (r *Registry) Validate(ctx context.Context, lang Language, code string) error {
+func (r *Registry) Validate(ctx context.Context, lang Language, codeStr string) error {
 	v := r.Get(lang)
 	if v == nil {
-		return newValidationError(
-			fmt.Sprintf(
-				"no validator registered for language: %s (code=%q)",
-				lang, truncateCode(code),
-			),
+		errMsg := fmt.Sprintf("no validator registered for language: %s", lang)
+		validationErr := newValidationError(
+			errMsg+fmt.Sprintf(" (code=%q)", code.TruncateForError(codeStr)),
 			ErrCodeNotRegistered,
 		)
+
+		return validationErr
 	}
 
 	if !v.IsAvailable() {
-		return newValidationError(
-			fmt.Sprintf(
-				"validator for %s is not available (code=%q)",
-				lang, truncateCode(code),
-			),
-			ErrCodeNotAvailable,
-		)
+		errMsg := fmt.Sprintf("validator for %s is not available", lang)
+
+		return errorWithCode(errMsg, ErrCodeNotAvailable, codeStr)
 	}
 
-	err := v.Validate(ctx, code)
+	err := v.Validate(ctx, codeStr)
 	if err != nil {
 		return fmt.Errorf(
 			"validation failed for %s (code=%q): %w",
-			lang, truncateCode(code), err,
+			lang, code.TruncateForError(codeStr), err,
 		)
 	}
 
 	return nil
 }
 
-func truncateCode(code string) string {
-	const maxLen = 50
-	if len(code) > maxLen {
-		return code[:maxLen] + "..."
-	}
-
-	return code
-}
-
 func newValidationError(message string, code ErrorCode) *ValidationError {
 	return &ValidationError{
 		Message: message,
 		Code:    code,
+		Line:    0,
+		Column:  0,
+	}
+}
+
+func errorWithCode(msg string, errCode ErrorCode, codeStr string) *ValidationError {
+	return &ValidationError{
+		Message: msg + fmt.Sprintf(" (code=%q)", code.TruncateForError(codeStr)),
+		Code:    errCode,
 		Line:    0,
 		Column:  0,
 	}

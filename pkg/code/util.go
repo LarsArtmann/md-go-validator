@@ -31,13 +31,14 @@ func IndentCode(code string) string {
 func ParseGo(fset *token.FileSet, code string) error {
 	_, err := parser.ParseFile(fset, "snippet.go", code, parser.AllErrors)
 	if err != nil {
-		return fmt.Errorf("parse Go code (code=%q): %w", truncateForError(code), err)
+		return fmt.Errorf("parse Go code (code=%q): %w", TruncateForError(code), err)
 	}
 
 	return nil
 }
 
-func truncateForError(code string) string {
+// TruncateForError truncates code string for use in error messages.
+func TruncateForError(code string) string {
 	const maxLen = 50
 	if len(code) > maxLen {
 		return code[:maxLen] + "..."
