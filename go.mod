@@ -1,21 +1,15 @@
 module github.com/larsartmann/md-go-validator
 
-go 1.26.2
+go 1.26.3
 
 require (
-	github.com/larsartmann/go-output v0.4.0
-	github.com/odvcencio/gotreesitter v0.17.4
+	github.com/larsartmann/go-output v0.6.0
+	github.com/odvcencio/gotreesitter v0.19.1
 )
 
 require (
-	github.com/go-faster/errors v0.7.1 // indirect
-	github.com/go-faster/jx v1.2.0 // indirect
-	github.com/go-faster/yaml v0.4.6 // indirect
-	github.com/larsartmann/go-branded-id v0.1.0 // indirect
+	github.com/larsartmann/go-branded-id v0.3.0 // indirect
 	github.com/larsartmann/go-output/enum v0.0.0 // indirect
-	github.com/larsartmann/go-output/escape v0.0.0 // indirect
-	github.com/segmentio/asm v1.2.1 // indirect
-	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.44.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/term v0.43.0 // indirect
 )
