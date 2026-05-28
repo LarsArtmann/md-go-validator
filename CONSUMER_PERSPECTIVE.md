@@ -56,7 +56,7 @@ No `--baseline` or `--compare` flag. When adding this tool to an existing projec
 
 ### 11. No `--dry-run` Flag
 
-No way to see what *would* be validated without actually running validation. Useful for debugging config, excludes, and language filters.
+No way to see what _would_ be validated without actually running validation. Useful for debugging config, excludes, and language filters.
 
 ### 12. No Progress Indicator
 
@@ -102,17 +102,17 @@ No statement about which parts of the Go API are stable vs. experimental. Librar
 
 ## Prioritized Impact
 
-| Priority | Item | Consumer Impact |
-|----------|------|-----------------|
-| P0 | `--version` flag | Trust & debugging |
-| P0 | GitHub Action | CI adoption |
-| P0 | Config file support | DX for real projects |
-| P1 | Exclude patterns | Works on real repos |
-| P1 | Fix CONTRIBUTING.md | Contributor trust |
-| P1 | Pre-commit hook | Ecosystem discovery |
-| P2 | Watch mode | Development DX |
-| P2 | Diff/regression mode | Incremental adoption |
-| P2 | Self-validation in CI | Trust through dogfooding |
-| P3 | Shell completions | Power-user polish |
-| P3 | Language discovery command | Discoverability |
-| P3 | API stability docs | Library consumer confidence |
+| Priority | Item                       | Consumer Impact             |
+| -------- | -------------------------- | --------------------------- |
+| P0       | `--version` flag           | Trust & debugging           |
+| P0       | GitHub Action              | CI adoption                 |
+| P0       | Config file support        | DX for real projects        |
+| P1       | Exclude patterns           | Works on real repos         |
+| P1       | Fix CONTRIBUTING.md        | Contributor trust           |
+| P1       | Pre-commit hook            | Ecosystem discovery         |
+| P2       | Watch mode                 | Development DX              |
+| P2       | Diff/regression mode       | Incremental adoption        |
+| P2       | Self-validation in CI      | Trust through dogfooding    |
+| P3       | Shell completions          | Power-user polish           |
+| P3       | Language discovery command | Discoverability             |
+| P3       | API stability docs         | Library consumer confidence |

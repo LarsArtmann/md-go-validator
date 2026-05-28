@@ -134,10 +134,7 @@ linters:
       statements: 40
     gocritic:
       disabled-checks:
-        - dupImport
         - ifElseChain
-        - octalLiteral
-        - whyNoLint
     ireturn:
       allow:
         - error
