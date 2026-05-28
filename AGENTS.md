@@ -16,6 +16,10 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 ## Build Commands
 
 ```bash
+nix build .#                   # Build the package
+nix flake check                # Run all checks (format, build, test)
+nix fmt                        # Format .nix and .go files
+nix develop                    # Enter dev shell
 go build ./cmd/md-go-validator
 go test ./...
 go test -cover ./...
@@ -133,6 +137,19 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 | pkg/output    | 91.5%    |
 | pkg/types     | 92.8%    |
 | cmd           | 70.9%    |
+
+## Nix
+
+- `flake.nix` uses flake-parts + treefmt-nix
+- Inputs: nixpkgs (nixos-unstable), systems, flake-parts, treefmt-nix (all with proper `follows`)
+- `nix build .#` — build the package
+- `nix flake check` — format check + build check + test check
+- `nix fmt` — formats .nix (nixfmt) and .go (gofmt) via treefmt
+- `nix develop` — dev shell with go, gopls, golangci-lint, goreleaser
+- Source filtering via `lib.fileset` (only includes go.mod, go.sum, cmd/, pkg/)
+- Version derived from git: `self.rev or self.dirtyRev or "dev"`
+- Overlay exported at `overlays.default` for consumption by other flakes
+- Known issue: `nix build` fails due to go-output API mismatch (go.work uses local go-output with newer API)
 
 ## Release
 
