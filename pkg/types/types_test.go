@@ -407,7 +407,7 @@ func TestBuildReportData(t *testing.T) {
 	})
 }
 
-func newTestErrorResult(file string, line int, code string, errMsg string) Result {
+func newTestErrorResult(file string, line int, code, errMsg string) Result {
 	return NewErrorResult(
 		NewFileID(file),
 		NewLineNumber(line),

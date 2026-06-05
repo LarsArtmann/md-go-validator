@@ -46,7 +46,7 @@ func newValidResults(specs ...validResultSpec) []types.Result {
 	return results
 }
 
-func newTestErrorResult(fileID string, line, block int, code string, errMsg string) types.Result {
+func newTestErrorResult(fileID string, line, block int, code, errMsg string) types.Result {
 	return types.NewErrorResult(
 		types.NewFileID(fileID),
 		types.NewLineNumber(line),
