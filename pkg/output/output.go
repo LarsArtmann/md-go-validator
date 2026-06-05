@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/larsartmann/go-output"
+	"github.com/larsartmann/go-output/delimited"
+	"github.com/larsartmann/go-output/serialization"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -116,7 +118,7 @@ func PrintReportTo(
 	case FormatMarkdown:
 		return printMarkdownTo(w, results, showCode)
 	case FormatYAML:
-		return marshalReport(w, results, showCode, output.MarshalYAML, "YAML")
+		return marshalReport(w, results, showCode, serialization.MarshalYAML, "YAML")
 	case FormatCSV:
 		return printCSVTo(w, results, showCode)
 	case FormatQuiet:
@@ -217,7 +219,7 @@ func newOutputError(action string, results []types.Result, showCode bool, err er
 }
 
 func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
-	csvWriter := output.NewCSVWriter(writer)
+	csvWriter := delimited.NewCSVWriter(writer)
 
 	err := csvWriter.WriteHeader(
 		[]string{"file", "line", "block", "status", "error", "code"},
@@ -241,7 +243,7 @@ func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
 	return nil
 }
 
-func writeCSVRows(csvWriter *output.CSVWriter, results []types.Result, showCode bool) error {
+func writeCSVRows(csvWriter *delimited.CSVWriter, results []types.Result, showCode bool) error {
 	for _, r := range results {
 		var errMsg, code string
 		if r.Error != nil {
