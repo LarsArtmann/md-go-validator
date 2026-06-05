@@ -407,16 +407,18 @@ func TestBuildReportData(t *testing.T) {
 	})
 }
 
+func newTestErrorResult(file string, line int, code string, errMsg string) Result {
+	return NewErrorResult(
+		NewFileID(file),
+		NewLineNumber(line),
+		NewBlockIndex(1),
+		code,
+		NewTestError(errMsg),
+	)
+}
+
 func errorResultsForTesting() []Result {
-	return []Result{
-		NewErrorResult(
-			NewFileID("a.md"),
-			NewLineNumber(1),
-			NewBlockIndex(1),
-			"pkg",
-			NewTestError("err"),
-		),
-	}
+	return []Result{newTestErrorResult("a.md", 1, "pkg", "err")}
 }
 
 func TestReportData_BuildReportData(t *testing.T) {
@@ -689,13 +691,7 @@ func TestValidationStatus_UnmarshalText(t *testing.T) {
 func TestResult_String_WithError(t *testing.T) {
 	t.Parallel()
 
-	r := NewErrorResult(
-		NewFileID("test.md"),
-		NewLineNumber(5),
-		NewBlockIndex(1),
-		"code",
-		NewTestError("syntax error"),
-	)
+	r := newTestErrorResult("test.md", 5, "code", "syntax error")
 
 	s := r.String()
 	if s == "" {
@@ -706,13 +702,7 @@ func TestResult_String_WithError(t *testing.T) {
 func TestResult_Summary_WithError(t *testing.T) {
 	t.Parallel()
 
-	r := NewErrorResult(
-		NewFileID("test.md"),
-		NewLineNumber(5),
-		NewBlockIndex(1),
-		"code",
-		NewTestError("syntax error"),
-	)
+	r := newTestErrorResult("test.md", 5, "code", "syntax error")
 
 	summary := r.Summary()
 	if summary == "" {

@@ -132,13 +132,7 @@ func testBuildReportDataErrors(t *testing.T) {
 	t.Parallel()
 
 	results := []types.Result{
-		types.NewErrorResult(
-			types.NewFileID("a.md"),
-			types.NewLineNumber(1),
-			types.NewBlockIndex(1),
-			"",
-			types.NewTestError("syntax error"),
-		),
+		newErrorResultWithCode(""),
 		newValidResultWithCode("b.md", 2, 1, ""),
 	}
 	report := types.BuildReportData(results, false)

@@ -31,20 +31,16 @@ func TestTreeSitterValidator(t *testing.T) {
 	}
 }
 
-func treeSitterValidatorTests() []struct {
+type validatorTestCase struct {
 	name        string
 	language    Language
 	langName    string
 	validCode   string
 	invalidCode string
-} {
-	return []struct {
-		name        string
-		language    Language
-		langName    string
-		validCode   string
-		invalidCode string
-	}{
+}
+
+func treeSitterValidatorTests() []validatorTestCase {
+	return []validatorTestCase{
 		{
 			name:        "rust",
 			language:    LangRust,

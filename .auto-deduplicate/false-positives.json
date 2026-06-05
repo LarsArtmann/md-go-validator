@@ -5,5 +5,79 @@
     "reason": "These are two distinct interface method signatures (`ValidateFile` and `ValidateDirectory`) that happen to share the same return type `([]types.Result, error)`. They have different method names, different parameter names, and different semantics. The similarity detection is incorrectly flagging the return type declaration as duplicate code, but identical return types across interface methods are normal and expected Go patterns. No refactoring needed.\n\n{\"strategy\": \"false_positive\", \"files_modified\": [], \"new_abstraction\": null, \"confidence\": 1.0}\nINFO Running in non-interactive mode\nINFO Overriding large model for non-interactive run provider=minimax model=MiniMax-M2.7-highspeed\nINFO Using provider default small model provider=minimax model=MiniMax-M2.7\nINFO Created session for non-interactive run session_id=8649ef8c-4e4d-4474-b3c9-78ef0fc9270a\nERRO Language server stderr command=golangci-lint-langserver\n  output=\n  │ 2026/04/03 06:10:50 golangci-lint-langserver: connections opened\n\nERRO Failed to enqueue PostHog event event=\"app exited\" props=\"[app duration pretty 17s app duration in seconds 17]\" error=\"the client was already closed\"\nERRO Failed to flush PostHog events error=\"the client was already closed\"",
     "marked_at": "2026-04-03T06:11:01.776289+02:00",
     "marked_by": "auto-deduplicate"
+  },
+  {
+    "fingerprint": "len-assertion-t-fatalf",
+    "files": [
+      "pkg/integration_test.go",
+      "pkg/validator_test.go"
+    ],
+    "reason": "Standard Go test assertion pattern: `if len(X) != N { t.Fatalf(\"expected N results, got %d\", len(X)) }`. This is an idiomatic Go test idiom for asserting slice/map length. Each occurrence uses different variables, expected counts, and error messages. Extracting a helper would add complexity for no maintenance benefit — the pattern is instantly recognizable to any Go developer.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "branded-type-int-assertion",
+    "files": [
+      "pkg/types/types_test.go"
+    ],
+    "reason": "Standard Go test assertion pattern for branded types: `if X.Int() != N { t.Errorf(\"expected N, got %d\", X.Int()) }`. Testing the .Int() accessor on LineNumber and BlockIndex branded types. Each test verifies a different type with different values. This is idiomatic Go — extracting a helper would obscure what's being tested.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "table-subtest-entries-testutil",
+    "files": [
+      "pkg/testutil/testutil_test.go"
+    ],
+    "reason": "Table-driven test subtest entries for AssertZeroValueFails: two entries testing different types (string vs int) with different values. Standard Go table-driven test pattern — the structural similarity is the point (testing the same function with different inputs).",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "benchmark-functions-different-sizes",
+    "files": [
+      "pkg/benchmark_test.go"
+    ],
+    "reason": "Two benchmark functions (BenchmarkExtractCodeBlocks and BenchmarkExtractCodeBlocks_LargeFile) that benchmark the same function with different input sizes (50 vs 500 blocks). This is the standard Go benchmark pattern for measuring scalability — each benchmark must be a separate function with a different name. No refactoring possible or desired.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "config-paths-assertion",
+    "files": [
+      "cmd/md-go-validator/main_test.go"
+    ],
+    "reason": "Trivial assertion pattern: `if len(cfg.paths) != 1 || cfg.paths[0] != X`. Two tests asserting different default path values (\".\" vs \"src/\"). Standard Go test assertion, different expected values, no meaningful abstraction possible.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "status-skipped-assertion",
+    "files": [
+      "pkg/types/types_test.go"
+    ],
+    "reason": "Trivial assertion: `if r.Status != StatusSkipped { t.Errorf(...) }`. Two different tests verifying StatusSkipped on results constructed differently (inline vs via helper). Standard Go test idiom, no duplication of logic.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "strings-contains-assertion",
+    "files": [
+      "cmd/md-go-validator/main_test.go"
+    ],
+    "reason": "Trivial assertion: `if !strings.Contains(h, X) { t.Error(...) }`. Two assertions checking for different substrings in a usage header. Standard Go test pattern, each checks a different string.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
+  },
+  {
+    "fingerprint": "table-driven-test-loop-skeleton",
+    "files": [
+      "pkg/languages/go_validator_test.go",
+      "pkg/languages/language_test.go"
+    ],
+    "reason": "Standard Go table-driven test loop skeleton: `for _, tt := range tests { t.Run(tt.name, func(t *testing.T) { t.Parallel(); ... }) }`. The actual comparison logic was already extracted into assertExtensionsEqual(). The remaining similarity is the test loop boilerplate, which is an idiomatic Go pattern that should not be abstracted away.",
+    "marked_at": "2026-06-05T00:00:00Z",
+    "marked_by": "manual"
   }
 ]

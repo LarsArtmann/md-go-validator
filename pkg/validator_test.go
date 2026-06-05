@@ -46,6 +46,16 @@ func newValidResults(specs ...validResultSpec) []types.Result {
 	return results
 }
 
+func newTestErrorResult(fileID string, line, block int, code string, errMsg string) types.Result {
+	return types.NewErrorResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(line),
+		types.NewBlockIndex(block),
+		code,
+		types.NewTestError(errMsg),
+	)
+}
+
 func TestExtractGoCodeBlocks(t *testing.T) {
 	t.Parallel()
 
@@ -299,13 +309,7 @@ func TestHasErrors(t *testing.T) {
 		t.Parallel()
 
 		results := []types.Result{
-			types.NewErrorResult(
-				types.NewFileID("test.md"),
-				types.NewLineNumber(1),
-				types.NewBlockIndex(1),
-				"invalid",
-				types.NewTestError("test error"),
-			),
+			newTestErrorResult("test.md", 1, 1, "invalid", "test error"),
 		}
 		if !HasErrors(results) {
 			t.Error("expected true for error result")

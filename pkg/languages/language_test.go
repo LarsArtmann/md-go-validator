@@ -100,17 +100,7 @@ func TestLanguage_Extensions(t *testing.T) {
 			t.Parallel()
 
 			got := tt.lang.Extensions()
-			if len(got) != len(tt.expected) {
-				t.Errorf("Extensions() length = %v, want %v", len(got), len(tt.expected))
-
-				return
-			}
-
-			for i := range got {
-				if got[i] != tt.expected[i] {
-					t.Errorf("Extensions()[%d] = %v, want %v", i, got[i], tt.expected[i])
-				}
-			}
+			assertExtensionsEqual(t, got, tt.expected)
 		})
 	}
 }

@@ -208,9 +208,8 @@ func TestAssertContextNotNil(t *testing.T) {
 		AssertContextNotNil(ctx, t)
 	})
 
-	// Note: Testing nil context causes panic because AssertContextNotNil
-	// calls t.Fatal on the passed-in *testing.T, which doesn't work with
-	// a separate testing.T instance
+	// Testing nil context causes panic because AssertContextNotNil calls t.Fatal
+	// on the passed-in *testing.T, which doesn't work with a separate testing.T instance.
 }
 
 func TestAssertContextCondition(t *testing.T) {
