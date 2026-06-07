@@ -20,8 +20,8 @@ github.com/larsartmann/go-output/testhelpers v0.6.3 h1:tODs6aN6/0I2VioITVLVy2Snp
 github.com/larsartmann/go-output/testhelpers v0.6.3/go.mod h1:HXirIrpJiVpIJ1CaI9MbmOUP26eC4JKApaFqAAe5+s8=
 github.com/larsartmann/go-output/testhelpers/graphtest v0.6.3 h1:gJDnyo5Qos9VQsLsuH/9kQu/8+T0/F/ExLZ3X+/ueRI=
 github.com/larsartmann/go-output/testhelpers/graphtest v0.6.3/go.mod h1:u7b3tZo4D63Wt1mtMuvKOO9LLRk4H7kBe5htBK9kSDA=
-github.com/odvcencio/gotreesitter v0.20.1 h1:h6aiS5AvXhpfCdLzOSQui8IYkJBmH+tZuujInZzVxFw=
-github.com/odvcencio/gotreesitter v0.20.1/go.mod h1:hBVkghd0paaYAVwd2087vfwdeU984bQbMo9LvpE0moo=
+github.com/odvcencio/gotreesitter v0.20.2 h1:oWxGgy0WzLJKeiZB8EFzXDDlHYG/hqiZmWrW+81uwy4=
+github.com/odvcencio/gotreesitter v0.20.2/go.mod h1:hBVkghd0paaYAVwd2087vfwdeU984bQbMo9LvpE0moo=
 github.com/pelletier/go-toml/v2 v2.3.1 h1:MYEvvGnQjeNkRF1qUuGolNtNExTDwct51yp7olPtrEc=
 github.com/pelletier/go-toml/v2 v2.3.1/go.mod h1:2gIqNv+qfxSVS7cM2xJQKtLSTLUE9V8t9Stt+h56mCY=
 github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 h1:Jamvg5psRIccs7FGNTlIRMkT8wgtp5eCXdBlqhYGL6U=

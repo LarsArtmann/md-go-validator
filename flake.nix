@@ -62,16 +62,28 @@
             };
           };
 
-          devShells.default = pkgs.mkShell {
-            packages = builtins.attrValues {
-              inherit (pkgs)
-                go
-                gopls
-                golangci-lint
-                goreleaser
-                ;
+          devShells = {
+            default = pkgs.mkShell {
+              packages = builtins.attrValues {
+                inherit (pkgs)
+                  go
+                  gopls
+                  golangci-lint
+                  goreleaser
+                  ;
+              };
+              GOWORK = "off";
             };
-            GOWORK = "off";
+
+            ci = pkgs.mkShellNoCC {
+              packages = builtins.attrValues {
+                inherit (pkgs)
+                  go
+                  golangci-lint
+                  ;
+              };
+              GOWORK = "off";
+            };
           };
 
           checks = {
