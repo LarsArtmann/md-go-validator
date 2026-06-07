@@ -24,6 +24,9 @@
 
       imports = [ inputs.treefmt-nix.flakeModule ];
 
+
+      checks.format = config.treefmt.build.check self;
+      checks.build = config.packages.default;
       perSystem =
         {
           config,
@@ -95,7 +98,7 @@
 
           treefmt = {
             programs.gofmt.enable = true;
-            programs.nixfmt.enable = true;
+            nixfmt.enable = true;
           };
         };
 
