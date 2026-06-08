@@ -25,8 +25,6 @@
       imports = [ inputs.treefmt-nix.flakeModule ];
 
 
-      checks.format = config.treefmt.build.check self;
-      checks.build = config.packages.default;
       perSystem =
         {
           config,
@@ -90,6 +88,7 @@
           };
 
           checks = {
+            format = config.treefmt.build.check self;
             build = config.packages.default;
             test = config.packages.default.overrideAttrs (_: {
               doCheck = true;
@@ -98,7 +97,7 @@
 
           treefmt = {
             programs.gofmt.enable = true;
-            nixfmt.enable = true;
+            programs.nixfmt.enable = true;
           };
         };
 
