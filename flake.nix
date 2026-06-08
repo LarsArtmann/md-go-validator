@@ -35,6 +35,7 @@
         let
           version = self.rev or self.dirtyRev or "dev";
           vendorHash = "sha256-dwZW5PBepzZjfQEyiemLtElIhzPUBaV/wJMk70pzwFs=";
+          proxyVendor = true;
 
           src = lib.fileset.toSource {
             root = ./.;
