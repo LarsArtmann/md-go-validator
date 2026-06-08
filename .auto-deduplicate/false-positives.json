@@ -8,74 +8,56 @@
   },
   {
     "fingerprint": "len-assertion-t-fatalf",
-    "files": [
-      "pkg/integration_test.go",
-      "pkg/validator_test.go"
-    ],
+    "files": ["pkg/integration_test.go", "pkg/validator_test.go"],
     "reason": "Standard Go test assertion pattern: `if len(X) != N { t.Fatalf(\"expected N results, got %d\", len(X)) }`. This is an idiomatic Go test idiom for asserting slice/map length. Each occurrence uses different variables, expected counts, and error messages. Extracting a helper would add complexity for no maintenance benefit — the pattern is instantly recognizable to any Go developer.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "branded-type-int-assertion",
-    "files": [
-      "pkg/types/types_test.go"
-    ],
+    "files": ["pkg/types/types_test.go"],
     "reason": "Standard Go test assertion pattern for branded types: `if X.Int() != N { t.Errorf(\"expected N, got %d\", X.Int()) }`. Testing the .Int() accessor on LineNumber and BlockIndex branded types. Each test verifies a different type with different values. This is idiomatic Go — extracting a helper would obscure what's being tested.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "table-subtest-entries-testutil",
-    "files": [
-      "pkg/testutil/testutil_test.go"
-    ],
+    "files": ["pkg/testutil/testutil_test.go"],
     "reason": "Table-driven test subtest entries for AssertZeroValueFails: two entries testing different types (string vs int) with different values. Standard Go table-driven test pattern — the structural similarity is the point (testing the same function with different inputs).",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "benchmark-functions-different-sizes",
-    "files": [
-      "pkg/benchmark_test.go"
-    ],
+    "files": ["pkg/benchmark_test.go"],
     "reason": "Two benchmark functions (BenchmarkExtractCodeBlocks and BenchmarkExtractCodeBlocks_LargeFile) that benchmark the same function with different input sizes (50 vs 500 blocks). This is the standard Go benchmark pattern for measuring scalability — each benchmark must be a separate function with a different name. No refactoring possible or desired.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "config-paths-assertion",
-    "files": [
-      "cmd/md-go-validator/main_test.go"
-    ],
+    "files": ["cmd/md-go-validator/main_test.go"],
     "reason": "Trivial assertion pattern: `if len(cfg.paths) != 1 || cfg.paths[0] != X`. Two tests asserting different default path values (\".\" vs \"src/\"). Standard Go test assertion, different expected values, no meaningful abstraction possible.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "status-skipped-assertion",
-    "files": [
-      "pkg/types/types_test.go"
-    ],
+    "files": ["pkg/types/types_test.go"],
     "reason": "Trivial assertion: `if r.Status != StatusSkipped { t.Errorf(...) }`. Two different tests verifying StatusSkipped on results constructed differently (inline vs via helper). Standard Go test idiom, no duplication of logic.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "strings-contains-assertion",
-    "files": [
-      "cmd/md-go-validator/main_test.go"
-    ],
+    "files": ["cmd/md-go-validator/main_test.go"],
     "reason": "Trivial assertion: `if !strings.Contains(h, X) { t.Error(...) }`. Two assertions checking for different substrings in a usage header. Standard Go test pattern, each checks a different string.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"
   },
   {
     "fingerprint": "table-driven-test-loop-skeleton",
-    "files": [
-      "pkg/languages/go_validator_test.go",
-      "pkg/languages/language_test.go"
-    ],
+    "files": ["pkg/languages/go_validator_test.go", "pkg/languages/language_test.go"],
     "reason": "Standard Go table-driven test loop skeleton: `for _, tt := range tests { t.Run(tt.name, func(t *testing.T) { t.Parallel(); ... }) }`. The actual comparison logic was already extracted into assertExtensionsEqual(). The remaining similarity is the test loop boilerplate, which is an idiomatic Go pattern that should not be abstracted away.",
     "marked_at": "2026-06-05T00:00:00Z",
     "marked_by": "manual"

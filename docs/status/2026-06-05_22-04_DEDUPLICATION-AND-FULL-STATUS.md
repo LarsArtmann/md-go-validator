@@ -6,18 +6,18 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ## Executive Summary
 
-| Dimension | Status |
-|-----------|--------|
-| **Build** | PASSING (`go build`, `go test`, `golangci-lint` all green) |
-| **Tests** | ALL GREEN — 7/7 packages, 0 failures, race-clean |
-| **Lint** | 0 issues (golangci-lint with 90+ linters) |
-| **Coverage** | 70.9%–93.8% across packages |
-| **Duplication** | 8 clone groups (all acceptable Go test idioms, down from 12) |
-| **Codebase** | ~7,409 lines of Go (production + tests) |
-| **Last release** | v0.1.0 (2026-01-01) — 6 months of unreleased changes |
-| **Dependencies** | go-output v0.6.3, gotreesitter v0.20.1, Go 1.26.3 |
-| **CI** | Minimal — test/lint/build on push/PR to main/master |
-| **Nix** | Hash mismatch in go-modules (pre-existing, blocks `nix build`) |
+| Dimension        | Status                                                         |
+| ---------------- | -------------------------------------------------------------- |
+| **Build**        | PASSING (`go build`, `go test`, `golangci-lint` all green)     |
+| **Tests**        | ALL GREEN — 7/7 packages, 0 failures, race-clean               |
+| **Lint**         | 0 issues (golangci-lint with 90+ linters)                      |
+| **Coverage**     | 70.9%–93.8% across packages                                    |
+| **Duplication**  | 8 clone groups (all acceptable Go test idioms, down from 12)   |
+| **Codebase**     | ~7,409 lines of Go (production + tests)                        |
+| **Last release** | v0.1.0 (2026-01-01) — 6 months of unreleased changes           |
+| **Dependencies** | go-output v0.6.3, gotreesitter v0.20.1, Go 1.26.3              |
+| **CI**           | Minimal — test/lint/build on push/PR to main/master            |
+| **Nix**          | Hash mismatch in go-modules (pre-existing, blocks `nix build`) |
 
 ---
 
@@ -25,19 +25,19 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### Core Library (pkg/)
 
-| Component | File(s) | Description |
-|-----------|---------|-------------|
-| **Go code validation** | `pkg/languages/go_validator.go` | 5-strategy parser (complete file → package wrap → func wrap → expression → statements). Handles partial snippets from documentation. |
-| **Multi-language support** | `pkg/languages/treesitter_validator.go` | 8 languages via tree-sitter: Go, Templ, TypeScript, TSX, Rust, Nix, HCL, Terraform |
-| **Language registry** | `pkg/languages/validator.go`, `language.go` | `Registry` with `Register()`, `Get()`, `GetByString()`, `GetAvailable()`. Pluggable validator interface. |
-| **Code block extraction** | `pkg/extractor.go` | Line-by-line markdown parser for fenced blocks with language filtering. MDX support. |
-| **Skip directives** | `pkg/extractor.go` | Configurable: `<!-- skip-validate -->`, `<!-- skip-md-validate -->`, `<!-- md-skip -->`, `<!-- no-validate -->`, `// skip-validate`, `//nolint` |
-| **Concurrent directory validation** | `pkg/validator.go` | Worker pool with channels, context cancellation, configurable concurrency |
-| **Context lifecycle** | `pkg/context.go` | Timeout, deadline, max files/blocks, parent propagation, branching for parallel workers |
-| **Multi-format output** | `pkg/output/output.go` | 6 formats: Table, JSON, YAML, CSV, Markdown, Quiet. Via go-output library. |
-| **Branded types** | `pkg/types/` | `FileID`, `LineNumber`, `BlockIndex`, `FileType`, `ValidationStatus`, `Language`. Compile-time safety. |
-| **Code utilities** | `pkg/code/util.go` | `IndentCode()`, `ParseGo()`, `TruncateForError()` |
-| **Test helpers** | `pkg/testutil/`, `pkg/types/testing.go`, `pkg/languages/testing.go` | Shared assertion helpers across packages |
+| Component                           | File(s)                                                             | Description                                                                                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Go code validation**              | `pkg/languages/go_validator.go`                                     | 5-strategy parser (complete file → package wrap → func wrap → expression → statements). Handles partial snippets from documentation.            |
+| **Multi-language support**          | `pkg/languages/treesitter_validator.go`                             | 8 languages via tree-sitter: Go, Templ, TypeScript, TSX, Rust, Nix, HCL, Terraform                                                              |
+| **Language registry**               | `pkg/languages/validator.go`, `language.go`                         | `Registry` with `Register()`, `Get()`, `GetByString()`, `GetAvailable()`. Pluggable validator interface.                                        |
+| **Code block extraction**           | `pkg/extractor.go`                                                  | Line-by-line markdown parser for fenced blocks with language filtering. MDX support.                                                            |
+| **Skip directives**                 | `pkg/extractor.go`                                                  | Configurable: `<!-- skip-validate -->`, `<!-- skip-md-validate -->`, `<!-- md-skip -->`, `<!-- no-validate -->`, `// skip-validate`, `//nolint` |
+| **Concurrent directory validation** | `pkg/validator.go`                                                  | Worker pool with channels, context cancellation, configurable concurrency                                                                       |
+| **Context lifecycle**               | `pkg/context.go`                                                    | Timeout, deadline, max files/blocks, parent propagation, branching for parallel workers                                                         |
+| **Multi-format output**             | `pkg/output/output.go`                                              | 6 formats: Table, JSON, YAML, CSV, Markdown, Quiet. Via go-output library.                                                                      |
+| **Branded types**                   | `pkg/types/`                                                        | `FileID`, `LineNumber`, `BlockIndex`, `FileType`, `ValidationStatus`, `Language`. Compile-time safety.                                          |
+| **Code utilities**                  | `pkg/code/util.go`                                                  | `IndentCode()`, `ParseGo()`, `TruncateForError()`                                                                                               |
+| **Test helpers**                    | `pkg/testutil/`, `pkg/types/testing.go`, `pkg/languages/testing.go` | Shared assertion helpers across packages                                                                                                        |
 
 ### CLI (cmd/)
 
@@ -61,26 +61,26 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### This Session's Work
 
-| What | Files Changed | Impact |
-|------|---------------|--------|
-| Extract `newTestErrorResult()` helper | `pkg/types/types_test.go` | Eliminated 3-clone group of inline `NewErrorResult` constructions |
-| Extract `validatorTestCase` named type | `pkg/languages/treesitter_validator_test.go` | Eliminated anonymous struct duplication in return type + literal |
-| Use existing `newErrorResultWithCode()` | `pkg/output/output_test.go` | Replaced inline construction with existing helper |
-| Add `newTestErrorResult()` helper | `pkg/validator_test.go` | Extracted error result construction for reuse |
-| Add `assertExtensionsEqual()` helper | `pkg/languages/testing.go`, `go_validator_test.go`, `language_test.go` | Consolidated extension comparison logic |
-| Document acceptable clones | `.auto-deduplicate/false-positives.json` | 8 groups documented as idiomatic Go test patterns |
+| What                                    | Files Changed                                                          | Impact                                                            |
+| --------------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Extract `newTestErrorResult()` helper   | `pkg/types/types_test.go`                                              | Eliminated 3-clone group of inline `NewErrorResult` constructions |
+| Extract `validatorTestCase` named type  | `pkg/languages/treesitter_validator_test.go`                           | Eliminated anonymous struct duplication in return type + literal  |
+| Use existing `newErrorResultWithCode()` | `pkg/output/output_test.go`                                            | Replaced inline construction with existing helper                 |
+| Add `newTestErrorResult()` helper       | `pkg/validator_test.go`                                                | Extracted error result construction for reuse                     |
+| Add `assertExtensionsEqual()` helper    | `pkg/languages/testing.go`, `go_validator_test.go`, `language_test.go` | Consolidated extension comparison logic                           |
+| Document acceptable clones              | `.auto-deduplicate/false-positives.json`                               | 8 groups documented as idiomatic Go test patterns                 |
 
 ---
 
 ## b) PARTIALLY DONE
 
-| Item | State | Details |
-|------|-------|---------|
-| `README.md` | 90% | Polished, covers CLI + library. Architecture diagram slightly misleading. |
-| `CHANGELOG.md` | 80% | Unreleased section is substantial — no version bump since v0.1.0 in January |
-| `CONSUMER_PERSPECTIVE.md` | 70% | 15 gaps identified, none addressed yet |
-| `docs/modularization/PROPOSAL.md` | 50% | Dead dependency cycle `pkg/types` ↔ `pkg/languages` identified, proposal written but not executed |
-| Nix build | 60% | Hash mismatch in go-modules derivation. `go build` works, `nix build` does not. |
+| Item                              | State | Details                                                                                           |
+| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------- |
+| `README.md`                       | 90%   | Polished, covers CLI + library. Architecture diagram slightly misleading.                         |
+| `CHANGELOG.md`                    | 80%   | Unreleased section is substantial — no version bump since v0.1.0 in January                       |
+| `CONSUMER_PERSPECTIVE.md`         | 70%   | 15 gaps identified, none addressed yet                                                            |
+| `docs/modularization/PROPOSAL.md` | 50%   | Dead dependency cycle `pkg/types` ↔ `pkg/languages` identified, proposal written but not executed |
+| Nix build                         | 60%   | Hash mismatch in go-modules derivation. `go build` works, `nix build` does not.                   |
 
 ---
 
@@ -88,23 +88,23 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### From CONSUMER_PERSPECTIVE.md (15 gaps, none started):
 
-| # | Gap | Severity |
-|---|-----|----------|
-| 1 | `--version` flag | Critical |
-| 2 | Configuration file support (`.md-go-validator.yaml`) | Critical |
-| 3 | `--init` command for config generation | Critical |
-| 4 | `.md-go-validator-ignore` / exclude patterns | Critical |
-| 5 | Fix CONTRIBUTING.md dead references | Critical |
-| 6 | Reusable GitHub Action (`action.yml`) | Major |
-| 7 | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major |
-| 8 | Watch / incremental mode (`--watch`) | Major |
-| 9 | Error codes in CLI output | Major |
-| 10 | Diff / regression mode (`--baseline`) | Major |
-| 11 | `--dry-run` flag | Moderate |
-| 12 | Progress indicator | Moderate |
-| 13 | Granular exit codes (errors vs crash vs no files) | Moderate |
-| 14 | Self-validation in CI (dogfooding) | Moderate |
-| 15 | `--fail-on-skipped` option | Minor |
+| #   | Gap                                                    | Severity |
+| --- | ------------------------------------------------------ | -------- |
+| 1   | `--version` flag                                       | Critical |
+| 2   | Configuration file support (`.md-go-validator.yaml`)   | Critical |
+| 3   | `--init` command for config generation                 | Critical |
+| 4   | `.md-go-validator-ignore` / exclude patterns           | Critical |
+| 5   | Fix CONTRIBUTING.md dead references                    | Critical |
+| 6   | Reusable GitHub Action (`action.yml`)                  | Major    |
+| 7   | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |
+| 8   | Watch / incremental mode (`--watch`)                   | Major    |
+| 9   | Error codes in CLI output                              | Major    |
+| 10  | Diff / regression mode (`--baseline`)                  | Major    |
+| 11  | `--dry-run` flag                                       | Moderate |
+| 12  | Progress indicator                                     | Moderate |
+| 13  | Granular exit codes (errors vs crash vs no files)      | Moderate |
+| 14  | Self-validation in CI (dogfooding)                     | Moderate |
+| 15  | `--fail-on-skipped` option                             | Minor    |
 
 ### Other Not Started:
 
@@ -119,13 +119,13 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ## d) TOTALLY FUCKED UP
 
-| Issue | Severity | Details |
-|-------|----------|---------|
-| **Nix build broken** | HIGH | `nix flake check` fails with go-modules hash mismatch. Root cause: `go.work` uses local go-output with newer API. The `go.mod` has v0.6.3 but `go.work` overrides to local. Nix doesn't use go.work, sees different hash. |
-| **6 months without a release** | HIGH | v0.1.0 was 2026-01-01. Massive unreleased changes: MDX support, tree-sitter, branded types, multi-format output, context support, skip directives overhaul. Users on v0.1.0 have a fundamentally different tool. |
-| **CONTRIBUTING.md is broken** | MEDIUM | References `just` commands and setup scripts that don't exist. First contributor experience is broken. |
-| **No dogfooding in CI** | MEDIUM | Tool validates markdown code blocks but doesn't validate its own docs in CI. Undermines credibility. |
-| **pkg/types ↔ pkg/languages dependency cycle** | LOW | `pkg/types` imports `pkg/languages` (for `Language` type in `CodeBlock`), `pkg/languages` imports `pkg/types` (for result types). Documented in modularization proposal but unresolved. |
+| Issue                                          | Severity | Details                                                                                                                                                                                                                   |
+| ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Nix build broken**                           | HIGH     | `nix flake check` fails with go-modules hash mismatch. Root cause: `go.work` uses local go-output with newer API. The `go.mod` has v0.6.3 but `go.work` overrides to local. Nix doesn't use go.work, sees different hash. |
+| **6 months without a release**                 | HIGH     | v0.1.0 was 2026-01-01. Massive unreleased changes: MDX support, tree-sitter, branded types, multi-format output, context support, skip directives overhaul. Users on v0.1.0 have a fundamentally different tool.          |
+| **CONTRIBUTING.md is broken**                  | MEDIUM   | References `just` commands and setup scripts that don't exist. First contributor experience is broken.                                                                                                                    |
+| **No dogfooding in CI**                        | MEDIUM   | Tool validates markdown code blocks but doesn't validate its own docs in CI. Undermines credibility.                                                                                                                      |
+| **pkg/types ↔ pkg/languages dependency cycle** | LOW      | `pkg/types` imports `pkg/languages` (for `Language` type in `CodeBlock`), `pkg/languages` imports `pkg/types` (for result types). Documented in modularization proposal but unresolved.                                   |
 
 ---
 
@@ -159,48 +159,48 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### Tier 1: Critical (Adoption Blockers)
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 1 | **Cut v0.2.0 release** | Ships 6 months of work to users | Small |
-| 2 | **Add `--version` flag** | Users can verify installation | Small |
-| 3 | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work | Medium |
-| 4 | **Fix CONTRIBUTING.md** dead references | Contributors don't hit dead ends | Small |
-| 5 | **Add self-validation to CI** | Dogfooding builds trust | Small |
+| #   | Task                                           | Impact                           | Effort |
+| --- | ---------------------------------------------- | -------------------------------- | ------ |
+| 1   | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |
+| 2   | **Add `--version` flag**                       | Users can verify installation    | Small  |
+| 3   | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |
+| 4   | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |
+| 5   | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |
 
 ### Tier 2: High Impact (Quality of Life)
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 6 | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |
-| 7 | **GitHub Action** (`action.yml`) | Single-line CI integration | Medium |
-| 8 | **Exclude patterns** (`.md-go-validator-ignore`) | Skip vendor/generated files | Small |
-| 9 | **`--init` command** | Generate starter config | Small |
-| 10 | **Pre-commit hooks** (`.pre-commit-hooks.yaml`) | Ecosystem discoverability | Small |
+| #   | Task                                                     | Impact                        | Effort |
+| --- | -------------------------------------------------------- | ----------------------------- | ------ |
+| 6   | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |
+| 7   | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |
+| 8   | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |
+| 9   | **`--init` command**                                     | Generate starter config       | Small  |
+| 10  | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |
 
 ### Tier 3: Important (Polish)
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 11 | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small |
-| 12 | **Error codes in JSON output** | Machine-actionable results | Small |
-| 13 | **Create `TODO_LIST.md`** | Prioritized backlog | Small |
-| 14 | **Create `FEATURES.md`** | Feature inventory | Small |
-| 15 | **Increase cmd coverage to 85%+** | Confidence in CLI edge cases | Medium |
-| 16 | **Break types ↔ languages dependency cycle** | Clean architecture | Medium |
+| #   | Task                                                             | Impact                           | Effort |
+| --- | ---------------------------------------------------------------- | -------------------------------- | ------ |
+| 11  | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |
+| 12  | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |
+| 13  | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |
+| 14  | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |
+| 15  | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |
+| 16  | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |
 
 ### Tier 4: Nice to Have (Enhancement)
 
-| # | Task | Impact | Effort |
-|---|------|--------|--------|
-| 17 | **Watch mode (`--watch`)** | Development workflow | Medium |
-| 18 | **Progress indicator** | UX for large directories | Small |
-| 19 | **`--dry-run` flag** | Debug config without running | Small |
-| 20 | **Diff/regression mode (`--baseline`)** | Incremental adoption | Large |
-| 21 | **`--fail-on-skipped` option** | Strict enforcement | Small |
-| 22 | **Migrate CLI to cobra** | Extensibility, shell completion | Medium |
-| 23 | **Extract cmd config to separate file** | Reduce main.go size | Small |
-| 24 | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness | Small |
-| 25 | **Add nix flake to CI** | Verify nix build in CI | Small |
+| #   | Task                                     | Impact                          | Effort |
+| --- | ---------------------------------------- | ------------------------------- | ------ |
+| 17  | **Watch mode (`--watch`)**               | Development workflow            | Medium |
+| 18  | **Progress indicator**                   | UX for large directories        | Small  |
+| 19  | **`--dry-run` flag**                     | Debug config without running    | Small  |
+| 20  | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |
+| 21  | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |
+| 22  | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |
+| 23  | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |
+| 24  | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |
+| 25  | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |
 
 ---
 
@@ -209,6 +209,7 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 **Should `go.work` be removed entirely, or is there a plan to fix the nix build while keeping it?**
 
 The `go.work` file references a local `go-output` checkout, which means:
+
 - `go build` works locally (uses go.work → local go-output with newer API)
 - `nix build` fails (uses go.mod → go-output v0.6.3 from proxy, different hash)
 - CI uses `go mod download` which may or may not pick up go.work
@@ -219,36 +220,36 @@ This is the root cause of the nix build failure and creates a split-brain betwee
 
 ## Test Coverage Summary
 
-| Package | Coverage | Change |
-|---------|----------|--------|
-| `pkg` | 87.5% | ↑ from 84.6% (earlier session) |
-| `pkg/code` | 93.8% | ↑ from 100%? (minor fluctuation) |
-| `pkg/languages` | 89.7% | ↓ from 92.5% |
-| `pkg/output` | 91.5% | Stable |
-| `pkg/types` | 93.6% | ↑ from 92.8% |
-| `pkg/testutil` | 86.8% | Stable |
-| `cmd/md-go-validator` | 70.9% | Stable (lowest — needs attention) |
+| Package               | Coverage | Change                            |
+| --------------------- | -------- | --------------------------------- |
+| `pkg`                 | 87.5%    | ↑ from 84.6% (earlier session)    |
+| `pkg/code`            | 93.8%    | ↑ from 100%? (minor fluctuation)  |
+| `pkg/languages`       | 89.7%    | ↓ from 92.5%                      |
+| `pkg/output`          | 91.5%    | Stable                            |
+| `pkg/types`           | 93.6%    | ↑ from 92.8%                      |
+| `pkg/testutil`        | 86.8%    | Stable                            |
+| `cmd/md-go-validator` | 70.9%    | Stable (lowest — needs attention) |
 
 ## Duplication Summary
 
-| Metric | Before Session | After Session |
-|--------|----------------|---------------|
-| Clone groups (threshold 15) | 12 | 8 |
-| Total clones | ~35 | 25 |
-| Complexity score | ~3.5 | 2.78 |
-| Production code clones | 0 | 0 |
-| Acceptable test clones | 12 groups | 8 groups (documented in false-positives.json) |
+| Metric                      | Before Session | After Session                                 |
+| --------------------------- | -------------- | --------------------------------------------- |
+| Clone groups (threshold 15) | 12             | 8                                             |
+| Total clones                | ~35            | 25                                            |
+| Complexity score            | ~3.5           | 2.78                                          |
+| Production code clones      | 0              | 0                                             |
+| Acceptable test clones      | 12 groups      | 8 groups (documented in false-positives.json) |
 
 ## Benchmark Summary
 
-| Benchmark | ns/op | B/op | allocs/op |
-|-----------|-------|------|-----------|
-| ExtractCodeBlocks (50 blocks) | 8,389 | 13,280 | 60 |
-| ExtractCodeBlocks (500 blocks) | 76,970 | 122,112 | 513 |
-| ValidateGoCode/complete | 1,375 | 2,104 | 46 |
-| ValidateGoCode/expression | 4,552 | 5,467 | 126 |
-| ValidateDirectory | 101,587 | 362,058 | 3,669 |
-| IsSupportedFile | 52 | 0 | 0 |
+| Benchmark                      | ns/op   | B/op    | allocs/op |
+| ------------------------------ | ------- | ------- | --------- |
+| ExtractCodeBlocks (50 blocks)  | 8,389   | 13,280  | 60        |
+| ExtractCodeBlocks (500 blocks) | 76,970  | 122,112 | 513       |
+| ValidateGoCode/complete        | 1,375   | 2,104   | 46        |
+| ValidateGoCode/expression      | 4,552   | 5,467   | 126       |
+| ValidateDirectory              | 101,587 | 362,058 | 3,669     |
+| IsSupportedFile                | 52      | 0       | 0         |
 
 ---
 
