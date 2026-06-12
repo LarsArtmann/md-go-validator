@@ -24,7 +24,6 @@
 
       imports = [ inputs.treefmt-nix.flakeModule ];
 
-
       perSystem =
         {
           config,
@@ -67,7 +66,7 @@
           apps = {
             default = {
               type = "app";
-              program = lib.getExe(config.packages.default);
+              program = lib.getExe (config.packages.default);
             };
 
             test = {
@@ -83,7 +82,10 @@
               type = "app";
               program = pkgs.writeShellApplication {
                 name = "run-lint";
-                runtimeInputs = [ pkgs.go_1_26 pkgs.golangci-lint ];
+                runtimeInputs = [
+                  pkgs.go_1_26
+                  pkgs.golangci-lint
+                ];
                 text = "golangci-lint run ./...";
               };
             };
