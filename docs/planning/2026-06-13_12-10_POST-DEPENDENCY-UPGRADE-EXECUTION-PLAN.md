@@ -178,14 +178,14 @@ Only the top 10 tasks are decomposed here. Each sub-task should fit in ~15 minut
 
 These cut across multiple tasks above and should be kept in mind while implementing:
 
-| Current Pain                                       | Proposed Model                                              | Affected Tasks |
-| -------------------------------------------------- | ----------------------------------------------------------- | -------------- |
-| `config` struct in `main.go` built by hand         | `pkg/config.Config` with constructor + validation           | 10, 11, 17, 25 |
-| `types.Result` is one struct with optional `Error` | Sum type: <code>ValidResult \| SkippedResult \| ErrorResult</code> | 9, 16          |
-| `pkg/types` imports `pkg/languages` for `Language` | Move `Language` to `pkg/language` (type-only package)       | 18             |
-| Direct `os` calls in validator and CLI             | Use `io/fs.FS` or `afero.Fs`                          | 12, 24            |
-| Plain `fmt.Errorf`                                 | `go-error-family` classified errors                   | 15, 9             |
-| Hardcoded ANSI codes in table output               | `chroma` or `lipgloss` for rendering                  | 25 (CLI refactor) |
+| Current Pain                                       | Proposed Model                                                     | Affected Tasks    |
+| -------------------------------------------------- | ------------------------------------------------------------------ | ----------------- |
+| `config` struct in `main.go` built by hand         | `pkg/config.Config` with constructor + validation                  | 10, 11, 17, 25    |
+| `types.Result` is one struct with optional `Error` | Sum type: <code>ValidResult \| SkippedResult \| ErrorResult</code> | 9, 16             |
+| `pkg/types` imports `pkg/languages` for `Language` | Move `Language` to `pkg/language` (type-only package)              | 18                |
+| Direct `os` calls in validator and CLI             | Use `io/fs.FS` or `afero.Fs`                                       | 12, 24            |
+| Plain `fmt.Errorf`                                 | `go-error-family` classified errors                                | 15, 9             |
+| Hardcoded ANSI codes in table output               | `chroma` or `lipgloss` for rendering                               | 25 (CLI refactor) |
 
 ---
 
