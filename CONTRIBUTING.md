@@ -156,6 +156,7 @@ golangci-lint run ./...
 ### Test Structure
 
 <!-- skip-validate -->
+
 ```go
 // Package naming: same package or package_test for black-box
 package domain_test  // Preferred for integration
@@ -168,6 +169,7 @@ package domain  // For white-box testing
 ### Test Organization
 
 <!-- skip-validate -->
+
 ```go
 // Use descriptive names with Given-When-Then pattern
 func TestCreateUser_GivenValidInput_WhenUserDoesNotExist_ShouldCreateUser(t *testing.T)

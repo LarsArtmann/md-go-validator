@@ -282,6 +282,7 @@ func TestHandleVersion(t *testing.T) {
 
 	// Capture stdout and restore it after the test.
 	oldStdout := os.Stdout
+
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatalf("create pipe: %v", err)
@@ -293,6 +294,7 @@ func TestHandleVersion(t *testing.T) {
 	oldOsExit := osExit
 	osExit = func(code int) {
 		exitCalled = true
+
 		if code != 0 {
 			t.Errorf("expected exit code 0, got %d", code)
 		}

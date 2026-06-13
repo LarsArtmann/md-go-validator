@@ -39,7 +39,7 @@ const (
 
 // version is set at build time via ldflags.
 //
-//nolint:gochecknoglobals // Injected by build system (goreleaser, nix)
+
 var version = "dev"
 
 // osExit allows mocking os.Exit in tests.
