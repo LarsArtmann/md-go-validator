@@ -330,6 +330,7 @@ func TestHandleVersion(t *testing.T) {
 	}
 }
 
+//nolint:paralleltest // Global osExit hook makes parallel execution unsafe
 func TestParseArgsVersionFlag(t *testing.T) {
 	tests := []struct {
 		name string
