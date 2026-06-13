@@ -130,7 +130,9 @@
         };
 
       flake.overlays.default = final: _prev: {
-        md-go-validator = final.callPackage ./package.nix { };
+        md-go-validator = final.callPackage ./package.nix {
+          inherit (final) self;
+        };
       };
     };
 }
