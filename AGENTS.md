@@ -8,8 +8,8 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 ## Tech Stack
 
 - Go 1.26.2+
-- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.15.3 — pure Go tree-sitter for multi-language parsing
-- [go-output](https://github.com/larsartmann/go-output) v0.2.0 — multi-format output (JSON, YAML, CSV, table)
+- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.20.2 — pure Go tree-sitter for multi-language parsing
+- [go-output](https://github.com/larsartmann/go-output) v0.10.0 — multi-format output (JSON, YAML, CSV, table)
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
 
@@ -149,7 +149,7 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 - Source filtering via `lib.fileset` (only includes go.mod, go.sum, cmd/, pkg/)
 - Version derived from git: `self.rev or self.dirtyRev or "dev"`
 - Overlay exported at `overlays.default` for consumption by other flakes
-- Known issue: `nix build` fails due to go-output API mismatch (go.work uses local go-output with newer API)
+- Previous nix build issue resolved: go.work removed, go-output v0.10.0 published with stable API
 
 ## Release
 
