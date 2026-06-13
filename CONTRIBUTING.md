@@ -37,15 +37,13 @@ We are committed to providing a welcoming and respectful environment. All contri
 git clone https://github.com/LarsArtmann/md-go-validator.git
 cd md-go-validator
 
-# 2. Run the setup script
-./CONTRIBUTING-setup.sh
+# 2. Enter the Nix development shell
+nix develop
 
-# 3. Install development dependencies
-just install
-
-# 4. Verify everything works
-just lint
-just test
+# 3. Verify everything works
+go test -race ./...
+golangci-lint run ./...
+nix flake check
 ```
 
 ---
@@ -54,35 +52,52 @@ just test
 
 ### Prerequisites
 
-| Tool           | Version | Purpose              |
-| -------------- | ------- | -------------------- |
-| Go             | 1.21+   | Language runtime     |
-| Just           | latest  | Task runner          |
-| golangci-lint  | v2.6.0  | Code linting         |
-| go-arch-lint   | v1.14.0 | Architecture linting |
-| branching-flow | latest  | Semantic analysis    |
-| gofumpt        | latest  | Code formatting      |
-| goimports      | latest  | Import management    |
+| Tool          | Version | Purpose                  |
+| ------------- | ------- | ------------------------ |
+| Nix           | latest  | Build system / dev shell |
+| Go            | 1.26+   | Language runtime         |
+| golangci-lint | v2.6.0  | Code linting             |
 
-### Installation
+### Nix-Based Workflow (Recommended)
+
+All build, test, lint, and format tasks are driven by `flake.nix`.
 
 ```bash
-# Install all tools via just
-just install
+# Enter a shell with Go, gopls, golangci-lint, and goreleaser
+nix develop
 
-# Or install individually
-go get -tool github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.6.0
-go get -tool github.com/fe3dback/go-arch-lint@v1.14.0
+# Build the binary
+nix build .#
+# or
+go build ./cmd/md-go-validator
+
+# Run tests
+nix run .#test
+# or
+go test -race ./...
+
+# Run the linter
+nix run .#lint
+# or
+golangci-lint run ./...
+
+# Run all checks (build + test + format)
+nix flake check
+
+# Format code
+nix fmt
 ```
 
-### Pre-commit Hooks
+### Manual Setup (Without Nix)
+
+If you do not use Nix, install the prerequisites manually:
 
 ```bash
-# Install basic hooks (formatting only - fast)
-just install-hooks
+# Install Go 1.26.3+ (see https://go.dev/dl/)
+# Install golangci-lint (see https://golangci-lint.run/usage/install/)
 
-# Install comprehensive hooks (includes architecture validation)
-just install-hooks-full
+go test -race ./...
+golangci-lint run ./...
 ```
 
 ---
@@ -91,21 +106,15 @@ just install-hooks-full
 
 ### Mandatory Rules
 
-1. **Centralized Error Management**
-   - All errors MUST be defined in `pkg/errors/`
-   - No direct `errors.New()` or `fmt.Errorf()` outside `pkg/errors`
-   - Use `pkg/errors.Wrap()`, `pkg/errors.New()` for error creation
-   - Use `errors.Is()`, `errors.As()` for error checking
-
-2. **Strong ID Types**
-   - No raw string/numeric IDs — use branded types
-   - Example: `type UserID = brsdt.Type[string, "user_id"]`
-
-3. **Composition Over Inheritance**
+1. **Composition Over Inheritance**
    - Prefer interfaces and struct embedding over class hierarchies
    - Use dependency injection for testability
 
-4. **Early Returns**
+2. **Strong ID Types**
+   - No raw string/numeric IDs — use branded types
+   - Example: `type FileID = brsdt.Type[string, "file_id"]`
+
+3. **Early Returns**
    - Use guard clauses to reduce nesting
    - Keep functions small and focused
 
@@ -114,20 +123,19 @@ just install-hooks-full
 ```
 ├── cmd/                    # Application entry points
 │   └── md-go-validator/main.go
-├── internal/               # Private application code
-│   ├── domain/             # Domain layer (business logic)
-│   │   ├── entities/       # Business entities
-│   │   ├── values/         # Value objects
-│   │   ├── repositories/   # Repository interfaces
-│   │   └── services/      # Domain services
-│   ├── application/        # Application layer
-│   │   └── handlers/      # HTTP handlers
-│   ├── infrastructure/     # Infrastructure layer
-│   │   └── db/            # SQLC generated code
-│   └── config/            # Configuration
 ├── pkg/                    # Public packages
-│   └── errors/            # Centralized error definitions
-└── md-go-validator.go     # Module definition
+│   ├── code/               # Code utilities
+│   ├── languages/          # Language validators and registry
+│   ├── output/             # Report formatting
+│   ├── types/              # Domain types (branded IDs, results, etc.)
+│   ├── validator.go        # File/directory validation orchestration
+│   ├── extractor.go        # Markdown code-block extraction
+│   └── context.go          # Context lifecycle management
+├── docs/                   # Project documentation
+│   ├── status/             # Status reports
+│   └── planning/           # Execution plans
+├── flake.nix               # Nix flake (build, test, dev shell)
+└── package.nix             # Nix package expression for overlays
 ```
 
 ### Naming Conventions
@@ -173,57 +181,54 @@ func TestCreateUser_GivenValidInput_WhenUserDoesNotExist_ShouldCreateUser(t *tes
 
 ```bash
 # Run tests with coverage
-just test
+go test -cover ./...
 
-# Check coverage threshold
-just coverage 80
+# Run tests with race detector
+go test -race ./...
 
 # Detailed coverage analysis
-just coverage-detailed
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 ```
 
 ---
 
 ## Architecture
 
-### Clean Architecture Layers
+### Package Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    INFRASTRUCTURE                           │
-│   (External systems: DB, HTTP clients, file system)          │
+│                         CLI                                  │
+│   cmd/md-go-validator/main.go                                │
 └─────────────────────────┬───────────────────────────────────┘
-                          │ implements
+                          │ imports
 ┌─────────────────────────▼───────────────────────────────────┐
-│                    APPLICATION                              │
-│   (Use cases, handlers, orchestration)                      │
+│                      pkg/validator                           │
+│   (File/directory validation orchestration)                  │
 └─────────────────────────┬───────────────────────────────────┘
-                          │ uses
+                          │ imports
 ┌─────────────────────────▼───────────────────────────────────┐
-│                       DOMAIN                                 │
-│   (Entities, value objects, domain services)                 │
+│              pkg/extractor + pkg/languages                   │
+│   (Code-block extraction + language validators)              │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ imports
+┌─────────────────────────▼───────────────────────────────────┐
+│                       pkg/types                              │
+│   (Branded IDs, Result, CodeBlock, ValidationStatus)         │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ### Dependency Rules
 
-- **Domain** → Domain only (entities, values, repositories interfaces)
-- **Application** → Domain + Infrastructure interfaces
-- **Infrastructure** → Domain interfaces (implements them)
-- **pkg/errors** → Available everywhere (mandatory)
+- `cmd/` → `pkg/*`
+- `pkg/validator` → `pkg/extractor`, `pkg/languages`, `pkg/types`
+- `pkg/languages` → `pkg/types`, `pkg/code`
+- `pkg/output` → `pkg/types`
 
-### Architecture Validation
+### Current Known Cycle
 
-```bash
-# Check architecture compliance
-just lint-arch
-
-# Generate architecture graph
-just graph
-
-# Verbose architecture checking
-just verbose
-```
+`pkg/types` currently imports `pkg/languages` (for the `Language` type used in `CodeBlock`), and `pkg/languages` imports `pkg/types` for result types. This is documented in `docs/modularization/PROPOSAL.md` and should be resolved by moving the `Language` type to a dedicated package.
 
 ---
 
@@ -232,109 +237,36 @@ just verbose
 ### Quick Commands
 
 ```bash
-# Run all linters
-just lint
+# Run the Go linter
+golangci-lint run ./...
 
-# Fix issues automatically
-just fix
+# Run all Nix checks (format, build, test)
+nix flake check
 
-# Format code
-just format
-
-# Run pre-commit checks
-just check-pre-commit
-just check-pre-commit-fast  # Fast version for hooks
-```
-
-### Detailed Commands
-
-```bash
-# Code quality only
-just lint-code
-
-# Architecture only
-just lint-arch
-
-# Security only
-just lint-security
-
-# Vulnerability scanning
-just lint-vulns
-
-# Nil panic detection
-just lint-nilaway
-
-# Capability analysis
-just lint-capslock
-```
-
-### Branching-Flow Analysis
-
-```bash
-# Semantic context analysis (error handling)
-branching-flow context .
-
-# Find duplicate types
-branching-flow dupe .
-
-# Check for phantom types
-branching-flow phantom .
-
-# Panic condition analysis
-branching-flow panic .
-
-# Strong ID type analysis
-branching-flow strong-id .
-
-# Boolean blindness analysis
-branching-flow boolblind .
-
-# Anti-pattern detection
-branching-flow anti-patterns .
-
-# Run all analyzers
-branching-flow all .
+# Format .nix and .go files
+nix fmt
 ```
 
 ### Quality Gates
 
 Before merging, all checks must pass:
 
-- [ ] `golangci-lint` passes
-- [ ] `go-arch-lint` passes
-- [ ] `branching-flow all .` passes
-- [ ] Tests pass with 80%+ coverage
-- [ ] Code is formatted (`gofumpt`)
+- [ ] `go test -race ./...` passes
+- [ ] `golangci-lint run ./...` passes
+- [ ] `nix flake check` passes
+- [ ] Code is formatted (`gofmt` / `nixfmt`)
 - [ ] Imports are organized (`goimports`)
-- [ ] No security vulnerabilities (`govulncheck`)
 
 ---
 
 ## Security
 
-### Security Scanning
-
-```bash
-# Full security audit
-just security-audit
-
-# Quick security check
-just capslock-quick
-
-# Vulnerability scanning
-just lint-vulns
-
-# Docker security scan
-just docker-security
-```
-
 ### Security Best Practices
 
 1. **Input Validation** — Validate all inputs at boundaries
-2. **Parameterized Queries** — Use SQLC for type-safe SQL
-3. **No Secrets in Code** — Use environment variables
-4. **Principle of Least Privilege** — Request only required capabilities
-5. **Error Messages** — Don't leak sensitive information
+2. **No Secrets in Code** — Use environment variables
+3. **Principle of Least Privilege** — Request only required capabilities
+4. **Error Messages** — Don't leak sensitive information
 
 ---
 
@@ -375,17 +307,15 @@ just docker-security
    ## Checklist
 
    - [ ] Code follows style guidelines
-   - [ ] Architecture rules pass
-   - [ ] Security scan clean
+   - [ ] Tests pass
+   - [ ] `nix flake check` passes
    - [ ] Documentation updated
    ```
 
-### Review Process
-
-1. **Self-review first** — Run `just lint` and `just test` locally
-2. **Small PRs** — Keep changes focused and digestible
-3. **Explain "why"** — Not just "what", but rationale
-4. **Be responsive** — Address feedback promptly
+3. **Self-review first** — Run `go test -race ./...`, `golangci-lint run ./...`, and `nix flake check` locally
+4. **Small PRs** — Keep changes focused and digestible
+5. **Explain "why"** — Not just "what", but rationale
+6. **Be responsive** — Address feedback promptly
 
 ---
 
@@ -420,13 +350,10 @@ just docker-security
 
 ```bash
 # Good
-feat(auth): add JWT token refresh mechanism
+feat(cli): add --version flag
 
-Implements automatic token refresh before expiration
-to improve user experience and reduce authentication
-failures.
-
-Closes #123
+Adds --version and -V flags so users can verify the installed
+binary version. Version is injected at build time via ldflags.
 
 # Bad
 fix stuff
@@ -434,8 +361,8 @@ fix stuff
 # Good
 docs(readme): update installation instructions
 
-Added Go 1.21+ requirement and just installation
-instructions for macOS users.
+Added Nix-based development instructions and removed stale
+`just` references.
 
 # Bad
 updated README
@@ -450,6 +377,7 @@ updated README
 - [Go Documentation](https://go.dev/doc/)
 - [Uber Go Style Guide](https://github.com/uber-go/guide)
 - [Effective Go](https://go.dev/doc/effective_go)
+- [Project docs](./docs)
 
 ### Getting Unblocked
 
