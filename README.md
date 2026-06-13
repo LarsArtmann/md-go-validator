@@ -60,6 +60,9 @@ md-go-validator -v .
 
 # Quiet mode (summary only)
 md-go-validator -q .
+
+# Show version
+md-go-validator --version
 ```
 
 ## Options
@@ -75,6 +78,7 @@ md-go-validator -q .
 | `-o, --output`   | Write output to file                          |
 | `-t, --timeout`  | Timeout for validation (e.g., 30s, 5m)        |
 | `-h, --help`     | Show help message                             |
+| `-V, --version`  | Show version information                      |
 
 ## Supported Languages
 

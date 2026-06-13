@@ -148,7 +148,7 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 - `nix develop` — dev shell with go, gopls, golangci-lint, goreleaser
 - Source filtering via `lib.fileset` (only includes go.mod, go.sum, cmd/, pkg/)
 - Version derived from git: `self.rev or self.dirtyRev or "dev"`
-- Overlay exported at `overlays.default` for consumption by other flakes
+- Overlay exported at `overlays.default` via `package.nix`
 - Previous nix build issue resolved: go.work removed, go-output v0.10.0 published with stable API
 
 ## Release
