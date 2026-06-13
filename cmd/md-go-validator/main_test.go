@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -274,6 +275,83 @@ func TestPrintUsage(t *testing.T) {
 
 	// Just verify it doesn't panic
 	printUsage()
+}
+
+func TestHandleVersion(t *testing.T) {
+	t.Parallel()
+
+	// Capture stdout and restore it after the test.
+	oldStdout := os.Stdout
+	r, w, err := os.Pipe()
+	if err != nil {
+		t.Fatalf("create pipe: %v", err)
+	}
+
+	os.Stdout = w
+
+	exitCalled := false
+	oldOsExit := osExit
+	osExit = func(code int) {
+		exitCalled = true
+		if code != 0 {
+			t.Errorf("expected exit code 0, got %d", code)
+		}
+	}
+
+	version = "v0.2.0-test"
+
+	defer func() {
+		os.Stdout = oldStdout
+		osExit = oldOsExit
+		version = "dev"
+	}()
+
+	_, _ = handleVersion(nil, 0, nil)
+
+	closeErr := w.Close()
+	if closeErr != nil {
+		t.Fatalf("close pipe writer: %v", closeErr)
+	}
+
+	output, err := io.ReadAll(r)
+	if err != nil {
+		t.Fatalf("read from pipe: %v", err)
+	}
+
+	if !exitCalled {
+		t.Error("expected os.Exit to be called")
+	}
+
+	want := "md-go-validator v0.2.0-test\n"
+	if string(output) != want {
+		t.Errorf("got %q, want %q", string(output), want)
+	}
+}
+
+func TestParseArgsVersionFlag(t *testing.T) {
+	tests := []struct {
+		name string
+		args []string
+	}{
+		{"version long", []string{"--version"}},
+		{"version short", []string{"-V"}},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			exitCalled := false
+			oldOsExit := osExit
+			osExit = func(_ int) { exitCalled = true }
+
+			defer func() { osExit = oldOsExit }()
+
+			_ = parseArgs(tt.args)
+
+			if !exitCalled {
+				t.Error("expected os.Exit to be called for version flag")
+			}
+		})
+	}
 }
 
 func TestParseArgsFormatFlag(t *testing.T) {

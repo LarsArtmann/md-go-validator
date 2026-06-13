@@ -34,7 +34,13 @@ const (
 	flagFormat  = "--format"
 	flagOutput  = "--output"
 	flagTimeout = "--timeout"
+	flagVersion = "--version"
 )
+
+// version is set at build time via ldflags.
+//
+//nolint:gochecknoglobals // Injected by build system (goreleaser, nix)
+var version = "dev"
 
 // osExit allows mocking os.Exit in tests.
 //
@@ -140,6 +146,8 @@ func newArgHandlers() map[string]argHandler {
 		"--language": languagesHandler,
 		"-h":         handleHelp,
 		"--help":     handleHelp,
+		"-V":         handleVersion,
+		flagVersion:  handleVersion,
 	}
 }
 
@@ -239,6 +247,14 @@ func handleHelp(_ []string, _ int, _ *config) (int, bool) {
 	os.Exit(0)
 
 	return 0, false // exit called, but we need to return something
+}
+
+func handleVersion(_ []string, _ int, _ *config) (int, bool) {
+	//nolint:forbidigo // CLI version output requires direct stdout writing
+	fmt.Println("md-go-validator", version)
+	osExit(0)
+
+	return 0, true // exit called, but we need to return something
 }
 
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
@@ -400,6 +416,7 @@ OPTIONS:
     -l, --language    Comma-separated list of languages to validate
                       (go, templ, typescript, tsx, nix, rust, hcl, terraform)
     -h, --help        Show this help message
+    -V, --version     Show version information
 
 `
 }
