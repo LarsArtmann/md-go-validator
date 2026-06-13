@@ -33,7 +33,7 @@
         }:
         let
           version = self.rev or self.dirtyRev or "dev";
-          vendorHash = "sha256-dwZW5PBepzZjfQEyiemLtElIhzPUBaV/wJMk70pzwFs=";
+          vendorHash = "sha256-gszC1DS4vvxPQxUWIOk6TlDMxSc6Djva5b/5cbCg+l0=";
           proxyVendor = true;
 
           src = lib.fileset.toSource {
