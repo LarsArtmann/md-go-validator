@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,17 +24,7 @@ var (
 const (
 	defaultConcurrency = 4
 	codePreviewLength  = 30
-	goroutineCount     = 2
 )
-
-// supportedExtensions is the single source of truth for recognized file types.
-//
-//nolint:gochecknoglobals // Configuration: immutable runtime-supported extensions
-var supportedExtensions = map[types.FileType]bool{
-	types.FileTypeMarkdown:    true,
-	types.FileTypeMarkdownAlt: true,
-	types.FileTypeMdx:         true,
-}
 
 // FileValidator validates code blocks in markdown and MDX files.
 type FileValidator struct {
@@ -196,7 +187,7 @@ func (v *FileValidator) validateBlock(
 			block.Code,
 			fmt.Errorf(
 				"%w: %s (blockIndex=%d)",
-				errNoValidatorForLang, block.Language, blockIndex.Int()-1,
+				errNoValidatorForLang, block.Language, blockIndex.Int(),
 			),
 		)
 	}
@@ -250,7 +241,7 @@ func newErrorResultFromBlock(
 		blockIndex,
 		block.Code,
 		fmt.Errorf("validating %s block (block=%d, file=%s, code=%q, line=%s): %w",
-			block.Language, blockIndex.Int()-1, filePath, codePreview, block.LineNumber, err),
+			block.Language, blockIndex.Int(), filePath, codePreview, block.LineNumber, err),
 	)
 }
 
@@ -310,13 +301,13 @@ func (v *FileValidator) ValidateDirectory(
 func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) {
 	var files []string
 
-	err := filepath.Walk(dirPath, func(path string, info os.FileInfo, err error) error {
+	err := filepath.WalkDir(dirPath, func(path string, entry fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if info.IsDir() {
-			if shouldSkipDir(info.Name()) {
+		if entry.IsDir() {
+			if shouldSkipDir(entry.Name()) {
 				return filepath.SkipDir
 			}
 
@@ -357,7 +348,7 @@ func (v *FileValidator) processFilesParallel(
 	v.startWorkers(ctx, workerChannels{jobs, results, errors})
 	v.feedJobs(ctx, jobs, filesToProcess)
 
-	return v.collectResults(ctx, results, errors)
+	return v.collectResults(results, errors)
 }
 
 // limitFiles applies maxFiles limit to file paths.
@@ -401,11 +392,7 @@ func (v *FileValidator) processJob(ctx context.Context, chans workerChannels) {
 		default:
 		}
 
-		branchCtx, cancel := context.WithCancel(ctx)
-		fileResults, err := v.ValidateFile(branchCtx, path)
-
-		cancel()
-
+		fileResults, err := v.ValidateFile(ctx, path)
 		if err != nil {
 			chans.errors <- fmt.Errorf("file %s: %w", path, err)
 
@@ -436,99 +423,29 @@ func (v *FileValidator) feedJobs(
 	}()
 }
 
-// collectResults aggregates results from workers until channels are closed.
-// Uses a done channel to signal completion instead of complex select.
+// collectResults aggregates results and errors by draining the channels,
+// which are closed once all workers finish. Both channels are buffered to the
+// file count, so workers never block on send and collection cannot deadlock.
 func (v *FileValidator) collectResults(
-	ctx context.Context,
 	results <-chan []types.Result,
 	errorsChan <-chan error,
 ) ([]types.Result, error) {
-	done := make(chan struct{})
-	allResults := &resultCollector{
-		results: []types.Result{},
-		errors:  []error{},
-		mu:      sync.Mutex{},
+	allResults := make([]types.Result, 0)
+
+	for r := range results {
+		allResults = append(allResults, r...)
 	}
 
-	go v.collectResultsLoop(ctx, results, errorsChan, done, allResults)
-
-	<-done
-
-	return allResults.finalize()
-}
-
-// resultCollector holds collected results and errors.
-type resultCollector struct {
-	results []types.Result
-	errors  []error
-	mu      sync.Mutex
-}
-
-// withLock executes fn under mutex protection.
-func (rc *resultCollector) withLock(fn func()) {
-	rc.mu.Lock()
-	defer rc.mu.Unlock()
-
-	fn()
-}
-
-// addResult adds a result safely.
-func (rc *resultCollector) addResult(r []types.Result) {
-	rc.withLock(func() {
-		rc.results = append(rc.results, r...)
-	})
-}
-
-// addError adds an error safely.
-func (rc *resultCollector) addError(err error) {
-	rc.withLock(func() {
-		rc.errors = append(rc.errors, err)
-	})
-}
-
-// finalize returns results or first error.
-func (rc *resultCollector) finalize() ([]types.Result, error) {
-	rc.mu.Lock()
-	defer rc.mu.Unlock()
-
-	if len(rc.errors) > 0 {
-		return rc.results, fmt.Errorf("encountered %d errors: %w", len(rc.errors), rc.errors[0])
+	var errs []error
+	for err := range errorsChan {
+		errs = append(errs, err)
 	}
 
-	return rc.results, nil
-}
-
-// collectFromChan runs a collection loop for a typed channel with context cancellation.
-func collectFromChan[T any](ctx context.Context, ch <-chan T, wg *sync.WaitGroup, fn func(T)) {
-	defer wg.Done()
-
-	for item := range ch {
-		select {
-		case <-ctx.Done():
-			return
-		default:
-			fn(item)
-		}
+	if len(errs) > 0 {
+		return allResults, fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
 	}
-}
 
-// collectResultsLoop runs collection loops concurrently.
-func (v *FileValidator) collectResultsLoop(
-	ctx context.Context,
-	results <-chan []types.Result,
-	errorsChan <-chan error,
-	done chan<- struct{},
-	collector *resultCollector,
-) {
-	var wg sync.WaitGroup
-	wg.Add(goroutineCount)
-
-	go collectFromChan(ctx, results, &wg, collector.addResult)
-
-	go collectFromChan(ctx, errorsChan, &wg, collector.addError)
-
-	wg.Wait()
-	close(done)
+	return allResults, nil
 }
 
 func (v *FileValidator) withInt(field *int, value int) *FileValidator {
@@ -560,10 +477,11 @@ func SupportedExtensions() []types.FileType {
 
 // IsSupportedFile returns true if the file has a supported extension.
 // Supports .md, .markdown, and .mdx files.
+// types is the single source of truth for which extensions are recognized.
 func IsSupportedFile(path string) bool {
-	ext := strings.ToLower(filepath.Ext(path))
+	_, ok := types.ParseFileType(strings.ToLower(filepath.Ext(path)))
 
-	return supportedExtensions[types.FileType(ext)]
+	return ok
 }
 
 func formatSupportedExtensions() string {
