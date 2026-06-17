@@ -436,14 +436,14 @@ COLOR MODES:
     never    Disable colors
 
 SUPPORTED LANGUAGES:
-    go          Go (built-in, always available)
-    templ       Templ (requires 'templ' CLI)
-    typescript  TypeScript (requires 'tsc')
-    tsx         TypeScript JSX (requires 'tsc')
-    nix         Nix (requires 'nix-instantiate')
-    rust        Rust (requires 'rustc')
-    hcl         HCL/Terraform (requires 'terraform' or 'hclfmt')
-    terraform   Alias for HCL
+    go          Go (built-in stdlib parser, always available)
+    templ       Templ (embedded tree-sitter grammar)
+    typescript  TypeScript (embedded tree-sitter grammar)
+    tsx         TypeScript JSX (embedded tree-sitter grammar)
+    nix         Nix (embedded tree-sitter grammar)
+    rust        Rust (embedded tree-sitter grammar)
+    hcl         HCL/Terraform (embedded tree-sitter grammar)
+    terraform   Alias for HCL (embedded tree-sitter grammar)
 
 SUPPORTED FILE TYPES:
     .md        Markdown
