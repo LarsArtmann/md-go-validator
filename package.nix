@@ -30,5 +30,13 @@ buildGoModule {
     homepage = "https://github.com/LarsArtmann/md-go-validator";
     license = licenses.mit;
     mainProgram = "md-go-validator";
+    maintainers = [
+      {
+        name = "Lars Artmann";
+        email = "git@lars.software";
+        github = "LarsArtmann";
+        githubId = 23587853;
+      }
+    ];
   };
 }
