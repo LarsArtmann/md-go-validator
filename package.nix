@@ -30,6 +30,7 @@ buildGoModule {
     homepage = "https://github.com/LarsArtmann/md-go-validator";
     license = licenses.mit;
     mainProgram = "md-go-validator";
+    platforms = platforms.all;
     maintainers = [
       {
         name = "Lars Artmann";
