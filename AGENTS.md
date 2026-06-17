@@ -7,9 +7,9 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 
 ## Tech Stack
 
-- Go 1.26.2+
+- Go 1.26.3+
 - [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.20.2 — pure Go tree-sitter for multi-language parsing
-- [go-output](https://github.com/larsartmann/go-output) v0.10.0 — multi-format output (JSON, YAML, CSV, table)
+- [go-output](https://github.com/larsartmann/go-output) v0.11.0 — multi-format output (JSON, YAML, CSV, table)
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
 
@@ -53,7 +53,7 @@ goreleaser release
 
 ### pkg/context.go
 
-- `ContextConfig` — Timeout, deadline, max files/blocks, parent context propagation
+- `ContextConfig` — Timeout, deadline, parent context propagation (file/block limits live on `FileValidator`, not here)
 - `Build()` / `Branch()` / `BranchWithTimeout()` — Context lifecycle management
 
 ### pkg/types/
@@ -131,12 +131,12 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 
 | Package       | Coverage |
 | ------------- | -------- |
-| pkg           | 84.6%    |
-| pkg/code      | 100%     |
-| pkg/languages | 92.5%    |
-| pkg/output    | 91.5%    |
-| pkg/types     | 92.8%    |
-| cmd           | 70.9%    |
+| pkg           | 87.0%    |
+| pkg/code      | 93.8%    |
+| pkg/languages | 89.7%    |
+| pkg/output    | 91.1%    |
+| pkg/types     | 93.4%    |
+| cmd           | 71.5%    |
 
 ## Nix
 
