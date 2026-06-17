@@ -174,9 +174,9 @@ func (s *extractorState) endCodeBlock(blocks *[]types.CodeBlock) {
 	block := types.NewCodeBlock(types.NewLineNumber(s.blockStartLine), s.currentLang, code)
 	if skipped {
 		block.MarkSkipped()
-	} else {
-		block.MarkValid()
 	}
+	// Unskipped blocks stay StatusUnknown: validity is determined later by the validator,
+	// not at extraction time.
 
 	if blocks != nil {
 		*blocks = append(*blocks, block)
