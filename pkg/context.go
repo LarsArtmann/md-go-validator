@@ -11,6 +11,9 @@ type ContextWrapper func(context.Context) (context.Context, context.CancelFunc)
 // ContextConfig holds configuration for context behavior in validation flows.
 // This enables proper context propagation, timeouts, and cancellation support
 // throughout the validation pipeline.
+//
+// Note: file and block limits are NOT context concerns — they live on
+// FileValidator (WithMaxFiles / WithMaxBlocks), which performs the actual work.
 type ContextConfig struct {
 	// Timeout is the maximum duration for validation operations.
 	// If zero, no timeout is applied.
@@ -19,14 +22,6 @@ type ContextConfig struct {
 	// Deadline is the absolute deadline for validation.
 	// If zero, no deadline is set.
 	Deadline time.Time
-
-	// MaxFiles is the maximum number of files to process.
-	// If zero, all files are processed.
-	MaxFiles int
-
-	// MaxBlocksPerFile is the maximum number of code blocks to process per file.
-	// If zero, all blocks are processed.
-	MaxBlocksPerFile int
 
 	// Parent is the parent context for propagation.
 	// If nil, context.Background() is used as base.
@@ -37,11 +32,9 @@ type ContextConfig struct {
 // DefaultContextConfig returns a default context configuration with sensible defaults.
 func DefaultContextConfig() ContextConfig {
 	return ContextConfig{
-		Timeout:          0, // No timeout by default
-		Deadline:         time.Time{},
-		MaxFiles:         0, // Unlimited
-		MaxBlocksPerFile: 0, // Unlimited
-		Parent:           nil,
+		Timeout:  0, // No timeout by default
+		Deadline: time.Time{},
+		Parent:   nil,
 	}
 }
 
@@ -55,20 +48,6 @@ func (c ContextConfig) WithTimeout(timeout time.Duration) ContextConfig {
 // WithDeadline returns a new ContextConfig with the specified deadline.
 func (c ContextConfig) WithDeadline(deadline time.Time) ContextConfig {
 	c.Deadline = deadline
-
-	return c
-}
-
-// WithMaxFiles returns a new ContextConfig with the specified max files.
-func (c ContextConfig) WithMaxFiles(maxFiles int) ContextConfig {
-	c.MaxFiles = maxFiles
-
-	return c
-}
-
-// WithMaxBlocksPerFile returns a new ContextConfig with the specified max blocks.
-func (c ContextConfig) WithMaxBlocksPerFile(maxBlocks int) ContextConfig {
-	c.MaxBlocksPerFile = maxBlocks
 
 	return c
 }

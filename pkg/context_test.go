@@ -15,8 +15,6 @@ func TestDefaultContextConfig(t *testing.T) {
 
 	testutil.AssertZeroValue(t, "Timeout", cfg.Timeout, time.Duration(0))
 	testutil.AssertZeroValue(t, "Deadline", cfg.Deadline, time.Time{})
-	testutil.AssertZeroValue(t, "MaxFiles", cfg.MaxFiles, 0)
-	testutil.AssertZeroValue(t, "MaxBlocksPerFile", cfg.MaxBlocksPerFile, 0)
 
 	if cfg.Parent != nil {
 		t.Error("expected nil parent")
@@ -41,70 +39,6 @@ func TestContextConfigWithDeadline(t *testing.T) {
 
 	if !cfg.Deadline.Equal(deadline) {
 		t.Errorf("expected deadline %v, got %v", deadline, cfg.Deadline)
-	}
-}
-
-func TestContextConfigWithMaxFiles(t *testing.T) {
-	t.Parallel()
-
-	cfg := DefaultContextConfig().WithMaxFiles(100)
-
-	if cfg.MaxFiles != 100 {
-		t.Errorf("expected maxFiles 100, got %d", cfg.MaxFiles)
-	}
-}
-
-func TestContextConfigWithMaxBlocksPerFile(t *testing.T) {
-	t.Parallel()
-
-	cfg := DefaultContextConfig().WithMaxBlocksPerFile(50)
-
-	if cfg.MaxBlocksPerFile != 50 {
-		t.Errorf("expected maxBlocksPerFile 50, got %d", cfg.MaxBlocksPerFile)
-	}
-}
-
-func TestContextConfigWithMaxLimits(t *testing.T) {
-	t.Parallel()
-
-	testCases := []struct {
-		name              string
-		setMax            func(ContextConfig) ContextConfig
-		getMax            func(ContextConfig) int
-		expected          int
-		expectedFieldName string
-	}{
-		{
-			name:              "WithMaxFiles",
-			setMax:            func(c ContextConfig) ContextConfig { return c.WithMaxFiles(100) },
-			getMax:            func(c ContextConfig) int { return c.MaxFiles },
-			expected:          100,
-			expectedFieldName: "maxFiles",
-		},
-		{
-			name:              "WithMaxBlocksPerFile",
-			setMax:            func(c ContextConfig) ContextConfig { return c.WithMaxBlocksPerFile(50) },
-			getMax:            func(c ContextConfig) int { return c.MaxBlocksPerFile },
-			expected:          50,
-			expectedFieldName: "maxBlocksPerFile",
-		},
-	}
-
-	for _, testCase := range testCases {
-		t.Run(testCase.name, func(t *testing.T) {
-			t.Parallel()
-
-			cfg := testCase.setMax(DefaultContextConfig())
-
-			if got := testCase.getMax(cfg); got != testCase.expected {
-				t.Errorf(
-					"expected %s %d, got %d",
-					testCase.expectedFieldName,
-					testCase.expected,
-					got,
-				)
-			}
-		})
 	}
 }
 
