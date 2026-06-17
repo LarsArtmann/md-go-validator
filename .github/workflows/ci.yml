@@ -56,4 +56,18 @@ jobs:
         run: go build ./cmd/md-go-validator
 
       - name: Dogfood — validate project markdown
-        run: ./md-go-validator --format json README.md EXAMPLES.md CONTRIBUTING.md CHANGELOG.md
+        run: ./md-go-validator --format json README.md EXAMPLES.md CONTRIBUTING.md CHANGELOG.md AGENTS.md
+
+  nix:
+    name: Nix flake check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v30
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Run nix flake check
+        run: nix flake check --no-build
