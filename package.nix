@@ -5,7 +5,7 @@
 }:
 let
   version = self.rev or self.dirtyRev or "dev";
-  vendorHash = "sha256-gszC1DS4vvxPQxUWIOk6TlDMxSc6Djva5b/5cbCg+l0=";
+  vendorHash = "sha256-cq1AMBd5RJQM/Jl/ZYQNiIsPR3GVKK8PtHnd1XZScu0=";
 
   src = lib.fileset.toSource {
     root = ./.;
@@ -20,7 +20,6 @@ in
 buildGoModule {
   pname = "md-go-validator";
   inherit version vendorHash src;
-  proxyVendor = true;
   ldflags = [
     "-s"
     "-w"

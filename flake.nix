@@ -31,37 +31,10 @@
           lib,
           ...
         }:
-        let
-          version = self.rev or self.dirtyRev or "dev";
-          vendorHash = "sha256-gszC1DS4vvxPQxUWIOk6TlDMxSc6Djva5b/5cbCg+l0=";
-          proxyVendor = true;
-
-          src = lib.fileset.toSource {
-            root = ./.;
-            fileset = lib.fileset.unions [
-              ./go.mod
-              ./go.sum
-              ./cmd
-              ./pkg
-            ];
-          };
-        in
         {
-          packages.default = pkgs.buildGoModule {
-            pname = "md-go-validator";
-            inherit version vendorHash src;
-            ldflags = [
-              "-s"
-              "-w"
-              "-X main.version=${version}"
-            ];
-            meta = with lib; {
-              description = "Validate code blocks embedded in Markdown and MDX documentation files";
-              homepage = "https://github.com/LarsArtmann/md-go-validator";
-              license = licenses.mit;
-              mainProgram = "md-go-validator";
-            };
-          };
+          # The package definition lives in package.nix (single source of truth).
+          # We pass `self` so the build gets the git-derived version.
+          packages.default = pkgs.callPackage ./package.nix { inherit self; };
 
           apps = {
             default = {
@@ -130,9 +103,10 @@
         };
 
       flake.overlays.default = final: _prev: {
-        md-go-validator = final.callPackage ./package.nix {
-          inherit (final) self;
-        };
+        # Note: overlays cannot access the flake's git-derived version (no flake
+        # `self` in scope here), so the package version falls back to "dev".
+        # Consumers that need the real version should use `packages.default`.
+        md-go-validator = final.callPackage ./package.nix { };
       };
     };
 }
