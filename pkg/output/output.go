@@ -286,6 +286,16 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 		return nil
 	}
 
+	if report.Summary.Skipped > 0 {
+		_, err := fmt.Fprintf(w, "All %d code blocks valid (%d skipped)\n",
+			report.Summary.Valid, report.Summary.Skipped)
+		if err != nil {
+			return newOutputError("quiet output", results, false, err)
+		}
+
+		return nil
+	}
+
 	_, err := fmt.Fprintf(w, "All %d code blocks valid\n", report.Summary.Valid)
 	if err != nil {
 		return newOutputError("quiet output", results, false, err)
@@ -312,12 +322,12 @@ func printTableHeaderTo(w io.Writer, summary types.ReportSummary, shouldColor bo
 	errorsLabel := fmt.Sprintf("Errors: %d", summary.Errors)
 
 	if shouldColor {
-		_, _ = fmt.Fprintln(w, "\033[1;36m"+divider+"\033[0m")
-		_, _ = fmt.Fprintln(w, "\033[1;36m📊 "+reportLabel+"\033[0m")
-		_, _ = fmt.Fprintln(w, "\033[1;36m"+divider+"\033[0m")
-		_, _ = fmt.Fprintf(w, "\033[1;32m✅ %s\033[0m\n", validLabel)
-		_, _ = fmt.Fprintf(w, "\033[33m⏭️  %s\033[0m\n", skippedLabel)
-		_, _ = fmt.Fprintf(w, "\033[1;31m❌ %s\033[0m\n", errorsLabel)
+		_, _ = fmt.Fprintln(w, ansiCyan+divider+ansiReset)
+		_, _ = fmt.Fprintln(w, ansiCyan+"📊 "+reportLabel+ansiReset)
+		_, _ = fmt.Fprintln(w, ansiCyan+divider+ansiReset)
+		_, _ = fmt.Fprintf(w, ansiGreen+"✅ %s"+ansiReset+"\n", validLabel)
+		_, _ = fmt.Fprintf(w, ansiDimYellow+"⏭️  %s"+ansiReset+"\n", skippedLabel)
+		_, _ = fmt.Fprintf(w, ansiRed+"❌ %s"+ansiReset+"\n", errorsLabel)
 	} else {
 		_, _ = fmt.Fprintln(w, "\n"+divider)
 		_, _ = fmt.Fprintln(w, reportLabel)
@@ -337,7 +347,7 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 
 	_, _ = fmt.Fprintln(w)
 	if shouldColor {
-		_, _ = fmt.Fprintln(w, "\033[1;31mERRORS FOUND:\033[0m")
+		_, _ = fmt.Fprintln(w, ansiRed+"ERRORS FOUND:"+ansiReset)
 	} else {
 		_, _ = fmt.Fprintln(w, "ERRORS FOUND:")
 	}
@@ -364,12 +374,15 @@ func printTableErrorsTo(w io.Writer, errors []types.ErrorEntry, showCode, should
 }
 
 const (
-	ansiReset    = "\033[0m"
-	ansiBold     = "\033[1m"
-	ansiYellow   = "\033[1;33m"
-	ansiRed      = "\033[1;31m"
-	ansiLocation = "📍"
-	ansiError    = "Error:"
+	ansiReset     = "\033[0m"
+	ansiBold      = "\033[1m"
+	ansiCyan      = "\033[1;36m"
+	ansiGreen     = "\033[1;32m"
+	ansiYellow    = "\033[1;33m"
+	ansiDimYellow = "\033[33m"
+	ansiRed       = "\033[1;31m"
+	ansiLocation  = "📍"
+	ansiError     = "Error:"
 )
 
 func printErrorEntry(w io.Writer, fileLoc, errMsg string, shouldColor bool) {

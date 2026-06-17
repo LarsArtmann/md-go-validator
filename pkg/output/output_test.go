@@ -210,6 +210,7 @@ func TestPrintReport(t *testing.T) {
 	t.Run("CSV format with error", testPrintReportCSVError)
 	t.Run("Quiet format with no errors", testPrintReportQuietNoErrors)
 	t.Run("Quiet format with errors", testPrintReportQuietErrors)
+	t.Run("Quiet format with skipped blocks", testPrintReportQuietWithSkipped)
 	t.Run("Table format", testPrintReportTable)
 	t.Run("Table format with errors", testPrintReportTableErrors)
 	t.Run("Table format with color", testPrintReportTableColor)
@@ -260,6 +261,17 @@ func testPrintReportQuietErrors(t *testing.T) {
 	t.Parallel()
 
 	results := []types.Result{newErrorResultWithCode("bad code")}
+	PrintReport(results, FormatQuiet, ColorModeNever, false)
+}
+
+func testPrintReportQuietWithSkipped(t *testing.T) {
+	t.Parallel()
+
+	// Exercises the quiet branch that reports a skipped count alongside valid.
+	results := []types.Result{
+		newValidResultWithCode("a.md", 1, 1, "package main"),
+		newSkippedResultWithReason("b.md", 2, 1, "// skip"),
+	}
 	PrintReport(results, FormatQuiet, ColorModeNever, false)
 }
 
