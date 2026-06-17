@@ -11,6 +11,8 @@ import (
 var errValidatorNil = errors.New("validator cannot be nil")
 
 // ErrorCode represents the type of validation error for programmatic handling.
+//
+//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
 type ErrorCode uint
 
 // Error codes for different validation failure types.
@@ -24,6 +26,75 @@ const (
 	// ErrCodeNotRegistered indicates no validator is registered for the language.
 	ErrCodeNotRegistered
 )
+
+// String representations for error codes.
+const (
+	errCodeStrUnknown       = "unknown"
+	errCodeStrSyntax        = "syntax"
+	errCodeStrNotAvailable  = "not_available"
+	errCodeStrNotRegistered = "not_registered"
+)
+
+var errInvalidErrorCode = errors.New("invalid error code")
+
+// String returns the snake_case name of the error code.
+func (c ErrorCode) String() string {
+	switch c {
+	case ErrCodeUnknown:
+		return errCodeStrUnknown
+	case ErrCodeSyntax:
+		return errCodeStrSyntax
+	case ErrCodeNotAvailable:
+		return errCodeStrNotAvailable
+	case ErrCodeNotRegistered:
+		return errCodeStrNotRegistered
+	default:
+		return errCodeStrUnknown
+	}
+}
+
+// Validate returns an error if the code is not a known value.
+func (c ErrorCode) Validate() error {
+	switch c {
+	case ErrCodeUnknown, ErrCodeSyntax, ErrCodeNotAvailable, ErrCodeNotRegistered:
+		return nil
+	default:
+		return fmt.Errorf("%w: %d", errInvalidErrorCode, c)
+	}
+}
+
+// MarshalText implements encoding.TextMarshaler for JSON/YAML serialization.
+func (c ErrorCode) MarshalText() ([]byte, error) {
+	return []byte(c.String()), nil
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler for JSON/YAML deserialization.
+func (c *ErrorCode) UnmarshalText(text []byte) error {
+	parsed, ok := ParseErrorCode(string(text))
+	if !ok {
+		return fmt.Errorf("%w: %s", errInvalidErrorCode, string(text))
+	}
+
+	*c = parsed
+
+	return nil
+}
+
+// ParseErrorCode parses a string into an ErrorCode.
+func ParseErrorCode(s string) (ErrorCode, bool) {
+	switch s {
+	case errCodeStrSyntax:
+		return ErrCodeSyntax, true
+	case errCodeStrNotAvailable:
+		return ErrCodeNotAvailable, true
+	case errCodeStrNotRegistered:
+		return ErrCodeNotRegistered, true
+	case errCodeStrUnknown:
+		return ErrCodeUnknown, true
+	default:
+		return ErrCodeUnknown, false
+	}
+}
 
 // ValidationError represents a syntax validation error.
 type ValidationError struct {

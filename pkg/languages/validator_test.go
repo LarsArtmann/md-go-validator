@@ -275,3 +275,122 @@ func TestValidationError(t *testing.T) {
 		},
 	}, func(e ValidationError) string { return e.Error() })
 }
+
+func TestErrorCode_String(t *testing.T) {
+	t.Parallel()
+
+	tests := map[ErrorCode]string{
+		ErrCodeUnknown:       "unknown",
+		ErrCodeSyntax:        "syntax",
+		ErrCodeNotAvailable:  "not_available",
+		ErrCodeNotRegistered: "not_registered",
+		ErrorCode(99):        "unknown",
+	}
+
+	for code, want := range tests {
+		t.Run(want, func(t *testing.T) {
+			t.Parallel()
+
+			if got := code.String(); got != want {
+				t.Errorf("expected %q, got %q", want, got)
+			}
+		})
+	}
+}
+
+func TestErrorCode_Validate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid codes", func(t *testing.T) {
+		t.Parallel()
+
+		for _, code := range []ErrorCode{ErrCodeUnknown, ErrCodeSyntax, ErrCodeNotAvailable, ErrCodeNotRegistered} {
+			err := code.Validate()
+			if err != nil {
+				t.Errorf("expected no error for %s, got %v", code, err)
+			}
+		}
+	})
+
+	t.Run("invalid code", func(t *testing.T) {
+		t.Parallel()
+
+		err := ErrorCode(99).Validate()
+		if err == nil {
+			t.Error("expected error for invalid error code")
+		}
+	})
+}
+
+func TestErrorCode_MarshalUnmarshalText(t *testing.T) {
+	t.Parallel()
+
+	for _, code := range []ErrorCode{ErrCodeUnknown, ErrCodeSyntax, ErrCodeNotAvailable, ErrCodeNotRegistered} {
+		name := code.String()
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			data, err := code.MarshalText()
+			if err != nil {
+				t.Fatalf("MarshalText failed: %v", err)
+			}
+
+			if string(data) != name {
+				t.Errorf("expected %q, got %q", name, string(data))
+			}
+
+			var decoded ErrorCode
+
+			err = decoded.UnmarshalText(data)
+			if err != nil {
+				t.Fatalf("UnmarshalText failed: %v", err)
+			}
+
+			if decoded != code {
+				t.Errorf("expected %d, got %d", code, decoded)
+			}
+		})
+	}
+}
+
+func TestErrorCode_UnmarshalText_Invalid(t *testing.T) {
+	t.Parallel()
+
+	var code ErrorCode
+
+	err := code.UnmarshalText([]byte("nonsense"))
+	if err == nil {
+		t.Error("expected error for invalid error code string")
+	}
+}
+
+func TestParseErrorCode(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]ErrorCode{
+		"syntax":         ErrCodeSyntax,
+		"not_available":  ErrCodeNotAvailable,
+		"not_registered": ErrCodeNotRegistered,
+		"unknown":        ErrCodeUnknown,
+	}
+
+	for input, want := range tests {
+		t.Run(input, func(t *testing.T) {
+			t.Parallel()
+
+			got, ok := ParseErrorCode(input)
+			if !ok {
+				t.Fatalf("expected ok=true for %q", input)
+			}
+
+			if got != want {
+				t.Errorf("expected %d, got %d", want, got)
+			}
+		})
+	}
+
+	if _, ok := ParseErrorCode("bogus"); ok {
+		t.Error("expected ok=false for unknown code")
+	}
+}

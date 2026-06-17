@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,6 +24,14 @@ const (
 	resultsCapacityMultiplier = 10
 	defaultDirPermissions     = 0o750
 	defaultFilePermissions    = 0o600
+)
+
+// Exit codes follow Unix linting-tool convention:
+// 0 = success, 1 = validation errors found, 2 = tool/usage errors.
+const (
+	exitSuccess       = 0
+	exitValidationErr = 1
+	exitToolErr       = 2
 )
 
 // Flag name constants.
@@ -61,29 +70,40 @@ type config struct {
 
 func main() {
 	cfg := parseArgs(os.Args[1:])
+
+	os.Exit(runWithConfig(cfg))
+}
+
+// runWithConfig executes the validation pipeline and returns the exit code.
+// Extracted from main for testability (no os.Exit calls here).
+func runWithConfig(cfg config) int {
 	validator := mdgovalidator.New(cfg.verbose).WithLanguages(cfg.languages)
 
-	// Build context with timeout from config
 	ctx, cancel := cfg.contextCfg.Build()
 	defer cancel()
 
-	allResults := validatePaths(ctx, validator, cfg.paths)
+	allResults, hadToolError := validatePaths(ctx, validator, cfg.paths)
 
 	if cfg.outputFile != "" {
 		err := writeOutputToFile(allResults, cfg)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error writing output file: %v\n", err)
-			osExit(1)
 
-			return
+			return exitToolErr
 		}
 	} else {
 		output.PrintReport(allResults, cfg.format, cfg.colorMode, cfg.showCode)
 	}
 
-	if mdgovalidator.HasErrors(allResults) {
-		osExit(1)
+	if hadToolError {
+		return exitToolErr
 	}
+
+	if mdgovalidator.HasErrors(allResults) {
+		return exitValidationErr
+	}
+
+	return exitSuccess
 }
 
 // argHandler defines a function type for handling an argument.
@@ -213,7 +233,7 @@ func parseArgs(args []string) config {
 		if handler, ok := argHandlers[arg]; ok {
 			advance, ok := handler(args, i, &cfg)
 			if !ok {
-				os.Exit(1)
+				os.Exit(exitToolErr)
 			}
 
 			i += advance
@@ -224,7 +244,7 @@ func parseArgs(args []string) config {
 		if strings.HasPrefix(arg, "-") {
 			fmt.Fprintf(os.Stderr, "Unknown option: %s\n", arg)
 			printUsage()
-			os.Exit(1)
+			os.Exit(exitToolErr)
 		}
 
 		cfg.paths = append(cfg.paths, arg)
@@ -300,34 +320,44 @@ func validatePaths(
 	ctx context.Context,
 	validator *mdgovalidator.FileValidator,
 	paths []string,
-) []types.Result {
+) ([]types.Result, bool) {
 	allResults := make([]types.Result, 0, len(paths)*resultsCapacityMultiplier)
 
+	var hadToolError bool
+
 	for _, path := range paths {
-		results := validatePath(ctx, validator, path)
+		results, ok := validatePath(ctx, validator, path)
+		if !ok {
+			hadToolError = true
+		}
+
 		allResults = append(allResults, results...)
 	}
 
-	return allResults
+	return allResults, hadToolError
 }
 
 func validatePath(
 	ctx context.Context,
 	validator *mdgovalidator.FileValidator,
 	path string,
-) []types.Result {
+) ([]types.Result, bool) {
+	if path == "-" {
+		return validateStdin(ctx, validator)
+	}
+
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error resolving path %s: %v\n", path, err)
 
-		return nil
+		return nil, false
 	}
 
 	info, err := os.Stat(absPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Path %s does not exist\n", absPath)
 
-		return nil
+		return nil, false
 	}
 
 	var results []types.Result
@@ -340,10 +370,34 @@ func validatePath(
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
 
-		return nil
+		return nil, false
 	}
 
-	return results
+	return results, true
+}
+
+// stdinSourceName is the file identifier used for stdin-validated results.
+const stdinSourceName = "<stdin>"
+
+func validateStdin(
+	ctx context.Context,
+	validator *mdgovalidator.FileValidator,
+) ([]types.Result, bool) {
+	content, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
+
+		return nil, false
+	}
+
+	results, err := validator.ValidateContent(ctx, string(content), stdinSourceName)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error validating stdin: %v\n", err)
+
+		return nil, false
+	}
+
+	return results, true
 }
 
 func writeOutputToFile(results []types.Result, cfg config) error {
@@ -404,6 +458,7 @@ func usageHeader() string {
 
 USAGE:
     md-go-validator [OPTIONS] [PATH...]
+    md-go-validator [OPTIONS] -        # Read markdown from stdin
 
 OPTIONS:
     -v, --verbose     Show progress for each code block
@@ -469,5 +524,6 @@ EXAMPLES:
     md-go-validator --color never .             # Disable colors
     md-go-validator -o report.json -f json .  # Write JSON to file
     md-go-validator --timeout 30s .           # 30 second timeout
+    cat README.md | md-go-validator -          # Validate markdown from stdin
 `
 }

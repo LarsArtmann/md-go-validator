@@ -1,5 +1,7 @@
 package types
 
+import "github.com/larsartmann/md-go-validator/pkg/languages"
+
 // ReportData contains aggregated validation results for reporting.
 // This type is designed for serialization to various output formats.
 type ReportData struct {
@@ -39,6 +41,9 @@ type ErrorEntry struct {
 	// Error is the error message.
 	Error string `json:"error" yaml:"error"`
 
+	// ErrorCode is the structured error classification (e.g. "syntax").
+	ErrorCode languages.ErrorCode `json:"errorCode" yaml:"errorCode"`
+
 	// Code is the code snippet that caused the error (optional).
 	Code string `json:"code,omitempty" yaml:"code,omitempty"`
 }
@@ -69,11 +74,12 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 			}
 
 			entry := ErrorEntry{
-				File:  r.File,
-				Line:  r.LineNumber,
-				Block: r.Block,
-				Error: errMsg,
-				Code:  "",
+				File:      r.File,
+				Line:      r.LineNumber,
+				Block:     r.Block,
+				Error:     errMsg,
+				ErrorCode: r.ErrorCode,
+				Code:      "",
 			}
 			if showCode {
 				entry.Code = r.Code

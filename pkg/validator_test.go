@@ -667,3 +667,65 @@ func TestHasErrors_NoErrors(t *testing.T) {
 		t.Error("expected no errors")
 	}
 }
+
+func TestValidator_ValidateContent(t *testing.T) {
+	t.Parallel()
+
+	v := New(false)
+	ctx := context.Background()
+
+	t.Run("valid go content", func(t *testing.T) {
+		t.Parallel()
+
+		content := "```go\npackage main\nfunc main() {}\n```\n"
+
+		results, err := v.ValidateContent(ctx, content, "<test>")
+		if err != nil {
+			t.Fatalf("ValidateContent error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 1)
+	})
+
+	t.Run("invalid go content", func(t *testing.T) {
+		t.Parallel()
+
+		content := "```go\nbroken syntax\n```\n"
+
+		results, err := v.ValidateContent(ctx, content, "<test>")
+		if err != nil {
+			t.Fatalf("ValidateContent error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 1)
+
+		if !HasErrors(results) {
+			t.Error("expected validation errors")
+		}
+	})
+
+	t.Run("no code blocks", func(t *testing.T) {
+		t.Parallel()
+
+		content := "# Just markdown\n\nNo code here.\n"
+
+		results, err := v.ValidateContent(ctx, content, "<test>")
+		if err != nil {
+			t.Fatalf("ValidateContent error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 0)
+	})
+
+	t.Run("cancelled context", func(t *testing.T) {
+		t.Parallel()
+
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+
+		_, err := v.ValidateContent(ctx, "```go\npackage main\n```\n", "<test>")
+		if err == nil {
+			t.Error("expected error for cancelled context")
+		}
+	})
+}

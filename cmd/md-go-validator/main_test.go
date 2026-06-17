@@ -189,7 +189,7 @@ func TestValidatePath(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(
+		results, ok := validatePath(
 			context.Background(),
 			validator,
 			"/nonexistent/path/that/does/not/exist",
@@ -197,6 +197,10 @@ func TestValidatePath(t *testing.T) {
 
 		if results != nil {
 			t.Errorf("expected nil results for non-existent path, got %v", results)
+		}
+
+		if ok {
+			t.Error("expected ok=false for non-existent path")
 		}
 	})
 
@@ -208,7 +212,7 @@ func TestValidatePath(t *testing.T) {
 		tmpFile := testutil.WriteTestFile(t, tmpDir, "test.md", content)
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(context.Background(), validator, tmpFile)
+		results, _ := validatePath(context.Background(), validator, tmpFile)
 
 		testutil.AssertResultCount(t, results, 1)
 	})
@@ -222,7 +226,7 @@ func TestValidatePath(t *testing.T) {
 		testutil.WriteTestFile(t, tmpDir, "test.txt", content)
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(context.Background(), validator, tmpDir)
+		results, _ := validatePath(context.Background(), validator, tmpDir)
 
 		testutil.AssertResultCount(t, results, 1)
 	})
@@ -237,7 +241,7 @@ func TestValidatePath(t *testing.T) {
 		testutil.WriteTestFile(t, tmpDir, "test.txt", content)
 
 		validator := mdgovalidator.New(false)
-		results := validatePath(context.Background(), validator, tmpDir)
+		results, _ := validatePath(context.Background(), validator, tmpDir)
 
 		testutil.AssertResultCount(t, results, 2)
 	})
@@ -255,7 +259,7 @@ func TestValidatePaths(t *testing.T) {
 		file2 := testutil.WriteTestFile(t, tmpDir, "file2.md", content)
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(context.Background(), validator, []string{file1, file2})
+		results, _ := validatePaths(context.Background(), validator, []string{file1, file2})
 
 		testutil.AssertResultCount(t, results, 2)
 	})
@@ -264,7 +268,7 @@ func TestValidatePaths(t *testing.T) {
 		t.Parallel()
 
 		validator := mdgovalidator.New(false)
-		results := validatePaths(context.Background(), validator, []string{})
+		results, _ := validatePaths(context.Background(), validator, []string{})
 
 		testutil.AssertResultCount(t, results, 0)
 	})
@@ -501,9 +505,13 @@ func TestValidatePathWithErrors(t *testing.T) {
 
 		validator := mdgovalidator.New(false)
 
-		results := validatePath(context.Background(), validator, "/valid/path.md")
+		results, ok := validatePath(context.Background(), validator, "/valid/path.md")
 		if results != nil {
 			t.Error("expected nil for non-existent path")
+		}
+
+		if ok {
+			t.Error("expected ok=false for non-existent path")
 		}
 	})
 }
@@ -538,7 +546,7 @@ func TestValidatePathsCapacity(t *testing.T) {
 		}
 	}
 
-	results := validatePaths(ctx, validator, []string{tmpDir})
+	results, _ := validatePaths(ctx, validator, []string{tmpDir})
 	testutil.AssertMinResults(t, results, 5)
 }
 
@@ -801,4 +809,206 @@ func TestParseArgsCombinedFlags(t *testing.T) {
 	if len(cfg.paths) != 1 || cfg.paths[0] != "src/" {
 		t.Errorf("expected paths=[src/], got %v", cfg.paths)
 	}
+}
+
+func TestRunWithConfig_ExitCodes(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid markdown exits 0", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		content := []byte("```go\npackage main\n```\n")
+		testutil.WriteTestFile(t, tmpDir, "valid.md", content)
+
+		cfg := config{
+			showCode:   true,
+			format:     output.FormatQuiet,
+			colorMode:  output.ColorModeNever,
+			paths:      []string{tmpDir},
+			contextCfg: mdgovalidator.DefaultContextConfig(),
+			languages:  []languages.Language{languages.LangGo},
+		}
+
+		code := runWithConfig(cfg)
+		if code != exitSuccess {
+			t.Errorf("expected exit %d, got %d", exitSuccess, code)
+		}
+	})
+
+	t.Run("validation errors exit 1", func(t *testing.T) {
+		t.Parallel()
+
+		tmpDir := t.TempDir()
+		content := []byte("```go\nthis is not valid go\n```\n")
+		testutil.WriteTestFile(t, tmpDir, "invalid.md", content)
+
+		cfg := config{
+			showCode:   true,
+			format:     output.FormatQuiet,
+			colorMode:  output.ColorModeNever,
+			paths:      []string{tmpDir},
+			contextCfg: mdgovalidator.DefaultContextConfig(),
+			languages:  []languages.Language{languages.LangGo},
+		}
+
+		code := runWithConfig(cfg)
+		if code != exitValidationErr {
+			t.Errorf("expected exit %d (validation), got %d", exitValidationErr, code)
+		}
+	})
+
+	t.Run("non-existent path exits 2", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := config{
+			showCode:   true,
+			format:     output.FormatQuiet,
+			colorMode:  output.ColorModeNever,
+			paths:      []string{"/nonexistent/path/that/does/not/exist"},
+			contextCfg: mdgovalidator.DefaultContextConfig(),
+			languages:  []languages.Language{languages.LangGo},
+		}
+
+		code := runWithConfig(cfg)
+		if code != exitToolErr {
+			t.Errorf("expected exit %d (tool), got %d", exitToolErr, code)
+		}
+	})
+}
+
+func TestRunWithConfig_OutputFile(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\npackage main\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "valid.md", content)
+
+	outFile := filepath.Join(tmpDir, "report.json")
+
+	cfg := config{
+		showCode:   true,
+		format:     output.FormatJSON,
+		colorMode:  output.ColorModeNever,
+		outputFile: outFile,
+		paths:      []string{tmpDir},
+		contextCfg: mdgovalidator.DefaultContextConfig(),
+		languages:  []languages.Language{languages.LangGo},
+	}
+
+	code := runWithConfig(cfg)
+	if code != exitSuccess {
+		t.Errorf("expected exit %d, got %d", exitSuccess, code)
+	}
+
+	info, err := os.Stat(outFile)
+	if err != nil {
+		t.Fatalf("output file not created: %v", err)
+	}
+
+	if info.Size() == 0 {
+		t.Error("output file is empty")
+	}
+}
+
+func TestRunWithConfig_Timeout(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\npackage main\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "valid.md", content)
+
+	cfg := config{
+		showCode:   true,
+		format:     output.FormatQuiet,
+		colorMode:  output.ColorModeNever,
+		paths:      []string{tmpDir},
+		timeout:    5 * time.Second,
+		contextCfg: mdgovalidator.DefaultContextConfig().WithTimeout(5 * time.Second),
+		languages:  []languages.Language{languages.LangGo},
+	}
+
+	code := runWithConfig(cfg)
+	if code != exitSuccess {
+		t.Errorf("expected exit %d with generous timeout, got %d", exitSuccess, code)
+	}
+}
+
+func TestRunWithConfig_MultiLanguage(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\npackage main\n```\n```rust\nfn main() {}\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "multi.md", content)
+
+	cfg := config{
+		showCode:   true,
+		format:     output.FormatQuiet,
+		colorMode:  output.ColorModeNever,
+		paths:      []string{tmpDir},
+		contextCfg: mdgovalidator.DefaultContextConfig(),
+		languages:  []languages.Language{languages.LangGo, languages.LangRust},
+	}
+
+	code := runWithConfig(cfg)
+	if code != exitSuccess {
+		t.Errorf("expected exit %d for valid Go+Rust, got %d", exitSuccess, code)
+	}
+}
+
+func TestValidateContent_Stdin(t *testing.T) {
+	t.Parallel()
+
+	t.Run("valid content via ValidateContent", func(t *testing.T) {
+		t.Parallel()
+
+		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+
+		content := "```go\npackage main\n```\n"
+
+		results, err := validator.ValidateContent(context.Background(), content, "<stdin>")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 1)
+
+		if results[0].File.String() != "<stdin>" {
+			t.Errorf("expected <stdin>, got %s", results[0].File)
+		}
+	})
+
+	t.Run("invalid content via ValidateContent", func(t *testing.T) {
+		t.Parallel()
+
+		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+
+		content := "```go\nnot valid go\n```\n"
+
+		results, err := validator.ValidateContent(context.Background(), content, "<stdin>")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 1)
+
+		if !results[0].HasError() {
+			t.Error("expected validation error for invalid Go")
+		}
+	})
+
+	t.Run("no code blocks returns empty", func(t *testing.T) {
+		t.Parallel()
+
+		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+
+		content := "# Just a heading\n\nNo code here.\n"
+
+		results, err := validator.ValidateContent(context.Background(), content, "<stdin>")
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		testutil.AssertResultCount(t, results, 0)
+	})
 }

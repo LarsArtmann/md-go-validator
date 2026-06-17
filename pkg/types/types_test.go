@@ -1,6 +1,7 @@
 package types
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/larsartmann/md-go-validator/pkg/languages"
@@ -805,5 +806,101 @@ func TestNewSkippedResultForTest(t *testing.T) {
 
 	if r.File.String() != "test.md" {
 		t.Errorf("expected test.md, got %s", r.File)
+	}
+}
+
+func TestErrorCodeThreading(t *testing.T) {
+	t.Parallel()
+
+	t.Run("ValidationError code extracted into Result", func(t *testing.T) {
+		t.Parallel()
+
+		valErr := &languages.ValidationError{
+			Message: "syntax error",
+			Line:    3,
+			Column:  10,
+			Code:    languages.ErrCodeSyntax,
+		}
+		wrapped := fmt.Errorf("validation failed: %w", valErr)
+
+		r := NewErrorResult(
+			NewFileID("test.md"),
+			NewLineNumber(1),
+			NewBlockIndex(0),
+			"bad code",
+			wrapped,
+		)
+
+		if r.ErrorCode != languages.ErrCodeSyntax {
+			t.Errorf("expected ErrorCode %s, got %s", languages.ErrCodeSyntax, r.ErrorCode)
+		}
+	})
+
+	t.Run("plain error leaves ErrorCode as unknown", func(t *testing.T) {
+		t.Parallel()
+
+		r := NewErrorResult(
+			NewFileID("test.md"),
+			NewLineNumber(1),
+			NewBlockIndex(0),
+			"bad code",
+			NewTestError("plain error"),
+		)
+
+		if r.ErrorCode != languages.ErrCodeUnknown {
+			t.Errorf("expected ErrorCode %s, got %s", languages.ErrCodeUnknown, r.ErrorCode)
+		}
+	})
+
+	t.Run("ErrorCode threaded into ErrorEntry via BuildReportData", func(t *testing.T) {
+		t.Parallel()
+
+		valErr := &languages.ValidationError{
+			Message: "syntax error",
+			Line:    3,
+			Column:  10,
+			Code:    languages.ErrCodeSyntax,
+		}
+		wrapped := fmt.Errorf("validation failed: %w", valErr)
+
+		r := NewErrorResult(
+			NewFileID("test.md"),
+			NewLineNumber(1),
+			NewBlockIndex(0),
+			"bad code",
+			wrapped,
+		)
+
+		report := BuildReportData([]Result{r}, false)
+		AssertSingleError(t, &report)
+
+		if report.Errors[0].ErrorCode != languages.ErrCodeSyntax {
+			t.Errorf("expected ErrorEntry ErrorCode %s, got %s",
+				languages.ErrCodeSyntax, report.Errors[0].ErrorCode)
+		}
+	})
+}
+
+func TestErrorCode_String(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		code languages.ErrorCode
+		want string
+	}{
+		{languages.ErrCodeUnknown, "unknown"},
+		{languages.ErrCodeSyntax, "syntax"},
+		{languages.ErrCodeNotAvailable, "not_available"},
+		{languages.ErrCodeNotRegistered, "not_registered"},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.want, func(t *testing.T) {
+			t.Parallel()
+
+			if got := tc.code.String(); got != tc.want {
+				t.Errorf("expected %q, got %q", tc.want, got)
+			}
+		})
 	}
 }

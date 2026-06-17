@@ -1,8 +1,11 @@
 package types
 
 import (
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 // Result contains the result of validating a single code block.
@@ -30,6 +33,10 @@ type Result struct {
 	// Error is the validation error if Status is StatusError.
 	// nil otherwise.
 	Error error
+
+	// ErrorCode is the structured error classification extracted from the
+	// error chain. Defaults to ErrCodeUnknown for non-error results.
+	ErrorCode languages.ErrorCode
 }
 
 var (
@@ -54,6 +61,7 @@ func newResultWithStatusAndError(
 		Code:       code,
 		Status:     status,
 		Error:      err,
+		ErrorCode:  languages.ErrCodeUnknown,
 	}
 
 	vErr := r.Validate()
@@ -78,8 +86,17 @@ func NewResultWithStatus(
 
 // NewErrorResult creates a new error result.
 // Panics if err is nil — an error result requires an error.
+// The structured ErrorCode is automatically extracted from the error chain
+// via errors.As on *languages.ValidationError.
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
-	return newResultWithStatusAndError(file, line, block, code, StatusError, err)
+	r := newResultWithStatusAndError(file, line, block, code, StatusError, err)
+
+	var valErr *languages.ValidationError
+	if errors.As(err, &valErr) {
+		r.ErrorCode = valErr.Code
+	}
+
+	return r
 }
 
 // Validate enforces the Result invariant: StatusError holds iff Error is non-nil.

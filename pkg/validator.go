@@ -101,6 +101,22 @@ func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, er
 	return cleanPath, nil
 }
 
+// ValidateContent validates code blocks in raw markdown/MDX content.
+// sourceName is used as the file identifier in results (e.g. "<stdin>").
+func (v *FileValidator) ValidateContent(ctx context.Context, content, sourceName string) ([]types.Result, error) {
+	ctxErr := checkContext(ctx)
+	if ctxErr != nil {
+		return nil, fmt.Errorf("validate content %s: %w", sourceName, ctxErr)
+	}
+
+	blocks := ExtractCodeBlocks(content, v.targetLangs)
+	if len(blocks) == 0 {
+		return []types.Result{}, nil
+	}
+
+	return v.validateBlocks(ctx, sourceName, blocks)
+}
+
 // ValidateFile validates a single markdown or MDX file.
 func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]types.Result, error) {
 	ctxErr := checkContext(ctx)
