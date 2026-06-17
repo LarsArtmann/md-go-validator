@@ -32,7 +32,9 @@ Supports `.md`, `.markdown`, and `.mdx` files.
   - Statements
 - **Skip Directives** - Mark intentionally incomplete code
 - **Recursive Scanning** - Validates entire documentation trees
-- **CI-Friendly** - Exit code 1 on errors, structured output
+- **STDIN Support** - Pipe markdown via stdin: `cat README.md | md-go-validator -`
+- **Structured Exit Codes** - `0` = success, `1` = validation errors, `2` = tool/usage errors
+- **CI-Friendly** - JSON/YAML output with [documented schema](docs/json-schema.json), error classification codes
 
 ## Installation
 
@@ -54,6 +56,9 @@ md-go-validator docs/ README.md
 
 # Validate multiple languages
 md-go-validator -l go,typescript,rust .
+
+# Validate markdown from stdin
+cat README.md | md-go-validator -
 
 # Verbose output (show each block)
 md-go-validator -v .
@@ -77,6 +82,7 @@ md-go-validator --version
 | `--color`        | Color mode (auto, always, never)              |
 | `-o, --output`   | Write output to file                          |
 | `-t, --timeout`  | Timeout for validation (e.g., 30s, 5m)        |
+| `-`              | Read markdown from stdin                      |
 | `-h, --help`     | Show help message                             |
 | `-V, --version`  | Show version information                      |
 
@@ -180,6 +186,16 @@ md-go-validator -f csv .
 # Markdown table
 md-go-validator -f markdown .
 ```
+
+The JSON output format is [documented with a JSON Schema](docs/json-schema.json). Each error entry includes an `errorCode` field (`syntax`, `not_available`, `not_registered`, or `unknown`) for programmatic error classification.
+
+## Exit Codes
+
+| Code | Meaning           | When                                       |
+| ---- | ----------------- | ------------------------------------------ |
+| `0`  | Success           | All code blocks valid or skipped           |
+| `1`  | Validation errors | One or more code blocks have syntax errors |
+| `2`  | Tool error        | File not found, bad flags, I/O errors      |
 
 ## CI Integration
 

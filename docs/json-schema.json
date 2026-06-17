@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/LarsArtmann/md-go-validator/docs/json-schema.json",
+  "title": "md-go-validator JSON output",
+  "description": "Output contract for: md-go-validator --format json [PATH...]",
+  "type": "object",
+  "required": ["summary"],
+  "additionalProperties": false,
+  "properties": {
+    "summary": {
+      "type": "object",
+      "description": "Aggregated validation counts",
+      "required": ["total", "valid", "skipped", "errors"],
+      "additionalProperties": false,
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total code blocks processed"
+        },
+        "valid": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Blocks that passed validation"
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Blocks skipped via skip directives"
+        },
+        "errors": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Blocks with validation errors"
+        }
+      }
+    },
+    "errors": {
+      "type": "array",
+      "description": "Detailed error entries (omitted entirely when there are no errors)",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "block", "error", "errorCode"],
+        "additionalProperties": false,
+        "properties": {
+          "file": {
+            "type": "string",
+            "description": "Absolute file path, or '<stdin>' when reading from stdin"
+          },
+          "line": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "1-based line number where the code block starts"
+          },
+          "block": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "1-based index of the code block within the file"
+          },
+          "error": {
+            "type": "string",
+            "description": "Human-readable error message with context"
+          },
+          "errorCode": {
+            "type": "string",
+            "enum": ["unknown", "syntax", "not_available", "not_registered"],
+            "description": "Structured error classification for programmatic handling"
+          },
+          "code": {
+            "type": "string",
+            "description": "Code snippet that caused the error (omitted when --no-code or --quiet)"
+          }
+        }
+      }
+    }
+  }
+}

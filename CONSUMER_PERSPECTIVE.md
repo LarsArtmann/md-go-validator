@@ -4,11 +4,24 @@ A brutally honest assessment of what a new user would find lacking, confusing, o
 
 ---
 
+## Recently Resolved
+
+| Item                           | Resolution                                                                        |
+| ------------------------------ | --------------------------------------------------------------------------------- |
+| ✅ `--version` flag (#1)       | Added `--version` / `-V`                                                          |
+| ✅ Error codes in output (#9)  | `errorCode` field now in JSON/YAML output (syntax, not_available, not_registered) |
+| ✅ Summary exit codes (#13)    | 0=success, 1=validation errors, 2=tool/usage errors                               |
+| ✅ Self-validation in CI (#14) | CI dogfoods — runs validator on its own docs                                      |
+| ✅ STDIN support               | `cat file.md \| md-go-validator -`                                                |
+| ✅ JSON schema                 | Output contract documented at `docs/json-schema.json`                             |
+
+---
+
 ## Critical Gaps (Adoption Blockers)
 
-### 1. No `--version` Flag
+### 1. ~~No `--version` Flag~~ ✅ RESOLVED
 
-Every CLI tool needs `--version`. The `.goreleaser.yml` injects `version`, `commit`, and `date` via ldflags, but the binary doesn't expose them. A user installing via `go install` or homebrew has no way to verify which version they're running or whether an upgrade worked.
+`--version` / `-V` now prints the version.
 
 ### 2. No Configuration File Support
 
@@ -42,9 +55,9 @@ No `.pre-commit-hooks.yaml` file. Many teams use pre-commit.com to validate befo
 
 No `--watch` flag for development workflows. When writing docs, consumers want instant feedback as they save files, not a manual re-run.
 
-### 9. No Error Codes or Machine-Actionable Output
+### 9. ~~No Error Codes or Machine-Actionable Output~~ ✅ RESOLVED
 
-`ValidationError` has error codes internally (`ErrCodeSyntax`, `ErrCodeNotAvailable`), but these are not exposed in the CLI output (JSON, table, etc.). A CI consumer cannot programmatically distinguish "syntax error" from "validator not available" from the output.
+`errorCode` is now exposed in JSON/YAML output (values: `syntax`, `not_available`, `not_registered`, `unknown`). See `docs/json-schema.json`.
 
 ### 10. No Diff / Regression Mode
 
@@ -62,13 +75,13 @@ No way to see what _would_ be validated without actually running validation. Use
 
 When validating a large directory, there is no progress bar, spinner, or file count indicator. The user stares at a blank terminal until results appear. `-v` prints per-block info, but there is no summary progress.
 
-### 13. No Summary Exit Codes
+### 13. ~~No Summary Exit Codes~~ ✅ RESOLVED
 
-The tool exits with 0 (all valid) or 1 (any error). No distinction between "errors found" vs. "tool crashed" vs. "no files found." Consumers in CI cannot tell if the step failed because of invalid code or because the path was wrong.
+Exit codes now distinguish: 0=success, 1=validation errors, 2=tool/usage errors (file not found, bad flags, etc.).
 
-### 14. No Self-Validation
+### 14. ~~No Self-Validation~~ ✅ RESOLVED
 
-The tool's own `README.md`, `EXAMPLES.md`, and `CONTRIBUTING.md` contain code blocks, but there is no evidence the tool runs against its own docs in CI. Dogfooding builds trust.
+CI now dogfoods — the validator runs against its own docs in the test/build pipeline.
 
 ### 15. No `--fail-on-skipped` Option
 
@@ -102,17 +115,17 @@ No statement about which parts of the Go API are stable vs. experimental. Librar
 
 ## Prioritized Impact
 
-| Priority | Item                       | Consumer Impact             |
-| -------- | -------------------------- | --------------------------- |
-| P0       | `--version` flag           | Trust & debugging           |
-| P0       | GitHub Action              | CI adoption                 |
-| P0       | Config file support        | DX for real projects        |
-| P1       | Exclude patterns           | Works on real repos         |
-| P1       | Fix CONTRIBUTING.md        | Contributor trust           |
-| P1       | Pre-commit hook            | Ecosystem discovery         |
-| P2       | Watch mode                 | Development DX              |
-| P2       | Diff/regression mode       | Incremental adoption        |
-| P2       | Self-validation in CI      | Trust through dogfooding    |
-| P3       | Shell completions          | Power-user polish           |
-| P3       | Language discovery command | Discoverability             |
-| P3       | API stability docs         | Library consumer confidence |
+| Priority | Item                       | Consumer Impact              | Status  |
+| -------- | -------------------------- | ---------------------------- | ------- |
+| ~~P0~~   | ~~`--version` flag~~       | ~~Trust & debugging~~        | ✅ Done |
+| P0       | GitHub Action              | CI adoption                  | Open    |
+| P0       | Config file support        | DX for real projects         | Open    |
+| P1       | Exclude patterns           | Works on real repos          | Open    |
+| P1       | Fix CONTRIBUTING.md        | Contributor trust            | Open    |
+| P1       | Pre-commit hook            | Ecosystem discovery          | Open    |
+| P2       | Watch mode                 | Development DX               | Open    |
+| P2       | Diff/regression mode       | Incremental adoption         | Open    |
+| ~~P2~~   | ~~Self-validation in CI~~  | ~~Trust through dogfooding~~ | ✅ Done |
+| P3       | Shell completions          | Power-user polish            | Open    |
+| P3       | Language discovery command | Discoverability              | Open    |
+| P3       | API stability docs         | Library consumer confidence  | Open    |

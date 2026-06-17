@@ -6,6 +6,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- STDIN support: pipe markdown via `-` (e.g., `cat README.md | md-go-validator -`)
+- Structured exit codes: 0=success, 1=validation errors, 2=tool/usage errors
+- `ErrorCode` branded type with `String()`, `Validate()`, and JSON text marshaling
+- `ErrorCode` threaded through `Result` and `ErrorEntry` (visible in JSON/YAML output)
+- `FileValidator.ValidateContent` for validating raw markdown content
+- Nix package `meta.platforms` attribute (all platforms) and maintainer record
+- Dedicated extractor test suite (16 table-driven tests)
+- CLI integration tests for exit codes, `--output`, `--timeout`, `--language`
+- CI `nix flake check` job and expanded dogfooding (validator runs on its own docs)
+
+### Changed
+
+- Single source of truth for supported file types (consolidated into `types` package)
+- Simplified directory-processing concurrency (~70 lines removed)
+- Consolidated ANSI color constants into the `output` package
+- Consistent `ValidationError` receivers and deduplicated `TreeSitterValidator`
+- Updated Go dependencies (go-output v0.11.0, gotreesitter v0.20.2, go-toml v2.4.0)
+
+### Removed
+
+- Dead `ContextConfig` limit fields (split-brain with `FileValidator`)
+
+### Fixed
+
+- `nix build .#` was completely broken (restored via `callPackage ./package.nix`)
+- Nix `overlays.default` threw `attribute 'self' missing` (now functional)
+- `BuildReportData` could panic on `StatusError` with nil `Error` (made unrepresentable)
+- Extractor pre-marked code blocks valid before validation ran
+- CLI help falsely claimed tree-sitter languages require external tools (`tsc`, `rustc`, etc.)
+- Misleading quiet-mode summary output
+- Stale `vendorHash` after `go.sum` cleanup (removed unused test-only dependencies)
+
+### Security
+
+- `Result` `StatusError ⟺ Error != nil` invariant now enforced at construction time
+
 ## [0.2.0] - 2026-06-13
 
 ### Added
