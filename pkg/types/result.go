@@ -7,6 +7,10 @@ import (
 
 // Result contains the result of validating a single code block.
 // This is the primary output type of the validation process.
+//
+// Invariant: Status == StatusError if and only if Error != nil.
+// The constructors below preserve this invariant; use Result.Validate() to
+// check results constructed via struct literals (e.g. in tests).
 type Result struct {
 	// File is the path to the file being validated.
 	File FileID
@@ -28,7 +32,13 @@ type Result struct {
 	Error error
 }
 
+var (
+	errErrorStatusWithoutError = fmt.Errorf("status is %s but Error is nil", StatusError)
+	errErrorWithoutErrorStatus = fmt.Errorf("Error is non-nil but status is %s", StatusUnknown)
+)
+
 // newResultWithStatusAndError creates a Result with status and optional error.
+// It enforces the StatusError ⟺ Error!=nil invariant.
 func newResultWithStatusAndError(
 	file FileID,
 	line LineNumber,
@@ -37,7 +47,7 @@ func newResultWithStatusAndError(
 	status ValidationStatus,
 	err error,
 ) Result {
-	return Result{
+	r := Result{
 		File:       file,
 		LineNumber: line,
 		Block:      block,
@@ -45,9 +55,17 @@ func newResultWithStatusAndError(
 		Status:     status,
 		Error:      err,
 	}
+
+	vErr := r.Validate()
+	if vErr != nil {
+		panic(fmt.Sprintf("types: invalid Result constructed: %v", vErr))
+	}
+
+	return r
 }
 
-// NewResultWithStatus creates a Result with the given status.
+// NewResultWithStatus creates a Result with the given non-error status.
+// Panics if status is StatusError — use NewErrorResult for error results.
 func NewResultWithStatus(
 	file FileID,
 	line LineNumber,
@@ -59,8 +77,23 @@ func NewResultWithStatus(
 }
 
 // NewErrorResult creates a new error result.
+// Panics if err is nil — an error result requires an error.
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
 	return newResultWithStatusAndError(file, line, block, code, StatusError, err)
+}
+
+// Validate enforces the Result invariant: StatusError holds iff Error is non-nil.
+// Returns an error describing the violation, or nil if the result is consistent.
+func (r Result) Validate() error {
+	if r.Status == StatusError && r.Error == nil {
+		return errErrorStatusWithoutError
+	}
+
+	if r.Error != nil && r.Status != StatusError {
+		return fmt.Errorf("Error is non-nil but status is %s: %w", r.Status, errErrorWithoutErrorStatus)
+	}
+
+	return nil
 }
 
 // String returns a human-readable summary of the result.

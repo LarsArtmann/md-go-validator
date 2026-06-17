@@ -405,6 +405,90 @@ func TestBuildReportData(t *testing.T) {
 		report := BuildReportData(results, false)
 		AssertReportSummary(t, &report, 2, 2, 0, 0)
 	})
+
+	t.Run("NewResultWithStatus panics on StatusError", func(t *testing.T) {
+		t.Parallel()
+
+		// StatusError requires an error; NewResultWithStatus cannot supply one.
+		// Use NewErrorResult instead. Misuse must fail loudly, not produce an
+		// invalid Result silently.
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected panic when constructing StatusError via NewResultWithStatus")
+			}
+		}()
+
+		_ = NewResultWithStatus(
+			NewFileID("a.md"),
+			NewLineNumber(1),
+			NewBlockIndex(1),
+			"pkg",
+			StatusError,
+		)
+	})
+
+	t.Run("NewErrorResult panics on nil error", func(t *testing.T) {
+		t.Parallel()
+
+		defer func() {
+			if r := recover(); r == nil {
+				t.Fatal("expected panic when constructing error result with nil error")
+			}
+		}()
+
+		_ = NewErrorResult(
+			NewFileID("a.md"),
+			NewLineNumber(1),
+			NewBlockIndex(1),
+			"pkg",
+			nil,
+		)
+	})
+
+	t.Run("BuildReportData is safe on direct StatusError+nil literal", func(t *testing.T) {
+		t.Parallel()
+
+		// Defense-in-depth: even if an invalid Result reaches BuildReportData via
+		// struct literal (bypassing constructors), it must not panic.
+		results := []Result{
+			{
+				File:       NewFileID("a.md"),
+				LineNumber: NewLineNumber(1),
+				Block:      NewBlockIndex(1),
+				Code:       "pkg",
+				Status:     StatusError,
+				Error:      nil,
+			},
+		}
+		report := BuildReportData(results, false)
+		AssertReportSummary(t, &report, 1, 0, 1, 0)
+
+		if report.Errors[0].Error != "" {
+			t.Errorf("expected empty error message for nil error, got %q", report.Errors[0].Error)
+		}
+	})
+
+	t.Run("Validate rejects StatusError with nil error", func(t *testing.T) {
+		t.Parallel()
+
+		bad := Result{Status: StatusError, Error: nil}
+
+		err := bad.Validate()
+		if err == nil {
+			t.Error("expected Validate to reject StatusError with nil error")
+		}
+	})
+
+	t.Run("Validate accepts StatusValid", func(t *testing.T) {
+		t.Parallel()
+
+		good := Result{Status: StatusValid}
+
+		err := good.Validate()
+		if err != nil {
+			t.Errorf("expected Validate to accept StatusValid, got %v", err)
+		}
+	})
 }
 
 func newTestErrorResult(file string, line int, code, errMsg string) Result {
