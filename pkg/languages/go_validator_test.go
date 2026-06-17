@@ -131,7 +131,9 @@ func TestValidationError_WithCode(t *testing.T) {
 func TestTreeSitterValidator_UnavailableLanguage(t *testing.T) {
 	t.Parallel()
 
-	validator := NewTreeSitterValidator(LangGo, "nonexistent_language_xyz")
+	// Use the test seam to inject a grammar name that no library recognizes,
+	// since all valid Languages ship with embedded grammars.
+	validator := newTreeSitterValidatorWithGrammarName(LangGo, "nonexistent_language_xyz")
 
 	if validator.IsAvailable() {
 		t.Skip("unexpected: nonexistent language is available")

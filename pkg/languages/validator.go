@@ -38,7 +38,8 @@ type ValidationError struct {
 }
 
 // Error implements the error interface.
-func (e *ValidationError) Error() string {
+// Value receiver so both ValidationError and *ValidationError satisfy error.
+func (e ValidationError) Error() string {
 	if e.Line > 0 && e.Column > 0 {
 		return fmt.Sprintf("%d:%d: %s", e.Line, e.Column, e.Message)
 	}
@@ -47,7 +48,7 @@ func (e *ValidationError) Error() string {
 }
 
 // WithCode returns a new ValidationError with the specified error code.
-func (e *ValidationError) WithCode(code ErrorCode) *ValidationError {
+func (e ValidationError) WithCode(code ErrorCode) *ValidationError {
 	return &ValidationError{
 		Message: e.Message,
 		Line:    e.Line,
@@ -198,21 +199,19 @@ func DefaultRegistry() *Registry {
 	// Register tree-sitter based validators using a loop for maintainability.
 	// Errors are silently ignored since these are optional validators
 	// and may not have grammar support compiled in.
-	treeSitterValidators := []struct {
-		lang Language
-		name string
-	}{
-		{LangRust, string(LangRust)},
-		{LangTypeScript, string(LangTypeScript)},
-		{LangTSX, string(LangTSX)},
-		{LangNix, string(LangNix)},
-		{LangHCL, string(LangHCL)},
-		{LangTerraform, string(LangTerraform)},
-		{LangTempl, string(LangTempl)},
+	// The grammar name is derived from the Language inside the constructor.
+	treeSitterLanguages := []Language{
+		LangRust,
+		LangTypeScript,
+		LangTSX,
+		LangNix,
+		LangHCL,
+		LangTerraform,
+		LangTempl,
 	}
 
-	for _, v := range treeSitterValidators {
-		_ = r.Register(NewTreeSitterValidator(v.lang, v.name))
+	for _, lang := range treeSitterLanguages {
+		_ = r.Register(NewTreeSitterValidator(lang))
 	}
 
 	return r

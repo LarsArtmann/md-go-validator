@@ -70,9 +70,20 @@ func (v *TreeSitterValidator) Validate(_ context.Context, codeStr string) error 
 }
 
 // NewTreeSitterValidator creates a new tree-sitter based validator.
-func NewTreeSitterValidator(language Language, langName string) *TreeSitterValidator {
+// The grammar name is derived from the language (single source of truth).
+func NewTreeSitterValidator(language Language) *TreeSitterValidator {
 	return &TreeSitterValidator{
 		language: language,
-		langName: langName,
+		langName: language.String(),
+	}
+}
+
+// newTreeSitterValidatorWithGrammarName is a test seam that allows injecting an
+// explicit grammar name (used to simulate a missing grammar, which is not
+// reachable via valid Language values since all ship with embedded grammars).
+func newTreeSitterValidatorWithGrammarName(language Language, grammarName string) *TreeSitterValidator {
+	return &TreeSitterValidator{
+		language: language,
+		langName: grammarName,
 	}
 }
