@@ -7,6 +7,20 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
+// assertPanics fails the test if fn does not panic. The msg describes what
+// was expected to panic and is reported verbatim when no panic occurs.
+func assertPanics(t *testing.T, msg string, fn func()) {
+	t.Helper()
+
+	defer func() {
+		if r := recover(); r == nil {
+			t.Fatal(msg)
+		}
+	}()
+
+	fn()
+}
+
 func newTestResult(status ValidationStatus) Result {
 	return NewResultWithStatus(
 		NewFileID("test.md"),
@@ -413,37 +427,29 @@ func TestBuildReportData(t *testing.T) {
 		// StatusError requires an error; NewResultWithStatus cannot supply one.
 		// Use NewErrorResult instead. Misuse must fail loudly, not produce an
 		// invalid Result silently.
-		defer func() {
-			if r := recover(); r == nil {
-				t.Fatal("expected panic when constructing StatusError via NewResultWithStatus")
-			}
-		}()
-
-		_ = NewResultWithStatus(
-			NewFileID("a.md"),
-			NewLineNumber(1),
-			NewBlockIndex(1),
-			"pkg",
-			StatusError,
-		)
+		assertPanics(t, "expected panic when constructing StatusError via NewResultWithStatus", func() {
+			_ = NewResultWithStatus(
+				NewFileID("a.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				StatusError,
+			)
+		})
 	})
 
 	t.Run("NewErrorResult panics on nil error", func(t *testing.T) {
 		t.Parallel()
 
-		defer func() {
-			if r := recover(); r == nil {
-				t.Fatal("expected panic when constructing error result with nil error")
-			}
-		}()
-
-		_ = NewErrorResult(
-			NewFileID("a.md"),
-			NewLineNumber(1),
-			NewBlockIndex(1),
-			"pkg",
-			nil,
-		)
+		assertPanics(t, "expected panic when constructing error result with nil error", func() {
+			_ = NewErrorResult(
+				NewFileID("a.md"),
+				NewLineNumber(1),
+				NewBlockIndex(1),
+				"pkg",
+				nil,
+			)
+		})
 	})
 
 	t.Run("BuildReportData is safe on direct StatusError+nil literal", func(t *testing.T) {
@@ -812,23 +818,28 @@ func TestNewSkippedResultForTest(t *testing.T) {
 func TestErrorCodeThreading(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ValidationError code extracted into Result", func(t *testing.T) {
-		t.Parallel()
-
+	// Build a wrapped ValidationError the way the validator would surface one,
+	// so we can assert that the error code is preserved across the layers.
+	newSyntaxValidationError := func() error {
 		valErr := &languages.ValidationError{
 			Message: "syntax error",
 			Line:    3,
 			Column:  10,
 			Code:    languages.ErrCodeSyntax,
 		}
-		wrapped := fmt.Errorf("validation failed: %w", valErr)
+
+		return fmt.Errorf("validation failed: %w", valErr)
+	}
+
+	t.Run("ValidationError code extracted into Result", func(t *testing.T) {
+		t.Parallel()
 
 		r := NewErrorResult(
 			NewFileID("test.md"),
 			NewLineNumber(1),
 			NewBlockIndex(0),
 			"bad code",
-			wrapped,
+			newSyntaxValidationError(),
 		)
 
 		if r.ErrorCode != languages.ErrCodeSyntax {
@@ -855,20 +866,12 @@ func TestErrorCodeThreading(t *testing.T) {
 	t.Run("ErrorCode threaded into ErrorEntry via BuildReportData", func(t *testing.T) {
 		t.Parallel()
 
-		valErr := &languages.ValidationError{
-			Message: "syntax error",
-			Line:    3,
-			Column:  10,
-			Code:    languages.ErrCodeSyntax,
-		}
-		wrapped := fmt.Errorf("validation failed: %w", valErr)
-
 		r := NewErrorResult(
 			NewFileID("test.md"),
 			NewLineNumber(1),
 			NewBlockIndex(0),
 			"bad code",
-			wrapped,
+			newSyntaxValidationError(),
 		)
 
 		report := BuildReportData([]Result{r}, false)

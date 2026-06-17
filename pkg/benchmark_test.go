@@ -24,22 +24,24 @@ func generateMarkdownWithBlocks(blockCount int) string {
 }
 
 func BenchmarkExtractCodeBlocks(b *testing.B) {
-	content := generateMarkdownWithBlocks(50)
-
-	b.ResetTimer()
-
-	for b.Loop() {
-		ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	cases := []struct {
+		name       string
+		blockCount int
+	}{
+		{"default", 50},
+		{"large_file", 500},
 	}
-}
 
-func BenchmarkExtractCodeBlocks_LargeFile(b *testing.B) {
-	content := generateMarkdownWithBlocks(500)
+	for _, bc := range cases {
+		b.Run(bc.name, func(b *testing.B) {
+			content := generateMarkdownWithBlocks(bc.blockCount)
 
-	b.ResetTimer()
+			b.ResetTimer()
 
-	for b.Loop() {
-		ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+			for b.Loop() {
+				ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+			}
+		})
 	}
 }
 

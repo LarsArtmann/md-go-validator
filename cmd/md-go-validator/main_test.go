@@ -821,14 +821,7 @@ func TestRunWithConfig_ExitCodes(t *testing.T) {
 		content := []byte("```go\npackage main\n```\n")
 		testutil.WriteTestFile(t, tmpDir, "valid.md", content)
 
-		cfg := config{
-			showCode:   true,
-			format:     output.FormatQuiet,
-			colorMode:  output.ColorModeNever,
-			paths:      []string{tmpDir},
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-			languages:  []languages.Language{languages.LangGo},
-		}
+		cfg := newExitCodeTestConfig(tmpDir)
 
 		code := runWithConfig(cfg)
 		if code != exitSuccess {
@@ -843,14 +836,7 @@ func TestRunWithConfig_ExitCodes(t *testing.T) {
 		content := []byte("```go\nthis is not valid go\n```\n")
 		testutil.WriteTestFile(t, tmpDir, "invalid.md", content)
 
-		cfg := config{
-			showCode:   true,
-			format:     output.FormatQuiet,
-			colorMode:  output.ColorModeNever,
-			paths:      []string{tmpDir},
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-			languages:  []languages.Language{languages.LangGo},
-		}
+		cfg := newExitCodeTestConfig(tmpDir)
 
 		code := runWithConfig(cfg)
 		if code != exitValidationErr {
@@ -861,20 +847,27 @@ func TestRunWithConfig_ExitCodes(t *testing.T) {
 	t.Run("non-existent path exits 2", func(t *testing.T) {
 		t.Parallel()
 
-		cfg := config{
-			showCode:   true,
-			format:     output.FormatQuiet,
-			colorMode:  output.ColorModeNever,
-			paths:      []string{"/nonexistent/path/that/does/not/exist"},
-			contextCfg: mdgovalidator.DefaultContextConfig(),
-			languages:  []languages.Language{languages.LangGo},
-		}
+		cfg := newExitCodeTestConfig("/nonexistent/path/that/does/not/exist")
 
 		code := runWithConfig(cfg)
 		if code != exitToolErr {
 			t.Errorf("expected exit %d (tool), got %d", exitToolErr, code)
 		}
 	})
+}
+
+// newExitCodeTestConfig builds the baseline config used by the exit-code
+// tests. Format is quiet, colors disabled, single Go language — the only
+// varying input across those tests is the paths slice.
+func newExitCodeTestConfig(paths ...string) config {
+	return config{
+		showCode:   true,
+		format:     output.FormatQuiet,
+		colorMode:  output.ColorModeNever,
+		paths:      paths,
+		contextCfg: mdgovalidator.DefaultContextConfig(),
+		languages:  []languages.Language{languages.LangGo},
+	}
 }
 
 func TestRunWithConfig_OutputFile(t *testing.T) {

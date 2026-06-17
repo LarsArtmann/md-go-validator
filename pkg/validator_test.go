@@ -674,29 +674,28 @@ func TestValidator_ValidateContent(t *testing.T) {
 	v := New(false)
 	ctx := context.Background()
 
-	t.Run("valid go content", func(t *testing.T) {
-		t.Parallel()
-
-		content := "```go\npackage main\nfunc main() {}\n```\n"
+	validate := func(t *testing.T, content string) []types.Result {
+		t.Helper()
 
 		results, err := v.ValidateContent(ctx, content, "<test>")
 		if err != nil {
 			t.Fatalf("ValidateContent error: %v", err)
 		}
 
+		return results
+	}
+
+	t.Run("valid go content", func(t *testing.T) {
+		t.Parallel()
+
+		results := validate(t, "```go\npackage main\nfunc main() {}\n```\n")
 		testutil.AssertResultCount(t, results, 1)
 	})
 
 	t.Run("invalid go content", func(t *testing.T) {
 		t.Parallel()
 
-		content := "```go\nbroken syntax\n```\n"
-
-		results, err := v.ValidateContent(ctx, content, "<test>")
-		if err != nil {
-			t.Fatalf("ValidateContent error: %v", err)
-		}
-
+		results := validate(t, "```go\nbroken syntax\n```\n")
 		testutil.AssertResultCount(t, results, 1)
 
 		if !HasErrors(results) {
@@ -707,13 +706,7 @@ func TestValidator_ValidateContent(t *testing.T) {
 	t.Run("no code blocks", func(t *testing.T) {
 		t.Parallel()
 
-		content := "# Just markdown\n\nNo code here.\n"
-
-		results, err := v.ValidateContent(ctx, content, "<test>")
-		if err != nil {
-			t.Fatalf("ValidateContent error: %v", err)
-		}
-
+		results := validate(t, "# Just markdown\n\nNo code here.\n")
 		testutil.AssertResultCount(t, results, 0)
 	})
 
