@@ -11,7 +11,7 @@ before:
 
 builds:
   - id: md-go-validator
-    main: .
+    main: ./cmd/md-go-validator
     binary: md-go-validator
     env:
       - CGO_ENABLED=0
@@ -59,7 +59,7 @@ snapshot:
 
 changelog:
   sort: asc
-  use: github
+  use: git
   filters:
     exclude:
       - "^docs:"
