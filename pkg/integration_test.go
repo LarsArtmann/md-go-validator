@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/larsartmann/md-go-validator/pkg/languages"
+	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -40,9 +41,7 @@ func TestIntegration_ValidGoFile(t *testing.T) {
 		}
 	}
 
-	if len(results) != 2 {
-		t.Fatalf("expected 2 results, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 2)
 
 	for _, r := range results {
 		if r.Status != types.StatusValid {
@@ -62,9 +61,7 @@ func TestIntegration_InvalidGoFile(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 2 {
-		t.Fatalf("expected 2 results, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 2)
 
 	if !HasErrors(results) {
 		t.Error("expected errors in invalid Go file")
@@ -82,9 +79,7 @@ func TestIntegration_SkippedBlocks(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 3 {
-		t.Fatalf("expected 3 results, got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 3)
 
 	skippedCount := 0
 
@@ -114,9 +109,7 @@ func TestIntegration_MixedLanguagesMDX(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 3 {
-		t.Fatalf("expected 3 results (go + ts + rust), got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 3)
 
 	if HasErrors(results) {
 		for _, r := range results {
@@ -138,9 +131,7 @@ func TestIntegration_EdgeCases(t *testing.T) {
 		t.Fatalf("ValidateFile error: %v", err)
 	}
 
-	if len(results) != 0 {
-		t.Errorf("expected 0 results (empty/whitespace blocks filtered), got %d", len(results))
-	}
+	testutil.AssertResultCount(t, results, 0)
 }
 
 func TestIntegration_ValidateDirectory(t *testing.T) {

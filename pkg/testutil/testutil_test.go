@@ -276,28 +276,28 @@ func TestAssertZeroValue(t *testing.T) {
 		AssertZeroValue(t, "bool", true, true)
 	})
 
-	assertZeroValueFails := func(t *testing.T, typeName string, actual, expected any) {
-		t.Helper()
-
-		tt := &testing.T{}
-		AssertZeroValue(tt, typeName, actual, expected)
-
-		if !tt.Failed() {
-			t.Error("expected test to fail")
-		}
+	failCases := []struct {
+		name     string
+		typeName string
+		actual   any
+		expected any
+	}{
+		{name: "fail when strings differ", typeName: "string", actual: "a", expected: "b"},
+		{name: "fail when ints differ", typeName: "int", actual: 1, expected: 2},
 	}
 
-	t.Run("fail when strings differ", func(t *testing.T) {
-		t.Parallel()
+	for _, tc := range failCases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		assertZeroValueFails(t, "string", "a", "b")
-	})
+			tt := &testing.T{}
+			AssertZeroValue(tt, tc.typeName, tc.actual, tc.expected)
 
-	t.Run("fail when ints differ", func(t *testing.T) {
-		t.Parallel()
-
-		assertZeroValueFails(t, "int", 1, 2)
-	})
+			if !tt.Failed() {
+				t.Error("expected test to fail")
+			}
+		})
+	}
 }
 
 func TestIsContextDone(t *testing.T) {

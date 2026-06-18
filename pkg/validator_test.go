@@ -47,13 +47,7 @@ func newValidResults(specs ...validResultSpec) []types.Result {
 }
 
 func newTestErrorResult(fileID string, line, block int, code, errMsg string) types.Result {
-	return types.NewErrorResult(
-		types.NewFileID(fileID),
-		types.NewLineNumber(line),
-		types.NewBlockIndex(block),
-		code,
-		types.NewTestError(errMsg),
-	)
+	return testutil.NewTestErrorResult(fileID, line, block, code, errMsg)
 }
 
 func TestExtractGoCodeBlocks(t *testing.T) {
@@ -77,11 +71,9 @@ func TestExtractGoCodeBlocks(t *testing.T) {
 		content := "<!-- skip-validate -->\n```go\npartial code\n```"
 
 		blocks := ExtractGoCodeBlocks(content)
-		if len(blocks) != 1 {
-			t.Fatalf("expected 1 block, got %d", len(blocks))
-		}
+		b := testutil.AssertSingleBlock(t, blocks)
 
-		if !blocks[0].IsSkipped() {
+		if !b.IsSkipped() {
 			t.Error("expected block to be skipped")
 		}
 	})
@@ -579,9 +571,7 @@ func extractAndAssertBlockCount(t *testing.T, content string, _ int) []types.Cod
 	t.Helper()
 
 	blocks := ExtractGoCodeBlocks(content)
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block(s), got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 1)
 
 	return blocks
 }
@@ -685,30 +675,29 @@ func TestValidator_ValidateContent(t *testing.T) {
 		return results
 	}
 
-	t.Run("valid go content", func(t *testing.T) {
-		t.Parallel()
+	cases := []struct {
+		name    string
+		content string
+		count   int
+		wantErr bool
+	}{
+		{name: "valid go content", content: "```go\npackage main\nfunc main() {}\n```\n", count: 1},
+		{name: "invalid go content", content: "```go\nbroken syntax\n```\n", count: 1, wantErr: true},
+		{name: "no code blocks", content: "# Just markdown\n\nNo code here.\n", count: 0},
+	}
 
-		results := validate(t, "```go\npackage main\nfunc main() {}\n```\n")
-		testutil.AssertResultCount(t, results, 1)
-	})
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-	t.Run("invalid go content", func(t *testing.T) {
-		t.Parallel()
+			results := validate(t, tc.content)
+			testutil.AssertResultCount(t, results, tc.count)
 
-		results := validate(t, "```go\nbroken syntax\n```\n")
-		testutil.AssertResultCount(t, results, 1)
-
-		if !HasErrors(results) {
-			t.Error("expected validation errors")
-		}
-	})
-
-	t.Run("no code blocks", func(t *testing.T) {
-		t.Parallel()
-
-		results := validate(t, "# Just markdown\n\nNo code here.\n")
-		testutil.AssertResultCount(t, results, 0)
-	})
+			if tc.wantErr && !HasErrors(results) {
+				t.Error("expected validation errors")
+			}
+		})
+	}
 
 	t.Run("cancelled context", func(t *testing.T) {
 		t.Parallel()

@@ -66,18 +66,11 @@ func BuildReportData(results []Result, showCode bool) ReportData {
 		case StatusError:
 			errorCount++
 
-			// Guard against the representable-but-invalid state of StatusError
-			// with a nil error (would panic on .Error() below).
-			errMsg := ""
-			if r.Error != nil {
-				errMsg = r.Error.Error()
-			}
-
 			entry := ErrorEntry{
 				File:      r.File,
 				Line:      r.LineNumber,
 				Block:     r.Block,
-				Error:     errMsg,
+				Error:     r.ErrorMessage(),
 				ErrorCode: r.ErrorCode,
 				Code:      "",
 			}

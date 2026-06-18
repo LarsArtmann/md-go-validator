@@ -64,6 +64,18 @@ func AssertBlockCount(t *testing.T, blocks []types.CodeBlock, expected int) {
 	}
 }
 
+// AssertSingleBlock fails if the slice is not exactly one block. Returns the
+// single block so callers can chain further assertions.
+func AssertSingleBlock(t *testing.T, blocks []types.CodeBlock) types.CodeBlock {
+	t.Helper()
+
+	if len(blocks) != 1 {
+		t.Fatalf("expected 1 block, got %d", len(blocks))
+	}
+
+	return blocks[0]
+}
+
 func isContextDone(ctx context.Context) bool {
 	select {
 	case <-ctx.Done():
@@ -115,4 +127,24 @@ func AssertZeroValue[T comparable](t *testing.T, name string, got, expected T) {
 	if got != expected {
 		t.Errorf("expected %s %v, got %v", name, expected, got)
 	}
+}
+
+// NewTestErrorResult builds a types.Result with the given fields and the
+// supplied message wrapped in a *types.TestError. Mirrors types.NewErrorResult
+// for tests that need the test error type and live in packages that shouldn't
+// import each other.
+func NewTestErrorResult(fileID string, line, block int, code, errMsg string) types.Result {
+	return NewTestErrorResultWith(fileID, line, block, code, types.NewTestError(errMsg))
+}
+
+// NewTestErrorResultWith builds a types.Result with the given fields and the
+// supplied error.
+func NewTestErrorResultWith(fileID string, line, block int, code string, err error) types.Result {
+	return types.NewErrorResult(
+		types.NewFileID(fileID),
+		types.NewLineNumber(line),
+		types.NewBlockIndex(block),
+		code,
+		err,
+	)
 }

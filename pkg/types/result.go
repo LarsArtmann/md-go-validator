@@ -127,6 +127,16 @@ func (r Result) HasError() bool {
 	return r.Status == StatusError && r.Error != nil
 }
 
+// ErrorMessage returns the Error.Error() string, or "" if Error is nil.
+// Centralises the nil-guard so callers don't reinvent it.
+func (r Result) ErrorMessage() string {
+	if r.Error == nil {
+		return ""
+	}
+
+	return r.Error.Error()
+}
+
 // Summary returns a one-line summary suitable for logging.
 func (r Result) Summary() string {
 	var parts []string

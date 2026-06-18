@@ -143,9 +143,7 @@ func testBuildReportDataErrors(t *testing.T) {
 		t.Errorf("expected 1 error entry, got %d", len(report.Errors))
 	}
 
-	if report.Errors[0].Error != "syntax error" {
-		t.Errorf("expected error message 'syntax error', got %q", report.Errors[0].Error)
-	}
+	types.AssertErrorMessage(t, report.Errors[0], "syntax error")
 }
 
 func testBuildReportDataShowCode(t *testing.T) {
@@ -268,21 +266,22 @@ func testPrintReportQuietWithSkipped(t *testing.T) {
 	t.Parallel()
 
 	// Exercises the quiet branch that reports a skipped count alongside valid.
-	results := []types.Result{
-		newValidResultWithCode("a.md", 1, 1, "package main"),
-		newSkippedResultWithReason("b.md", 2, 1, "// skip"),
-	}
-	PrintReport(results, FormatQuiet, ColorModeNever, false)
+	PrintReport(validPlusSkipped(), FormatQuiet, ColorModeNever, false)
 }
 
 func testPrintReportTable(t *testing.T) {
 	t.Parallel()
 
-	results := []types.Result{
+	PrintReport(validPlusSkipped(), FormatTable, ColorModeNever, false)
+}
+
+// validPlusSkipped builds a two-result sample: a valid go block plus a
+// skipped one. Shared by the quiet and table format tests.
+func validPlusSkipped() []types.Result {
+	return []types.Result{
 		newValidResultWithCode("a.md", 1, 1, "package main"),
 		newSkippedResultWithReason("b.md", 2, 1, "// skip"),
 	}
-	PrintReport(results, FormatTable, ColorModeNever, false)
 }
 
 func testPrintReportTableErrors(t *testing.T) {

@@ -21,6 +21,16 @@ func assertPanics(t *testing.T, msg string, fn func()) {
 	fn()
 }
 
+// assertIntEquals fails if got != expected. Reports with a name-tagged message
+// so failures identify the field under test (e.g. "LineNumber.Int()").
+func assertIntEquals(t *testing.T, name string, got, expected int) {
+	t.Helper()
+
+	if got != expected {
+		t.Errorf("want %s=%d, got %d", name, expected, got)
+	}
+}
+
 func newTestResult(status ValidationStatus) Result {
 	return NewResultWithStatus(
 		NewFileID("test.md"),
@@ -73,9 +83,7 @@ func TestLineNumber(t *testing.T) {
 		t.Parallel()
 
 		ln := NewLineNumber(42)
-		if ln.Int() != 42 {
-			t.Errorf("expected 42, got %d", ln.Int())
-		}
+		assertIntEquals(t, "LineNumber.Int()", ln.Int(), 42)
 
 		if ln.String() != "42" {
 			t.Errorf("expected '42', got %q", ln.String())
@@ -95,9 +103,7 @@ func TestBlockIndex(t *testing.T) {
 		t.Parallel()
 
 		bi := NewBlockIndex(7)
-		if bi.Int() != 7 {
-			t.Errorf("expected 7, got %d", bi.Int())
-		}
+		assertIntEquals(t, "BlockIndex.Int()", bi.Int(), 7)
 
 		if bi.String() != "7" {
 			t.Errorf("expected '7', got %q", bi.String())
@@ -340,9 +346,7 @@ func testResultSkipped(t *testing.T) {
 		"skip me",
 		StatusSkipped,
 	)
-	if r.Status != StatusSkipped {
-		t.Errorf("expected StatusSkipped, got %v", r.Status)
-	}
+	AssertStatus(t, r, StatusSkipped)
 }
 
 func testResultError(t *testing.T) {
@@ -470,9 +474,7 @@ func TestBuildReportData(t *testing.T) {
 		report := BuildReportData(results, false)
 		AssertReportSummary(t, &report, 1, 0, 1, 0)
 
-		if report.Errors[0].Error != "" {
-			t.Errorf("expected empty error message for nil error, got %q", report.Errors[0].Error)
-		}
+		AssertErrorMessage(t, report.Errors[0], "")
 	})
 
 	t.Run("Validate rejects StatusError with nil error", func(t *testing.T) {
@@ -704,36 +706,28 @@ func TestNewLineNumber_Negative(t *testing.T) {
 	t.Parallel()
 
 	ln := NewLineNumber(-1)
-	if ln.Int() != 0 {
-		t.Errorf("expected 0 for negative input, got %d", ln.Int())
-	}
+	assertIntEquals(t, "LineNumber.Int()", ln.Int(), 0)
 }
 
 func TestNewLineNumberFromUint(t *testing.T) {
 	t.Parallel()
 
 	ln := NewLineNumberFromUint(42)
-	if ln.Int() != 42 {
-		t.Errorf("expected 42, got %d", ln.Int())
-	}
+	assertIntEquals(t, "LineNumber.Int()", ln.Int(), 42)
 }
 
 func TestNewBlockIndex_Negative(t *testing.T) {
 	t.Parallel()
 
 	bi := NewBlockIndex(-1)
-	if bi.Int() != 0 {
-		t.Errorf("expected 0 for negative input, got %d", bi.Int())
-	}
+	assertIntEquals(t, "BlockIndex.Int()", bi.Int(), 0)
 }
 
 func TestNewBlockIndexFromUint(t *testing.T) {
 	t.Parallel()
 
 	bi := NewBlockIndexFromUint(7)
-	if bi.Int() != 7 {
-		t.Errorf("expected 7, got %d", bi.Int())
-	}
+	assertIntEquals(t, "BlockIndex.Int()", bi.Int(), 7)
 }
 
 func TestValidationStatus_MarshalText(t *testing.T) {
@@ -806,9 +800,7 @@ func TestNewSkippedResultForTest(t *testing.T) {
 
 	r := NewSkippedResultForTest("test.md", 1, 1, "reason")
 
-	if r.Status != StatusSkipped {
-		t.Errorf("expected StatusSkipped, got %v", r.Status)
-	}
+	AssertStatus(t, r, StatusSkipped)
 
 	if r.File.String() != "test.md" {
 		t.Errorf("expected test.md, got %s", r.File)
@@ -850,13 +842,7 @@ func TestErrorCodeThreading(t *testing.T) {
 	t.Run("plain error leaves ErrorCode as unknown", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewErrorResult(
-			NewFileID("test.md"),
-			NewLineNumber(1),
-			NewBlockIndex(0),
-			"bad code",
-			NewTestError("plain error"),
-		)
+		r := NewTestErrorResultAtZero("bad code", NewTestError("plain error"))
 
 		if r.ErrorCode != languages.ErrCodeUnknown {
 			t.Errorf("expected ErrorCode %s, got %s", languages.ErrCodeUnknown, r.ErrorCode)
@@ -866,13 +852,7 @@ func TestErrorCodeThreading(t *testing.T) {
 	t.Run("ErrorCode threaded into ErrorEntry via BuildReportData", func(t *testing.T) {
 		t.Parallel()
 
-		r := NewErrorResult(
-			NewFileID("test.md"),
-			NewLineNumber(1),
-			NewBlockIndex(0),
-			"bad code",
-			newSyntaxValidationError(),
-		)
+		r := NewTestErrorResultAtZero("bad code", newSyntaxValidationError())
 
 		report := BuildReportData([]Result{r}, false)
 		AssertSingleError(t, &report)

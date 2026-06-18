@@ -262,20 +262,30 @@ func returnParseError(_ string, err error) {
 	printUsage()
 }
 
-func handleHelp(_ []string, _ int, _ *config) (int, bool) {
-	printUsage()
-	os.Exit(0)
+// exitingHandler builds an argHandler that runs action() and then terminates
+// the process via osExit. handled reports whether the handler performed work
+// beyond exiting (true for handleVersion which prints output; false for
+// handleHelp which just exits).
+func exitingHandler(action func(), handled bool) argHandler {
+	return func(_ []string, _ int, _ *config) (int, bool) {
+		action()
+		osExit(0)
 
-	return 0, false // exit called, but we need to return something
+		return 0, handled
+	}
 }
 
-func handleVersion(_ []string, _ int, _ *config) (int, bool) {
-	//nolint:forbidigo // CLI version output requires direct stdout writing
-	fmt.Println("md-go-validator", version)
-	osExit(0)
-
-	return 0, true // exit called, but we need to return something
-}
+// handleHelp and handleVersion are package-level handlers. They are wired
+// into the arg-dispatch table, not invoked from a single function scope.
+//
+//nolint:gochecknoglobals // wired into arg-dispatch table
+var (
+	handleHelp    = exitingHandler(printUsage, false)
+	handleVersion = exitingHandler(func() {
+		//nolint:forbidigo // CLI version output requires direct stdout writing
+		fmt.Println("md-go-validator", version)
+	}, true)
+)
 
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
 func languagesArgHandler() argHandler {
@@ -379,22 +389,27 @@ func validatePath(
 // stdinSourceName is the file identifier used for stdin-validated results.
 const stdinSourceName = "<stdin>"
 
+// reportStdinError prints a stdin-pipeline error to stderr and signals failure
+// to the caller via a (nil, false) tuple. Centralised so both steps share
+// identical behaviour.
+func reportStdinError(stage string, err error) ([]types.Result, bool) {
+	fmt.Fprintf(os.Stderr, "Error %s: %v\n", stage, err)
+
+	return nil, false
+}
+
 func validateStdin(
 	ctx context.Context,
 	validator *mdgovalidator.FileValidator,
 ) ([]types.Result, bool) {
 	content, err := io.ReadAll(os.Stdin)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading stdin: %v\n", err)
-
-		return nil, false
+		return reportStdinError("reading stdin", err)
 	}
 
 	results, err := validator.ValidateContent(ctx, string(content), stdinSourceName)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error validating stdin: %v\n", err)
-
-		return nil, false
+		return reportStdinError("validating stdin", err)
 	}
 
 	return results, true

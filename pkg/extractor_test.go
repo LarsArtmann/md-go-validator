@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/larsartmann/md-go-validator/pkg/languages"
+	"github.com/larsartmann/md-go-validator/pkg/testutil"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -12,12 +13,9 @@ func TestExtractCodeBlocks_SingleGoBlock(t *testing.T) {
 
 	content := "# Title\n\n```go\npackage main\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	testutil.AssertBlockCount(t, blocks, 1)
 
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
-
-	assertCodeBlock(t, blocks[0], "package main\n", 3, languages.LangGo, types.StatusUnknown)
+	assertCodeBlock(t, blocks[0], "package main\n", 3, languages.LangGo)
 }
 
 func TestExtractCodeBlocks_MultipleGoBlocks(t *testing.T) {
@@ -25,13 +23,10 @@ func TestExtractCodeBlocks_MultipleGoBlocks(t *testing.T) {
 
 	content := "```go\npackage main\n```\n\ntext\n\n```go\nfunc f() {}\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	testutil.AssertBlockCount(t, blocks, 2)
 
-	if len(blocks) != 2 {
-		t.Fatalf("expected 2 blocks, got %d", len(blocks))
-	}
-
-	assertCodeBlock(t, blocks[0], "package main\n", 1, languages.LangGo, types.StatusUnknown)
-	assertCodeBlock(t, blocks[1], "func f() {}\n", 7, languages.LangGo, types.StatusUnknown)
+	assertCodeBlock(t, blocks[0], "package main\n", 1, languages.LangGo)
+	assertCodeBlock(t, blocks[1], "func f() {}\n", 7, languages.LangGo)
 }
 
 func TestExtractCodeBlocks_LanguageFiltering(t *testing.T) {
@@ -39,13 +34,10 @@ func TestExtractCodeBlocks_LanguageFiltering(t *testing.T) {
 
 	content := "```go\npackage main\n```\n\n```python\nprint('hi')\n```\n\n```rust\nfn main(){}\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo, languages.LangRust})
+	testutil.AssertBlockCount(t, blocks, 2)
 
-	if len(blocks) != 2 {
-		t.Fatalf("expected 2 blocks (go+rust, python filtered), got %d", len(blocks))
-	}
-
-	assertCodeBlock(t, blocks[0], "package main\n", 1, languages.LangGo, types.StatusUnknown)
-	assertCodeBlock(t, blocks[1], "fn main(){}\n", 9, languages.LangRust, types.StatusUnknown)
+	assertCodeBlock(t, blocks[0], "package main\n", 1, languages.LangGo)
+	assertCodeBlock(t, blocks[1], "fn main(){}\n", 9, languages.LangRust)
 }
 
 func TestExtractCodeBlocks_EmptyBlockIgnored(t *testing.T) {
@@ -53,12 +45,9 @@ func TestExtractCodeBlocks_EmptyBlockIgnored(t *testing.T) {
 
 	content := "```go\n   \n```\n\n```go\npackage main\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	testutil.AssertBlockCount(t, blocks, 1)
 
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block (empty ignored), got %d", len(blocks))
-	}
-
-	assertCodeBlock(t, blocks[0], "package main\n", 5, languages.LangGo, types.StatusUnknown)
+	assertCodeBlock(t, blocks[0], "package main\n", 5, languages.LangGo)
 }
 
 func TestExtractCodeBlocks_LineNumberIsOneIndexed(t *testing.T) {
@@ -67,10 +56,7 @@ func TestExtractCodeBlocks_LineNumberIsOneIndexed(t *testing.T) {
 	// Block fence starts on line 4 (0-indexed line 3 → +1 = 4).
 	content := "line1\nline2\nline3\n```go\npackage main\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 1)
 
 	if blocks[0].LineNumber.Int() != 4 {
 		t.Errorf("expected line 4, got %d", blocks[0].LineNumber.Int())
@@ -82,10 +68,7 @@ func TestExtractCodeBlocks_NonSkippedStatusIsUnknown(t *testing.T) {
 
 	content := "```go\npackage main\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 1)
 
 	// Extraction must not pre-judge validity; the validator decides later.
 	if blocks[0].Status != types.StatusUnknown {
@@ -98,12 +81,9 @@ func TestExtractCodeBlocks_SkippedBlockStatus(t *testing.T) {
 
 	content := "<!-- skip-validate -->\n\n```go\nthis is invalid\n```\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	testutil.AssertBlockCount(t, blocks, 1)
 
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
-
-	assertCodeBlock(t, blocks[0], "this is invalid\n", 3, languages.LangGo, types.StatusSkipped)
+	assertSkippedCodeBlock(t, blocks[0], "this is invalid\n", 3, languages.LangGo)
 }
 
 func TestExtractCodeBlocks_DefaultSkipDirectives(t *testing.T) {
@@ -157,13 +137,7 @@ func TestExtractCodeBlocks_AllDefaultDirectivesSkipBlock(t *testing.T) {
 			t.Parallel()
 
 			blocks := ExtractCodeBlocks(tc.content, []languages.Language{languages.LangGo})
-			if len(blocks) != 1 {
-				t.Fatalf("expected 1 block, got %d", len(blocks))
-			}
-
-			if !blocks[0].IsSkipped() {
-				t.Errorf("expected skipped block, got status %s", blocks[0].Status)
-			}
+			assertSingleSkippedBlock(t, blocks, "expected skipped block")
 		})
 	}
 }
@@ -178,14 +152,7 @@ func TestExtractCodeBlocksWithConfig_CustomDirectives(t *testing.T) {
 		[]languages.Language{languages.LangGo},
 		SkipDirectivesConfig{"<!-- custom-skip -->"},
 	)
-
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
-
-	if !blocks[0].IsSkipped() {
-		t.Errorf("expected custom directive to skip block, got status %s", blocks[0].Status)
-	}
+	assertSingleSkippedBlock(t, blocks, "expected custom directive to skip block")
 }
 
 func TestExtractCodeBlocksWithConfig_DefaultDoesNotSkipCustom(t *testing.T) {
@@ -194,12 +161,9 @@ func TestExtractCodeBlocksWithConfig_DefaultDoesNotSkipCustom(t *testing.T) {
 	// With default directives, a custom marker should NOT skip.
 	content := "<!-- custom-skip -->\n```go\npackage main\n```"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	b := testutil.AssertSingleBlock(t, blocks)
 
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 block, got %d", len(blocks))
-	}
-
-	if blocks[0].IsSkipped() {
+	if b.IsSkipped() {
 		t.Error("expected default directives to NOT skip on custom marker")
 	}
 }
@@ -209,14 +173,7 @@ func TestExtractGoCodeBlocks_BackwardsCompatible(t *testing.T) {
 
 	content := "```go\npackage main\n```\n\n```python\nprint(1)\n```"
 	blocks := ExtractGoCodeBlocks(content)
-
-	if len(blocks) != 1 {
-		t.Fatalf("expected 1 Go block, got %d", len(blocks))
-	}
-
-	if blocks[0].Language != languages.LangGo {
-		t.Errorf("expected go, got %s", blocks[0].Language)
-	}
+	assertSingleBlockLanguage(t, blocks, languages.LangGo, "expected go")
 }
 
 func TestExtractCodeBlocks_LanguageAliasGolang(t *testing.T) {
@@ -224,14 +181,7 @@ func TestExtractCodeBlocks_LanguageAliasGolang(t *testing.T) {
 
 	content := "```golang\npackage main\n```"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-
-	if len(blocks) != 1 {
-		t.Fatalf("expected 'golang' alias to map to go, got %d blocks", len(blocks))
-	}
-
-	if blocks[0].Language != languages.LangGo {
-		t.Errorf("expected go, got %s", blocks[0].Language)
-	}
+	assertSingleBlockLanguage(t, blocks, languages.LangGo, "expected 'golang' alias to map to go")
 }
 
 func TestExtractCodeBlocks_MDXFormat(t *testing.T) {
@@ -239,10 +189,7 @@ func TestExtractCodeBlocks_MDXFormat(t *testing.T) {
 
 	content := "# Mixed\n\n```go\npackage main\n```\n\n```typescript\nconst x = 1;\n```"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo, languages.LangTypeScript})
-
-	if len(blocks) != 2 {
-		t.Fatalf("expected 2 blocks from MDX, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 2)
 }
 
 func TestExtractCodeBlocks_NoCodeBlocks(t *testing.T) {
@@ -250,10 +197,7 @@ func TestExtractCodeBlocks_NoCodeBlocks(t *testing.T) {
 
 	content := "# Just a title\n\nNo code here."
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-
-	if len(blocks) != 0 {
-		t.Fatalf("expected 0 blocks, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 0)
 }
 
 func TestExtractCodeBlocks_UnclosedBlockCapturedToEnd(t *testing.T) {
@@ -262,10 +206,7 @@ func TestExtractCodeBlocks_UnclosedBlockCapturedToEnd(t *testing.T) {
 	// An unclosed fence is never finalized, so no block is emitted.
 	content := "```go\npackage main\n"
 	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-
-	if len(blocks) != 0 {
-		t.Fatalf("expected 0 blocks for unclosed fence, got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 0)
 }
 
 func TestExtractCodeBlocks_FenceWithInfoString(t *testing.T) {
@@ -278,19 +219,18 @@ func TestExtractCodeBlocks_FenceWithInfoString(t *testing.T) {
 
 	// Current extractor parses the whole info string as the language, so this
 	// is NOT recognized as go. This test documents the current behavior.
-	if len(blocks) != 0 {
-		t.Fatalf("expected 0 blocks (info string not stripped), got %d", len(blocks))
-	}
+	testutil.AssertBlockCount(t, blocks, 0)
 }
 
-// assertCodeBlock checks all fields of an extracted CodeBlock.
+// assertCodeBlock checks all fields of an extracted CodeBlock. The default
+// status is StatusUnknown, which is what Extract* leaves on freshly created
+// blocks before validation. For skipped blocks use assertSkippedCodeBlock.
 func assertCodeBlock(
 	t *testing.T,
 	block types.CodeBlock,
 	wantCode string,
 	wantLine int,
 	wantLang languages.Language,
-	wantStatus types.ValidationStatus,
 ) {
 	t.Helper()
 
@@ -306,7 +246,56 @@ func assertCodeBlock(
 		t.Errorf("language: want %s, got %s", wantLang, block.Language)
 	}
 
-	if block.Status != wantStatus {
-		t.Errorf("status: want %s, got %s", wantStatus, block.Status)
+	if block.Status != types.StatusUnknown {
+		t.Errorf("status: want %s, got %s", types.StatusUnknown, block.Status)
+	}
+}
+
+// assertSkippedCodeBlock is assertCodeBlock for skipped blocks.
+func assertSkippedCodeBlock(
+	t *testing.T,
+	block types.CodeBlock,
+	wantCode string,
+	wantLine int,
+	wantLang languages.Language,
+) {
+	t.Helper()
+
+	if block.Code != wantCode {
+		t.Errorf("code: want %q, got %q", wantCode, block.Code)
+	}
+
+	if block.LineNumber.Int() != wantLine {
+		t.Errorf("line: want %d, got %d", wantLine, block.LineNumber.Int())
+	}
+
+	if block.Language != wantLang {
+		t.Errorf("language: want %s, got %s", wantLang, block.Language)
+	}
+
+	if block.Status != types.StatusSkipped {
+		t.Errorf("status: want %s, got %s", types.StatusSkipped, block.Status)
+	}
+}
+
+// assertSingleSkippedBlock asserts that the extractor returned exactly one
+// skipped block, with a domain-specific failure message.
+func assertSingleSkippedBlock(t *testing.T, blocks []types.CodeBlock, reason string) {
+	t.Helper()
+
+	b := testutil.AssertSingleBlock(t, blocks)
+	if !b.IsSkipped() {
+		t.Errorf("%s, got status %s", reason, b.Status)
+	}
+}
+
+// assertSingleBlockLanguage asserts that the extractor returned exactly one
+// block in the expected language, with a domain-specific failure message.
+func assertSingleBlockLanguage(t *testing.T, blocks []types.CodeBlock, expected languages.Language, reason string) {
+	t.Helper()
+
+	b := testutil.AssertSingleBlock(t, blocks)
+	if b.Language != expected {
+		t.Errorf("%s, got %s", reason, b.Language)
 	}
 }

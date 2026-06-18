@@ -245,11 +245,9 @@ func printCSVTo(writer io.Writer, results []types.Result, showCode bool) error {
 
 func writeCSVRows(csvWriter *delimited.CSVWriter, results []types.Result, showCode bool) error {
 	for _, r := range results {
-		var errMsg, code string
-		if r.Error != nil {
-			errMsg = r.Error.Error()
-		}
+		errMsg := r.ErrorMessage()
 
+		code := ""
 		if showCode {
 			code = r.Code
 		}

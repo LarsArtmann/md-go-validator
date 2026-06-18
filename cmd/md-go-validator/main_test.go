@@ -52,6 +52,36 @@ func runParseArgsFieldTest[T comparable](
 	})
 }
 
+func assertPaths(t *testing.T, cfg config, expected ...string) {
+	t.Helper()
+
+	if len(cfg.paths) != len(expected) {
+		t.Errorf("expected paths=%v, got %v", expected, cfg.paths)
+
+		return
+	}
+
+	for i, want := range expected {
+		if cfg.paths[i] != want {
+			t.Errorf("expected paths=%v, got %v", expected, cfg.paths)
+
+			return
+		}
+	}
+}
+
+func newGoValidator() *mdgovalidator.FileValidator {
+	return mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+}
+
+func assertContains(t *testing.T, haystack, needle, message string) {
+	t.Helper()
+
+	if !strings.Contains(haystack, needle) {
+		t.Error(message)
+	}
+}
+
 func TestParseArgsDefaults(t *testing.T) {
 	t.Parallel()
 
@@ -73,9 +103,7 @@ func TestParseArgsDefaults(t *testing.T) {
 		t.Errorf("colorMode should be 'auto' by default, got %q", cfg.colorMode)
 	}
 
-	if len(cfg.paths) != 1 || cfg.paths[0] != "." {
-		t.Errorf("paths should be ['.'], got %v", cfg.paths)
-	}
+	assertPaths(t, cfg, ".")
 }
 
 func TestParseArgsVerboseFlag(t *testing.T) {
@@ -561,13 +589,8 @@ func newValidResultForFile(fileID string, line, block int, code string) types.Re
 }
 
 func newErrorResultForFile(fileID string, line, block int, code, errMsg string) types.Result {
-	return types.NewErrorResult(
-		types.NewFileID(fileID),
-		types.NewLineNumber(line),
-		types.NewBlockIndex(block),
-		code,
-		errors.New(errMsg), //nolint:err113 // Test helper - errMsg is controlled test data
-	)
+	//nolint:err113 // Test helper - errMsg is controlled test data
+	return testutil.NewTestErrorResultWith(fileID, line, block, code, errors.New(errMsg))
 }
 
 func newTestConfig(outputFile string, format output.Format) config {
@@ -702,13 +725,8 @@ func TestUsageHeader(t *testing.T) {
 	t.Parallel()
 
 	h := usageHeader()
-	if !strings.Contains(h, "md-go-validator") {
-		t.Error("expected usage header to contain program name")
-	}
-
-	if !strings.Contains(h, "OPTIONS") {
-		t.Error("expected usage header to contain OPTIONS")
-	}
+	assertContains(t, h, "md-go-validator", "expected usage header to contain program name")
+	assertContains(t, h, "OPTIONS", "expected usage header to contain OPTIONS")
 }
 
 func TestUsageDetails(t *testing.T) {
@@ -806,9 +824,7 @@ func TestParseArgsCombinedFlags(t *testing.T) {
 		t.Errorf("expected languages=[go], got %v", cfg.languages)
 	}
 
-	if len(cfg.paths) != 1 || cfg.paths[0] != "src/" {
-		t.Errorf("expected paths=[src/], got %v", cfg.paths)
-	}
+	assertPaths(t, cfg, "src/")
 }
 
 func TestRunWithConfig_ExitCodes(t *testing.T) {
@@ -955,7 +971,7 @@ func TestValidateContent_Stdin(t *testing.T) {
 	t.Run("valid content via ValidateContent", func(t *testing.T) {
 		t.Parallel()
 
-		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+		validator := newGoValidator()
 
 		content := "```go\npackage main\n```\n"
 
@@ -974,7 +990,7 @@ func TestValidateContent_Stdin(t *testing.T) {
 	t.Run("invalid content via ValidateContent", func(t *testing.T) {
 		t.Parallel()
 
-		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+		validator := newGoValidator()
 
 		content := "```go\nnot valid go\n```\n"
 
@@ -993,7 +1009,7 @@ func TestValidateContent_Stdin(t *testing.T) {
 	t.Run("no code blocks returns empty", func(t *testing.T) {
 		t.Parallel()
 
-		validator := mdgovalidator.New(false).WithLanguages([]languages.Language{languages.LangGo})
+		validator := newGoValidator()
 
 		content := "# Just a heading\n\nNo code here.\n"
 
