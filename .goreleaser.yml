@@ -44,7 +44,7 @@ archives:
         {{- else }}{{ .Arch }}{{ end }}
     format_overrides:
       - goos: windows
-        format: zip
+        formats: zip
     files:
       - LICENSE*
       - README*
@@ -83,45 +83,12 @@ signs:
 sboms:
   - artifacts: archive
 
-brews:
-  - name: md-go-validator
-    skip_upload: true
-    homepage: "https://github.com/LarsArtmann/md-go-validator"
-    description: "Markdown validation tool for Go projects"
-    license: MIT
-    repository:
-      owner: LarsArtmann
-      name: homebrew-tap
-    directory: Formula
-    commit_author:
-      name: goreleaserbot
-      email: goreleaser@larsartmann.com
-    install: |
-      bin.install "md-go-validator"
-    test: |
-      system "#{{bin}}/md-go-validator --version"
-
-nix:
-  - name: md-go-validator
-    skip_upload: auto
-    repository:
-      owner: LarsArtmann
-      name: nur-packages
-    homepage: "https://github.com/LarsArtmann/md-go-validator"
-    description: "Markdown validation tool for Go projects"
-    license: mit
-    formatter: nixfmt
-    path: pkgs/md-go-validator/default.nix
-    install: |
-      mkdir -p $out/bin
-      cp -vr ./{{binary}} $out/bin/md-go-validator
-
 nfpms:
   - id: default
     package_name: md-go-validator
     file_name_template: "{{ .ConventionalFileName }}"
     homepage: "https://github.com/LarsArtmann/md-go-validator"
-    description: "Markdown validation tool for Go projects"
+    description: "Multi-language code block validator for Markdown and MDX"
     license: MIT
     maintainer: "Lars Artmann <lars@larsartmann.com>"
     formats:
@@ -140,7 +107,7 @@ scoops:
       name: goreleaserbot
       email: goreleaser@larsartmann.com
     homepage: "https://github.com/LarsArtmann/md-go-validator"
-    description: "Markdown validation tool for Go projects"
+    description: "Multi-language code block validator for Markdown and MDX"
     license: MIT
 
 release:
