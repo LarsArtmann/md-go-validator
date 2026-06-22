@@ -309,9 +309,8 @@ func TestPrintUsage(t *testing.T) {
 	printUsage()
 }
 
+//nolint:paralleltest // Mutates process globals (os.Stdout, osExit, version) — parallel execution unsafe
 func TestHandleVersion(t *testing.T) {
-	t.Parallel()
-
 	// Capture stdout and restore it after the test.
 	oldStdout := os.Stdout
 
