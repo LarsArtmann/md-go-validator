@@ -4,7 +4,7 @@
   self ? { },
 }:
 let
-  version = self.rev or self.dirtyRev or "dev";
+  version = self.shortRev or self.dirtyShortRev or "dev";
   vendorHash = "sha256-ist2db1+PJj6Uu2OnMvtbbvLEylogzwTeJcgCeegZK0=";
 
   src = lib.fileset.toSource {
