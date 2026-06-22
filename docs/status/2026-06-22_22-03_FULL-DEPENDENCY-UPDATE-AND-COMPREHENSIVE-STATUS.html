@@ -1,0 +1,1435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Status Report — 2026-06-22 22:03 — Full Dependency Update & Comprehensive Status</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — Dashboard template
+         Design language: form follows function. Primary colors on graphite.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Dark) --- */
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        /* --- Semantic layer --- */
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Shape --- */
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Sidebar TOC --- */
+      .sidebar {
+        display: none;
+        flex: 0 0 200px;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        border-left: 1px solid var(--border);
+        padding-left: 1rem;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-faint);
+        margin-bottom: 0.6rem;
+      }
+      .sidebar a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.2rem 0;
+        border-left: 2px solid transparent;
+        margin-left: -1rem;
+        padding-left: 0.9rem;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: 2.4rem;
+        font-weight: 900;
+        line-height: 1.05;
+        margin: 0.4rem 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.7rem;
+        font-weight: 800;
+        margin: 2.2rem 0 0.8rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid var(--border-strong);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--surface);
+        padding: 0.15rem 0.5rem;
+        letter-spacing: 0;
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.4rem 0 0.5rem;
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem;
+      }
+      p {
+        margin: 0.5rem 0;
+      }
+      p code,
+      li code,
+      td code {
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+        font-size: 0.85em;
+        color: var(--accent);
+      }
+
+      /* --- Hero --- */
+      .hero {
+        margin-bottom: 1.5rem;
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 0.6rem;
+      }
+      .hero-subtitle {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        max-width: 60ch;
+      }
+
+      /* --- Cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--border-strong);
+        padding: 1rem 1.2rem;
+        margin: 0.8rem 0;
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1rem 1.2rem;
+        margin: 0.8rem 0;
+      }
+      .issue-critical {
+        border-left: 3px solid var(--problem);
+      }
+      .issue-important {
+        border-left: 3px solid var(--warning);
+      }
+      .issue-nice {
+        border-left: 3px solid var(--solution);
+      }
+      .issue h3 {
+        margin-top: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+
+      /* --- Severity badges --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.15rem 0.5rem;
+        border: 1px solid var(--text-faint);
+        color: var(--text-faint);
+      }
+      .severity-critical {
+        border-color: var(--problem);
+        color: var(--problem);
+      }
+      .severity-important {
+        border-color: var(--warning);
+        color: var(--warning);
+      }
+      .severity-nice {
+        border-color: var(--solution);
+        color: var(--solution);
+      }
+
+      /* --- Inline badges --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        padding: 0.15rem 0.5rem;
+        border: 1px solid var(--text-faint);
+        color: var(--text-faint);
+        white-space: nowrap;
+      }
+      .badge-critical {
+        border-color: var(--problem);
+        color: var(--problem);
+      }
+      .badge-high {
+        border-color: var(--warning);
+        color: var(--warning);
+      }
+      .badge-medium {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .badge-fixed {
+        border-color: var(--solution);
+        color: var(--solution);
+      }
+      .badge-low {
+        border-color: var(--text-faint);
+        color: var(--text-faint);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
+        border-left: 3px solid var(--border-strong);
+        background: color-mix(in srgb, var(--text) 5%, transparent);
+        font-size: 0.9rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, transparent);
+      }
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 10%, transparent);
+      }
+
+      /* --- Stat cards --- */
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .stat-card {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
+      }
+      .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
+      }
+      .stat-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before {
+        background: var(--warning);
+      }
+      .stat-bad::before {
+        background: var(--problem);
+      }
+      .stat-value {
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
+        color: var(--text);
+      }
+      .stat-good .stat-value {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value {
+        color: var(--warning);
+      }
+      .stat-bad .stat-value {
+        color: var(--problem);
+      }
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
+        margin-top: 0.5rem;
+      }
+
+      /* --- Strengths list --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+
+      /* --- TOC --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+        columns: 2;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .toc ul {
+          columns: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>STATUS REPORT</span>
+      <span>2026-06-22 22:03 CEST</span>
+      <span>md-go-validator / master</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#summary">Summary</a>
+          <a href="#done">Fully Done</a>
+          <a href="#partial">Partially Done</a>
+          <a href="#notstarted">Not Started</a>
+          <a href="#fuckedup">Totally Fucked Up</a>
+          <a href="#improve">Improve</a>
+          <a href="#next25">Top 25 Next</a>
+          <a href="#question">Question</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <!-- Hero -->
+        <div class="hero">
+          <div class="hero-badge">Full Dependency Update</div>
+          <h1>All Dependencies Updated &amp; Verified Green</h1>
+          <p class="hero-subtitle">
+            Every dependency brought to its latest release &mdash; Go modules, Nix flake inputs, and
+            the build vendor hash &mdash; then proven across every quality gate. 479 tests pass, 0
+            lint issues, full <code>nix flake check</code> green. The one systemic footgun that bit
+            us three times is named below.
+          </p>
+        </div>
+
+        <!-- Inline TOC -->
+        <nav class="toc">
+          <h3>Contents</h3>
+          <ul>
+            <li><a href="#summary">Summary</a></li>
+            <li><a href="#done">a) Fully Done</a></li>
+            <li><a href="#partial">b) Partially Done</a></li>
+            <li><a href="#notstarted">c) Not Started</a></li>
+            <li><a href="#fuckedup">d) Totally Fucked Up</a></li>
+            <li><a href="#improve">e) What We Should Improve</a></li>
+            <li><a href="#next25">f) Top 25 Next</a></li>
+            <li><a href="#question">g) Top Question</a></li>
+          </ul>
+        </nav>
+
+        <!-- Summary -->
+        <h2 id="summary"><span class="num">00</span>Executive Summary</h2>
+        <p>
+          The session goal was simple: <strong>update ALL dependencies to latest</strong>. BuildFlow's
+          <code>update</code> step reported 2 passed / 2 skipped (the cargo/npm steps are correctly
+          skipped &mdash; this is a Go + Nix project). But "BuildFlow ran" is not "everything is
+          latest and verified", so the work was done end-to-end by hand: Go modules via
+          <code>go get -u ./...</code>, Nix inputs via <code>nix flake update</code>, the build vendor
+          hash regenerated, and every gate re-run.
+        </p>
+
+        <div class="stat-grid">
+          <div class="stat-card stat-good">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Dep Bumps Applied</div>
+          </div>
+          <div class="stat-card stat-good">
+            <div class="stat-value">0</div>
+            <div class="stat-label">Gate Failures</div>
+          </div>
+          <div class="stat-card stat-good">
+            <div class="stat-value">479</div>
+            <div class="stat-label">Tests Passing (-race)</div>
+          </div>
+          <div class="stat-card stat-warn">
+            <div class="stat-value">3</div>
+            <div class="stat-label">Recurring Footgun Strikes</div>
+          </div>
+        </div>
+
+        <div class="card card-solution">
+          <h4>Quality Gates — All Green</h4>
+          <p>
+            <code>nix build .#</code> &middot; <code>nix flake check</code> (format + build + test)
+            &middot; <code>go test -race ./...</code> &middot; <code>go test -cover ./...</code>
+            &middot; <code>golangci-lint run ./...</code> (0 issues)
+          </p>
+        </div>
+
+        <!-- Dependency Diff -->
+        <h3>Dependency Diff (this session)</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Dependency</th>
+              <th>Before</th>
+              <th>After</th>
+              <th>Note</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>go-output</code> (+ delimited / serialization)</td>
+              <td>v0.17.0</td>
+              <td><span class="badge badge-fixed">v0.17.2</span></td>
+              <td>BuildFlow bumped; submodules aligned</td>
+            </tr>
+            <tr>
+              <td><code>go-output/enum</code>, <code>/envdetect</code></td>
+              <td>v0.17.0</td>
+              <td><span class="badge badge-fixed">v0.17.1</span></td>
+              <td>Indirect, followed upstream</td>
+            </tr>
+            <tr>
+              <td><code>gotreesitter</code></td>
+              <td>v0.20.2</td>
+              <td>v0.20.2</td>
+              <td>Already latest (confirmed via <code>go list -m -versions</code>)</td>
+            </tr>
+            <tr>
+              <td>All other Go modules</td>
+              <td>&mdash;</td>
+              <td>latest</td>
+              <td><code>go get -u ./...</code> found no newer versions</td>
+            </tr>
+            <tr>
+              <td>Nix inputs (nixpkgs, flake-parts, treefmt-nix, systems)</td>
+              <td>&mdash;</td>
+              <td>HEAD</td>
+              <td><code>nix flake update</code> fetched HEAD revs; lock unchanged (already current)</td>
+            </tr>
+            <tr>
+              <td><code>package.nix</code> vendorHash</td>
+              <td>sha256-o+/CwY&hellip;</td>
+              <td><span class="badge badge-fixed">sha256-sNDTW0&hellip;</span></td>
+              <td>Regenerated to match new go.sum</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Coverage -->
+        <h3>Coverage Snapshot</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Package</th>
+              <th>Coverage</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>pkg/code</td>
+              <td>93.8%</td>
+              <td><span class="badge badge-fixed">Strong</span></td>
+            </tr>
+            <tr>
+              <td>pkg/types</td>
+              <td>92.5%</td>
+              <td><span class="badge badge-fixed">Strong</span></td>
+            </tr>
+            <tr>
+              <td>pkg/languages</td>
+              <td>91.0%</td>
+              <td><span class="badge badge-fixed">Strong</span></td>
+            </tr>
+            <tr>
+              <td>pkg/output</td>
+              <td>91.0%</td>
+              <td><span class="badge badge-fixed">Strong</span></td>
+            </tr>
+            <tr>
+              <td>pkg</td>
+              <td>87.4%</td>
+              <td><span class="badge badge-medium">Good</span></td>
+            </tr>
+            <tr>
+              <td>cmd/md-go-validator</td>
+              <td>76.7%</td>
+              <td><span class="badge badge-high">Room to grow</span></td>
+            </tr>
+            <tr>
+              <td>pkg/testutil</td>
+              <td>75.0%</td>
+              <td><span class="badge badge-high">Room to grow</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <p style="color: var(--text-faint); font-family: var(--font-mono); font-size: 0.8rem">
+          3,404 source LOC &middot; 5,087 test LOC &middot; 21 source files &middot; 14 test files
+          &middot; 4 direct deps &middot; v0.3.0 released
+        </p>
+
+        <!-- ============================================== -->
+        <!-- a) FULLY DONE -->
+        <!-- ============================================== -->
+        <h2 id="done"><span class="num">A</span>Fully Done</h2>
+
+        <h3>Session Deliverables</h3>
+        <div class="strengths">
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Updated go-output v0.17.0 &rarr; v0.17.2</strong>
+              <span
+                >BuildFlow's <code>go-mod-update</code> step bumped the three direct go-output
+                modules and aligned the two indirect submodules (enum, envdetect). go.sum
+                reconciled with <code>go mod tidy</code>.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Verified every other Go module is already latest</strong>
+              <span
+                >Ran <code>go get -u ./...</code> independently. No version moved. Spot-checked
+                <code>gotreesitter</code> (<code>v0.20.2</code> is the newest tag) and
+                <code>go-output</code> (<code>v0.17.2</code> newest). Nothing left to bump.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Refreshed Nix flake inputs to HEAD</strong>
+              <span
+                ><code>nix flake update</code> re-resolved nixpkgs, flake-parts, treefmt-nix, and
+                nix-systems to their latest HEAD revs. The lock was already current, so no commits
+                changed &mdash; confirmed, not assumed.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Regenerated the build vendorHash</strong>
+              <span
+                >The go-output bump changed go.sum, which invalidated the fixed-output hash in
+                <code>package.nix</code>. Rebuilt, captured the new hash
+                (<code>sha256-sNDTW0&hellip;</code>), and confirmed <code>nix build .#</code>
+                succeeds.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Re-ran every quality gate green</strong>
+              <span
+                ><code>go test -race ./...</code> (479 tests), <code>golangci-lint</code> (0 issues),
+                <code>nix build .#</code>, <code>nix flake check</code> (format + build + test). All
+                pass.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <h3>Core Functionality (carried forward &mdash; production-ready)</h3>
+        <div class="strengths">
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Multi-language validation</strong>
+              <span
+                >Go, TypeScript, TSX, Rust, Nix, HCL, Terraform, Templ &mdash; all via pure-Go
+                tree-sitter (no CGO).</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>5-strategy Go parsing</strong>
+              <span
+                >Complete file, package wrapper, function wrapper, expression, statements &mdash;
+                handles partial snippets in docs.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>STDIN support &amp; structured exit codes</strong>
+              <span
+                >Pipe markdown via <code>-</code>; exit 0=success, 1=validation errors, 2=tool/usage
+                errors.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Branded types throughout</strong>
+              <span
+                >FileID, LineNumber, BlockIndex, FileType, ValidationStatus, ErrorCode &mdash;
+                impossible states unrepresentable.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Full Nix flake build system</strong>
+              <span
+                >flake-parts + treefmt-nix, source filtering, overlay export, goreleaser v2 config,
+                version from git, CI <code>nix flake check</code> job.</span
+              >
+            </div>
+          </div>
+          <div class="strength">
+            <div class="check">+</div>
+            <div class="text">
+              <strong>Concurrent directory processing</strong>
+              <span
+                >Worker pool with channels, context-aware cancellation, configurable
+                concurrency.</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- b) PARTIALLY DONE -->
+        <!-- ============================================== -->
+        <h2 id="partial"><span class="num">B</span>Partially Done</h2>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Architectural debt</span>
+          <h3>go-error-family not adopted (92 hierarchical-errors findings)</h3>
+          <div class="where">All packages &mdash; 45 ignored + 45 generic_return + 2 silent_swallow</div>
+          <p>
+            The <code>hierarchical-errors</code> checker surfaces 92 findings. The 45
+            <code>generic_return</code> items reflect the project's non-adoption of
+            <code>go-error-family</code> for structured, classified errors &mdash; the same concern
+            <code>library-policy</code> flags. This is a deliberate, codebase-wide architectural
+            decision, not a quick fix, and BuildFlow will stay red on this gate until it is resolved
+            one way or the other.
+          </p>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Stale doc</span>
+          <h3>docs/DOMAIN_LANGUAGE.md is still a placeholder template</h3>
+          <div class="where">docs/DOMAIN_LANGUAGE.md &mdash; placeholder text, not real glossary</div>
+          <p>
+            The file still says "Example Term &mdash; A placeholder definition". Per the project
+            documentation standards it should hold the ubiquitous language (CodeBlock,
+            ValidationResult, FileValidator, ErrorCode, SkipDirective, etc.). The vocabulary exists
+            in code but is not documented.
+          </p>
+        </div>
+
+        <div class="issue issue-nice">
+          <span class="severity severity-nice">Coverage gaps</span>
+          <h3>cmd (76.7%) and testutil (75.0%) coverage trail the rest</h3>
+          <div class="where">cmd/md-go-validator, pkg/testutil</div>
+          <p>
+            The rest of the codebase sits at 87&ndash;94%. The cmd package is harder to test (CLI
+            entry point, global state &mdash; see <code>os.Stdout</code> race history), and testutil
+            is a support package. Both have room to reach 85&ndash;90%.
+          </p>
+        </div>
+
+        <div class="issue issue-important">
+          <span class="severity severity-important">Unexecuted design</span>
+          <h3>docs/modularization/ proposal exists but is unactioned</h3>
+          <div class="where">docs/modularization/{PROPOSAL,DEPENDENCY_GRAPH,EXECUTION_PLAN}.md</div>
+          <p>
+            A modularization proposal (dependency graph + execution plan) was authored but never
+            executed. For a single-module CLI/library of this size it may be unnecessary, but the
+            decision should be made explicitly rather than left as a dormant proposal.
+          </p>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- c) NOT STARTED -->
+        <!-- ============================================== -->
+        <h2 id="notstarted"><span class="num">C</span>Not Started</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Description</th>
+              <th>Flagged by</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>go-error-family adoption</strong></td>
+              <td>Structured, classified errors across all packages (or an ADR disabling the gate)</td>
+              <td>library-policy, hierarchical-errors</td>
+            </tr>
+            <tr>
+              <td><strong>FEATURES.md</strong></td>
+              <td>Honest feature inventory by status (DONE/PARTIAL/PLANNED)</td>
+              <td>Missing per doc standards</td>
+            </tr>
+            <tr>
+              <td><strong>TODO_LIST.md</strong></td>
+              <td>Interactive short/mid-term task list</td>
+              <td>Missing per doc standards</td>
+            </tr>
+            <tr>
+              <td><strong>ROADMAP.md</strong></td>
+              <td>Long-term direction and raw ideas</td>
+              <td>Missing per doc standards</td>
+            </tr>
+            <tr>
+              <td><strong>DOMAIN_LANGUAGE.md (real content)</strong></td>
+              <td>Actual domain glossary (file exists but is a template stub)</td>
+              <td>Doc freshness</td>
+            </tr>
+            <tr>
+              <td><strong>internal/ directory</strong></td>
+              <td>Move private implementation to enforce encapsulation</td>
+              <td>BuildFlow structure check</td>
+            </tr>
+            <tr>
+              <td><strong>Injectable stdout writer in cmd</strong></td>
+              <td>Eliminate os.Stdout global mutation (root cause of past test races)</td>
+              <td>Session finding (history)</td>
+            </tr>
+            <tr>
+              <td><strong>vendorHash auto-sync in update flow</strong></td>
+              <td>Stop hand-regenerating package.nix hash after every dep bump</td>
+              <td>This session (3rd recurrence)</td>
+            </tr>
+            <tr>
+              <td><strong>Benchmark coverage expansion</strong></td>
+              <td>Only 1 benchmark file exists (pkg/benchmark_test.go)</td>
+              <td>Session finding</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ============================================== -->
+        <!-- d) TOTALLY FUCKED UP -->
+        <!-- ============================================== -->
+        <h2 id="fuckedup"><span class="num">D</span>Totally Fucked Up</h2>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Recurring footgun (3rd strike)</span>
+          <h3>The vendorHash drifts silently and breaks the build on every dep upgrade</h3>
+          <div class="where">
+            package.nix &mdash; buildGoModule fixed-output derivation
+          </div>
+          <p>
+            <code>buildGoModule</code> pins a <code>vendorHash</code> in
+            <code>package.nix</code>. Whenever <code>go.sum</code> changes (any dep bump), the hash
+            goes stale and <code>nix build .#</code> fails with <emph>hash mismatch</emph>. This has
+            now bitten the project <strong>three times</strong>:
+          </p>
+          <ul style="margin: 0.5rem 0 0.5rem 1.4rem; color: var(--text-muted)">
+            <li><code>e0aeb59</code> &mdash; "update stale nix vendor hash after go-output upgrade"</li>
+            <li><code>0fc0f12</code> &mdash; "upgrade go-output &hellip; and fix Nix version attribute"</li>
+            <li><strong>This session</strong> &mdash; go-output v0.17.0 &rarr; v0.17.2 broke the build again</li>
+          </ul>
+          <p>
+            The failure mode is also misleading: <code>buildflow update</code> reports
+            <emph>green</emph> (it updated go.mod) while <code>nix build</code> is
+            <emph>red</emph>. A maintainer trusting the "update succeeded" message ships a broken
+            build. BuildFlow has no post-update step that syncs the Nix vendor hash, so the
+            dependency-update workflow is structurally incomplete.
+          </p>
+          <div class="callout callout-solution">
+            <strong>Fix direction:</strong>
+            Make the hash self-healing. Options: (a) <code>vendorHash = lib.fakeHash</code> during
+            dev + a CI check that asserts the real hash is committed; (b) a buildflow post-update
+            hook running <code>nix build .#</code> and patching <code>package.nix</code>; (c) a
+            <code>nix run</code>-able updater script. The exact choice needs a human decision
+            (see Question G).
+          </div>
+        </div>
+
+        <div class="issue issue-nice">
+          <span class="severity severity-nice">Process observation</span>
+          <h3>"BuildFlow update passed" is not "everything is updated"</h3>
+          <div class="where">buildflow update &mdash; 2 passed / 2 skipped</div>
+          <p>
+            <code>buildflow update</code> ran 4 sub-steps: <code>cargo-update</code> and
+            <code>npm-update</code> were correctly skipped (no Rust/JS in this repo), and
+            <code>go-mod-update</code> + <code>nix-flake-update</code> passed. But "passed" only
+            means the step executed &mdash; it does <strong>not</strong> mean the build still works
+            afterwards, nor that the vendorHash was synced, nor that all inputs actually moved. The
+            green summary masked the broken Nix build until I ran <code>nix build .#</code>
+            manually. Trusting the top-line summary would have shipped breakage.
+          </p>
+          <div class="callout callout-warning">
+            <strong>Lesson:</strong>
+            "Update ran" &ne; "Update is verified". Always run the build after a dep bump, and treat
+            the absence of a verification step as a gap to fill.
+          </div>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- e) IMPROVE -->
+        <!-- ============================================== -->
+        <h2 id="improve"><span class="num">E</span>What We Should Improve</h2>
+
+        <div class="card card-problem">
+          <h4>1. Make the dependency-update workflow self-verifying</h4>
+          <p>
+            The update flow currently stops at "go.mod changed". It must continue through
+            "vendorHash synced" and "build green". A single missing link (the Nix hash) has now
+            caused three broken builds. This is the highest-impact process fix available.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <h4>2. Make the go-error-family decision explicit (and stop the persistent red)</h4>
+          <p>
+            92 <code>hierarchical-errors</code> findings (45 <code>generic_return</code>) will keep
+            BuildFlow red until either go-error-family is adopted or the gate is explicitly
+            disabled via ADR. A quality gate that is perpetually red is worse than no gate &mdash; it
+            trains everyone to ignore failures. Decide and document.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <h4>3. Populate the missing standard doc files</h4>
+          <p>
+            <code>FEATURES.md</code>, <code>TODO_LIST.md</code>, <code>ROADMAP.md</code> are absent;
+            <code>docs/DOMAIN_LANGUAGE.md</code> is a placeholder. These are defined in the project
+            documentation standards as required files with distinct purposes. Their absence means
+            project state is invisible without reading code, and every status report (this is #23)
+            re-derives the same information.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <h4>4. Eliminate global mutation in cmd/main.go</h4>
+          <p>
+            <code>cmd/md-go-validator/main.go</code> uses package-level globals
+            (<code>version</code>, <code>osExit</code>, <code>os.Stdout</code>) that tests must
+            mutate. This forces serial tests and <code>//nolint:paralleltest</code> hacks, and was
+            the root cause of the data race fixed in <code>e0aeb59</code>. The proper fix is
+            dependency injection.
+          </p>
+        </div>
+
+        <div class="card card-warning">
+          <h4>5. Add a post-update verification to CI</h4>
+          <p>
+            Even without buildflow changes, a CI job that runs <code>nix build .#</code> on dep-bump
+            PRs would catch vendorHash drift before merge. The dogfooding + <code>nix flake
+            check</code> jobs exist; a dep-change verification step does not.
+          </p>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- f) TOP 25 NEXT -->
+        <!-- ============================================== -->
+        <h2 id="next25"><span class="num">F</span>Top 25 Things To Do Next</h2>
+        <p style="color: var(--text-faint); font-size: 0.85rem">
+          Sorted by impact (Pareto): the first 5 deliver ~80% of the value.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Priority</th>
+              <th>Task</th>
+              <th>Impact</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><span class="badge badge-critical">P0</span></td>
+              <td>
+                <strong>Fix the vendorHash footgun permanently</strong> &mdash; add a buildflow
+                post-update hook (or CI check) that regenerates <code>package.nix</code> and asserts
+                <code>nix build .#</code> is green after any go.mod/go.sum change. Ends the
+                3-strike recurrence.
+              </td>
+              <td>Stops recurring breakage</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><span class="badge badge-critical">P0</span></td>
+              <td>
+                <strong>Decide on go-error-family</strong> &mdash; adopt it (resolves 45
+                generic_return findings) OR write an ADR and disable the hierarchical-errors gate.
+                Stop the persistent red.
+              </td>
+              <td>Unblocks BuildFlow green</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><span class="badge badge-critical">P0</span></td>
+              <td>
+                <strong>Create FEATURES.md</strong> &mdash; honest feature inventory by status
+                (DONE/PARTIAL/PLANNED). Use the features-audit skill.
+              </td>
+              <td>Project visibility</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><span class="badge badge-critical">P0</span></td>
+              <td>
+                <strong>Populate docs/DOMAIN_LANGUAGE.md</strong> &mdash; replace placeholder stub
+                with the actual ubiquitous language (CodeBlock, ValidationResult, FileValidator,
+                ErrorCode, SkipDirective, etc.).
+              </td>
+              <td>Shared vocabulary</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><span class="badge badge-high">P1</span></td>
+              <td>
+                <strong>Create TODO_LIST.md</strong> &mdash; interactive short/mid-term task list.
+                Use the todo-list-builder skill.
+              </td>
+              <td>Work tracking</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td><span class="badge badge-high">P1</span></td>
+              <td>
+                <strong>Create ROADMAP.md</strong> &mdash; long-term direction and raw ideas not yet
+                refined into tasks.
+              </td>
+              <td>Strategic clarity</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td><span class="badge badge-high">P1</span></td>
+              <td>
+                <strong>Refactor cmd/main.go to inject dependencies</strong> &mdash; replace
+                os.Stdout/osExit/version globals with an injected struct. Eliminates test races at
+                the root and removes //nolint:paralleltest hacks.
+              </td>
+              <td>Eliminates race class</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td><span class="badge badge-high">P1</span></td>
+              <td>
+                <strong>Add a post-update verification CI job</strong> &mdash; run
+                <code>nix build .#</code> on dependency-change PRs to catch vendorHash drift before
+                merge.
+              </td>
+              <td>Shift-left on breakage</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Address validator.go silent_swallow findings</strong> &mdash; the context
+                error from checkContext is discarded with a bare break (pkg/validator.go). Log or
+                propagate.
+              </td>
+              <td>Error visibility</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Improve cmd coverage 76.7% &rarr; 85%+</strong> &mdash; add integration tests
+                for flag parsing edge cases, error paths, help/version output.
+              </td>
+              <td>Test confidence</td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Improve testutil coverage 75% &rarr; 85%+</strong> &mdash; test assertion
+                helpers, fixture loaders.
+              </td>
+              <td>Test confidence</td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Resolve the modularization proposal</strong> &mdash; either execute
+                docs/modularization/EXECUTION_PLAN.md or close it with a one-line ADR ("single
+                module is correct for this size"). Don't leave it dormant.
+              </td>
+              <td>Decision hygiene</td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Add benchmark coverage</strong> &mdash; only 1 benchmark file exists. Add
+                benchmarks for extractor, validator worker pool, multi-language parsing.
+              </td>
+              <td>Perf baseline</td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td><span class="badge badge-medium">P2</span></td>
+              <td>
+                <strong>Address the 45 "ignored" error findings</strong> &mdash; review each
+                <code>_, _ = fmt.Fprintf(...)</code> and <code>_ = ...</code> in output.go and
+                elsewhere. Acknowledge or handle.
+              </td>
+              <td>Code hygiene</td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Evaluate internal/ directory move</strong> &mdash; move private
+                implementation to enforce encapsulation. Assess import breakage first.
+              </td>
+              <td>Encapsulation</td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Add JSON schema conformance test</strong> &mdash; verify actual CLI JSON
+                output matches docs/json-schema.json (contract integrity).
+              </td>
+              <td>Contract integrity</td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Add more testdata fixtures</strong> &mdash; only 5 fixtures exist. Add edge
+                cases: deeply nested MDX, mixed languages, large files.
+              </td>
+              <td>Test richness</td>
+            </tr>
+            <tr>
+              <td>18</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Expand self-dogfooding scope</strong> &mdash; the tool validates its own
+                docs; extend to cover all .md files in the repo.
+              </td>
+              <td>Dogfooding</td>
+            </tr>
+            <tr>
+              <td>19</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Document the validator registry plugin pattern</strong> &mdash; how to add a
+                new language validator. The architecture supports it; it's not documented for users.
+              </td>
+              <td>Extensibility</td>
+            </tr>
+            <tr>
+              <td>20</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Review goreleaser config for new targets</strong> &mdash; current config
+                builds darwin/linux/windows amd64+arm64. Consider freebsd, or WASM for browser usage.
+              </td>
+              <td>Distribution</td>
+            </tr>
+            <tr>
+              <td>21</td>
+              <td><span class="badge badge-low">P3</span></td>
+              <td>
+                <strong>Add CI badge + Go API example to README</strong> &mdash; show library usage
+                (FileValidator) not just CLI; link to the nix flake check status.
+              </td>
+              <td>Presentation/discoverability</td>
+            </tr>
+            <tr>
+              <td>22</td>
+              <td><span class="badge badge-low">P4</span></td>
+              <td>
+                <strong>Context.Context propagation audit</strong> &mdash; ensure all long-running
+                paths respect cancellation (validator worker pool, tree walking).
+              </td>
+              <td>Reliability</td>
+            </tr>
+            <tr>
+              <td>23</td>
+              <td><span class="badge badge-low">P4</span></td>
+              <td>
+                <strong>Version flag integration test for all output formats</strong> &mdash; verify
+                --version works consistently with table/json/yaml/csv/markdown.
+              </td>
+              <td>Test completeness</td>
+            </tr>
+            <tr>
+              <td>24</td>
+              <td><span class="badge badge-low">P4</span></td>
+              <td>
+                <strong>Add skip-directive examples to README</strong> &mdash; list all supported
+                skip directives with copy-paste examples.
+              </td>
+              <td>Usability</td>
+            </tr>
+            <tr>
+              <td>25</td>
+              <td><span class="badge badge-low">P4</span></td>
+              <td>
+                <strong>Cut v0.3.1 patch release</strong> &mdash; the dep update + vendorHash fix
+                warrant a patch release. Run <code>goreleaser release</code>.
+              </td>
+              <td>Release hygiene</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- ============================================== -->
+        <!-- g) TOP QUESTION -->
+        <!-- ============================================== -->
+        <h2 id="question"><span class="num">G</span>Top Question I Cannot Answer Myself</h2>
+
+        <div class="issue issue-critical">
+          <span class="severity severity-critical">Decision needed</span>
+          <h3>
+            How should the Nix vendorHash be kept in sync with go.sum &mdash; automatically, or via a
+            verification gate?
+          </h3>
+          <p>
+            The vendorHash drift has now broken the build <strong>three times</strong>
+            (<code>e0aeb59</code>, <code>0fc0f12</code>, this session). I can implement any of the
+            fixes, but I cannot choose <em>which</em> fits this project's workflow &mdash; each has a
+            real tradeoff:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Mechanism</th>
+                <th>Tradeoff</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A &mdash; buildflow post-update hook</strong></td>
+                <td>A hook runs <code>nix build .#</code> after <code>go-mod-update</code> and rewrites <code>package.nix</code> with the new hash</td>
+                <td>Fixes it at the source, but couples the build tool to Nix internals; depends on buildflow supporting such a hook</td>
+              </tr>
+              <tr>
+                <td><strong>B &mdash; CI verification job</strong></td>
+                <td>A CI step asserts <code>nix build .#</code> is green on any PR touching go.mod/go.sum</td>
+                <td>Catches drift before merge but does not auto-fix &mdash; still requires a manual hash bump commit</td>
+              </tr>
+              <tr>
+                <td><strong>C &mdash; <code>lib.fakeHash</code> dev workflow</strong></td>
+                <td>Use a fake hash in dev; CI asserts the real hash is committed</td>
+                <td>Fastest dev loop, but changes the contribution flow and risks shipping a fake hash</td>
+              </tr>
+              <tr>
+                <td><strong>D &mdash; updater script (<code>nix run</code>-able)</strong></td>
+                <td>A small <code>update.nix</code> / shell script maintainers run after dep bumps</td>
+                <td>Explicit and simple, but only works if people remember to run it (same class of footgun, smaller blast radius)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="callout callout-warning">
+            <strong>Why I'm stuck:</strong>
+            This is a workflow/tooling preference tied to how Lars wants dep upgrades to feel. Option
+            A is the most "correct" but assumes buildflow can host the hook; Option B is the safest
+            default; Option C is the most ergonomic but changes the contribution contract. I cannot
+            determine which tradeoff you prefer, and guessing wrong means either a broken build or an
+            annoying dev loop. Which option should I implement?
+          </div>
+        </div>
+
+        <footer class="footer">
+          Generated 2026-06-22 22:03 CEST &middot; All claims verified against source code and live
+          gate runs (nix build, nix flake check, go test -race, golangci-lint) &middot; Branch
+          master @ f0e6dfe + uncommitted dep update
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
