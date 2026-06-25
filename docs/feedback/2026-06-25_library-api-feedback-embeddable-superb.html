@@ -1,0 +1,1254 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback — Making md-go-validator Superb to Embed (Library/API Consumer Review)</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS LIGHT — Editorial template
+         Companion to the CLI/accuracy review (make-it-superb.html).
+         This report covers the OTHER dimension: the Go library / embedding API.
+         Design language: form follows function. Primary colors on warm paper.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Light) --- */
+        --color-paper: #f4f4f0;
+        --color-paper-2: #ffffff;
+        --color-paper-3: #e8e8e2;
+        --color-ink: #111111;
+        --color-red: #e63946;
+        --color-blue: #1d3557;
+        --color-yellow: #f4d35e;
+        --color-hairline: rgba(17, 17, 17, 0.14);
+        --color-hairline-strong: rgba(17, 17, 17, 0.3);
+
+        /* --- Semantic layer (shared vocabulary) --- */
+        --surface: var(--color-paper);
+        --surface-raised: var(--color-paper-2);
+        --surface-sunken: var(--color-paper-3);
+        --text: var(--color-ink);
+        --text-muted: rgba(17, 17, 17, 0.72);
+        --text-faint: rgba(17, 17, 17, 0.5);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-red);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Shape --- */
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 230px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--text);
+      }
+      .sidebar a {
+        font-size: 0.84rem;
+        color: var(--text);
+        text-decoration: none;
+        padding: 0.45rem 0.7rem;
+        border-left: 4px solid transparent;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        line-height: 1.35;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--accent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      h1 {
+        font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+        line-height: 1.05;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 3px solid var(--text);
+        display: flex;
+        align-items: baseline;
+        gap: 0.7rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h3 {
+        font-size: 1.15rem;
+        margin: 1.4rem 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 1rem;
+        margin: 0 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+      .small {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+      ul,
+      ol {
+        margin: 0 0 1rem 1.4rem;
+      }
+      li {
+        margin-bottom: 0.4rem;
+      }
+      a {
+        color: var(--accent);
+      }
+      strong {
+        font-weight: 700;
+      }
+      code {
+        font-family: var(--font-mono);
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.32rem;
+        font-size: 0.86em;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 2rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid var(--text);
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 0.9rem;
+      }
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 72ch;
+        margin: 0 0 1rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.25rem 0.6rem;
+        background: var(--surface-sunken);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+      }
+      .tag.amber {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: var(--text);
+      }
+      .tag.teal {
+        background: var(--solution);
+        border-color: var(--solution);
+        color: var(--surface);
+      }
+
+      /* --- Scorecard --- */
+      .scorecard {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0;
+        margin: 1.5rem 0 2rem;
+        border: 3px solid var(--text);
+      }
+      .score-card {
+        padding: 1.2rem 1rem;
+        text-align: center;
+        border-right: 3px solid var(--text);
+        background: var(--surface-raised);
+      }
+      .score-card:last-child {
+        border-right: none;
+      }
+      .score {
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .score-card .label {
+        font-family: var(--font-mono);
+        font-size: 0.6rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-top: 0.5rem;
+      }
+      .score-good {
+        background: var(--solution) !important;
+        color: var(--surface) !important;
+      }
+      .score-warn {
+        background: var(--warning) !important;
+        color: var(--text) !important;
+      }
+      .score-bad {
+        background: var(--problem) !important;
+        color: var(--surface) !important;
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.6rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--border-strong);
+        border-left: 4px solid var(--border-strong);
+        background: var(--surface-sunken);
+        font-size: 0.94rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-teal {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, var(--surface-raised));
+      }
+      .callout-amber {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 18%, var(--surface-raised));
+      }
+
+      /* --- Strengths --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.9rem;
+        padding: 0.75rem 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        color: var(--solution);
+        font-size: 1.3rem;
+        line-height: 1.3;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
+        border: 2px solid var(--text);
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--text);
+        color: var(--surface);
+        font-family: var(--font-mono);
+        font-size: 0.64rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-right: 1px solid var(--border-strong);
+      }
+      th:last-child {
+        border-right: none;
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-top: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td:last-child {
+        border-right: none;
+      }
+      tr:nth-child(even) td {
+        background: var(--surface-sunken);
+      }
+      table.compare td.yes {
+        color: var(--solution);
+        font-weight: 700;
+      }
+      table.compare td.no {
+        color: var(--problem);
+        font-weight: 700;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--text);
+        color: var(--surface);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+        border: 2px solid var(--text);
+      }
+      .tok-keyword {
+        color: var(--warning);
+      }
+      .tok-type {
+        color: var(--warning);
+      }
+      .tok-string {
+        color: #95e1d3;
+      }
+      .tok-comment {
+        color: rgba(244, 244, 240, 0.45);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #6eb5ff;
+      }
+      .tok-number {
+        color: var(--warning);
+      }
+      .tok-generic {
+        color: var(--problem);
+      }
+      .tok-builtin {
+        color: #6eb5ff;
+      }
+      .tok-punct {
+        color: rgba(244, 244, 240, 0.7);
+      }
+      .tok-attr {
+        color: var(--warning);
+      }
+      .tok-diff-del {
+        color: var(--problem);
+      }
+      .tok-diff-add {
+        color: #95e1d3;
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.4rem 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        font-weight: 700;
+        background: var(--surface-sunken);
+        border: 1px solid var(--text);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1.1rem;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 3px solid var(--text);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .scorecard {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .score-card:nth-child(2) {
+          border-right: none;
+        }
+        .score-card:nth-child(1),
+        .score-card:nth-child(2) {
+          border-bottom: 3px solid var(--text);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>Library &amp; API Consumer Review</span>
+      <span>2026-06-25</span>
+      <span>Companion to CLI/accuracy review</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#verdict">The verdict</a>
+          <a href="#strengths">What's already excellent</a>
+          <a href="#blocker">Blocker: output contract</a>
+          <a href="#findings">Library findings</a>
+          <a href="#proposal">Target API</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#non-goals">What NOT to do</a>
+          <a href="#matrix">Priority matrix</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="hero">
+          <div class="eyebrow">FEEDBACK &middot; 2026-06-25 &middot; LIBRARY / EMBEDDING ANGLE</div>
+          <h1>Making md-go-validator superb to embed</h1>
+          <p class="subtitle">
+            A review of md-go-validator as a <strong>Go library</strong> that other tools
+            (BuildFlow, CI runners, editors, doc-site generators) would import and call in-process
+            &mdash; the dimension the sibling CLI/accuracy review does not cover. The core engine is
+            excellent. The contract around it is what decides whether anyone embeds it.
+          </p>
+          <div class="meta">
+            <span class="tag amber">Scope: public <code>pkg/</code> API</span>
+            <span class="tag">Version: v0.3.0</span>
+            <span class="tag teal">Lens: in-process consumer</span>
+          </div>
+        </header>
+
+        <!-- Scorecard -->
+        <section id="verdict-scorecard" class="scorecard">
+          <div class="score-card score-good">
+            <div class="score">5</div>
+            <div class="label">Core strengths</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">1</div>
+            <div class="label">Adoption blocker</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">4</div>
+            <div class="label">API gaps</div>
+          </div>
+          <div class="score-card">
+            <div class="score">~30</div>
+            <div class="label">Lines of glue today</div>
+          </div>
+        </section>
+
+        <!-- Verdict -->
+        <section id="verdict">
+          <h2><span class="num">00</span>The verdict</h2>
+          <p>
+            As an engine &mdash; the extractor, the 5-strategy Go parser, the tree-sitter
+            validators, the invariant-enforcing <code>Result</code> type &mdash; md-go-validator is
+            genuinely good. As a
+            <strong>library that another Go program imports and drives in-process</strong>, it is
+            one decision away from being embeddable and four small changes away from being a
+            pleasure to embed.
+          </p>
+          <p>
+            The single blocker is not performance, not correctness, not dependencies &mdash; it is
+            the
+            <strong>output contract</strong>. The library emits its own result types
+            (<code>types.Result</code>, <code>types.ReportData</code>) that no downstream ecosystem
+            speaks. Every embedder pays a bespoke adapter tax. Make the result interoperable and the
+            library becomes the obvious choice for anyone who needs "validate the code blocks in
+            these docs" without shelling out to a binary.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The bottom line</strong>
+            A real, high-stakes consumer (BuildFlow) studied integrating this library in-process,
+            found the engine fit perfectly, and stopped at the output-model mismatch + an
+            unconditional tree-sitter dependency. Both are cheap to fix. Fix them and the library
+            gains a first-class embedder overnight.
+          </div>
+          <p class="small">
+            Method: full read of <code>pkg/validator.go</code>, <code>pkg/extractor.go</code>,
+            <code>pkg/types/</code>, <code>pkg/languages/</code>, and <code>go.mod</code>;
+            cross-checked against a concrete integration study (BuildFlow's in-process SDK-checker
+            pattern). This report is intentionally narrow: it does <em>not</em> revisit CLI accuracy
+            or false-positive strategy coverage &mdash; see the sibling
+            <code>make-it-superb.html</code> for that.
+          </p>
+        </section>
+
+        <!-- Strengths -->
+        <section id="strengths">
+          <h2><span class="num">&#9670;</span>What's already excellent (keep all of this)</h2>
+          <p>
+            Before the criticism: the foundation a library consumer wants is already here. None of
+            the proposed changes should compromise these.
+          </p>
+
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Invariant-enforcing <code>Result</code> constructors</strong>
+                <span>
+                  <code>StatusError &hArr; Error != nil</code> is enforced at construction time via
+                  <code>newResultWithStatusAndError</code> (panics on violation). This is exactly
+                  how a library makes illegal states unrepresentable. A consumer never has to
+                  nil-check a status/error mismatch.
+                </span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Pluggable <code>languages.Validator</code> + <code>Registry</code></strong>
+                <span>
+                  The <code>Validator</code> interface (<code>Language()</code>,
+                  <code>Validate(ctx, code)</code>, <code>IsAvailable()</code>) with
+                  <code>DefaultRegistry()</code> means an embedder can register their own validator
+                  or swap the registry wholesale via <code>WithRegistry()</code>. This is the right
+                  extension point.
+                </span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Branded types throughout</strong>
+                <span>
+                  <code>FileID</code>, <code>LineNumber</code>, <code>BlockIndex</code>,
+                  <code>Language</code>, <code>ErrorCode</code> &mdash; all branded strings/uints
+                  with <code>Validate()</code>. A consumer cannot accidentally pass a block index
+                  where a line number belongs. This discipline is rare and valuable.
+                </span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Pure Go, no CGO, context-aware</strong>
+                <span>
+                  The whole reason an embedder reaches for this over <code>tree-sitter-cli</code> is
+                  "one binary, no native deps, cross-compiles anywhere."
+                  <code>Validate()</code> takes a <code>context.Context</code> so a host can cancel.
+                  Both are essential for embedding.
+                </span>
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Functional-options builder on <code>FileValidator</code></strong>
+                <span>
+                  <code
+                    >New(verbose).WithLanguages(&hellip;).WithConcurrency(n).WithMaxBlocks(n)</code
+                  >
+                  is the idiomatic Go API style. Additive, zero booleans, readable at the call site.
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Blocker -->
+        <section id="blocker">
+          <h2><span class="num">01</span>The one blocker: the result speaks a private dialect</h2>
+          <p>
+            Every other finding in this report is workable around. This one is structural. A
+            library's
+            <em>output type</em> is its most-imported surface &mdash; more code depends on it than
+            on any function. <code>types.Result</code> and <code>types.ReportData</code> are clean,
+            but they are <strong>md-go-validator's own vocabulary</strong>. No editor, no SARIF
+            emitter, no LSP server, no finding-aggregator speaks them natively.
+          </p>
+
+          <div class="issue issue-critical">
+            <span class="severity severity-critical">Blocking &middot; high impact</span>
+            <h3>Result has no neutral interchange target</h3>
+            <div class="where">pkg/types/result.go &middot; pkg/types/report.go</div>
+            <p>
+              A consumer that wants SARIF, JSON-LSP, or a unified finding pipeline must hand-write a
+              converter: <code>Result{Status:Error}</code> &rarr; their finding type, field by
+              field, including the <code>ErrorCode</code> enum mapping. That converter is bespoke
+              per consumer, drifts as <code>Result</code> evolves, and is the kind of glue that
+              makes maintainers say "let's just shell out to the CLI instead." The CLI at least
+              hands you a documented JSON schema.
+            </p>
+            <p>
+              The irony: the project already depends on <code>go-output</code> for rendering. The
+              sibling ecosystem <code>go-finding</code> (a typed <code>Finding</code> with
+              <code>Position{File,Line,Column}</code>, <code>Severity</code>, <code>RuleName</code>)
+              is the natural neutral contract and is what every modern Go linter emits. Adopting it
+              &mdash; or any documented interchange struct &mdash; turns every embedder's adapter
+              from ~30 lines into a one-liner.
+            </p>
+            <pre><code><span class="tok-comment">// What every embedder writes today (~30 lines, per-consumer, drift-prone):</span>
+<span class="tok-keyword">func</span> <span class="tok-func">resultToFindings</span>(toolName <span class="tok-type">string</span>, results []mdgovalidator.Result) Report {
+    <span class="tok-keyword">var</span> findings []Finding
+    <span class="tok-keyword">for</span> _, r <span class="tok-punct">:=</span> <span class="tok-keyword">range</span> results {
+        <span class="tok-keyword">if</span> r.Status <span class="tok-punct">!=</span> StatusError { <span class="tok-keyword">continue</span> }
+        findings = <span class="tok-builtin">append</span>(findings, Finding{
+            Tool: toolName,
+            File: <span class="tok-type">string</span>(r.File),
+            Line: <span class="tok-type">int</span>(r.LineNumber),
+            Message: r.ErrorMessage(),
+            Code:   r.ErrorCode.<span class="tok-func">String</span>(),
+        })
+    }
+    <span class="tok-keyword">return</span> Report{Findings: findings}
+}
+
+<span class="tok-comment">// What it should be:</span>
+report <span class="tok-punct">:=</span> validator.<span class="tok-func">ValidateDirectory</span>(ctx, dir)
+<span class="tok-comment">// report already IS a []Finding (or emits them via a callback).</span></code></pre>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Expose a results &rarr; neutral-findings conversion <em>in the library</em>, not in
+              every consumer. Two options: (a) add a <code>finding</code> adapter sub-package that
+              converts <code>[]Result</code> &rarr; <code>[]Finding</code>; or (b) have
+              <code>ValidateDirectory</code> accept an <code>Emitter</code> callback (see the
+              proposal section). Either way, the library owns the mapping once.
+            </div>
+          </div>
+        </section>
+
+        <!-- Findings -->
+        <section id="findings">
+          <h2><span class="num">02</span>Library findings (ordered by embedder impact)</h2>
+
+          <div class="issue issue-critical">
+            <span class="severity severity-critical">Important &middot; dep-graph blocker</span>
+            <h3>gotreesitter is an unconditional transitive dependency</h3>
+            <div class="where">
+              pkg/languages/treesitter_validator.go:7-8 &middot; imported at package level
+            </div>
+            <p>
+              <code>pkg/languages</code> imports <code>gotreesitter</code> and
+              <code>gotreesitter/grammars</code> at package scope. Because
+              <code>FileValidator</code> and the <code>Language</code> type live in
+              <code>pkg/languages</code>,
+              <strong>any embedder that only ever validates Go blocks</strong> (stdlib-only path)
+              still pulls in all six tree-sitter grammars &mdash; several megabytes of embedded
+              parser data and non-trivial compile time. An embedder that cares about binary size or
+              a lean dependency graph (BuildFlow has zero tree-sitter deps today) hits this
+              immediately.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Move the tree-sitter validator into its own importable sub-package
+              (<code>pkg/languages/treesitter</code>) and have
+              <code>DefaultRegistry()</code> register it
+              <em>only when that package is imported</em> (blank-import or an explicit
+              <code>RegisterTreeSitter(r)</code> call). Go-only embedders then pay zero grammar
+              cost; multi-language embedders add one import line.
+            </div>
+          </div>
+
+          <div class="issue issue-important">
+            <span class="severity severity-important"
+              >Important &middot; host cannot push config</span
+            >
+            <h3>No exclude / filter API for library callers</h3>
+            <div class="where">pkg/validator.go &middot; FileValidator has no WithExclude()</div>
+            <p>
+              <code>FileValidator</code> has <code>WithMaxFiles</code>, <code>WithMaxBlocks</code>,
+              <code>WithConcurrency</code>, <code>WithLanguages</code>,
+              <code>WithRegistry</code> &mdash; but no way to say "skip <code>vendor/</code>,
+              <code>node_modules/</code>, generated docs." <code>collectSupportedFiles</code> only
+              skips a hard-coded <code>shouldSkipDir</code> set. A host (BuildFlow, an editor)
+              almost always has its own exclude config it wants to push down. Today it can only
+              post-filter results, which means the validator still reads and parses files the host
+              will throw away.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Add <code>WithExcludePatterns([]string)</code> (doublestar globs) and/or
+              <code>WithFileFilter(func(path string) bool)</code>. The CLI's missing exclude support
+              (<code>CONSUMER_PERSPECTIVE.md</code> #4) is the CLI symptom of this same library gap.
+            </div>
+          </div>
+
+          <div class="issue issue-important">
+            <span class="severity severity-important">Important &middot; loses error context</span>
+            <h3>Errors wrap with <code>fmt.Errorf</code>, not typed/sentinel</h3>
+            <div class="where">pkg/validator.go, pkg/extractor.go &mdash; throughout</div>
+            <p>
+              The library wraps errors as <code>fmt.Errorf("context: %w", err)</code> everywhere.
+              For a library consumer that wants to branch on failure class &mdash; "is this a
+              cancelled run, a missing file, a parse failure, or an unavailable validator?" &mdash;
+              there are exported sentinel errors (<code>errPathEmpty</code>,
+              <code>errNoValidatorForLang</code>) but they are <strong>unexported</strong>, so
+              <code>errors.Is</code> from outside the package cannot match them. A host is reduced
+              to string-matching.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Export the sentinel errors (<code>ErrPathEmpty</code>,
+              <code>ErrNoValidatorForLang</code>, <code>ErrPathNullByte</code>) so embedders can do
+              <code>errors.Is(err, mdgovalidator.ErrNoValidatorForLang)</code>. Keep
+              <code>fmt.Errorf</code> wrapping (your <code>wrapcheck</code> linter is right to
+              require it); just make the targets referenceable.
+            </div>
+          </div>
+
+          <div class="issue issue-important">
+            <span class="severity severity-important">Important &middot; buffering at scale</span>
+            <h3>No streaming / callback API for large doc sets</h3>
+            <div class="where">
+              pkg/validator.go &middot; ValidateDirectory returns []Result fully buffered
+            </div>
+            <p>
+              Internally there is a worker pool (<code>processFilesParallel</code>), but the public
+              API buffers every result into one <code>[]Result</code> slice before returning. For a
+              host validating a monorepo's worth of docs, that means holding all results in memory
+              and getting no feedback until the end. An embedder that wants a progress bar, an
+              early-abort on first-error, or incremental UI updates has no hook.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Add a variant that emits incrementally:
+              <code>ValidateDirectoryFunc(ctx, dir, func(Result) error) error</code>. The host
+              returns a non-nil error to stop early. Trivially implementable on top of the existing
+              worker pool by forwarding results instead of appending them.
+            </div>
+          </div>
+
+          <div class="issue issue-nice">
+            <span class="severity severity-nice">Nice to have &middot; version coupling</span>
+            <h3>Pinned <code>go-output v0.17.2</code> couples embedders to a stale line</h3>
+            <div class="where">go.mod</div>
+            <p>
+              <code>go-output</code> is used only by <code>pkg/output</code> (CLI rendering). But
+              because it is a direct require, an embedder on a newer <code>go-output</code> (e.g.
+              v0.18/v0.19) gets MVS resolution that the library hasn't been validated against. For a
+              library whose <em>embedding</em> surface shouldn't need a renderer at all, this is
+              needless coupling.
+            </p>
+            <div class="callout callout-teal">
+              <strong>Fix</strong>
+              Move <code>pkg/output</code> behind the CLI boundary so library importers don't
+              transitively require <code>go-output</code>. Combined with the tree-sitter split, the
+              library's true dependency footprint shrinks to "Go stdlib + your branded-id helper."
+            </div>
+          </div>
+        </section>
+
+        <!-- Proposal -->
+        <section id="proposal">
+          <h2><span class="num">03</span>What the target API could look like</h2>
+          <p>
+            If the four findings were addressed, embedding md-go-validator into any Go tool becomes
+            a one-screen integration. Here is the shape a happy embedder would write.
+          </p>
+
+          <h3>Before &mdash; what an embedder writes today</h3>
+          <pre><code><span class="tok-comment">// Embedder must: build the validator, convert results, filter excludes</span>
+<span class="tok-comment">// itself, swallow unexported errors, and accept the tree-sitter binary tax.</span>
+v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</span>(<span class="tok-keyword">false</span>).
+    <span class="tok-func">WithLanguages</span>([]languages.Language{languages.LangGo})
+
+results, err <span class="tok-punct">:=</span> v.<span class="tok-func">ValidateDirectory</span>(ctx, docsDir)
+<span class="tok-keyword">if</span> err <span class="tok-punct">!=</span> <span class="tok-keyword">nil</span> { <span class="tok-comment">// cannot errors.Is() any sentinel — they're unexported</span>
+    <span class="tok-keyword">return</span> err
+}
+<span class="tok-comment">// now hand-convert results → host's finding type (~30 lines, per host)</span>
+<span class="tok-keyword">for</span> _, r <span class="tok-punct">:=</span> <span class="tok-keyword">range</span> results {
+    <span class="tok-keyword">if</span> isUnderExcludedDir(<span class="tok-type">string</span>(r.File)) { <span class="tok-keyword">continue</span> } <span class="tok-comment">// host re-filters</span>
+    <span class="tok-keyword">if</span> r.<span class="tok-func">HasError</span>() { emit(<span class="tok-func">convert</span>(r)) }
+}</code></pre>
+
+          <h3>After &mdash; the target state</h3>
+          <pre><code><span class="tok-comment">// One import for Go-only embedders (no tree-sitter, no go-output):</span>
+<span class="tok-keyword">import</span> mdgovalidator <span class="tok-string">"github.com/larsartmann/md-go-validator/pkg"</span>
+<span class="tok-keyword">import</span> <span class="tok-string">"github.com/larsartmann/md-go-validator/pkg/finding"</span> <span class="tok-comment">// adapter</span>
+
+v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</span>(<span class="tok-keyword">false</span>).
+    <span class="tok-func">WithLanguages</span>(languages.<span class="tok-func">Only</span>(languages.LangGo)).
+    <span class="tok-func">WithExcludePatterns</span>([]<span class="tok-type">string</span>{<span class="tok-string">"vendor/**"</span>, <span class="tok-string">"node_modules/**"</span>})
+
+<span class="tok-comment">// Streaming + neutral contract in one call:</span>
+<span class="tok-keyword">return</span> v.<span class="tok-func">ValidateDirectoryFunc</span>(ctx, docsDir, <span class="tok-keyword">func</span>(r mdgovalidator.Result) <span class="tok-type">error</span> {
+    <span class="tok-keyword">if</span> r.<span class="tok-func">HasError</span>() {
+        emit(finding.<span class="tok-func">FromResult</span>(<span class="tok-string">"md-codeblock"</span>, r)) <span class="tok-comment">// one-liner</span>
+    }
+    <span class="tok-keyword">return</span> <span class="tok-keyword">nil</span> <span class="tok-comment">// return err to abort early</span>
+})</code></pre>
+          <div class="callout callout-teal">
+            <strong>This is the target</strong>
+            Every line an embedder writes now lives in the embedder's domain; zero lines are spent
+            on format conversion, exclude re-implementation, or error classification. That is what
+            "obvious choice to embed" looks like.
+          </div>
+
+          <h3>Minimal: if only one thing ships</h3>
+          <p>
+            If only the output-contract fix ships, the integration still collapses from ~30 lines of
+            glue to ~3. That single change carries most of the value of this entire report.
+          </p>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap">
+          <h2><span class="num">04</span>Roadmap to "obvious to embed"</h2>
+
+          <div class="migration-step">
+            <div class="migration-num">1</div>
+            <div class="migration-content">
+              <h4>Ship a finding adapter (the 80%-value step)</h4>
+              <p>
+                Add <code>pkg/finding</code> exposing
+                <code>FromResult(tool string, r Result) Finding</code> and
+                <code>FromResults(tool string, rs []Result) []Finding</code> against a typed Finding
+                (go-finding or an equivalent neutral struct). Document it as the canonical way to
+                consume results. This alone unblocks most embedders.
+              </p>
+            </div>
+          </div>
+
+          <div class="migration-step">
+            <div class="migration-num">2</div>
+            <div class="migration-content">
+              <h4>Split tree-sitter into an opt-in sub-package</h4>
+              <p>
+                Move <code>treesitter_validator.go</code> to <code>pkg/languages/treesitter</code>.
+                <code>DefaultRegistry()</code> registers Go only; multi-language embedders add a
+                blank import or explicit <code>RegisterTreeSitter(r)</code>. Go-only embedders lose
+                the grammar binary cost entirely.
+              </p>
+            </div>
+          </div>
+
+          <div class="migration-step">
+            <div class="migration-num">3</div>
+            <div class="migration-content">
+              <h4>Export sentinels + add <code>WithExcludePatterns</code></h4>
+              <p>
+                Export <code>ErrPathEmpty</code>, <code>ErrNoValidatorForLang</code>,
+                <code>ErrPathNullByte</code> for <code>errors.Is</code>. Add
+                <code>WithExcludePatterns([]string)</code> /
+                <code>WithFileFilter(func(string) bool)</code>
+                so a host pushes its own skip config instead of post-filtering.
+              </p>
+            </div>
+          </div>
+
+          <div class="migration-step">
+            <div class="migration-num">4</div>
+            <div class="migration-content">
+              <h4>Add streaming + decouple the renderer</h4>
+              <p>
+                Add <code>ValidateDirectoryFunc(ctx, dir, func(Result) error) error</code>. Move
+                <code>pkg/output</code> (go-output) behind the CLI boundary so library importers
+                don't transitively require a renderer. Publish an API-stability note for
+                <code>pkg/</code>.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Non-goals -->
+        <section id="non-goals">
+          <h2><span class="num">05</span>What NOT to do</h2>
+          <ul>
+            <li>
+              <strong>Don't weaken the invariant-enforcing constructors.</strong>
+              <code>newResultWithStatusAndError</code> panicking on bad state is a feature, not a
+              bug. Embedders rely on the <code>StatusError &hArr; Error</code> guarantee. The
+              neutral-finding adapter must preserve it, not paper over it.
+            </li>
+            <li>
+              <strong>Don't make <code>Result</code> an interface.</strong>
+              The concrete struct with branded fields is exactly what makes it cheap to convert and
+              impossible to misuse. A "Resultable" interface would add ceremony without value.
+            </li>
+            <li>
+              <strong>Don't hide tree-sitter behind a build tag.</strong>
+              Build tags fragment the build matrix and break <code>go install</code>. A sub-package
+              + explicit registration is the Go-idiomatic way to make a heavy dependency opt-in.
+            </li>
+            <li>
+              <strong>Don't ship the adapter as a separate module prematurely.</strong>
+              Keep <code>pkg/finding</code> in-repo until there's a real second consumer. Premature
+              module splits create replace-directive churn (BuildFlow's go-work experience is a
+              cautionary tale).
+            </li>
+            <li>
+              <strong>Don't conflate "validates" with "embeddable."</strong>
+              The engine validating correctly is necessary but not sufficient. A library is
+              embeddable when the output contract, dependency footprint, and error model all match
+              the embedder's world &mdash; none of which the parser's correctness tells you anything
+              about.
+            </li>
+          </ul>
+        </section>
+
+        <!-- Priority matrix -->
+        <section id="matrix">
+          <h2><span class="num">06</span>Priority matrix</h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Change</th>
+                <th>Embedder impact</th>
+                <th>Effort</th>
+                <th>Recommendation</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Finding adapter (<code>pkg/finding</code>)</td>
+                <td class="yes">Unblocks every embedder</td>
+                <td>Low</td>
+                <td class="yes">Do first</td>
+              </tr>
+              <tr>
+                <td>Tree-sitter sub-package split</td>
+                <td class="yes">Removes binary/dep tax</td>
+                <td>Medium</td>
+                <td class="yes">Do second</td>
+              </tr>
+              <tr>
+                <td>Export sentinel errors</td>
+                <td>Enables <code>errors.Is</code></td>
+                <td>Low</td>
+                <td class="yes">Do alongside #2</td>
+              </tr>
+              <tr>
+                <td><code>WithExcludePatterns</code> / file filter</td>
+                <td>Host pushes its own config</td>
+                <td>Low</td>
+                <td class="yes">Do alongside #2</td>
+              </tr>
+              <tr>
+                <td>Streaming <code>ValidateDirectoryFunc</code></td>
+                <td>Progress + early-abort at scale</td>
+                <td>Medium</td>
+                <td>Do after core</td>
+              </tr>
+              <tr>
+                <td>Decouple <code>pkg/output</code> (go-output)</td>
+                <td>Leaner dep graph</td>
+                <td>Medium</td>
+                <td>Do last</td>
+              </tr>
+              <tr>
+                <td>API-stability statement</td>
+                <td>Library consumer trust</td>
+                <td>Low</td>
+                <td class="yes">Document anytime</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout callout-amber">
+            <strong>The one-sentence goal</strong>
+            A Go tool that needs "are the code blocks in these docs syntactically valid?" should
+            reach for
+            <code>md-govalidator.New(false)</code> before it reaches for a shell &mdash; and never
+            spend a line on format conversion. Today it reaches for the shell because the contract
+            makes the library more work. Close the contract gap and the library wins.
+          </div>
+        </section>
+
+        <footer class="footer">
+          <p>
+            Generated 2026-06-25 &middot; Library/API-consumer lens &middot; Reviewed against
+            md-go-validator v0.3.0 (<code>pkg/</code> public API, <code>go.mod</code>) &middot;
+            Complements the CLI/accuracy review
+            (<code>2026-06-25_product-feedback-make-it-superb.html</code>); the two reports are
+            intentionally non-overlapping. All code claims verified against source.
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchors. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>

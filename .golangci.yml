@@ -10,6 +10,7 @@ run:
     - goexperiment.simd
   allow-parallel-runners: true
   allow-serial-runners: true
+  issues-exit-code: 1
   tests: true
 output:
   formats:
@@ -132,6 +133,9 @@ linters:
     funlen:
       lines: 60
       statements: 40
+    ginkgolinter:
+      forbid-focus-container: true
+      forbid-spec-pollution: true
     gocritic:
       disabled-checks:
         - ifElseChain
@@ -142,12 +146,18 @@ linters:
         - anon
         - stdlib
         - generic
+    makezero:
+      always: true
     revive:
       rules:
         - disabled: true
           name: exported
         - disabled: true
           name: package-comments
+    testifylint:
+      disable:
+        - go-require
+      enable-all: true
     varnamelen:
       ignore-names:
         - w
