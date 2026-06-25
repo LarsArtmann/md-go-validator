@@ -628,3 +628,14 @@ func HasErrors(results []types.Result) bool {
 
 	return false
 }
+
+// HasSkipped returns true if any results were skipped.
+func HasSkipped(results []types.Result) bool {
+	for _, r := range results {
+		if r.Status == types.StatusSkipped {
+			return true
+		}
+	}
+
+	return false
+}

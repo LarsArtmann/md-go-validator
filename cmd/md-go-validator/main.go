@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -75,6 +76,8 @@ type config struct {
 	skipDirectives []string
 	initConfig     bool
 	baselineFile   string
+	listLangs      bool
+	failOnSkipped  bool
 }
 
 func main() {
@@ -86,18 +89,8 @@ func main() {
 // runWithConfig executes the validation pipeline and returns the exit code.
 // Extracted from main for testability (no os.Exit calls here).
 func runWithConfig(cfg config) int {
-	if cfg.initConfig {
-		err := cfgpkg.InitFile(cfgpkg.DefaultConfigFileName)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating config file: %v\n", err)
-
-			return exitToolErr
-		}
-
-		//nolint:forbidigo // CLI success output requires direct stdout writing
-		fmt.Printf("Created %s with default configuration\n", cfgpkg.DefaultConfigFileName)
-
-		return exitSuccess
+	if exitCode, handled := handleEarlyExit(cfg); handled {
+		return exitCode
 	}
 
 	validator := mdgovalidator.New(cfg.verbose).
@@ -147,6 +140,10 @@ func runWithConfig(cfg config) int {
 		return exitValidationErr
 	}
 
+	if cfg.failOnSkipped && mdgovalidator.HasSkipped(allResults) {
+		return exitValidationErr
+	}
+
 	return exitSuccess
 }
 
@@ -167,45 +164,40 @@ func requireArg(args []string, i int, flagName string) bool {
 // newArgHandlers creates the map of flag names to their handler functions.
 // This is a function instead of a global to avoid gochecknoglobals lint violation.
 func newArgHandlers() map[string]argHandler {
-	verboseHandler := boolFlagHandler(func(c *config) { c.verbose = true })
-	quietHandler := boolFlagHandler(
-		func(c *config) { c.format = output.FormatQuiet; c.showCode = false },
+	return mergeHandlers(
+		coreHandlers(),
+		appendableHandlers(),
+		exitHandlers(),
 	)
-	noCodeHandler := boolFlagHandler(func(c *config) { c.showCode = false })
+}
+
+// coreHandlers returns handlers for the primary CLI flags.
+func coreHandlers() map[string]argHandler {
 	formatHandler := singleValueArgHandler(
-		"format",
-		output.ParseFormat,
-		func(c *config, f output.Format) { c.format = f },
+		"format", output.ParseFormat,
+		func(c *config, formatVal output.Format) { c.format = formatVal },
 	)
 	colorHandler := singleValueArgHandler(
-		"color",
-		output.ParseColorMode,
+		"color", output.ParseColorMode,
 		func(c *config, cm output.ColorMode) { c.colorMode = cm },
 	)
 	outputHandler := stringArgHandler("output", func(c *config, s string) { c.outputFile = s })
 	timeoutHandler := singleValueArgHandler(
-		"timeout",
-		time.ParseDuration,
+		"timeout", time.ParseDuration,
 		func(c *config, d time.Duration) {
 			c.timeout = d
 			c.contextCfg = c.contextCfg.WithTimeout(d)
 		},
 	)
 	languagesHandler := languagesArgHandler()
-	excludeHandler := appendArgHandler("exclude", func(c *config, s string) { c.exclude = append(c.exclude, s) })
-	skipDirHandler := appendArgHandler(
-		"skip-directive",
-		func(c *config, s string) { c.skipDirectives = append(c.skipDirectives, s) },
-	)
-	initHandler := boolFlagHandler(func(c *config) { c.initConfig = true })
 	baselineHandler := stringArgHandler("baseline", func(c *config, s string) { c.baselineFile = s })
 
 	return map[string]argHandler{
-		"-v":         verboseHandler,
-		flagVerbose:  verboseHandler,
-		"-q":         quietHandler,
-		flagQuiet:    quietHandler,
-		flagNoCode:   noCodeHandler,
+		"-v":         boolFlagHandler(func(c *config) { c.verbose = true }),
+		flagVerbose:  boolFlagHandler(func(c *config) { c.verbose = true }),
+		"-q":         boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
+		flagQuiet:    boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
+		flagNoCode:   boolFlagHandler(func(c *config) { c.showCode = false }),
 		"-f":         formatHandler,
 		flagFormat:   formatHandler,
 		flagColor:    colorHandler,
@@ -215,15 +207,42 @@ func newArgHandlers() map[string]argHandler {
 		flagTimeout:  timeoutHandler,
 		"-l":         languagesHandler,
 		"--language": languagesHandler,
-		"-h":         handleHelp,
-		"--help":     handleHelp,
-		"-V":         handleVersion,
-		flagVersion:  handleVersion,
-		flagExclude:  excludeHandler,
-		flagSkipDir:  skipDirHandler,
-		flagInit:     initHandler,
 		"--baseline": baselineHandler,
 	}
+}
+
+// appendableHandlers returns handlers for repeatable flags.
+func appendableHandlers() map[string]argHandler {
+	return map[string]argHandler{
+		flagExclude: appendArgHandler("exclude",
+			func(c *config, s string) { c.exclude = append(c.exclude, s) }),
+		flagSkipDir: appendArgHandler("skip-directive",
+			func(c *config, s string) { c.skipDirectives = append(c.skipDirectives, s) }),
+	}
+}
+
+// exitHandlers returns handlers for flags that exit immediately.
+func exitHandlers() map[string]argHandler {
+	return map[string]argHandler{
+		flagInit:            boolFlagHandler(func(c *config) { c.initConfig = true }),
+		"--list-languages":  boolFlagHandler(func(c *config) { c.listLangs = true }),
+		"--fail-on-skipped": boolFlagHandler(func(c *config) { c.failOnSkipped = true }),
+		"-h":                handleHelp,
+		"--help":            handleHelp,
+		"-V":                handleVersion,
+		flagVersion:         handleVersion,
+	}
+}
+
+// mergeHandlers combines multiple handler maps into one.
+func mergeHandlers(handlerMaps ...map[string]argHandler) map[string]argHandler {
+	result := make(map[string]argHandler)
+
+	for _, handlerMap := range handlerMaps {
+		maps.Copy(result, handlerMap)
+	}
+
+	return result
 }
 
 // boolFlagHandler creates a handler for boolean flags.
@@ -312,6 +331,40 @@ func applyConfigFormat(cfg *config, format string) {
 	parsedFormat, err := output.ParseFormat(format)
 	if err == nil {
 		cfg.format = parsedFormat
+	}
+}
+
+// handleEarlyExit processes flags that exit before validation (--init, --list-languages).
+// Returns (exitCode, true) if the flag was handled.
+func handleEarlyExit(cfg config) (int, bool) {
+	if cfg.initConfig {
+		err := cfgpkg.InitFile(cfgpkg.DefaultConfigFileName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating config file: %v\n", err)
+
+			return exitToolErr, true
+		}
+
+		//nolint:forbidigo // CLI success output requires direct stdout writing
+		fmt.Printf("Created %s with default configuration\n", cfgpkg.DefaultConfigFileName)
+
+		return exitSuccess, true
+	}
+
+	if cfg.listLangs {
+		printSupportedLanguages()
+
+		return exitSuccess, true
+	}
+
+	return 0, false
+}
+
+// printSupportedLanguages prints all supported languages to stdout.
+func printSupportedLanguages() {
+	//nolint:forbidigo // CLI output requires direct stdout writing
+	for _, lang := range languages.AllLanguages() {
+		fmt.Printf("%s (%s)\n", lang, strings.Join(lang.Extensions(), ", "))
 	}
 }
 
@@ -619,6 +672,8 @@ OPTIONS:
     --skip-directive  Custom skip directive (repeatable, e.g. --skip-directive "// example")
     --init            Create a default .md-go-validator.yaml config file
     --baseline        Baseline file of known errors (file:line per line); only new errors fail
+    --list-languages  Print all supported languages and exit
+    --fail-on-skipped  Exit non-zero if any blocks were skipped (strict mode)
     -h, --help        Show this help message
     -V, --version     Show version information
 

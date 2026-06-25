@@ -72,19 +72,41 @@ md-go-validator --version
 
 ## Options
 
-| Option           | Description                                   |
-| ---------------- | --------------------------------------------- |
-| `-v, --verbose`  | Show progress for each code block             |
-| `-q, --quiet`    | Only show summary (no code in errors)         |
-| `--no-code`      | Don't show code snippets in error output      |
-| `-l, --language` | Comma-separated list of languages to validate |
-| `-f, --format`   | Output format (table, json, yaml, csv, quiet) |
-| `--color`        | Color mode (auto, always, never)              |
-| `-o, --output`   | Write output to file                          |
-| `-t, --timeout`  | Timeout for validation (e.g., 30s, 5m)        |
-| `-`              | Read markdown from stdin                      |
-| `-h, --help`     | Show help message                             |
-| `-V, --version`  | Show version information                      |
+| Option             | Description                                                  |
+| ------------------ | ----------------------------------------------------------- |
+| `-v, --verbose`    | Show progress for each code block                           |
+| `-q, --quiet`      | Only show summary (no code in errors)                       |
+| `--no-code`        | Don't show code snippets in error output                    |
+| `-l, --language`   | Comma-separated list of languages to validate               |
+| `-f, --format`     | Output format (table, json, markdown, yaml, csv, quiet)     |
+| `--color`          | Color mode (auto, always, never)                            |
+| `-o, --output`     | Write output to file                                        |
+| `-t, --timeout`    | Timeout for validation (e.g., 30s, 5m)                      |
+| `--exclude`        | Glob pattern to exclude (repeatable)                        |
+| `--skip-directive` | Custom skip directive (repeatable)                          |
+| `--init`           | Create a default `.md-go-validator.yaml` config file        |
+| `--baseline`       | Baseline file of known errors; only new errors fail         |
+| `-`                | Read markdown from stdin                                    |
+| `-h, --help`       | Show help message                                           |
+| `-V, --version`    | Show version information                                    |
+
+### Configuration File
+
+Create a `.md-go-validator.yaml` in your project root:
+
+```yaml
+languages:
+  - go
+  - typescript
+exclude:
+  - "vendor/*"
+skipDirectives:
+  - "<!-- sketch -->"
+format: table
+```
+
+Run `md-go-validator --init` to scaffold a default config file.
+CLI flags override config file values.
 
 ## Supported Languages
 
