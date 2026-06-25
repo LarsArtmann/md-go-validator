@@ -9,36 +9,18 @@ inputs:
     description: "Path to validate (file or directory)"
     required: false
     default: "."
-  format:
-    description: "Output format (table, json, yaml, csv, markdown, quiet)"
-    required: false
-    default: "table"
-  languages:
-    description: "Comma-separated languages to validate (e.g. go,typescript)"
-    required: false
-    default: "go"
-  exclude:
-    description: "Comma-separated glob patterns to exclude (e.g. vendor/*,docs/generated/*)"
+  args:
+    description: "Additional arguments to pass to md-go-validator (see --help)"
     required: false
     default: ""
 
 runs:
-  using: "composite"
-  steps:
-    - name: Validate code blocks
-      shell: bash
-      run: |
-        args=()
-        args+=("-f" "${{ inputs.format }}")
-        args+=("-l" "${{ inputs.languages }}")
-
-        if [ -n "${{ inputs.exclude }}" ]; then
-          IFS=',' read -ra EXCLUDES <<< "${{ inputs.exclude }}"
-          for pattern in "${EXCLUDES[@]}"; do
-            args+=("--exclude" "$pattern")
-          done
-        fi
-
-        args+=("${{ inputs.path }}")
-
-        ${{ github.action_path }}/md-go-validator "${args[@]}"
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.path }}
+  entrypoint:
+    - sh
+    - -c
+    - |
+      md-go-validator ${{ inputs.args }} "$0"

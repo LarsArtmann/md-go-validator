@@ -282,15 +282,51 @@ func appendArgHandler(flagName string, setter func(*config, string)) argHandler 
 	}
 }
 
+// applyConfigFile merges config file values into the CLI config struct.
+// CLI flags are applied later and override these values.
+func applyConfigFile(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
+	if cfgErr != nil {
+		if !errors.Is(cfgErr, cfgpkg.ErrNotFound) {
+			fmt.Fprintf(os.Stderr, "Warning: failed to load config file: %v\n", cfgErr)
+		}
+
+		return
+	}
+
+	if len(fileCfg.Languages) > 0 {
+		cfg.languages = parseLanguageList(fileCfg.Languages)
+	}
+
+	cfg.exclude = fileCfg.Exclude
+	cfg.skipDirectives = fileCfg.SkipDirectives
+
+	applyConfigFormat(cfg, fileCfg.Format)
+}
+
+// applyConfigFormat sets the output format from the config file if valid.
+func applyConfigFormat(cfg *config, format string) {
+	if format == "" {
+		return
+	}
+
+	parsedFormat, err := output.ParseFormat(format)
+	if err == nil {
+		cfg.format = parsedFormat
+	}
+}
+
 // parseLanguageList converts a slice of language name strings to Language values.
 func parseLanguageList(langStrs []string) []languages.Language {
 	result := make([]languages.Language, 0, len(langStrs))
 
-	for _, s := range langStrs {
-		s = strings.TrimSpace(strings.ToLower(s))
+	for _, langStr := range langStrs {
+		s := strings.TrimSpace(strings.ToLower(langStr))
 
-		if parsed, ok := languages.ParseLanguage(s); ok {
+		parsed, ok := languages.ParseLanguage(s)
+		if ok {
 			result = append(result, parsed)
+		} else {
+			fmt.Fprintf(os.Stderr, "Warning: unknown language %q in config file, skipping\n", s)
 		}
 	}
 
@@ -318,21 +354,7 @@ func parseArgs(args []string) config {
 	}
 
 	// Apply config file values as defaults (CLI flags override).
-	if cfgErr == nil {
-		if len(fileCfg.Languages) > 0 {
-			cfg.languages = parseLanguageList(fileCfg.Languages)
-		}
-
-		cfg.exclude = fileCfg.Exclude
-		cfg.skipDirectives = fileCfg.SkipDirectives
-
-		if fileCfg.Format != "" {
-			parsedFormat, parseErr := output.ParseFormat(fileCfg.Format)
-			if parseErr == nil {
-				cfg.format = parsedFormat
-			}
-		}
-	}
+	applyConfigFile(&cfg, fileCfg, cfgErr)
 
 	argHandlers := newArgHandlers()
 
