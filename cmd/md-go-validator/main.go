@@ -95,7 +95,7 @@ func runWithConfig(cfg config) int {
 
 	validator := mdgovalidator.New(cfg.verbose).
 		WithLanguages(cfg.languages).
-		WithExcludePatterns(cfg.exclude).
+		WithExcludePatterns(types.NewExcludePatterns(cfg.exclude)).
 		WithSkipDirectives(cfg.skipDirectives)
 
 	ctx, cancel := cfg.contextCfg.Build()

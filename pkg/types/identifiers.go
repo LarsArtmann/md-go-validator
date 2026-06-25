@@ -3,6 +3,7 @@ package types
 import (
 	"errors"
 	"fmt"
+	"path/filepath"
 	"strconv"
 )
 
@@ -182,3 +183,52 @@ func (b BlockIndex) String() string {
 func (b BlockIndex) Validate() error {
 	return validateUintMinOne(b, "BlockIndex")
 }
+
+// ExcludePattern is a branded type representing a glob pattern for excluding files.
+// Prevents accidentally mixing exclude patterns with other strings.
+type ExcludePattern string
+
+// NewExcludePattern creates an ExcludePattern from a string.
+func NewExcludePattern(pattern string) ExcludePattern {
+	return ExcludePattern(pattern)
+}
+
+// NewExcludePatterns converts a slice of strings to ExcludePattern values.
+func NewExcludePatterns(patterns []string) []ExcludePattern {
+	result := make([]ExcludePattern, 0, len(patterns))
+
+	for _, p := range patterns {
+		result = append(result, ExcludePattern(p))
+	}
+
+	return result
+}
+
+// String returns the underlying string value.
+func (p ExcludePattern) String() string {
+	return string(p)
+}
+
+// Match returns true if the given path matches this exclude pattern.
+// Matches against both the full path and the base name for flexibility.
+func (p ExcludePattern) Match(path string) bool {
+	matched, err := filepath.Match(string(p), path)
+	if err == nil && matched {
+		return true
+	}
+
+	matched, err = filepath.Match(string(p), filepath.Base(path))
+
+	return err == nil && matched
+}
+
+// Validate returns an error if the pattern is empty or malformed.
+func (p ExcludePattern) Validate() error {
+	if p == "" {
+		return errEmptyExcludePattern
+	}
+
+	return nil
+}
+
+var errEmptyExcludePattern = errors.New("exclude pattern cannot be empty")

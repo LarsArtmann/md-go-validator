@@ -37,7 +37,7 @@ type FileValidator struct {
 	maxBlocks       int
 	concurrency     int
 	targetLangs     []languages.Language
-	excludePatterns []string
+	excludePatterns []types.ExcludePattern
 	fileFilter      func(string) bool
 	skipDirectives  []string
 }
@@ -90,7 +90,7 @@ func (v *FileValidator) WithRegistry(r *languages.Registry) *FileValidator {
 // WithExcludePatterns sets glob patterns to exclude from validation.
 // Patterns are matched against the full file path using filepath.Match.
 // Common patterns: "vendor/*", "docs/generated/*", "node_modules/*".
-func (v *FileValidator) WithExcludePatterns(patterns []string) *FileValidator {
+func (v *FileValidator) WithExcludePatterns(patterns []types.ExcludePattern) *FileValidator {
 	v.excludePatterns = patterns
 
 	return v
@@ -417,14 +417,7 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 // isExcluded returns true if the path matches any exclude pattern.
 func (v *FileValidator) isExcluded(path string) bool {
 	for _, pattern := range v.excludePatterns {
-		matched, err := filepath.Match(pattern, path)
-		if err == nil && matched {
-			return true
-		}
-
-		// Also try matching against the base name for simple patterns.
-		matched, err = filepath.Match(pattern, filepath.Base(path))
-		if err == nil && matched {
+		if pattern.Match(path) {
 			return true
 		}
 	}
