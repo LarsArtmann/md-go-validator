@@ -191,6 +191,7 @@ func coreHandlers() map[string]argHandler {
 	)
 	languagesHandler := languagesArgHandler()
 	baselineHandler := stringArgHandler("baseline", func(c *config, s string) { c.baselineFile = s })
+	configFileHandler := stringArgHandler("config", func(c *config, s string) {})
 
 	return map[string]argHandler{
 		"-v":         boolFlagHandler(func(c *config) { c.verbose = true }),
@@ -208,6 +209,7 @@ func coreHandlers() map[string]argHandler {
 		"-l":         languagesHandler,
 		"--language": languagesHandler,
 		"--baseline": baselineHandler,
+		"--config":   configFileHandler,
 	}
 }
 
@@ -368,8 +370,18 @@ func printSupportedLanguages() {
 }
 
 func parseArgs(args []string) config {
-	// Try loading config file from CWD first.
-	fileCfg, cfgErr := cfgpkg.LoadFromDir(".")
+	// Pre-scan for --config flag so we know which file to load before
+	// the main parsing loop applies config-file defaults.
+	configPath := findFlagValue(args, "--config")
+
+	var fileCfg cfgpkg.Config
+
+	var cfgErr error
+	if configPath != "" {
+		fileCfg, cfgErr = cfgpkg.Load(configPath)
+	} else {
+		fileCfg, cfgErr = cfgpkg.LoadFromDir(".")
+	}
 
 	cfg := config{ //nolint:exhaustruct // fields set by CLI flags later
 		verbose:    false,
@@ -439,6 +451,18 @@ func applyConfigRepeatable(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
 func returnParseError(_ string, err error) {
 	fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 	printUsage()
+}
+
+// findFlagValue scans args for a --flag value pair and returns the value.
+// Returns "" if the flag is not found or has no following argument.
+func findFlagValue(args []string, flagName string) string {
+	for i, arg := range args {
+		if arg == flagName && i+1 < len(args) {
+			return args[i+1]
+		}
+	}
+
+	return ""
 }
 
 // exitingHandler builds an argHandler that runs action() and then terminates
