@@ -3,6 +3,7 @@ module github.com/larsartmann/md-go-validator
 go 1.26.3
 
 require (
+	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-faster/yaml v0.4.6
 	github.com/larsartmann/go-finding v1.0.0
 	github.com/larsartmann/go-output v0.17.2

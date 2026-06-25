@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
+
+	doublestar "github.com/bmatcuk/doublestar/v4"
 )
 
 var (
@@ -210,14 +213,23 @@ func (p ExcludePattern) String() string {
 }
 
 // Match returns true if the given path matches this exclude pattern.
-// Matches against both the full path and the base name for flexibility.
+// Supports ** recursive globs (e.g. "docs/**/generated/*") via doublestar,
+// and falls back to filepath.Match for simple patterns.
 func (p ExcludePattern) Match(path string) bool {
-	matched, err := filepath.Match(string(p), path)
+	pattern := string(p)
+
+	if strings.Contains(pattern, "**") {
+		ok, err := doublestar.Match(pattern, path)
+
+		return err == nil && ok
+	}
+
+	matched, err := filepath.Match(pattern, path)
 	if err == nil && matched {
 		return true
 	}
 
-	matched, err = filepath.Match(string(p), filepath.Base(path))
+	matched, err = filepath.Match(pattern, filepath.Base(path))
 
 	return err == nil && matched
 }
