@@ -2,6 +2,7 @@ package mdgovalidator
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -399,6 +400,89 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 
 	// Only normal directory should be processed
 	testutil.AssertResultCount(t, results, 1)
+}
+
+func TestValidator_ValidateDirectoryFunc_Streaming(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+
+	tmpDir := t.TempDir()
+	testutil.WriteTestFile(t, tmpDir, "a.md", content)
+	testutil.WriteTestFile(t, tmpDir, "b.md", content)
+	testutil.WriteTestFile(t, tmpDir, "c.md", content)
+
+	v := New(false)
+	ctx := context.Background()
+
+	var count int
+
+	err := v.ValidateDirectoryFunc(ctx, tmpDir, func(_ types.Result) error {
+		count++
+
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("ValidateDirectoryFunc error: %v", err)
+	}
+
+	if count != 3 {
+		t.Errorf("expected 3 callback calls, got %d", count)
+	}
+}
+
+func TestValidator_ValidateDirectoryFunc_EarlyAbort(t *testing.T) {
+	t.Parallel()
+
+	content := []byte("```go\npackage main\n```\n")
+
+	tmpDir := t.TempDir()
+	testutil.WriteTestFile(t, tmpDir, "a.md", content)
+	testutil.WriteTestFile(t, tmpDir, "b.md", content)
+
+	v := New(false)
+	ctx := context.Background()
+
+	errAbort := errors.New("abort") //nolint:err113 // test sentinel error
+
+	var count int
+
+	err := v.ValidateDirectoryFunc(ctx, tmpDir, func(_ types.Result) error {
+		count++
+
+		return errAbort
+	})
+	if err == nil {
+		t.Fatal("expected error from early abort")
+	}
+
+	if !errors.Is(err, errAbort) {
+		t.Errorf("expected errAbort in chain, got %v", err)
+	}
+}
+
+func TestValidator_ValidateDirectoryFunc_EmptyDir(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	v := New(false)
+	ctx := context.Background()
+
+	var called bool
+
+	err := v.ValidateDirectoryFunc(ctx, tmpDir, func(_ types.Result) error {
+		called = true
+
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if called {
+		t.Error("callback should not be called for empty directory")
+	}
 }
 
 func TestValidator_WithMaxFiles(t *testing.T) {

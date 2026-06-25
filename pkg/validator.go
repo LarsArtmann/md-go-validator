@@ -357,28 +357,68 @@ func (v *FileValidator) ValidateDirectory(
 	return v.processFilesParallel(ctx, filePaths)
 }
 
-// ValidateDirectoryFunc validates a directory and calls fn for each result.
-// If fn returns a non-nil error, processing stops immediately and the error
-// is returned. This enables progress reporting and incremental UI.
-//
-// Note: Results are collected from the worker pool before iteration, so fn is
-// called after all validation completes — not truly streaming. For true
-// streaming, use ValidateDirectory and consume the returned slice incrementally.
+// ValidateDirectoryFunc validates a directory and calls fn for each result
+// as soon as it is produced — true streaming, not buffered.
+// If fn returns a non-nil error, processing stops immediately.
 func (v *FileValidator) ValidateDirectoryFunc(
 	ctx context.Context,
 	dirPath string,
 	fn func(types.Result) error,
 ) error {
-	results, err := v.ValidateDirectory(ctx, dirPath)
+	cleanPath, err := v.validateAndReturnPath("directory", dirPath)
 	if err != nil {
 		return fmt.Errorf("validating directory %s: %w", dirPath, err)
 	}
 
-	for _, r := range results {
-		err := fn(r)
-		if err != nil {
-			return fmt.Errorf("streaming callback aborted: %w", err)
+	filePaths, err := v.collectSupportedFiles(cleanPath)
+	if err != nil {
+		return fmt.Errorf("collecting files from %s: %w", cleanPath, err)
+	}
+
+	if len(filePaths) == 0 {
+		return nil
+	}
+
+	return v.streamFilesParallel(ctx, filePaths, fn)
+}
+
+// streamFilesParallel validates files concurrently and calls fn for each
+// individual result as it arrives from the worker pool.
+func (v *FileValidator) streamFilesParallel(
+	ctx context.Context,
+	filePaths []string,
+	fn func(types.Result) error,
+) error {
+	err := checkContext(ctx)
+	if err != nil {
+		return fmt.Errorf("context cancelled before processing files: %w", err)
+	}
+
+	filesToProcess := v.limitFiles(filePaths)
+	jobs := make(chan string, len(filesToProcess))
+	results := make(chan []types.Result, len(filesToProcess))
+	errorsChan := make(chan error, len(filesToProcess))
+
+	v.startWorkers(ctx, workerChannels{jobs, results, errorsChan})
+	v.feedJobs(ctx, jobs, filesToProcess)
+
+	for fileResults := range results {
+		for _, r := range fileResults {
+			cbErr := fn(r)
+			if cbErr != nil {
+				return fmt.Errorf("streaming callback aborted: %w", cbErr)
+			}
 		}
+	}
+
+	var errs []error
+
+	for err := range errorsChan {
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
 	}
 
 	return nil
