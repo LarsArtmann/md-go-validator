@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feedback — Making md-go-validator Superb & Usable</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS DARK — matching the project's established report identity.
+         Form follows function. Primary colors on graphite. Zero external deps.
+         ========================================================================= */
+      :root {
+        --color-graphite: #0e0e10;
+        --color-graphite-2: #18181d;
+        --color-graphite-3: #16161a;
+        --color-bone: #f4f4f0;
+        --color-red: #ff6b6b;
+        --color-blue: #6eb5ff;
+        --color-yellow: #f4d35e;
+        --color-amber: #ffb347;
+        --color-green: #8fd98f;
+        --color-hairline: rgba(244, 244, 240, 0.12);
+        --color-hairline-strong: rgba(244, 244, 240, 0.25);
+
+        --surface: var(--color-graphite);
+        --surface-raised: var(--color-graphite-2);
+        --surface-sunken: var(--color-graphite-3);
+        --text: var(--color-bone);
+        --text-muted: rgba(244, 244, 240, 0.72);
+        --text-faint: rgba(244, 244, 240, 0.45);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-amber);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+        --good: var(--color-green);
+
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .top-bar a {
+        color: var(--surface);
+        text-decoration: none;
+        border-bottom: 1px dotted var(--surface);
+      }
+
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+      .sidebar {
+        display: none;
+        flex: 0 0 200px;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        max-height: calc(100vh - 2rem);
+        overflow-y: auto;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+        border-left: 1px solid var(--border);
+        padding-left: 1rem;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-faint);
+        margin-bottom: 0.6rem;
+      }
+      .sidebar a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.85rem;
+        padding: 0.2rem 0;
+        border-left: 2px solid transparent;
+        margin-left: -1rem;
+        padding-left: 0.9rem;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        letter-spacing: -0.02em;
+      }
+      h1 {
+        font-size: 2.4rem;
+        font-weight: 900;
+        line-height: 1.05;
+        margin: 0.4rem 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.7rem;
+        font-weight: 800;
+        margin: 2.2rem 0 0.8rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid var(--border-strong);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.9rem;
+        font-weight: 700;
+        background: var(--accent);
+        color: var(--surface);
+        padding: 0.15rem 0.5rem;
+        letter-spacing: 0;
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.4rem 0 0.5rem;
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0 0 0.3rem;
+      }
+      p {
+        margin: 0.5rem 0;
+      }
+      p code,
+      li code,
+      td code {
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+        font-size: 0.85em;
+        color: var(--accent);
+      }
+      a {
+        color: var(--solution);
+      }
+      strong {
+        color: var(--text);
+      }
+      ul,
+      ol {
+        margin: 0.5rem 0 0.5rem 1.4rem;
+      }
+      li {
+        margin: 0.3rem 0;
+      }
+
+      .hero {
+        margin-bottom: 1.5rem;
+      }
+      .hero-badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 0.2rem 0.6rem;
+        margin-bottom: 0.6rem;
+      }
+      .hero-subtitle {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        max-width: 62ch;
+      }
+      .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1.4rem;
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin-top: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .hero-meta span b {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      /* --- Stat strip --- */
+      .stat-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--border);
+        border: 1px solid var(--border);
+        margin: 1.6rem 0;
+      }
+      .stat {
+        background: var(--surface-raised);
+        padding: 1rem 1.1rem;
+      }
+      .stat .n {
+        font-family: var(--font-mono);
+        font-size: 1.9rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+      .stat .l {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--text-faint);
+        margin-top: 0.4rem;
+      }
+      .stat.problem .n {
+        color: var(--problem);
+      }
+      .stat.good .n {
+        color: var(--good);
+      }
+      .stat.warning .n {
+        color: var(--warning);
+      }
+      .stat.accent .n {
+        color: var(--accent);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        border-left: 3px solid var(--border-strong);
+        background: var(--surface-raised);
+        padding: 0.9rem 1.1rem;
+        margin: 1rem 0;
+      }
+      .callout.problem {
+        border-left-color: var(--problem);
+      }
+      .callout.solution {
+        border-left-color: var(--solution);
+      }
+      .callout.warning {
+        border-left-color: var(--warning);
+      }
+      .callout.insight {
+        border-left-color: var(--accent);
+      }
+      .callout .tag {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      .callout.problem .tag {
+        color: var(--problem);
+      }
+      .callout.solution .tag {
+        color: var(--solution);
+      }
+      .callout.warning .tag {
+        color: var(--warning);
+      }
+      .callout.insight .tag {
+        color: var(--accent);
+      }
+
+      /* --- Code blocks --- */
+      pre {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 0.9rem 1rem;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.55;
+        margin: 0.8rem 0;
+      }
+      pre .com {
+        color: var(--text-faint);
+      }
+      pre .bad {
+        color: var(--problem);
+      }
+      pre .good {
+        color: var(--good);
+      }
+      pre .hi {
+        color: var(--accent);
+      }
+      code.raw {
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
+        font-size: 0.85em;
+        color: var(--accent);
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 0.55rem 0.7rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+      th {
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-faint);
+        border-bottom: 1px solid var(--border-strong);
+      }
+      td.num {
+        font-family: var(--font-mono);
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .pill {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.1rem 0.45rem;
+        border: 1px solid var(--border-strong);
+      }
+      .pill.p0 {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .pill.p1 {
+        color: var(--warning);
+        border-color: var(--warning);
+      }
+      .pill.p2 {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+      .pill.p3 {
+        color: var(--text-faint);
+        border-color: var(--border-strong);
+      }
+      .pill.done {
+        color: var(--good);
+        border-color: var(--good);
+      }
+
+      .checklist {
+        list-style: none;
+        margin-left: 0;
+      }
+      .checklist li {
+        padding-left: 1.6rem;
+        position: relative;
+      }
+      .checklist li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .checklist li.done::before {
+        content: "✓";
+        color: var(--good);
+      }
+      .checklist li.done {
+        color: var(--text-muted);
+      }
+
+      .footer-note {
+        margin-top: 3rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--border);
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        color: var(--text-faint);
+        letter-spacing: 0.06em;
+      }
+      .small {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+
+      @media (min-width: 980px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 720px) {
+        .stat-strip {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="top-bar">
+      <span>md-go-validator · Feedback Report</span>
+      <span>2026-06-25 · Bauhaus Dark</span>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <nav>
+          <span class="label">Contents</span>
+          <a href="#verdict">Verdict</a>
+          <a href="#evidence">Evidence</a>
+          <a href="#root-cause">Root Cause</a>
+          <a href="#gap-analysis">Gap Analysis</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#quick-wins">Quick Wins</a>
+          <a href="#non-goals">Non-Goals</a>
+          <a href="#vision">North Star</a>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <section class="hero">
+          <span class="hero-badge">External Product Review</span>
+          <h1>From "syntactically strict" to "actually usable"</h1>
+          <p class="hero-subtitle">
+            A field report on what happens when <strong>md-go-validator</strong> meets a real,
+            high-quality Go library (<code>go-cqrs-lite</code>), and a concrete plan to make the
+            tool trustworthy enough to put in CI without training people to ignore it.
+          </p>
+          <div class="hero-meta">
+            <span>Target: <b>md-go-validator</b></span>
+            <span>Test corpus: <b>go-cqrs-lite</b> (683 Go blocks)</span>
+            <span>Method: <b>real-world run + code audit</b></span>
+          </div>
+        </section>
+
+        <div class="stat-strip">
+          <div class="stat problem">
+            <div class="n">130</div>
+            <div class="l">Errors Reported</div>
+          </div>
+          <div class="stat good">
+            <div class="n">0</div>
+            <div class="l">Real Bugs Found</div>
+          </div>
+          <div class="stat warning">
+            <div class="n">100%</div>
+            <div class="l">False-Positive Rate</div>
+          </div>
+          <div class="stat accent">
+            <div class="n">3</div>
+            <div class="l">Patterns Cause It All</div>
+          </div>
+        </div>
+
+        <section id="verdict">
+          <h2><span class="num">01</span> The Verdict</h2>
+          <p>
+            The tool has a solid foundation — clean architecture, branded types, functional options,
+            tree-sitter for non-Go languages, structured exit codes, JSON/YAML output. As
+            <em>engineering</em> it's well built. As a <em>product</em> it has one fatal flaw that
+            sits between the tool and every consumer:
+          </p>
+          <div class="callout problem">
+            <span class="tag">The core problem</span>
+            Run on a real Go library's documentation, the validator reports
+            <strong>130 errors and finds zero real bugs — a 100% false-positive rate.</strong> The
+            five "parsing strategies" don't cover the three documentation conventions that real
+            technical writers use every day. A tool that cries wolf this loudly cannot live in CI;
+            contributors will mute it within a week.
+          </div>
+          <p class="small">
+            The good news: the gap is narrow and entirely fixable. This is not a redesign — it's
+            filling a well-understood coverage hole and adding the adoption ergonomics the project's
+            own <code>CONSUMER_PERSPECTIVE.md</code> already identifies.
+          </p>
+        </section>
+
+        <section id="evidence">
+          <h2><span class="num">02</span> Evidence — One Real Run, Zero Value Delivered</h2>
+          <p>
+            Running <code class="raw">md-go-validator -f json</code> recursively over
+            <code>go-cqrs-lite</code> (a multi-module CQRS/Event-Sourcing library with extensive
+            docs) yields:
+          </p>
+          <table>
+            <thead>
+              <tr>
+                <th>Bucket</th>
+                <th>Count</th>
+                <th>What it actually is</th>
+                <th>Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>import</code> + usage snippets</td>
+                <td class="num">68</td>
+                <td>
+                  Standard docs pattern: show the import, then show usage.
+                  <em>Falls through all 5 strategies.</em>
+                </td>
+                <td><span class="pill p0">False positive</span></td>
+              </tr>
+              <tr>
+                <td>Ellipsis bodies <code>{ ... }</code></td>
+                <td class="num">57</td>
+                <td>
+                  "Implementation elided" shorthand. <code>...</code> is intentionally not Go.
+                </td>
+                <td><span class="pill p0">False positive</span></td>
+              </tr>
+              <tr>
+                <td>Pseudo <code>go.mod</code> / <code>require</code></td>
+                <td class="num">5</td>
+                <td>Module-directive text shown inside a Go fence for context.</td>
+                <td><span class="pill p0">False positive</span></td>
+              </tr>
+              <tr>
+                <td>Real syntax defects</td>
+                <td class="num">0</td>
+                <td>—</td>
+                <td><span class="pill done">n/a</span></td>
+              </tr>
+              <tr>
+                <td><strong>Total reported</strong></td>
+                <td class="num"><strong>130</strong></td>
+                <td colspan="2"><strong>0 actionable</strong></td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="small">
+            For contrast, the same repo's own lightweight <code>cmd/doc-check</code> tool (which
+            only verifies import paths resolve and <code>pkg.Symbol</code> references exist) reports
+            <strong>"All 445 references valid"</strong> — it catches the bug class that actually
+            hurts consumers (renamed/removed symbols, broken imports) with zero noise.
+          </p>
+
+          <h3>The three patterns, in code</h3>
+          <p>Every one of the 130 failures is one of these:</p>
+
+          <h4>Pattern A — Imports + statements (68 cases)</h4>
+          <pre><span class="com">// The single most common documentation pattern.</span>
+<span class="com">// Shows the import, then the usage. NO package decl, and a top-level</span>
+<span class="com">// statement — which every wrap strategy mishandles.</span>
+<span class="bad">import</span> <span class="hi">"github.com/acme/lib/v3"</span>
+
+b, _ := lib.New()
+defer b.Close()</pre>
+          <p class="small">
+            Strategy 2 (<code>package main</code> + code) fails because a top-level statement can't
+            live outside a function. Strategy 5 (wrap in <code>func _()</code>) fails because
+            <code>import</code> can't live <em>inside</em> a function. The two strategies are
+            mutually exclusive for this shape.
+          </p>
+
+          <h4>Pattern B — Ellipsis placeholders (57 cases)</h4>
+          <pre><span class="com">// "Implementation elided" — universally understood by readers.</span>
+<span class="bad">func</span> NewStore(db *sql.DB, opts ...Option) *Store <span class="bad">{ ... }</span>
+<span class="bad">type</span> serviceBuilder <span class="bad">struct</span> { ... }</pre>
+
+          <h4>Pattern C — Pseudo module files (5 cases)</h4>
+          <pre><span class="bad">require</span> (
+    github.com/acme/core v1.6.0
+)
+<span class="bad">replace</span> github.com/acme/core => ../core</pre>
+        </section>
+
+        <section id="root-cause">
+          <h2><span class="num">03</span> Root Cause — A Strategy Coverage Gap</h2>
+          <div class="callout insight">
+            <span class="tag">The architectural insight</span>
+            The Go validator's five wrap strategies (<code class="raw"
+              >pkg/languages/go_validator.go</code
+            >) cover two buckets — <em>declarations only</em> or <em>statements only</em> — but
+            never <strong>imports + statements together</strong>, which is the dominant
+            documentation shape. The strategies are tried sequentially; none of them can split an
+            import block from a statement block and reassemble them correctly.
+          </div>
+          <p>The consequence is a tool that is strict about the wrong thing:</p>
+          <table>
+            <thead>
+              <tr>
+                <th>Validator does this</th>
+                <th>But documentation is…</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Demand a compilable translation unit</td>
+                <td>Prose-as-code — illustrative, deliberately incomplete</td>
+              </tr>
+              <tr>
+                <td>Treat <code>...</code> as a syntax error</td>
+                <td>A universal idiom for "body omitted"</td>
+              </tr>
+              <tr>
+                <td>Reject pseudo-signatures</td>
+                <td>The most readable way to show an API surface</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            This is a category error: <strong>documentation snippets are not programs.</strong> A
+            useful validator must meet docs where they are, not where the Go parser wishes they
+            were.
+          </p>
+        </section>
+
+        <section id="gap-analysis">
+          <h2><span class="num">04</span> Gap Analysis</h2>
+          <p>
+            Beyond the false-positive core, the project's own
+            <code>CONSUMER_PERSPECTIVE.md</code> already inventories the adoption gaps. This review
+            confirms and reprioritizes them against the evidence.
+          </p>
+
+          <h3>4.1 — Accuracy gaps (the blockers)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Gap</th>
+                <th>Why it blocks adoption</th>
+                <th>Effort</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">G1</td>
+                <td>Imports+statements fall through all strategies</td>
+                <td>The #1 docs pattern produces noise, not signal</td>
+                <td class="num">~2h</td>
+                <td><span class="pill p0">P0</span></td>
+              </tr>
+              <tr>
+                <td class="num">G2</td>
+                <td>Ellipsis <code>{ ... }</code> not recognized as "elided"</td>
+                <td>Every "API surface" block is a false positive</td>
+                <td class="num">~1h</td>
+                <td><span class="pill p0">P0</span></td>
+              </tr>
+              <tr>
+                <td class="num">G3</td>
+                <td>Pseudo <code>go.mod</code> blocks flagged</td>
+                <td>Module-setup docs are noise</td>
+                <td class="num">~30m</td>
+                <td><span class="pill p1">P1</span></td>
+              </tr>
+              <tr>
+                <td class="num">G4</td>
+                <td>No baseline / <code>--baseline</code> regression mode</td>
+                <td>Can't adopt incrementally on an existing noisy repo</td>
+                <td class="num">~1d</td>
+                <td><span class="pill p1">P1</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>4.2 — Adoption ergonomics (from CONSUMER_PERSPECTIVE.md)</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Gap</th>
+                <th>Status</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="num">A1</td>
+                <td>Reusable GitHub Action (<code>action.yml</code>)</td>
+                <td>Open</td>
+                <td><span class="pill p0">P0</span></td>
+              </tr>
+              <tr>
+                <td class="num">A2</td>
+                <td>Config file (<code>.md-go-validator.yaml</code>) + <code>--init</code></td>
+                <td>Open</td>
+                <td><span class="pill p0">P0</span></td>
+              </tr>
+              <tr>
+                <td class="num">A3</td>
+                <td>Exclude / ignore patterns (<code>vendor/</code>, generated)</td>
+                <td>Open</td>
+                <td><span class="pill p1">P1</span></td>
+              </tr>
+              <tr>
+                <td class="num">A4</td>
+                <td>Pre-commit hook (<code>.pre-commit-hooks.yaml</code>)</td>
+                <td>Open</td>
+                <td><span class="pill p1">P1</span></td>
+              </tr>
+              <tr>
+                <td class="num">A5</td>
+                <td><code>--fail-on-skipped</code> (strict mode)</td>
+                <td>Open</td>
+                <td><span class="pill p2">P2</span></td>
+              </tr>
+              <tr>
+                <td class="num">A6</td>
+                <td>Watch / incremental mode</td>
+                <td>Open</td>
+                <td><span class="pill p2">P2</span></td>
+              </tr>
+              <tr>
+                <td class="num">A7</td>
+                <td>Homebrew tap publish (goreleaser <code>skip_upload: true</code>)</td>
+                <td>Open</td>
+                <td><span class="pill p3">P3</span></td>
+              </tr>
+              <tr>
+                <td class="num">A8</td>
+                <td><code>--languages</code> / <code>list-languages</code> discovery</td>
+                <td>Open</td>
+                <td><span class="pill p3">P3</span></td>
+              </tr>
+              <tr>
+                <td class="num">A9</td>
+                <td>API stability statement for library importers</td>
+                <td>Open</td>
+                <td><span class="pill p3">P3</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="callout warning">
+            <span class="tag">Positioning note</span>
+            <code>.goreleaser.yml</code> still describes the tool as
+            <em>"Markdown validation tool for Go projects"</em> — but it validates Go, TypeScript,
+            Rust, Nix, HCL, and Templ. The one-line description undersells the product and repels
+            half its audience. Fix the copy.
+          </div>
+        </section>
+
+        <section id="roadmap">
+          <h2><span class="num">05</span> The Pareto Roadmap</h2>
+          <p>
+            Ordered so the first step delivers the largest swing in perceived quality. The single
+            highest-leverage change is <strong>accuracy</strong> — no amount of polish rescues a
+            tool that's wrong 100% of the time.
+          </p>
+
+          <h3>1% → 51% — Make it right before you make it shiny</h3>
+          <ul class="checklist">
+            <li>
+              <strong>Fix the strategy coverage gap (G1).</strong> Add a 6th strategy that splits
+              the snippet into a <em>leading import block</em> and a
+              <em>trailing statement block</em>, wraps the imports at package level and the
+              statements inside <code>func main()</code>. This alone clears ~68/130 false positives.
+            </li>
+            <li>
+              <strong>Recognize elision (G2).</strong> Before parsing, detect <code>{ ... }</code>,
+              <code>{...}</code>, and bare trailing <code>...</code> as "body omitted." Either skip
+              these snippets, or normalize <code>{ ... }</code> → <code>{}</code> before parsing.
+              Clears ~57/130.
+            </li>
+          </ul>
+
+          <h3>4% → 64% — Make it adoptable</h3>
+          <ul class="checklist">
+            <li>
+              <strong>Config file + <code>--init</code> (A2).</strong> A committed
+              <code>.md-go-validator.yaml</code> so <code>md-go-validator .</code> "just works" with
+              per-repo settings.
+            </li>
+            <li>
+              <strong>Exclude patterns (A3).</strong> Glob ignore for <code>vendor/</code>,
+              <code>node_modules/</code>, generated docs. Required for any real monorepo.
+            </li>
+            <li>
+              <strong><code>--baseline</code> regression mode (G4).</strong> Accept a snapshot of
+              known errors; fail only on <em>new</em> ones. This is what lets a noisy repo adopt the
+              tool today and ratchet down over time.
+            </li>
+          </ul>
+
+          <h3>20% → 80% — Make it the obvious choice</h3>
+          <ul class="checklist">
+            <li>
+              <strong>Reusable GitHub Action (A1).</strong>
+              <code>uses: LarsArtmann/md-go-validator@v1</code> instead of a 4-step YAML block.
+              Highest-leverage distribution feature.
+            </li>
+            <li>
+              <strong>Pre-commit hook (A4).</strong> One <code>.pre-commit-hooks.yaml</code> opens
+              the entire pre-commit.com ecosystem.
+            </li>
+            <li>
+              <strong>Strict <code>--fail-on-skipped</code> (A5).</strong> Let teams that want zero
+              escape-hatches enforce it.
+            </li>
+          </ul>
+        </section>
+
+        <section id="quick-wins">
+          <h2><span class="num">06</span> Concrete Fixes — Ready to Implement</h2>
+
+          <h3>Fix 1: A pre-parse normalizer for elision</h3>
+          <p>
+            Cheapest, highest-impact. Before handing code to the 5 strategies, normalize the three
+            documentation idioms. This is a pure-function string transform, trivially unit-testable.
+          </p>
+          <pre><span class="com">// Pseudocode for code/normalize.go</span>
+<span class="good">func</span> NormalizeDocIdioms(code <span class="hi">string</span>) <span class="hi">string</span> {
+    <span class="com">// 1. "body omitted" — { ... } → {}</span>
+    code = rxBodyOmitted.ReplaceAllString(code, "{}")
+    <span class="com">// 2. trailing "..." on its own line or as a token → drop the line</span>
+    code = rxElidedLine.ReplaceAllString(code, "")
+    <span class="com">// 3. pseudo go.mod content → caller may short-circuit (skip)</span>
+    <span class="good">return</span> code
+}</pre>
+          <div class="callout solution">
+            <span class="tag">Why this works</span>
+            Normalizing <code>{ ... }</code> → <code>{}</code> turns every API-surface snippet into
+            valid Go that the existing strategies 2/3 already accept. It costs one regex pass and
+            removes an entire false-positive category with zero new parser logic.
+          </div>
+
+          <h3>Fix 2: A 6th strategy for import + statement snippets</h3>
+          <pre><span class="com">// Strategy 6 — split imports from statements, wrap each correctly.</span>
+<span class="good">func</span> wrapImportsAndStatements(code <span class="hi">string</span>) <span class="hi">string</span> {
+    <span class="com">// Hoist every `import (...)` / `import "..."` line to the top.</span>
+    importBlock, rest = splitImports(code)
+    <span class="good">return</span> <span class="hi">"package main\n\n"</span> + importBlock +
+           <span class="hi">"\nfunc main() {\n"</span> + indent(rest) + <span class="hi">"\n}"</span>
+}</pre>
+          <p class="small">
+            Add this as strategy 6, before falling through to the error path. It handles the
+            dominant "show the import, show the usage" pattern that no current strategy can.
+          </p>
+
+          <h3>Fix 3: <code>--baseline</code> for incremental adoption</h3>
+          <pre><span class="com"># Generate the known-errors snapshot once</span>
+md-go-validator -f json . | jq <span class="hi">'.errors[].file + ":" + (.line|tostring)'</span> &gt; .md-go-baseline.txt
+
+<span class="com"># CI then fails only on NEW errors</span>
+md-go-validator --baseline .md-go-baseline.txt .</pre>
+          <p class="small">
+            This converts "130 errors, I give up" into "0 new errors, ship it" — and lets teams
+            ratchet down the baseline as they fix real docs over time.
+          </p>
+        </section>
+
+        <section id="non-goals">
+          <h2><span class="num">07</span> What NOT to Do</h2>
+          <ul>
+            <li>
+              <strong>Don't ship to CI before fixing accuracy.</strong> A 100% false-positive gate
+              teaches contributors to add <code>&lt;!-- skip-validate --&gt;</code> everywhere or
+              remove the check. Trust, once lost, is not regained.
+            </li>
+            <li>
+              <strong>Don't make <code>...</code> a hard error with no escape.</strong> Elision is a
+              documentation feature, not a defect. The skip directive is a last resort, not the
+              primary UX.
+            </li>
+            <li>
+              <strong>Don't conflate "parses" with "valuable."</strong> The competing
+              <code>cmd/doc-check</code> proves that <em>symbol-resolution</em> (does
+              <code>pkg.Foo</code> exist?) catches real consumer-breaking bugs that pure syntax
+              never will. Consider a future "reference check" mode as a complement, not a
+              replacement.
+            </li>
+          </ul>
+        </section>
+
+        <section id="vision">
+          <h2><span class="num">08</span> North Star</h2>
+          <div class="callout insight">
+            <span class="tag">The one-sentence goal</span>
+            A consumer should be able to drop <code>md-go-validator</code> into a mature repo's CI,
+            see <strong>either a clean pass or a short list of genuinely broken blocks</strong>, and
+            trust that the next failure they see is a real defect — never noise.
+          </div>
+          <p>
+            Today that sentence is false: the tool reports 130 errors and zero of them matter. The
+            gap between here and there is two regexes, one extra parse strategy, a config file, and
+            a GitHub Action. None of it requires a rethink — it requires finishing the job the
+            architecture was already built to support.
+          </p>
+          <p class="small">
+            The foundation (pure-Go, multi-language tree-sitter, clean registry, structured output)
+            is genuinely good. The remaining work is the difference between
+            <em>a tool that checks syntax</em> and <em>a tool people actually use.</em>
+          </p>
+        </section>
+
+        <p class="footer-note">
+          Evidence base: live run of <code>md-go-validator -f json</code> against
+          <code>go-cqrs-lite</code> (683 Go blocks, 130 reported errors, 0 real). Code audit of
+          <code>pkg/languages/go_validator.go</code>, <code>pkg/code/util.go</code>,
+          <code>pkg/extractor.go</code>. Gap inventory cross-referenced with the project's own
+          <code>CONSUMER_PERSPECTIVE.md</code>. Generated 2026-06-25.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

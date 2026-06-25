@@ -576,12 +576,12 @@
         <!-- Summary -->
         <h2 id="summary"><span class="num">00</span>Executive Summary</h2>
         <p>
-          The session goal was simple: <strong>update ALL dependencies to latest</strong>. BuildFlow's
-          <code>update</code> step reported 2 passed / 2 skipped (the cargo/npm steps are correctly
-          skipped &mdash; this is a Go + Nix project). But "BuildFlow ran" is not "everything is
-          latest and verified", so the work was done end-to-end by hand: Go modules via
-          <code>go get -u ./...</code>, Nix inputs via <code>nix flake update</code>, the build vendor
-          hash regenerated, and every gate re-run.
+          The session goal was simple: <strong>update ALL dependencies to latest</strong>.
+          BuildFlow's <code>update</code> step reported 2 passed / 2 skipped (the cargo/npm steps
+          are correctly skipped &mdash; this is a Go + Nix project). But "BuildFlow ran" is not
+          "everything is latest and verified", so the work was done end-to-end by hand: Go modules
+          via <code>go get -u ./...</code>, Nix inputs via <code>nix flake update</code>, the build
+          vendor hash regenerated, and every gate re-run.
         </p>
 
         <div class="stat-grid">
@@ -607,8 +607,9 @@
           <h4>Quality Gates — All Green</h4>
           <p>
             <code>nix build .#</code> &middot; <code>nix flake check</code> (format + build + test)
-            &middot; <code>go test -race ./...</code> &middot; <code>go test -cover ./...</code>
-            &middot; <code>golangci-lint run ./...</code> (0 issues)
+            &middot; <code>go test -race ./...</code> &middot;
+            <code>go test -cover ./...</code> &middot; <code>golangci-lint run ./...</code> (0
+            issues)
           </p>
         </div>
 
@@ -652,7 +653,9 @@
               <td>Nix inputs (nixpkgs, flake-parts, treefmt-nix, systems)</td>
               <td>&mdash;</td>
               <td>HEAD</td>
-              <td><code>nix flake update</code> fetched HEAD revs; lock unchanged (already current)</td>
+              <td>
+                <code>nix flake update</code> fetched HEAD revs; lock unchanged (already current)
+              </td>
             </tr>
             <tr>
               <td><code>package.nix</code> vendorHash</td>
@@ -729,8 +732,8 @@
               <strong>Updated go-output v0.17.0 &rarr; v0.17.2</strong>
               <span
                 >BuildFlow's <code>go-mod-update</code> step bumped the three direct go-output
-                modules and aligned the two indirect submodules (enum, envdetect). go.sum
-                reconciled with <code>go mod tidy</code>.</span
+                modules and aligned the two indirect submodules (enum, envdetect). go.sum reconciled
+                with <code>go mod tidy</code>.</span
               >
             </div>
           </div>
@@ -763,8 +766,8 @@
               <span
                 >The go-output bump changed go.sum, which invalidated the fixed-output hash in
                 <code>package.nix</code>. Rebuilt, captured the new hash
-                (<code>sha256-sNDTW0&hellip;</code>), and confirmed <code>nix build .#</code>
-                succeeds.</span
+                (<code>sha256-sNDTW0&hellip;</code>), and confirmed
+                <code>nix build .#</code> succeeds.</span
               >
             </div>
           </div>
@@ -773,9 +776,9 @@
             <div class="text">
               <strong>Re-ran every quality gate green</strong>
               <span
-                ><code>go test -race ./...</code> (479 tests), <code>golangci-lint</code> (0 issues),
-                <code>nix build .#</code>, <code>nix flake check</code> (format + build + test). All
-                pass.</span
+                ><code>go test -race ./...</code> (479 tests), <code>golangci-lint</code> (0
+                issues), <code>nix build .#</code>, <code>nix flake check</code> (format + build +
+                test). All pass.</span
               >
             </div>
           </div>
@@ -853,7 +856,9 @@
         <div class="issue issue-important">
           <span class="severity severity-important">Architectural debt</span>
           <h3>go-error-family not adopted (92 hierarchical-errors findings)</h3>
-          <div class="where">All packages &mdash; 45 ignored + 45 generic_return + 2 silent_swallow</div>
+          <div class="where">
+            All packages &mdash; 45 ignored + 45 generic_return + 2 silent_swallow
+          </div>
           <p>
             The <code>hierarchical-errors</code> checker surfaces 92 findings. The 45
             <code>generic_return</code> items reflect the project's non-adoption of
@@ -867,7 +872,9 @@
         <div class="issue issue-important">
           <span class="severity severity-important">Stale doc</span>
           <h3>docs/DOMAIN_LANGUAGE.md is still a placeholder template</h3>
-          <div class="where">docs/DOMAIN_LANGUAGE.md &mdash; placeholder text, not real glossary</div>
+          <div class="where">
+            docs/DOMAIN_LANGUAGE.md &mdash; placeholder text, not real glossary
+          </div>
           <p>
             The file still says "Example Term &mdash; A placeholder definition". Per the project
             documentation standards it should hold the ubiquitous language (CodeBlock,
@@ -914,7 +921,9 @@
           <tbody>
             <tr>
               <td><strong>go-error-family adoption</strong></td>
-              <td>Structured, classified errors across all packages (or an ADR disabling the gate)</td>
+              <td>
+                Structured, classified errors across all packages (or an ADR disabling the gate)
+              </td>
               <td>library-policy, hierarchical-errors</td>
             </tr>
             <tr>
@@ -968,34 +977,40 @@
         <div class="issue issue-critical">
           <span class="severity severity-critical">Recurring footgun (3rd strike)</span>
           <h3>The vendorHash drifts silently and breaks the build on every dep upgrade</h3>
-          <div class="where">
-            package.nix &mdash; buildGoModule fixed-output derivation
-          </div>
+          <div class="where">package.nix &mdash; buildGoModule fixed-output derivation</div>
           <p>
-            <code>buildGoModule</code> pins a <code>vendorHash</code> in
-            <code>package.nix</code>. Whenever <code>go.sum</code> changes (any dep bump), the hash
-            goes stale and <code>nix build .#</code> fails with <emph>hash mismatch</emph>. This has
-            now bitten the project <strong>three times</strong>:
+            <code>buildGoModule</code> pins a <code>vendorHash</code> in <code>package.nix</code>.
+            Whenever <code>go.sum</code> changes (any dep bump), the hash goes stale and
+            <code>nix build .#</code> fails with <emph>hash mismatch</emph>. This has now bitten the
+            project <strong>three times</strong>:
           </p>
           <ul style="margin: 0.5rem 0 0.5rem 1.4rem; color: var(--text-muted)">
-            <li><code>e0aeb59</code> &mdash; "update stale nix vendor hash after go-output upgrade"</li>
-            <li><code>0fc0f12</code> &mdash; "upgrade go-output &hellip; and fix Nix version attribute"</li>
-            <li><strong>This session</strong> &mdash; go-output v0.17.0 &rarr; v0.17.2 broke the build again</li>
+            <li>
+              <code>e0aeb59</code> &mdash; "update stale nix vendor hash after go-output upgrade"
+            </li>
+            <li>
+              <code>0fc0f12</code> &mdash; "upgrade go-output &hellip; and fix Nix version
+              attribute"
+            </li>
+            <li>
+              <strong>This session</strong> &mdash; go-output v0.17.0 &rarr; v0.17.2 broke the build
+              again
+            </li>
           </ul>
           <p>
             The failure mode is also misleading: <code>buildflow update</code> reports
-            <emph>green</emph> (it updated go.mod) while <code>nix build</code> is
-            <emph>red</emph>. A maintainer trusting the "update succeeded" message ships a broken
-            build. BuildFlow has no post-update step that syncs the Nix vendor hash, so the
-            dependency-update workflow is structurally incomplete.
+            <emph>green</emph> (it updated go.mod) while <code>nix build</code> is <emph>red</emph>.
+            A maintainer trusting the "update succeeded" message ships a broken build. BuildFlow has
+            no post-update step that syncs the Nix vendor hash, so the dependency-update workflow is
+            structurally incomplete.
           </p>
           <div class="callout callout-solution">
             <strong>Fix direction:</strong>
             Make the hash self-healing. Options: (a) <code>vendorHash = lib.fakeHash</code> during
             dev + a CI check that asserts the real hash is committed; (b) a buildflow post-update
             hook running <code>nix build .#</code> and patching <code>package.nix</code>; (c) a
-            <code>nix run</code>-able updater script. The exact choice needs a human decision
-            (see Question G).
+            <code>nix run</code>-able updater script. The exact choice needs a human decision (see
+            Question G).
           </div>
         </div>
 
@@ -1037,9 +1052,9 @@
           <h4>2. Make the go-error-family decision explicit (and stop the persistent red)</h4>
           <p>
             92 <code>hierarchical-errors</code> findings (45 <code>generic_return</code>) will keep
-            BuildFlow red until either go-error-family is adopted or the gate is explicitly
-            disabled via ADR. A quality gate that is perpetually red is worse than no gate &mdash; it
-            trains everyone to ignore failures. Decide and document.
+            BuildFlow red until either go-error-family is adopted or the gate is explicitly disabled
+            via ADR. A quality gate that is perpetually red is worse than no gate &mdash; it trains
+            everyone to ignore failures. Decide and document.
           </p>
         </div>
 
@@ -1069,8 +1084,8 @@
           <h4>5. Add a post-update verification to CI</h4>
           <p>
             Even without buildflow changes, a CI job that runs <code>nix build .#</code> on dep-bump
-            PRs would catch vendorHash drift before merge. The dogfooding + <code>nix flake
-            check</code> jobs exist; a dep-change verification step does not.
+            PRs would catch vendorHash drift before merge. The dogfooding +
+            <code>nix flake check</code> jobs exist; a dep-change verification step does not.
           </p>
         </div>
 
@@ -1098,8 +1113,8 @@
               <td>
                 <strong>Fix the vendorHash footgun permanently</strong> &mdash; add a buildflow
                 post-update hook (or CI check) that regenerates <code>package.nix</code> and asserts
-                <code>nix build .#</code> is green after any go.mod/go.sum change. Ends the
-                3-strike recurrence.
+                <code>nix build .#</code> is green after any go.mod/go.sum change. Ends the 3-strike
+                recurrence.
               </td>
               <td>Stops recurring breakage</td>
             </tr>
@@ -1184,8 +1199,8 @@
               <td>10</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Improve cmd coverage 76.7% &rarr; 85%+</strong> &mdash; add integration tests
-                for flag parsing edge cases, error paths, help/version output.
+                <strong>Improve cmd coverage 76.7% &rarr; 85%+</strong> &mdash; add integration
+                tests for flag parsing edge cases, error paths, help/version output.
               </td>
               <td>Test confidence</td>
             </tr>
@@ -1277,7 +1292,8 @@
               <td><span class="badge badge-low">P3</span></td>
               <td>
                 <strong>Review goreleaser config for new targets</strong> &mdash; current config
-                builds darwin/linux/windows amd64+arm64. Consider freebsd, or WASM for browser usage.
+                builds darwin/linux/windows amd64+arm64. Consider freebsd, or WASM for browser
+                usage.
               </td>
               <td>Distribution</td>
             </tr>
@@ -1337,14 +1353,14 @@
         <div class="issue issue-critical">
           <span class="severity severity-critical">Decision needed</span>
           <h3>
-            How should the Nix vendorHash be kept in sync with go.sum &mdash; automatically, or via a
-            verification gate?
+            How should the Nix vendorHash be kept in sync with go.sum &mdash; automatically, or via
+            a verification gate?
           </h3>
           <p>
-            The vendorHash drift has now broken the build <strong>three times</strong>
-            (<code>e0aeb59</code>, <code>0fc0f12</code>, this session). I can implement any of the
-            fixes, but I cannot choose <em>which</em> fits this project's workflow &mdash; each has a
-            real tradeoff:
+            The vendorHash drift has now broken the build
+            <strong>three times</strong> (<code>e0aeb59</code>, <code>0fc0f12</code>, this session).
+            I can implement any of the fixes, but I cannot choose <em>which</em> fits this project's
+            workflow &mdash; each has a real tradeoff:
           </p>
           <table>
             <thead>
@@ -1357,33 +1373,56 @@
             <tbody>
               <tr>
                 <td><strong>A &mdash; buildflow post-update hook</strong></td>
-                <td>A hook runs <code>nix build .#</code> after <code>go-mod-update</code> and rewrites <code>package.nix</code> with the new hash</td>
-                <td>Fixes it at the source, but couples the build tool to Nix internals; depends on buildflow supporting such a hook</td>
+                <td>
+                  A hook runs <code>nix build .#</code> after <code>go-mod-update</code> and
+                  rewrites <code>package.nix</code> with the new hash
+                </td>
+                <td>
+                  Fixes it at the source, but couples the build tool to Nix internals; depends on
+                  buildflow supporting such a hook
+                </td>
               </tr>
               <tr>
                 <td><strong>B &mdash; CI verification job</strong></td>
-                <td>A CI step asserts <code>nix build .#</code> is green on any PR touching go.mod/go.sum</td>
-                <td>Catches drift before merge but does not auto-fix &mdash; still requires a manual hash bump commit</td>
+                <td>
+                  A CI step asserts <code>nix build .#</code> is green on any PR touching
+                  go.mod/go.sum
+                </td>
+                <td>
+                  Catches drift before merge but does not auto-fix &mdash; still requires a manual
+                  hash bump commit
+                </td>
               </tr>
               <tr>
-                <td><strong>C &mdash; <code>lib.fakeHash</code> dev workflow</strong></td>
+                <td>
+                  <strong>C &mdash; <code>lib.fakeHash</code> dev workflow</strong>
+                </td>
                 <td>Use a fake hash in dev; CI asserts the real hash is committed</td>
-                <td>Fastest dev loop, but changes the contribution flow and risks shipping a fake hash</td>
+                <td>
+                  Fastest dev loop, but changes the contribution flow and risks shipping a fake hash
+                </td>
               </tr>
               <tr>
-                <td><strong>D &mdash; updater script (<code>nix run</code>-able)</strong></td>
-                <td>A small <code>update.nix</code> / shell script maintainers run after dep bumps</td>
-                <td>Explicit and simple, but only works if people remember to run it (same class of footgun, smaller blast radius)</td>
+                <td>
+                  <strong>D &mdash; updater script (<code>nix run</code>-able)</strong>
+                </td>
+                <td>
+                  A small <code>update.nix</code> / shell script maintainers run after dep bumps
+                </td>
+                <td>
+                  Explicit and simple, but only works if people remember to run it (same class of
+                  footgun, smaller blast radius)
+                </td>
               </tr>
             </tbody>
           </table>
           <div class="callout callout-warning">
             <strong>Why I'm stuck:</strong>
-            This is a workflow/tooling preference tied to how Lars wants dep upgrades to feel. Option
-            A is the most "correct" but assumes buildflow can host the hook; Option B is the safest
-            default; Option C is the most ergonomic but changes the contribution contract. I cannot
-            determine which tradeoff you prefer, and guessing wrong means either a broken build or an
-            annoying dev loop. Which option should I implement?
+            This is a workflow/tooling preference tied to how Lars wants dep upgrades to feel.
+            Option A is the most "correct" but assumes buildflow can host the hook; Option B is the
+            safest default; Option C is the most ergonomic but changes the contribution contract. I
+            cannot determine which tradeoff you prefer, and guessing wrong means either a broken
+            build or an annoying dev loop. Which option should I implement?
           </div>
         </div>
 
