@@ -76,6 +76,7 @@ type config struct {
 	skipDirectives []string
 	initConfig     bool
 	baselineFile   string
+	saveBaseline   string
 	listLangs      bool
 	failOnSkipped  bool
 }
@@ -102,6 +103,10 @@ func runWithConfig(cfg config) int {
 	defer cancel()
 
 	allResults, hadToolError := validatePaths(ctx, validator, cfg.paths)
+
+	if code, handled := saveBaselineIfNeeded(cfg, allResults); handled {
+		return code
+	}
 
 	// Apply baseline filter if set.
 	if cfg.baselineFile != "" {
@@ -191,25 +196,27 @@ func coreHandlers() map[string]argHandler {
 	)
 	languagesHandler := languagesArgHandler()
 	baselineHandler := stringArgHandler("baseline", func(c *config, s string) { c.baselineFile = s })
+	saveBaselineHandler := stringArgHandler("save-baseline", func(c *config, s string) { c.saveBaseline = s })
 	configFileHandler := stringArgHandler("config", func(c *config, s string) {})
 
 	return map[string]argHandler{
-		"-v":         boolFlagHandler(func(c *config) { c.verbose = true }),
-		flagVerbose:  boolFlagHandler(func(c *config) { c.verbose = true }),
-		"-q":         boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
-		flagQuiet:    boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
-		flagNoCode:   boolFlagHandler(func(c *config) { c.showCode = false }),
-		"-f":         formatHandler,
-		flagFormat:   formatHandler,
-		flagColor:    colorHandler,
-		"-o":         outputHandler,
-		flagOutput:   outputHandler,
-		"-t":         timeoutHandler,
-		flagTimeout:  timeoutHandler,
-		"-l":         languagesHandler,
-		"--language": languagesHandler,
-		"--baseline": baselineHandler,
-		"--config":   configFileHandler,
+		"-v":              boolFlagHandler(func(c *config) { c.verbose = true }),
+		flagVerbose:       boolFlagHandler(func(c *config) { c.verbose = true }),
+		"-q":              boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
+		flagQuiet:         boolFlagHandler(func(c *config) { c.format = output.FormatQuiet; c.showCode = false }),
+		flagNoCode:        boolFlagHandler(func(c *config) { c.showCode = false }),
+		"-f":              formatHandler,
+		flagFormat:        formatHandler,
+		flagColor:         colorHandler,
+		"-o":              outputHandler,
+		flagOutput:        outputHandler,
+		"-t":              timeoutHandler,
+		flagTimeout:       timeoutHandler,
+		"-l":              languagesHandler,
+		"--language":      languagesHandler,
+		"--baseline":      baselineHandler,
+		"--save-baseline": saveBaselineHandler,
+		"--config":        configFileHandler,
 	}
 }
 
@@ -446,6 +453,25 @@ func applyConfigRepeatable(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
 	if len(cfg.skipDirectives) == 0 {
 		cfg.skipDirectives = fileCfg.SkipDirectives
 	}
+}
+
+// saveBaselineIfNeeded writes error signatures to cfg.saveBaseline if set.
+// Returns (exitCode, true) if an error occurred during saving.
+func saveBaselineIfNeeded(cfg config, results []types.Result) (int, bool) {
+	if cfg.saveBaseline == "" {
+		return 0, false
+	}
+
+	err := baseline.Save(cfg.saveBaseline, results)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error saving baseline: %v\n", err)
+
+		return exitToolErr, true
+	}
+
+	fmt.Fprintf(os.Stderr, "Saved baseline to %s\n", cfg.saveBaseline)
+
+	return 0, false
 }
 
 func returnParseError(_ string, err error) {

@@ -18,9 +18,11 @@ type Set struct {
 	signatures map[string]bool
 }
 
-// Signature builds a unique key for a result error: "file:line".
+// Signature builds a unique key for a result error: "file:line:code".
+// Includes the error code so that an error changing type on the same line
+// is treated as a new error rather than being suppressed.
 func Signature(r types.Result) string {
-	return fmt.Sprintf("%s:%d", r.File.String(), r.LineNumber.Int())
+	return fmt.Sprintf("%s:%d:%s", r.File.String(), r.LineNumber.Int(), r.ErrorCode)
 }
 
 // Load reads a baseline file containing one signature per line (file:line).
@@ -90,3 +92,27 @@ func (s Set) FilterNew(results []types.Result) []types.Result {
 func (s Set) Count() int {
 	return len(s.signatures)
 }
+
+// Save writes error signatures from results to a file, one per line.
+// Only error results are included; each line is "file:line:errorcode".
+// Lines starting with # are treated as comments when loaded.
+func Save(path string, results []types.Result) error {
+	var lines []string
+
+	for _, r := range results {
+		if r.HasError() {
+			lines = append(lines, Signature(r))
+		}
+	}
+
+	content := strings.Join(lines, "\n") + "\n"
+
+	err := os.WriteFile(path, []byte(content), baselineFilePerms)
+	if err != nil {
+		return fmt.Errorf("write baseline file %s: %w", path, err)
+	}
+
+	return nil
+}
+
+const baselineFilePerms = 0o600

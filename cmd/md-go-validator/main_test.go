@@ -1206,7 +1206,7 @@ func TestRunWithConfig_BaselineSuppressesErrors(t *testing.T) {
 	content := []byte("```go\nthis is not valid go\n```\n")
 	testutil.WriteTestFile(t, tmpDir, "invalid.md", content)
 
-	sig := filepath.Join(tmpDir, "invalid.md") + ":1"
+	sig := filepath.Join(tmpDir, "invalid.md") + ":1:syntax"
 	baselinePath := testutil.WriteTestFile(t, tmpDir, "baseline.txt", []byte(sig+"\n"))
 
 	cfg := newExitCodeTestConfig(tmpDir)

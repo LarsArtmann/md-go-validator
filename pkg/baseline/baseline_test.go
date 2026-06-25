@@ -25,8 +25,8 @@ func TestSignature(t *testing.T) {
 
 	sig := Signature(r)
 
-	if sig != "README.md:42" {
-		t.Errorf("expected 'README.md:42', got %q", sig)
+	if sig != "README.md:42:unknown" {
+		t.Errorf("expected 'README.md:42:unknown', got %q", sig)
 	}
 }
 
@@ -72,8 +72,8 @@ func TestSet_Contains(t *testing.T) {
 	t.Parallel()
 
 	set := Set{signatures: map[string]bool{
-		"README.md:10": true,
-		"doc.md:5":     true,
+		"README.md:10:unknown": true,
+		"doc.md:5:unknown":     true,
 	}}
 
 	tests := []struct {
@@ -110,7 +110,7 @@ func TestSet_FilterNew(t *testing.T) {
 	t.Parallel()
 
 	set := Set{signatures: map[string]bool{
-		"doc.md:5": true,
+		"doc.md:5:unknown": true,
 	}}
 
 	results := []types.Result{
@@ -167,7 +167,7 @@ func TestSet_IsEmpty(t *testing.T) {
 		t.Error("expected empty set to be empty")
 	}
 
-	nonEmptySet := Set{signatures: map[string]bool{"a:1": true}}
+	nonEmptySet := Set{signatures: map[string]bool{"a:1:unknown": true}}
 	if nonEmptySet.IsEmpty() {
 		t.Error("expected non-empty set to not be empty")
 	}
