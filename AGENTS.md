@@ -65,6 +65,7 @@ goreleaser release
 Branded types for type safety:
 
 - `FileID(string)`, `LineNumber(uint)`, `BlockIndex(uint)`, `FileType(string)`
+- `ExcludePattern(string)` — with `Match(path) bool` method encapsulating glob matching
 - `ValidationStatus` — enum: unknown/valid/skipped/error
 - `CodeBlock`, `Result`, `ReportData`, `ErrorEntry`
 - All have `Validate()`, `String()` methods
@@ -76,6 +77,21 @@ Branded types for type safety:
 - `Registry` — validator registry with `Register()`, `Get()`, `GetByString()`, `GetAvailable()`
 - `GoValidator` — stdlib parser with 6-strategy approach + elision normalization + pseudo go.mod detection
 - `TreeSitterValidator` — tree-sitter based validator for rust/typescript/tsx/nix/hcl/terraform/templ
+
+### pkg/config/
+
+- `Config` struct with `Languages []languages.Language` (typed, not string)
+- `Load()`, `LoadFromDir()`, `Save()`, `InitFile()` for `.md-go-validator.yaml`
+- Language validation happens at YAML parse time via `UnmarshalText`
+
+### pkg/baseline/
+
+- `Set`, `Signature()`, `Load()`, `Save()`, `FilterNew()` — baseline regression mode
+- Signature format: `file:line:errorcode` (includes error code for precision)
+
+### pkg/finding/
+
+- `FromResult()` / `FromResults()`: converts `types.Result` → neutral `go-finding.Finding`
 
 ### pkg/output/
 
@@ -160,12 +176,15 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 
 | Package       | Coverage |
 | ------------- | -------- |
-| pkg           | 87.0%    |
-| pkg/code      | 93.8%    |
-| pkg/languages | 89.7%    |
-| pkg/output    | 91.1%    |
-| pkg/types     | 93.4%    |
-| cmd           | 71.5%    |
+| pkg           | 80.1%    |
+| pkg/baseline  | 73.0%    |
+| pkg/code      | 95.7%    |
+| pkg/config    | 84.8%    |
+| pkg/finding   | 100.0%   |
+| pkg/languages | 88.0%    |
+| pkg/output    | 91.0%    |
+| pkg/types     | 83.7%    |
+| cmd           | 74.0%    |
 
 ## Nix
 

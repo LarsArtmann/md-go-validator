@@ -207,3 +207,39 @@ func TestLoad_UnsupportedFormat(t *testing.T) {
 		t.Errorf("expected ErrUnsupportedFormat, got %v", err)
 	}
 }
+
+func TestLoad_MalformedYAML(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "bad.yaml")
+	malformed := []byte("languages: [go\n  broken: {{{")
+
+	err := os.WriteFile(path, malformed, configFilePerms)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = Load(path)
+	if err == nil {
+		t.Error("expected error for malformed YAML, got nil")
+	}
+}
+
+func TestLoad_InvalidLanguage(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	path := filepath.Join(dir, "badlang.yaml")
+	content := []byte("languages:\n  - python\n")
+
+	err := os.WriteFile(path, content, configFilePerms)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = Load(path)
+	if err == nil {
+		t.Error("expected error for unsupported language in config, got nil")
+	}
+}
