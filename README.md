@@ -317,7 +317,6 @@ registry.Register(&MyLanguageValidator{})
 
 - **More languages** - Python, Java, C/C++, etc.
 - **Fix suggestions** - Auto-fix common syntax errors
-- **Config file** - `.md-go-validator.yaml` for project-level settings
 
 ## License
 

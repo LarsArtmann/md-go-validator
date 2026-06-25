@@ -436,19 +436,26 @@ func parseArgs(args []string) config {
 		cfg.paths = []string{"."}
 	}
 
-	// Apply config-file repeatable values only if CLI flags didn't set them.
-	// This ensures CLI flags override (not union with) config file values.
-	if cfgErr == nil {
-		if len(cfg.exclude) == 0 {
-			cfg.exclude = fileCfg.Exclude
-		}
-
-		if len(cfg.skipDirectives) == 0 {
-			cfg.skipDirectives = fileCfg.SkipDirectives
-		}
-	}
+	applyConfigRepeatable(&cfg, fileCfg, cfgErr)
 
 	return cfg
+}
+
+// applyConfigRepeatable applies config-file repeatable values (exclude,
+// skipDirectives) only if the CLI flags didn't set them. This ensures
+// CLI flags override — not union with — config file values.
+func applyConfigRepeatable(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
+	if cfgErr != nil {
+		return
+	}
+
+	if len(cfg.exclude) == 0 {
+		cfg.exclude = fileCfg.Exclude
+	}
+
+	if len(cfg.skipDirectives) == 0 {
+		cfg.skipDirectives = fileCfg.SkipDirectives
+	}
 }
 
 func returnParseError(_ string, err error) {

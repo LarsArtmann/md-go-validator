@@ -359,7 +359,11 @@ func (v *FileValidator) ValidateDirectory(
 
 // ValidateDirectoryFunc validates a directory and calls fn for each result.
 // If fn returns a non-nil error, processing stops immediately and the error
-// is returned. This enables progress reporting, early-abort, and incremental UI.
+// is returned. This enables progress reporting and incremental UI.
+//
+// Note: Results are collected from the worker pool before iteration, so fn is
+// called after all validation completes — not truly streaming. For true
+// streaming, use ValidateDirectory and consume the returned slice incrementally.
 func (v *FileValidator) ValidateDirectoryFunc(
 	ctx context.Context,
 	dirPath string,
