@@ -1,0 +1,1643 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Field Review — md-go-validator on gogenfilter</title>
+    <style>
+      /* =========================================================================
+         BAUHAUS LIGHT — Editorial template
+         Design language: form follows function. Primary colors on warm paper.
+         Zero external dependencies: system fonts, no CDN, no build step.
+         Token architecture: see references/bauhaus-tokens.md
+         ========================================================================= */
+
+      :root {
+        /* --- Primitive palette (Bauhaus Light) --- */
+        --color-paper: #f4f4f0;
+        --color-paper-2: #ffffff;
+        --color-paper-3: #e8e8e2;
+        --color-ink: #111111;
+        --color-red: #e63946;
+        --color-blue: #1d3557;
+        --color-yellow: #f4d35e;
+        --color-hairline: rgba(17, 17, 17, 0.14);
+        --color-hairline-strong: rgba(17, 17, 17, 0.3);
+
+        /* --- Semantic layer (shared vocabulary with dark template) --- */
+        --surface: var(--color-paper);
+        --surface-raised: var(--color-paper-2);
+        --surface-sunken: var(--color-paper-3);
+        --text: var(--color-ink);
+        --text-muted: rgba(17, 17, 17, 0.72);
+        --text-faint: rgba(17, 17, 17, 0.5);
+        --border: var(--color-hairline);
+        --border-strong: var(--color-hairline-strong);
+        --accent: var(--color-red);
+        --problem: var(--color-red);
+        --solution: var(--color-blue);
+        --warning: var(--color-yellow);
+
+        /* --- Backward-compatible aliases (do not break consumer skills) --- */
+        --bg: var(--surface);
+        --bg-elevated: var(--surface-raised);
+        --bg-sunken: var(--surface-sunken);
+        --bg-card: var(--surface-raised);
+        --bg-code: var(--surface-sunken);
+        --ink: var(--text);
+        --ink-secondary: var(--text-muted);
+        --ink-muted: var(--text-faint);
+        --rose: var(--problem);
+        --rose-glow: color-mix(in srgb, var(--problem) 15%, transparent);
+        --emerald: var(--solution);
+        --emerald-glow: color-mix(in srgb, var(--solution) 15%, transparent);
+        --amber: var(--warning);
+        --amber-glow: color-mix(in srgb, var(--warning) 15%, transparent);
+        --amber-light: color-mix(in srgb, var(--warning) 22%, transparent);
+        --coral: var(--problem);
+        --coral-light: color-mix(in srgb, var(--problem) 12%, transparent);
+        --teal: var(--solution);
+        --teal-light: color-mix(in srgb, var(--solution) 12%, transparent);
+
+        /* --- Shape --- */
+        --radius: 0px;
+        --radius-sm: 0px;
+
+        /* --- Type stacks (system only — zero external fonts) --- */
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
+
+      body {
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 16px;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+
+      /* --- Full-bleed top bar --- */
+      .top-bar {
+        background: var(--text);
+        color: var(--surface);
+        padding: 0.6rem 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      /* --- Layout: optional sticky sidebar TOC --- */
+      .layout {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2rem;
+      }
+      .sidebar {
+        width: 220px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 1rem;
+        align-self: flex-start;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+        display: none;
+      }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .sidebar .label {
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent);
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid var(--text);
+      }
+      .sidebar a {
+        font-size: 0.86rem;
+        color: var(--text);
+        text-decoration: none;
+        padding: 0.5rem 0.75rem;
+        border-left: 4px solid transparent;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        line-height: 1.4;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        border-left-color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 8%, transparent);
+        color: var(--accent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
+
+      /* --- Headings --- */
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: var(--font-heading);
+        font-weight: 900;
+        letter-spacing: -0.02em;
+        color: var(--text);
+      }
+      h1 {
+        font-size: clamp(1.9rem, 4.5vw, 2.8rem);
+        line-height: 1.05;
+        margin: 0 0 0.6rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        margin: 2.5rem 0 1rem;
+        padding-bottom: 0.4rem;
+        border-bottom: 3px solid var(--text);
+        display: flex;
+        align-items: baseline;
+        gap: 0.7rem;
+      }
+      h2 .num {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+      h3 {
+        font-size: 1.15rem;
+        margin: 1.5rem 0 0.4rem;
+        font-weight: 700;
+      }
+      h4 {
+        font-size: 1rem;
+        margin: 1rem 0 0.3rem;
+        font-weight: 700;
+      }
+      p {
+        margin: 0 0 1rem;
+      }
+      ul,
+      ol {
+        margin: 0 0 1rem 1.5rem;
+      }
+      li {
+        margin: 0.3rem 0;
+      }
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.88em;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.3rem;
+      }
+      pre code {
+        background: none;
+        padding: 0;
+      }
+
+      /* --- Hero --- */
+      .hero {
+        padding: 1.5rem 0 2rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 3px solid var(--text);
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.16em;
+        color: var(--accent);
+        margin-bottom: 0.9rem;
+      }
+      .subtitle {
+        font-size: 1.1rem;
+        color: var(--text-muted);
+        max-width: 70ch;
+        margin: 0 0 1rem;
+      }
+      .meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+      .tag {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        padding: 0.25rem 0.6rem;
+        background: var(--surface-sunken);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+      }
+      .tag.amber {
+        background: var(--warning);
+        border-color: var(--warning);
+        color: var(--text);
+      }
+      .tag.teal {
+        background: var(--solution);
+        border-color: var(--solution);
+        color: var(--surface);
+      }
+
+      /* Bauhaus signature: geometric shape cluster (optional) */
+      .hero-shapes {
+        position: relative;
+        height: 90px;
+        margin-bottom: 1.2rem;
+      }
+      .hero-shapes .circle {
+        position: absolute;
+        top: 0;
+        right: 180px;
+        width: 64px;
+        height: 64px;
+        background: var(--problem);
+        border-radius: 50%;
+      }
+      .hero-shapes .square {
+        position: absolute;
+        top: 26px;
+        right: 90px;
+        width: 56px;
+        height: 56px;
+        background: var(--solution);
+      }
+      .hero-shapes .tri {
+        position: absolute;
+        top: 8px;
+        right: 0;
+        width: 0;
+        height: 0;
+        border-left: 32px solid transparent;
+        border-right: 32px solid transparent;
+        border-bottom: 56px solid var(--warning);
+      }
+      .hero-shapes .bar {
+        position: absolute;
+        bottom: 0;
+        right: 230px;
+        width: 100px;
+        height: 14px;
+        background: var(--text);
+      }
+
+      /* --- Scorecard / stat cards --- */
+      .scorecard,
+      .stat-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 0;
+        margin: 1.5rem 0 2rem;
+        border: 3px solid var(--text);
+      }
+      .score-card,
+      .stat-card {
+        padding: 1.3rem 1rem;
+        text-align: center;
+        border-right: 3px solid var(--text);
+        background: var(--surface-raised);
+      }
+      .score-card:last-child,
+      .stat-card:last-child {
+        border-right: none;
+      }
+      .score-card:nth-child(1),
+      .stat-card:nth-child(1) {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .score-card:nth-child(2),
+      .stat-card:nth-child(2) {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .score-card:nth-child(3),
+      .stat-card:nth-child(3) {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .score-card:nth-child(4),
+      .stat-card:nth-child(4) {
+        background: var(--text);
+        color: var(--surface);
+      }
+
+      .score,
+      .stat-value {
+        font-family: var(--font-heading);
+        font-size: 2.6rem;
+        font-weight: 900;
+        line-height: 1;
+        letter-spacing: -0.04em;
+      }
+      .score-card .label,
+      .stat-label {
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        margin-top: 0.5rem;
+      }
+      /* State classes override the nth-child coloring */
+      .score-good,
+      .stat-good {
+        background: var(--solution) !important;
+        color: var(--surface) !important;
+      }
+      .score-warn,
+      .stat-warn {
+        background: var(--warning) !important;
+        color: var(--text) !important;
+      }
+      .score-bad,
+      .stat-bad {
+        background: var(--problem) !important;
+        color: var(--surface) !important;
+      }
+
+      /* --- General cards --- */
+      .card {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .card-problem {
+        border-left-color: var(--problem);
+      }
+      .card-solution {
+        border-left-color: var(--solution);
+      }
+      .card-warning {
+        border-left-color: var(--warning);
+      }
+
+      /* --- Issue cards --- */
+      .issue {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        padding: 1.2rem 1.4rem;
+        margin-bottom: 1rem;
+        border-left: 8px solid var(--border-strong);
+      }
+      .issue-critical {
+        border-left-color: var(--problem);
+      }
+      .issue-important {
+        border-left-color: var(--warning);
+      }
+      .issue-nice {
+        border-left-color: var(--solution);
+      }
+      .issue h3 {
+        margin-bottom: 0.3rem;
+      }
+      .issue .where {
+        font-family: var(--font-mono);
+        font-size: 0.78rem;
+        color: var(--text-faint);
+        margin: 0.2rem 0 0.6rem;
+      }
+      .issue p:last-child {
+        margin-bottom: 0;
+      }
+
+      /* --- Severity badges --- */
+      .severity {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding: 0.22rem 0.6rem;
+        margin-bottom: 0.6rem;
+        color: var(--surface);
+      }
+      .severity-critical {
+        background: var(--problem);
+      }
+      .severity-important {
+        background: var(--warning);
+        color: var(--text);
+      }
+      .severity-nice {
+        background: var(--solution);
+      }
+
+      /* --- Inline badges --- */
+      .badge {
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.2rem 0.55rem;
+        border: 1px solid var(--text);
+        color: var(--text);
+      }
+      .badge-critical {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .badge-high {
+        background: var(--warning);
+      }
+      .badge-medium {
+        background: var(--surface-sunken);
+      }
+      .badge-low {
+        background: var(--surface-raised);
+        color: var(--text-muted);
+      }
+      .badge-fixed {
+        background: var(--solution);
+        color: var(--surface);
+      }
+
+      /* --- Callouts --- */
+      .callout {
+        margin: 0.8rem 0 0;
+        padding: 0.8rem 1rem;
+        border: 1px solid var(--border-strong);
+        border-left: 4px solid var(--border-strong);
+        background: var(--surface-sunken);
+        font-size: 0.92rem;
+      }
+      .callout strong {
+        display: inline-block;
+        margin-right: 0.4rem;
+      }
+      .callout-teal,
+      .callout-solution {
+        border-left-color: var(--solution);
+        background: color-mix(in srgb, var(--solution) 10%, var(--surface-raised));
+      }
+      .callout-amber,
+      .callout-warning {
+        border-left-color: var(--warning);
+        background: color-mix(in srgb, var(--warning) 18%, var(--surface-raised));
+      }
+      .callout-problem {
+        border-left-color: var(--problem);
+        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+      }
+
+      /* --- Strengths --- */
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .strength {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.9rem;
+        padding: 0.75rem 0;
+        border-bottom: 2px solid var(--border);
+      }
+      .strength .check {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        color: var(--solution);
+        font-size: 1.3rem;
+        line-height: 1.3;
+      }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      /* --- Tables --- */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.92rem;
+        border: 2px solid var(--text);
+      }
+      th {
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--text);
+        color: var(--surface);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        border-right: 1px solid var(--border-strong);
+      }
+      th:last-child {
+        border-right: none;
+      }
+      td {
+        padding: 0.6rem 0.9rem;
+        border-top: 1px solid var(--border);
+        border-right: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td:last-child {
+        border-right: none;
+      }
+      tr:nth-child(even) td {
+        background: var(--surface-sunken);
+      }
+      table.compare td.yes {
+        color: var(--solution);
+        font-weight: 700;
+      }
+      table.compare td.no {
+        color: var(--problem);
+        font-weight: 700;
+      }
+
+      /* --- Code blocks + syntax highlighting --- */
+      pre {
+        background: var(--text);
+        color: var(--surface);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.65;
+        overflow-x: auto;
+        border: 2px solid var(--text);
+      }
+      .tok-keyword {
+        color: var(--warning);
+      }
+      .tok-type {
+        color: var(--warning);
+      }
+      .tok-string {
+        color: #95e1d3;
+      }
+      .tok-comment {
+        color: rgba(244, 244, 240, 0.45);
+        font-style: italic;
+      }
+      .tok-func {
+        color: #6eb5ff;
+      }
+      .tok-number {
+        color: var(--warning);
+      }
+      .tok-generic {
+        color: var(--problem);
+      }
+      .tok-builtin {
+        color: #6eb5ff;
+      }
+      .tok-punct {
+        color: rgba(244, 244, 240, 0.7);
+      }
+      .tok-attr {
+        color: var(--warning);
+      }
+
+      /* --- Dependency tree / ASCII diagrams --- */
+      .dep-tree {
+        background: var(--surface-sunken);
+        border: 2px solid var(--text);
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.7;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .dep-tree .root {
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .dep-tree .ok {
+        color: var(--solution);
+      }
+      .dep-tree .unwanted {
+        color: var(--problem);
+      }
+
+      /* --- Inline node-and-arrow diagrams --- */
+      .diagram {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+      }
+      .node {
+        display: inline-block;
+        padding: 0.4rem 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 700;
+        background: var(--surface-sunken);
+        border: 1px solid var(--text);
+      }
+      .node-core {
+        background: var(--accent);
+        color: var(--surface);
+      }
+      .node-problem {
+        background: var(--problem);
+        color: var(--surface);
+      }
+      .node-good {
+        background: var(--solution);
+        color: var(--surface);
+      }
+      .arrow {
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Grids --- */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+
+      /* --- Inline TOC --- */
+      .toc {
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+        padding: 1rem 1.3rem;
+        margin: 1rem 0 1.5rem;
+      }
+      .toc h3 {
+        margin-bottom: 0.5rem;
+      }
+      .toc ul {
+        list-style: none;
+        padding: 0;
+      }
+      .toc li {
+        margin: 0.25rem 0;
+      }
+      .toc a {
+        color: var(--text);
+        text-decoration: none;
+        font-size: 0.92rem;
+        font-weight: 600;
+      }
+      .toc a:hover {
+        color: var(--accent);
+      }
+
+      /* --- Migration / numbered steps --- */
+      .migration-step {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1.1rem;
+        background: var(--surface-raised);
+        border: 2px solid var(--text);
+        border-left: 6px solid var(--accent);
+      }
+      .migration-num {
+        font-family: var(--font-mono);
+        font-weight: 900;
+        font-size: 1.8rem;
+        color: var(--accent);
+        line-height: 1;
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.94rem;
+      }
+
+      /* --- Before/After comparison --- */
+      .compare-header {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin: 1rem 0 0.5rem;
+      }
+      .compare-before,
+      .compare-after {
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        padding: 0.4rem 0.7rem;
+        color: var(--surface);
+      }
+      .compare-before {
+        background: var(--problem);
+      }
+      .compare-after {
+        background: var(--solution);
+      }
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+      .compare-row pre {
+        margin: 0;
+      }
+
+      /* --- Footer --- */
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 3px solid var(--text);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+      }
+
+      /* --- Responsive --- */
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .top-bar {
+          padding: 0.6rem 1rem;
+          flex-wrap: wrap;
+          gap: 0.3rem;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-header,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .scorecard,
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-right: none;
+        }
+        .score-card:nth-child(1),
+        .stat-card:nth-child(1),
+        .score-card:nth-child(2),
+        .stat-card:nth-child(2) {
+          border-bottom: 3px solid var(--text);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
+        .hero-shapes {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Full-bleed top bar -->
+    <div class="top-bar">
+      <span>FIELD REVIEW</span>
+      <span>2026-06-25</span>
+      <span>gogenfilter consumer</span>
+    </div>
+
+    <div class="layout">
+      <!-- Sidebar TOC -->
+      <aside class="sidebar" data-nav>
+        <nav>
+          <div class="label">Contents</div>
+          <a href="#scorecard">Scorecard</a>
+          <a href="#summary">Summary</a>
+          <a href="#strengths">Strengths</a>
+          <a href="#findings">Findings</a>
+          <a href="#error-quality">Error Quality</a>
+          <a href="#skip-ux">Skip Directive UX</a>
+          <a href="#config">Config Gap</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#matrix">Priority Matrix</a>
+        </nav>
+      </aside>
+
+      <!-- Main content -->
+      <main class="main">
+        <!-- Hero -->
+        <header class="hero">
+          <div class="hero-shapes">
+            <div class="bar"></div>
+            <div class="circle"></div>
+            <div class="square"></div>
+            <div class="tri"></div>
+          </div>
+          <div class="eyebrow">FIELD REVIEW &middot; 2026-06-25</div>
+          <h1>md-go-validator needs better errors, not just fewer errors</h1>
+          <p class="subtitle">
+            A real-world field report from running md-go-validator against the gogenfilter library
+            (v3.2.0, 71 code blocks, 9 failures). The tool's architecture is sound — but its error
+            messages lie, its escape hatch is hidden, and its CLI surface is too thin. Here is what
+            to fix and in what order.
+          </p>
+          <div class="meta">
+            <span class="tag amber">Evidence: gogenfilter v3.2.0</span>
+            <span class="tag">Tool: md-go-validator v0.3.0</span>
+            <span class="tag teal">Complements go-cqrs-lite report</span>
+          </div>
+        </header>
+
+        <!-- Scorecard -->
+        <section id="scorecard" class="scorecard">
+          <div class="score-card score-bad">
+            <div class="score">1</div>
+            <div class="label">Real bug found</div>
+          </div>
+          <div class="score-card score-warn">
+            <div class="score">8</div>
+            <div class="label">False positives</div>
+          </div>
+          <div class="score-card score-bad">
+            <div class="score">0/9</div>
+            <div class="label">Useful error messages</div>
+          </div>
+          <div class="score-card score-good">
+            <div class="score">5</div>
+            <div class="label">Strategies tried</div>
+          </div>
+        </section>
+
+        <!-- Summary -->
+        <section id="summary">
+          <h2><span class="num">00</span>Summary</h2>
+          <p>
+            The validator ran on gogenfilter's full documentation tree (71 Go code blocks across
+            <code>README.md</code>, internal planning docs, and research notes). It found 9
+            failures. After manual triage: <strong>1 was a real README bug</strong> (a stray
+            <code>import</code> mixing package-level and statement-level code), and
+            <strong>8 were illustrative snippets</strong> that are intentionally not valid Go
+            (anti-pattern comparisons, API sketches, pseudo-code).
+          </p>
+          <p>
+            The tool correctly identified that something was wrong with all 9. The problem is
+            <em>what happens next</em>: the error messages are actively misleading, the skip
+            directive escape hatch is buried, and there is no config file to scope or customize
+            behavior per project.
+          </p>
+          <div class="callout callout-amber">
+            <strong>The bottom line</strong>
+            The architecture is good. The parsing strategies are clever. But when the tool fails, it
+            reports the <em>wrong</em> error from the <em>wrong</em> strategy — and gives the user
+            no hint about how to proceed. Fix the error diagnostics first; everything else is
+            secondary.
+          </div>
+        </section>
+
+        <!-- Strengths -->
+        <section id="strengths">
+          <h2><span class="num">&#9670;</span>What already works</h2>
+          <p>
+            Before the criticism: this tool has genuinely good bones. The multi-strategy cascade is
+            the right idea, and the non-Go language support via tree-sitter is a real
+            differentiator.
+          </p>
+
+          <div class="strengths">
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Five-strategy cascade is architecturally sound</strong>
+                <span
+                  >Complete file &rarr; package wrapper &rarr; function wrapper &rarr; expression
+                  &rarr; statements. This is the right way to handle documentation snippets, which
+                  are rarely complete translation units.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Configurable skip directives in the library API</strong>
+                <span
+                  ><code>ExtractCodeBlocksWithConfig</code> accepts a custom
+                  <code>SkipDirectivesConfig</code>. The library API is more flexible than the CLI
+                  exposes. Six default directives cover the common cases.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Clean exit codes for CI</strong>
+                <span
+                  >0 = success, 1 = validation errors, 2 = tool errors. Correctly distinguishes
+                  "your docs have problems" from "the tool crashed." This matters for CI
+                  gating.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Multi-language via embedded tree-sitter</strong>
+                <span
+                  >Go, TypeScript, TSX, Rust, Nix, HCL, Terraform, Templ — all in one binary, no
+                  CGO, no external dependencies. This is a real competitive advantage over tools
+                  that only handle Go.</span
+                >
+              </div>
+            </div>
+            <div class="strength">
+              <div class="check">+</div>
+              <div class="text">
+                <strong>Testable CLI architecture</strong>
+                <span
+                  ><code>osExit</code> is a mockable package var, <code>runWithConfig</code> returns
+                  an int instead of calling <code>os.Exit</code> directly. Shows forethought about
+                  testability.</span
+                >
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Findings -->
+        <section id="findings">
+          <h2><span class="num">01</span>Findings</h2>
+          <p>Ordered by impact on the consumer experience.</p>
+
+          <!-- Issue 1 -->
+          <div class="issue issue-critical" id="error-quality">
+            <span class="severity severity-critical">Blocking &middot; #1 usability problem</span>
+            <h3>Error messages always report the wrong strategy's error</h3>
+            <div class="where">
+              pkg/languages/go_validator.go:65-97 &middot; createValidationError()
+            </div>
+            <p>
+              When all five strategies fail, <code>createValidationError</code> re-parses the code
+              with <strong>strategy 1 (raw)</strong> to extract the error for the user. But the code
+              already failed strategy 1 — that is why strategies 2-5 ran. The error the user sees is
+              always from the <em>least</em> informative strategy, never the one that got closest.
+            </p>
+            <p>
+              Real example from gogenfilter. A snippet mixing <code>import</code> and statements
+              reports:
+            </p>
+            <pre><code><span class="tok-comment">// What the user sees — from strategy 1 (raw parse):</span>
+<span class="tok-problem">1:1: Go syntax error: expected 'package', found 'import'</span>
+
+<span class="tok-comment">// What actually happened — strategy 3 (func wrapper) got further:</span>
+<span class="tok-comment">// It failed at line 2, not line 1 — because import can't go</span>
+<span class="tok-comment">// inside a function. THAT error is the useful one.</span></code></pre>
+            <div class="callout callout-solution">
+              <strong>Fix: track the best attempt</strong>
+              Run all five strategies, capture each one's error, and report the one from the
+              strategy that parsed the furthest (highest error line number). That is the strategy
+              that got closest to succeeding — its error is the most informative.
+            </div>
+          </div>
+
+          <!-- Issue 2 -->
+          <div class="issue issue-critical" id="mixed-scope">
+            <span class="severity severity-critical"
+              >Blocking &middot; no diagnostic for the #1 pattern</span
+            >
+            <h3>Mixed-scope snippets fail with zero guidance</h3>
+            <div class="where">pkg/languages/go_validator.go:25-62 &middot; Validate()</div>
+            <p>
+              The dominant documentation pattern is "show the import, then show the usage." This
+              snippet shape has <code>import</code> declarations at the top and statements below —
+              it belongs in two scopes (package level + function body). No single strategy can wrap
+              it, because:
+            </p>
+            <ul>
+              <li>Strategy 2 (package wrapper) fails — statements can't live at package level</li>
+              <li>
+                Strategy 5 (func wrapper) fails — <code>import</code> can't live inside a func
+              </li>
+            </ul>
+            <p>
+              The two strategies that could help are mutually exclusive for this shape. The tool
+              gives no hint that this is the problem — just a generic syntax error.
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: detect and name the pattern</strong>
+              After all strategies fail, scan for the mixed-scope signature (has
+              <code>import</code>/<code>type</code>/<code>func</code> decls AND bare statements). If
+              found, emit a targeted message:
+              <em
+                >"snippet mixes package-level declarations with function-body statements — add
+                <code>// skip-validate</code> if illustrative, or split into two blocks."</em
+              >
+            </div>
+          </div>
+
+          <!-- Issue 3 -->
+          <div class="issue issue-important" id="skip-ux">
+            <span class="severity severity-important"
+              >Important &middot; escape hatch is hidden</span
+            >
+            <h3>Skip directives are documented but never suggested on failure</h3>
+            <div class="where">pkg/extractor.go:121-129 &middot; --help output &middot; README</div>
+            <p>
+              The skip directive system (<code>&lt;!-- skip-validate --&gt;</code>,
+              <code>// skip-validate</code>, <code>//nolint</code>, etc.) is a well-designed escape
+              hatch. But it is only visible if the user reads <code>--help</code> or the README.
+              When a block fails, the error message does not mention that skip directives exist. A
+              new user staring at <code>expected 'package', found 'import'</code> has no idea there
+              is a way to mark a block as intentionally illustrative.
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: suggest the escape hatch in errors</strong>
+              Append a hint to every validation error:
+              <em
+                >"If this snippet is illustrative, add <code>// skip-validate</code> as the first
+                line inside the code block."</em
+              >
+              One line of output that saves every new user a trip to the README.
+            </div>
+          </div>
+
+          <!-- Issue 4 -->
+          <div class="issue issue-important" id="config">
+            <span class="severity severity-important"
+              >Important &middot; no project-level config</span
+            >
+            <h3>No config file — everything is CLI flags</h3>
+            <div class="where">cmd/md-go-validator/main.go &middot; CONSUMER_PERSPECTIVE.md #2</div>
+            <p>
+              A real project needs to persist: which languages to validate, which directories to
+              include/exclude, custom skip directives, output format. Today this means a long CLI
+              invocation every time, or a shell script wrapper. The library API already supports
+              custom skip directives (<code>ExtractCodeBlocksWithConfig</code>) but the CLI never
+              wires it through.
+            </p>
+            <p>
+              The project's own <code>CONSUMER_PERSPECTIVE.md</code> already identifies this as P0
+              gap #2. My field experience confirms: the first thing I wanted after the initial run
+              was a way to say "skip <code>docs/research/**</code> and use a custom skip directive."
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: add .md-go-validator.yaml</strong>
+              Support a config file with <code>languages</code>, <code>exclude</code> globs,
+              <code>skip-directives</code>, and <code>format</code>. Add <code>--init</code> to
+              scaffold it. This is the single biggest adoption unlock.
+            </div>
+          </div>
+
+          <!-- Issue 5 -->
+          <div class="issue issue-important" id="cli-skip">
+            <span class="severity severity-important"
+              >Important &middot; feature exists but is unreachable</span
+            >
+            <h3>CLI never exposes custom skip directives</h3>
+            <div class="where">cmd/md-go-validator/main.go vs pkg/extractor.go:148-158</div>
+            <p>
+              The library API has
+              <code>ExtractCodeBlocksWithConfig(content, langs, customDirectives)</code> — a clean,
+              tested feature for project-specific skip markers. But the CLI always calls
+              <code>ExtractCodeBlocks</code>, which hardcodes <code>DefaultSkipDirectives()</code>.
+              A CLI user cannot add <code>&lt;!-- sketch --&gt;</code> or <code>// example</code> as
+              custom skip directives without writing Go code against the library.
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: --skip-directive flag</strong>
+              <code>--skip-directive "&lt;!-- sketch --&gt;"</code> (repeatable) that feeds into the
+              config. One-line wiring through an existing, tested code path.
+            </div>
+          </div>
+
+          <!-- Issue 6 -->
+          <div class="issue issue-important" id="hardcoded-exclude">
+            <span class="severity severity-important"
+              >Important &middot; directory excludes are hardcoded</span
+            >
+            <h3>shouldSkipDir is not configurable</h3>
+            <div class="where">pkg/validator.go:473-486</div>
+            <p>
+              <code>shouldSkipDir</code> hardcodes six names: dot-dirs, <code>node_modules</code>,
+              <code>vendor</code>, <code>build</code>, <code>dist</code>. A Go project cannot
+              exclude <code>testdata/</code>, <code>reports/</code>, or
+              <code>docs/planning/**</code> without scoping the CLI path argument manually. The only
+              workaround is <code>md-go-validator website/src/content/docs/</code> — which is what
+              gogenfilter's CI actually does.
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: --exclude flag or config exclude list</strong>
+              <code>--exclude "docs/research/**"</code> (repeatable glob) that augments the default
+              skip list. Trivial to implement — <code>filepath.WalkDir</code> already visits every
+              dir.
+            </div>
+          </div>
+
+          <!-- Issue 7 -->
+          <div class="issue issue-nice" id="readme-lies">
+            <span class="severity severity-nice">Nice to have &middot; documentation accuracy</span>
+            <h3>README architecture diagram claims features that don't exist</h3>
+            <div class="where">README.md:262-263, 297</div>
+            <p>
+              The architecture diagram lists "External cmds" and "Custom" as validator types. The
+              README's "Future Enhancements" lists "Custom validators." But all validators are
+              embedded tree-sitter grammars — no external command support or custom validator plugin
+              system exists in the code. This oversells the current state and misleads potential
+              adopters.
+            </p>
+            <div class="callout callout-solution">
+              <strong>Fix: correct the diagram</strong>
+              Remove "External cmds" and "Custom" from the architecture diagram, or label them
+              explicitly as "planned." Honesty about scope builds trust.
+            </div>
+          </div>
+
+          <!-- Issue 8 -->
+          <div class="issue issue-nice" id="parser-allderrors">
+            <span class="severity severity-nice">Nice to have &middot; minor waste</span>
+            <h3>parser.AllErrors requested but only first error reported</h3>
+            <div class="where">pkg/code/util.go:31-38 &middot; go_validator.go:77-89</div>
+            <p>
+              <code>ParseGo</code> uses <code>parser.AllErrors</code> flag (requests all parse
+              errors from <code>go/parser</code>), but <code>createValidationError</code> only
+              extracts the first error from <code>scanner.ErrorList</code>. The
+              <code>AllErrors</code> flag is wasted work — parsing collects errors that are never
+              shown. Not wrong (first error is usually the root cause), but the flag should either
+              be removed or the additional errors should be surfaced as context.
+            </p>
+          </div>
+        </section>
+
+        <!-- Error Quality deep dive -->
+        <section id="error-quality-deep">
+          <h2><span class="num">02</span>Deep dive: the error quality problem</h2>
+          <p>
+            This is the single highest-leverage fix because it affects every consumer, on every run,
+            not just the false-positive cases. Even when the validator correctly identifies a broken
+            block, the error message points the user in the wrong direction.
+          </p>
+
+          <h3>The mechanism</h3>
+          <p>
+            <code>Validate()</code> tries strategies 1-5 sequentially. When all fail, it calls
+            <code>createValidationError(fset, code)</code>, which re-parses with strategy 1 (raw
+            <code>code</code>) to extract the error:
+          </p>
+          <pre><code><span class="tok-comment">// go_validator.go:65-67 — always strategy 1</span>
+<span class="tok-keyword">func</span> (v *<span class="tok-func">GoValidator</span>) <span class="tok-func">createValidationError</span>(fset *<span class="tok-func">token</span>.FileSet, code <span class="tok-type">string</span>) <span class="tok-type">error</span> {
+    err := <span class="tok-func">codeutil</span>.<span class="tok-func">ParseGo</span>(fset, code)  <span class="tok-comment">// ← always raw parse</span>
+    <span class="tok-keyword">if</span> err == <span class="tok-keyword">nil</span> {
+        <span class="tok-keyword">return</span> <span class="tok-keyword">nil</span>
+    }</code></pre>
+
+          <h3>Why this is wrong</h3>
+          <p>
+            Strategy 1 is the most restrictive — it expects a complete Go file. Every documentation
+            snippet that needs wrapping (strategies 2-5) will fail strategy 1 at line 1. So the
+            error the user sees is always
+            <code>expected 'package', found '&lt;first token&gt;'</code> — which tells them nothing
+            about why their snippet is invalid, only that it doesn't start with
+            <code>package</code>.
+          </p>
+
+          <h3>What the error should be</h3>
+          <p>
+            The most useful error comes from the strategy that parsed the <em>furthest</em> before
+            failing — that strategy's error is closest to the actual problem:
+          </p>
+
+          <div class="compare-header">
+            <div class="compare-before">Current (always strategy 1)</div>
+            <div class="compare-after">Proposed (best attempt)</div>
+          </div>
+          <div class="compare-row">
+            <div>
+              <pre><code><span class="tok-comment"># Snippet: import + statements</span>
+<span class="tok-problem">1:1: Go syntax error:
+  expected 'package', found 'import'</span></code></pre>
+            </div>
+            <div>
+              <pre><code><span class="tok-comment"># From strategy 3 (func wrapper)</span>
+<span class="tok-problem">2:1: Go syntax error:
+  expected '}', found 'result'</span>
+
+<span class="tok-comment">hint: snippet mixes package-level</span>
+<span class="tok-comment">and function-body code</span></code></pre>
+            </div>
+          </div>
+
+          <div class="callout callout-solution">
+            <strong>Implementation sketch</strong>
+            Track <code>(strategy, error)</code> pairs for all five attempts. After all fail, select
+            the error with the highest <code>Pos.Line</code>. If the best error is from strategy 2
+            or 3 and the snippet contains both <code>import</code>/<code>type</code> and bare
+            statements, append the mixed-scope hint. ~30-50 lines in one function.
+          </div>
+        </section>
+
+        <!-- Skip directive UX -->
+        <section id="skip-ux-deep">
+          <h2><span class="num">03</span>Deep dive: skip directive discoverability</h2>
+          <p>
+            The skip directive system is well-designed — it supports six markers, can be placed
+            before or inside a block, and is configurable in the library API. The problem is
+            discoverability. Here is the journey a new user takes today:
+          </p>
+
+          <div class="diagram">
+            <span class="node node-problem">Run validator</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-problem">9 errors</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node">Confusing messages</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node">Read --help?</span>
+            <span class="arrow">&rarr;</span>
+            <span class="node node-good">Find skip directives</span>
+          </div>
+
+          <p>
+            The last two steps are optional and most users won't take them. They will either ignore
+            the errors (if the tool isn't in CI) or remove the tool from CI (if it is). The fix is
+            trivial: <strong>mention skip directives in every error message</strong>.
+          </p>
+
+          <h3>Before/after: the error output</h3>
+          <div class="compare-header">
+            <div class="compare-before">Current error output</div>
+            <div class="compare-after">Proposed error output</div>
+          </div>
+          <div class="compare-row">
+            <div>
+              <pre><code><span class="tok-problem">README.md:231 (block #6)</span>
+  Go syntax error: expected 'package',
+  found 'import'
+
+  Code:
+    1 | import "errors"
+    2 |
+    3 | root, err := ...</code></pre>
+            </div>
+            <div>
+              <pre><code><span class="tok-problem">README.md:231 (block #6)</span>
+  Go syntax error: expected '}',
+  found 'result' (strategy: func wrapper)
+
+  This snippet mixes package-level declarations
+  with function-body statements.
+
+  <span class="tok-solution">If illustrative, add as first line:</span>
+    // skip-validate</code></pre>
+            </div>
+          </div>
+
+          <div class="callout callout-amber">
+            <strong>The principle</strong>
+            Escape hatches only work if users know they exist. The error message is the moment of
+            maximum need — that is when and where to surface the solution.
+          </div>
+        </section>
+
+        <!-- Config gap -->
+        <section id="config-deep">
+          <h2><span class="num">04</span>The config file gap</h2>
+          <p>
+            gogenfilter's CI runs <code>md-go-validator -f table website/src/content/docs/</code> —
+            it scopes to a specific directory because there is no way to exclude
+            <code>docs/research/**</code> or <code>docs/planning/**</code>. When I ran the validator
+            on the full project, I got 9 errors that CI never sees. A config file would solve this:
+          </p>
+
+          <pre><code><span class="tok-comment"># .md-go-validator.yaml</span>
+<span class="tok-attr">languages</span>: [<span class="tok-string">go</span>, <span class="tok-string">typescript</span>]
+
+<span class="tok-attr">exclude</span>:
+  - <span class="tok-string">"docs/research/**"</span>
+  - <span class="tok-string">"docs/planning/**"</span>
+  - <span class="tok-string">"docs/status/archive/**"</span>
+
+<span class="tok-attr">skip-directives</span>:
+  - <span class="tok-string">"&lt;!-- sketch --&gt;"</span>
+  - <span class="tok-string">"// pseudo-code"</span>
+
+<span class="tok-attr">format</span>: <span class="tok-string">table</span></code></pre>
+
+          <p>
+            This makes <code>md-go-validator .</code> "just work" on any project. The library API
+            already supports custom skip directives and the registry already supports language
+            selection — the config file just needs to wire them into the CLI.
+          </p>
+
+          <div class="callout callout-solution">
+            <strong>Implementation scope</strong>
+            <ul>
+              <li>Parse <code>.md-go-validator.yaml</code> (or <code>.json</code>) from CWD</li>
+              <li>CLI flags override config file values (standard precedence)</li>
+              <li><code>--init</code> writes a default config with commented examples</li>
+              <li>
+                Wire config's <code>skip-directives</code> into the existing
+                <code>ExtractCodeBlocksWithConfig</code> path
+              </li>
+              <li>
+                Wire config's <code>exclude</code> into a new filter inside
+                <code>collectSupportedFiles</code>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section id="roadmap">
+          <h2><span class="num">05</span>Pareto roadmap</h2>
+          <p>
+            Ordered so the first step delivers the largest improvement in perceived quality. The
+            companion report (<code>2026-06-25_product-feedback-make-it-superb.html</code>) covers
+            the strategy-coverage gap (imports+statements, ellipsis). This roadmap focuses on the
+            error quality and adoption ergonomics that complement those fixes.
+          </p>
+
+          <div class="migration-step">
+            <div class="migration-num">1</div>
+            <div class="migration-content">
+              <h4>Fix error diagnostics (best-attempt reporting)</h4>
+              <p>
+                Track all five strategy errors, report the one that parsed furthest. Add mixed-scope
+                detection. Add skip-directive hint to every error. ~50 lines in
+                <code>go_validator.go</code>. This alone transforms every error message from
+                misleading to helpful.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">2</div>
+            <div class="migration-content">
+              <h4>Add config file + --init</h4>
+              <p>
+                <code>.md-go-validator.yaml</code> with <code>languages</code>,
+                <code>exclude</code>, <code>skip-directives</code>, <code>format</code>. Wire
+                <code>exclude</code> into directory walking. Wire <code>skip-directives</code> into
+                the existing <code>ExtractCodeBlocksWithConfig</code> path. Enables per-project
+                customization without Go code.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">3</div>
+            <div class="migration-content">
+              <h4>Expose custom skip directives via CLI</h4>
+              <p>
+                <code>--skip-directive "&lt;!-- sketch --&gt;"</code> (repeatable). One-line wiring
+                through an existing, tested library API. Low effort, high flexibility.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">4</div>
+            <div class="migration-content">
+              <h4>Add --exclude flag for directory globs</h4>
+              <p>
+                <code>--exclude "docs/research/**"</code> (repeatable). Augments the hardcoded
+                <code>shouldSkipDir</code> list. Makes full-project validation usable without path
+                scoping tricks.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">5</div>
+            <div class="migration-content">
+              <h4>Correct the README architecture diagram</h4>
+              <p>
+                Remove "External cmds" and "Custom" from the validator diagram, or mark them as
+                planned. Two lines of markdown. Eliminates false expectations.
+              </p>
+            </div>
+          </div>
+          <div class="migration-step">
+            <div class="migration-num">6</div>
+            <div class="migration-content">
+              <h4>Publish a GitHub Action</h4>
+              <p>
+                <code>uses: LarsArtmann/md-go-validator@v1</code> instead of a 4-step YAML block.
+                The companion report identifies this as the highest-leverage distribution feature.
+                Becomes viable once the error quality and config file are in place.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Priority Matrix -->
+        <section id="matrix">
+          <h2><span class="num">06</span>Priority matrix</h2>
+          <table class="compare">
+            <thead>
+              <tr>
+                <th>Task</th>
+                <th>Impact</th>
+                <th>Effort</th>
+                <th>Priority</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Best-attempt error reporting + mixed-scope detection</td>
+                <td class="no">Critical</td>
+                <td>~3h</td>
+                <td><span class="badge badge-critical">P0</span></td>
+              </tr>
+              <tr>
+                <td>Skip-directive hint in error messages</td>
+                <td class="no">Critical</td>
+                <td>~30m</td>
+                <td><span class="badge badge-critical">P0</span></td>
+              </tr>
+              <tr>
+                <td>Config file (.md-go-validator.yaml) + --init</td>
+                <td class="no">Critical</td>
+                <td>~4h</td>
+                <td><span class="badge badge-critical">P0</span></td>
+              </tr>
+              <tr>
+                <td>--skip-directive CLI flag</td>
+                <td class="no">Important</td>
+                <td>~1h</td>
+                <td><span class="badge badge-high">P1</span></td>
+              </tr>
+              <tr>
+                <td>--exclude directory globs</td>
+                <td class="no">Important</td>
+                <td>~1h</td>
+                <td><span class="badge badge-high">P1</span></td>
+              </tr>
+              <tr>
+                <td>README architecture diagram correction</td>
+                <td class="yes">Minor</td>
+                <td>~10m</td>
+                <td><span class="badge badge-medium">P2</span></td>
+              </tr>
+              <tr>
+                <td>GitHub Action (action.yml)</td>
+                <td class="no">Important</td>
+                <td>~1d</td>
+                <td><span class="badge badge-medium">P2</span></td>
+              </tr>
+              <tr>
+                <td>Remove parser.AllErrors or surface additional errors</td>
+                <td class="yes">Nice</td>
+                <td>~20m</td>
+                <td><span class="badge badge-low">P3</span></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h3>Relationship to the companion report</h3>
+          <p>
+            The companion report (<code>2026-06-25_product-feedback-make-it-superb.html</code>)
+            covers the <strong>strategy coverage gap</strong> — imports+statements (68 cases),
+            ellipsis placeholders (57 cases), pseudo go.mod blocks (5 cases) — from a go-cqrs-lite
+            run with 130 errors. This report covers the
+            <strong>error quality and adoption ergonomics</strong> gap from a gogenfilter run with 9
+            errors. Together they form a complete picture:
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Dimension</th>
+                <th>Companion report (go-cqrs-lite)</th>
+                <th>This report (gogenfilter)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Scale</td>
+                <td>683 blocks, 130 errors</td>
+                <td>71 blocks, 9 errors</td>
+              </tr>
+              <tr>
+                <td>Core thesis</td>
+                <td>Strategy coverage gap (false positives)</td>
+                <td>Error quality gap (misleading messages)</td>
+              </tr>
+              <tr>
+                <td>#1 fix</td>
+                <td>6th strategy for imports+statements</td>
+                <td>Best-attempt error reporting</td>
+              </tr>
+              <tr>
+                <td>Both agree on</td>
+                <td colspan="2">Config file, GitHub Action, adoption ergonomics</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+          <p>
+            Evidence base: live run of <code>md-go-validator .</code> against gogenfilter v3.2.0 (71
+            Go blocks, 9 reported errors, 1 real bug, 8 illustrative snippets). Code audit of
+            <code>pkg/languages/go_validator.go</code>, <code>pkg/extractor.go</code>,
+            <code>pkg/validator.go</code>, <code>cmd/md-go-validator/main.go</code>. Complements the
+            go-cqrs-lite product feedback report. Generated 2026-06-25.
+          </p>
+        </footer>
+      </main>
+    </div>
+
+    <!-- Progressive-enhancement scrollspy. Nav still works without JS via anchor links. -->
+    <script>
+      (function () {
+        if (!("IntersectionObserver" in window)) return;
+        var nav = document.querySelector("[data-nav]");
+        if (!nav) return;
+        var links = nav.querySelectorAll('a[href^="#"]');
+        var ids = Array.from(links).map(function (l) {
+          return l.getAttribute("href").slice(1);
+        });
+        var sections = ids
+          .map(function (id) {
+            return document.getElementById(id);
+          })
+          .filter(Boolean);
+        if (!sections.length) return;
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                links.forEach(function (link) {
+                  link.classList.toggle(
+                    "active",
+                    link.getAttribute("href") === "#" + entry.target.id,
+                  );
+                });
+              }
+            });
+          },
+          { rootMargin: "-80px 0px -60% 0px", threshold: 0 },
+        );
+        sections.forEach(function (s) {
+          observer.observe(s);
+        });
+      })();
+    </script>
+  </body>
+</html>
