@@ -316,9 +316,8 @@ func applyConfigFile(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
 		cfg.languages = parseLanguageList(fileCfg.Languages)
 	}
 
-	cfg.exclude = fileCfg.Exclude
-	cfg.skipDirectives = fileCfg.SkipDirectives
-
+	// exclude and skipDirectives are applied AFTER CLI parsing (in parseArgs)
+	// so CLI flags override — not union with — config file values.
 	applyConfigFormat(cfg, fileCfg.Format)
 }
 
@@ -435,6 +434,18 @@ func parseArgs(args []string) config {
 
 	if len(cfg.paths) == 0 {
 		cfg.paths = []string{"."}
+	}
+
+	// Apply config-file repeatable values only if CLI flags didn't set them.
+	// This ensures CLI flags override (not union with) config file values.
+	if cfgErr == nil {
+		if len(cfg.exclude) == 0 {
+			cfg.exclude = fileCfg.Exclude
+		}
+
+		if len(cfg.skipDirectives) == 0 {
+			cfg.skipDirectives = fileCfg.SkipDirectives
+		}
 	}
 
 	return cfg
