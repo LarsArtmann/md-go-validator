@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 var errTestWrite = errors.New("test write error")
@@ -133,7 +135,7 @@ func TestSave(t *testing.T) {
 	path := filepath.Join(dir, "test.yaml")
 
 	cfg := Config{
-		Languages:      []string{"go", "rust"},
+		Languages:      []languages.Language{languages.LangGo, languages.LangRust},
 		Exclude:        nil,
 		SkipDirectives: nil,
 		Format:         "json",

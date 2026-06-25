@@ -313,7 +313,7 @@ func applyConfigFile(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
 	}
 
 	if len(fileCfg.Languages) > 0 {
-		cfg.languages = parseLanguageList(fileCfg.Languages)
+		cfg.languages = fileCfg.Languages
 	}
 
 	// exclude and skipDirectives are applied AFTER CLI parsing (in parseArgs)
@@ -365,28 +365,6 @@ func printSupportedLanguages() {
 	for _, lang := range languages.AllLanguages() {
 		fmt.Printf("%s (%s)\n", lang, strings.Join(lang.Extensions(), ", "))
 	}
-}
-
-// parseLanguageList converts a slice of language name strings to Language values.
-func parseLanguageList(langStrs []string) []languages.Language {
-	result := make([]languages.Language, 0, len(langStrs))
-
-	for _, langStr := range langStrs {
-		s := strings.TrimSpace(strings.ToLower(langStr))
-
-		parsed, ok := languages.ParseLanguage(s)
-		if ok {
-			result = append(result, parsed)
-		} else {
-			fmt.Fprintf(os.Stderr, "Warning: unknown language %q in config file, skipping\n", s)
-		}
-	}
-
-	if len(result) == 0 {
-		return []languages.Language{languages.LangGo}
-	}
-
-	return result
 }
 
 func parseArgs(args []string) config {

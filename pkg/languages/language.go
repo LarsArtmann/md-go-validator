@@ -10,6 +10,8 @@ import (
 var errUnsupportedLang = errors.New("unsupported language")
 
 // Language represents a supported programming language.
+//
+//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
 type Language string
 
 // Supported language constants.
@@ -128,4 +130,23 @@ func (l Language) Validate() error {
 // IsSupported returns true if this language is a recognized, supported language.
 func (l Language) IsSupported() bool {
 	return slices.Contains(AllLanguages(), l)
+}
+
+// MarshalText implements encoding.TextMarshaler for YAML/JSON serialization.
+func (l Language) MarshalText() ([]byte, error) {
+	return []byte(l.String()), nil
+}
+
+// UnmarshalText implements encoding.TextUnmarshaler for YAML/JSON deserialization.
+// Accepts canonical names and aliases (e.g. "golang" → LangGo, "ts" → LangTypeScript).
+// Returns an error for unrecognized languages, causing config loading to fail fast.
+func (l *Language) UnmarshalText(text []byte) error {
+	parsed, ok := ParseLanguage(string(text))
+	if !ok {
+		return fmt.Errorf("%w: %s", errUnsupportedLang, string(text))
+	}
+
+	*l = parsed
+
+	return nil
 }

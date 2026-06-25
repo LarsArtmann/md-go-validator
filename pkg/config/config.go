@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 
 	yaml "github.com/go-faster/yaml"
+	"github.com/larsartmann/md-go-validator/pkg/languages"
 )
 
 const (
@@ -31,7 +32,7 @@ var ErrUnsupportedFormat = errors.New("unsupported config format")
 type Config struct {
 	// Languages specifies which languages to validate (e.g. ["go", "typescript"]).
 	// Empty means "go" only (the default).
-	Languages []string `json:"languages" yaml:"languages"`
+	Languages []languages.Language `json:"languages" yaml:"languages"`
 	// Exclude specifies glob patterns to exclude from validation.
 	// Example: ["vendor/*", "docs/generated/*"].
 	Exclude []string `json:"exclude" yaml:"exclude"`
@@ -47,7 +48,7 @@ type Config struct {
 // Default returns a Config with sensible defaults.
 func Default() Config {
 	return Config{
-		Languages:      []string{"go"},
+		Languages:      []languages.Language{languages.LangGo},
 		Exclude:        nil,
 		SkipDirectives: nil,
 		Format:         defaultFormat,
