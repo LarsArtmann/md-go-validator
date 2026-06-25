@@ -11,6 +11,7 @@ import (
 	"time"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	cfgpkg "github.com/larsartmann/md-go-validator/pkg/config"
 	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/testutil"
@@ -1019,4 +1020,218 @@ func TestValidateContent_Stdin(t *testing.T) {
 
 		testutil.AssertResultCount(t, results, 0)
 	})
+}
+
+func TestApplyConfigRepeatable_MergeSemantics(t *testing.T) {
+	t.Parallel()
+
+	t.Run("CLI exclude overrides config exclude", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := config{exclude: []string{"cli-pattern"}}
+		fileCfg := cfgpkg.Config{Exclude: []string{"config-pattern"}}
+
+		applyConfigRepeatable(&cfg, fileCfg, nil)
+
+		if len(cfg.exclude) != 1 || cfg.exclude[0] != "cli-pattern" {
+			t.Errorf("expected [cli-pattern], got %v", cfg.exclude)
+		}
+	})
+
+	t.Run("empty CLI uses config exclude", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := config{}
+		fileCfg := cfgpkg.Config{Exclude: []string{"config-pattern"}}
+
+		applyConfigRepeatable(&cfg, fileCfg, nil)
+
+		if len(cfg.exclude) != 1 || cfg.exclude[0] != "config-pattern" {
+			t.Errorf("expected [config-pattern], got %v", cfg.exclude)
+		}
+	})
+
+	t.Run("CLI skipDirectives override config", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := config{skipDirectives: []string{"// cli"}}
+		fileCfg := cfgpkg.Config{SkipDirectives: []string{"// config"}}
+
+		applyConfigRepeatable(&cfg, fileCfg, nil)
+
+		if len(cfg.skipDirectives) != 1 || cfg.skipDirectives[0] != "// cli" {
+			t.Errorf("expected [// cli], got %v", cfg.skipDirectives)
+		}
+	})
+
+	t.Run("config error skips application", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := config{}
+		fileCfg := cfgpkg.Config{Exclude: []string{"config-pattern"}}
+
+		applyConfigRepeatable(&cfg, fileCfg, cfgpkg.ErrNotFound)
+
+		if len(cfg.exclude) != 0 {
+			t.Errorf("expected empty exclude on config error, got %v", cfg.exclude)
+		}
+	})
+}
+
+func TestParseArgsExcludeFlag(t *testing.T) {
+	t.Parallel()
+
+	t.Run("single exclude", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := parseArgs([]string{"--exclude", "vendor/*", "."})
+		if len(cfg.exclude) != 1 || cfg.exclude[0] != "vendor/*" {
+			t.Errorf("expected [vendor/*], got %v", cfg.exclude)
+		}
+	})
+
+	t.Run("multiple excludes", func(t *testing.T) {
+		t.Parallel()
+
+		cfg := parseArgs([]string{"--exclude", "a/*", "--exclude", "b/*", "."})
+		if len(cfg.exclude) != 2 {
+			t.Errorf("expected 2 excludes, got %d: %v", len(cfg.exclude), cfg.exclude)
+		}
+	})
+}
+
+func TestParseArgsSkipDirectiveFlag(t *testing.T) {
+	t.Parallel()
+
+	cfg := parseArgs([]string{"--skip-directive", "<!-- sketch -->", "."})
+	if len(cfg.skipDirectives) != 1 || cfg.skipDirectives[0] != "<!-- sketch -->" {
+		t.Errorf("expected [<!-- sketch -->], got %v", cfg.skipDirectives)
+	}
+}
+
+func TestRunWithConfig_ExcludePatterns(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	validContent := []byte("```go\npackage main\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "valid.md", validContent)
+	testutil.WriteTestFile(t, tmpDir, "excluded.md", validContent)
+
+	cfg := newExitCodeTestConfig(tmpDir)
+	cfg.exclude = []string{"excluded.md"}
+
+	code := runWithConfig(cfg)
+	if code != exitSuccess {
+		t.Errorf("expected exit %d, got %d", exitSuccess, code)
+	}
+}
+
+//nolint:paralleltest // t.Chdir is incompatible with parallel tests
+func TestHandleEarlyExit_Init(t *testing.T) {
+	tmpDir := t.TempDir()
+	t.Chdir(tmpDir)
+
+	cfg := config{initConfig: true}
+	code, handled := handleEarlyExit(cfg)
+
+	if !handled {
+		t.Error("expected handled=true for --init")
+	}
+
+	if code != exitSuccess {
+		t.Errorf("expected exit %d, got %d", exitSuccess, code)
+	}
+
+	_, err := os.Stat(cfgpkg.DefaultConfigFileName)
+	if err != nil {
+		t.Errorf("expected config file to be created: %v", err)
+	}
+}
+
+func TestHandleEarlyExit_ListLanguages(t *testing.T) {
+	t.Parallel()
+
+	cfg := config{listLangs: true}
+	code, handled := handleEarlyExit(cfg)
+
+	if !handled {
+		t.Error("expected handled=true for --list-languages")
+	}
+
+	if code != exitSuccess {
+		t.Errorf("expected exit %d, got %d", exitSuccess, code)
+	}
+}
+
+func TestParseArgsFailOnSkippedFlag(t *testing.T) {
+	t.Parallel()
+
+	cfg := parseArgs([]string{"--fail-on-skipped", "."})
+	if !cfg.failOnSkipped {
+		t.Error("expected failOnSkipped=true")
+	}
+}
+
+func TestRunWithConfig_FailOnSkipped(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\n// skip-validate\nnot valid go\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "skipped.md", content)
+
+	cfg := newExitCodeTestConfig(tmpDir)
+	cfg.failOnSkipped = true
+
+	code := runWithConfig(cfg)
+	if code != exitValidationErr {
+		t.Errorf("expected exit %d (validation) for skipped+fail-on-skipped, got %d",
+			exitValidationErr, code)
+	}
+}
+
+func TestParseArgsBaselineFlag(t *testing.T) {
+	t.Parallel()
+
+	cfg := parseArgs([]string{"--baseline", "baseline.txt", "."})
+	if cfg.baselineFile != "baseline.txt" {
+		t.Errorf("expected baselineFile=baseline.txt, got %q", cfg.baselineFile)
+	}
+}
+
+func TestRunWithConfig_BaselineSuppressesErrors(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\nthis is not valid go\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "invalid.md", content)
+
+	sig := filepath.Join(tmpDir, "invalid.md") + ":1"
+	baselinePath := testutil.WriteTestFile(t, tmpDir, "baseline.txt", []byte(sig+"\n"))
+
+	cfg := newExitCodeTestConfig(tmpDir)
+	cfg.baselineFile = baselinePath
+
+	code := runWithConfig(cfg)
+	if code != exitSuccess {
+		t.Errorf("expected exit %d with baseline suppressing error, got %d", exitSuccess, code)
+	}
+}
+
+func TestRunWithConfig_BaselineDoesNotSuppressNewErrors(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+	content := []byte("```go\nthis is not valid go\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "invalid.md", content)
+
+	emptyBaseline := testutil.WriteTestFile(t, tmpDir, "empty-baseline.txt", []byte("# empty baseline\n"))
+
+	cfg := newExitCodeTestConfig(tmpDir)
+	cfg.baselineFile = emptyBaseline
+
+	code := runWithConfig(cfg)
+	if code != exitValidationErr {
+		t.Errorf("expected exit %d for error not in baseline, got %d", exitValidationErr, code)
+	}
 }
