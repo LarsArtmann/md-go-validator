@@ -12,6 +12,8 @@ import (
 	"time"
 
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+	"github.com/larsartmann/md-go-validator/pkg/baseline"
+	cfgpkg "github.com/larsartmann/md-go-validator/pkg/config"
 	"github.com/larsartmann/md-go-validator/pkg/languages"
 	"github.com/larsartmann/md-go-validator/pkg/output"
 	"github.com/larsartmann/md-go-validator/pkg/types"
@@ -44,6 +46,9 @@ const (
 	flagOutput  = "--output"
 	flagTimeout = "--timeout"
 	flagVersion = "--version"
+	flagExclude = "--exclude"
+	flagSkipDir = "--skip-directive"
+	flagInit    = "--init"
 )
 
 // version is set at build time via ldflags.
@@ -57,15 +62,19 @@ var version = "dev"
 var osExit = os.Exit
 
 type config struct {
-	verbose    bool
-	showCode   bool
-	format     output.Format
-	colorMode  output.ColorMode
-	outputFile string
-	paths      []string
-	timeout    time.Duration
-	contextCfg mdgovalidator.ContextConfig
-	languages  []languages.Language
+	verbose        bool
+	showCode       bool
+	format         output.Format
+	colorMode      output.ColorMode
+	outputFile     string
+	paths          []string
+	timeout        time.Duration
+	contextCfg     mdgovalidator.ContextConfig
+	languages      []languages.Language
+	exclude        []string
+	skipDirectives []string
+	initConfig     bool
+	baselineFile   string
 }
 
 func main() {
@@ -77,12 +86,47 @@ func main() {
 // runWithConfig executes the validation pipeline and returns the exit code.
 // Extracted from main for testability (no os.Exit calls here).
 func runWithConfig(cfg config) int {
-	validator := mdgovalidator.New(cfg.verbose).WithLanguages(cfg.languages)
+	if cfg.initConfig {
+		err := cfgpkg.InitFile(cfgpkg.DefaultConfigFileName)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error creating config file: %v\n", err)
+
+			return exitToolErr
+		}
+
+		//nolint:forbidigo // CLI success output requires direct stdout writing
+		fmt.Printf("Created %s with default configuration\n", cfgpkg.DefaultConfigFileName)
+
+		return exitSuccess
+	}
+
+	validator := mdgovalidator.New(cfg.verbose).
+		WithLanguages(cfg.languages).
+		WithExcludePatterns(cfg.exclude).
+		WithSkipDirectives(cfg.skipDirectives)
 
 	ctx, cancel := cfg.contextCfg.Build()
 	defer cancel()
 
 	allResults, hadToolError := validatePaths(ctx, validator, cfg.paths)
+
+	// Apply baseline filter if set.
+	if cfg.baselineFile != "" {
+		baseSet, err := baseline.Load(cfg.baselineFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading baseline: %v\n", err)
+
+			return exitToolErr
+		}
+
+		filtered := baseSet.FilterNew(allResults)
+		suppressed := len(allResults) - len(filtered)
+		allResults = filtered
+
+		if suppressed > 0 {
+			fmt.Fprintf(os.Stderr, "Baseline: suppressed %d known errors from %s\n", suppressed, cfg.baselineFile)
+		}
+	}
 
 	if cfg.outputFile != "" {
 		err := writeOutputToFile(allResults, cfg)
@@ -148,6 +192,13 @@ func newArgHandlers() map[string]argHandler {
 		},
 	)
 	languagesHandler := languagesArgHandler()
+	excludeHandler := appendArgHandler("exclude", func(c *config, s string) { c.exclude = append(c.exclude, s) })
+	skipDirHandler := appendArgHandler(
+		"skip-directive",
+		func(c *config, s string) { c.skipDirectives = append(c.skipDirectives, s) },
+	)
+	initHandler := boolFlagHandler(func(c *config) { c.initConfig = true })
+	baselineHandler := stringArgHandler("baseline", func(c *config, s string) { c.baselineFile = s })
 
 	return map[string]argHandler{
 		"-v":         verboseHandler,
@@ -168,6 +219,10 @@ func newArgHandlers() map[string]argHandler {
 		"--help":     handleHelp,
 		"-V":         handleVersion,
 		flagVersion:  handleVersion,
+		flagExclude:  excludeHandler,
+		flagSkipDir:  skipDirHandler,
+		flagInit:     initHandler,
+		"--baseline": baselineHandler,
 	}
 }
 
@@ -213,8 +268,44 @@ func stringArgHandler(flagName string, setter func(*config, string)) argHandler 
 	return singleValueArgHandler(flagName, parseStringValue, setter)
 }
 
+// appendArgHandler creates a handler for repeatable string flags that append
+// to a slice in the config.
+func appendArgHandler(flagName string, setter func(*config, string)) argHandler {
+	return func(args []string, idx int, cfg *config) (int, bool) {
+		if !requireArg(args, idx, flagName) {
+			return 0, false
+		}
+
+		setter(cfg, args[idx+1])
+
+		return 1, true
+	}
+}
+
+// parseLanguageList converts a slice of language name strings to Language values.
+func parseLanguageList(langStrs []string) []languages.Language {
+	result := make([]languages.Language, 0, len(langStrs))
+
+	for _, s := range langStrs {
+		s = strings.TrimSpace(strings.ToLower(s))
+
+		if parsed, ok := languages.ParseLanguage(s); ok {
+			result = append(result, parsed)
+		}
+	}
+
+	if len(result) == 0 {
+		return []languages.Language{languages.LangGo}
+	}
+
+	return result
+}
+
 func parseArgs(args []string) config {
-	cfg := config{
+	// Try loading config file from CWD first.
+	fileCfg, cfgErr := cfgpkg.LoadFromDir(".")
+
+	cfg := config{ //nolint:exhaustruct // fields set by CLI flags later
 		verbose:    false,
 		showCode:   true,
 		format:     output.FormatTable,
@@ -224,6 +315,23 @@ func parseArgs(args []string) config {
 		timeout:    0,
 		contextCfg: mdgovalidator.DefaultContextConfig(),
 		languages:  []languages.Language{languages.LangGo},
+	}
+
+	// Apply config file values as defaults (CLI flags override).
+	if cfgErr == nil {
+		if len(fileCfg.Languages) > 0 {
+			cfg.languages = parseLanguageList(fileCfg.Languages)
+		}
+
+		cfg.exclude = fileCfg.Exclude
+		cfg.skipDirectives = fileCfg.SkipDirectives
+
+		if fileCfg.Format != "" {
+			parsedFormat, parseErr := output.ParseFormat(fileCfg.Format)
+			if parseErr == nil {
+				cfg.format = parsedFormat
+			}
+		}
 	}
 
 	argHandlers := newArgHandlers()
@@ -485,6 +593,10 @@ OPTIONS:
     -t, --timeout     Timeout for validation (e.g., 30s, 5m, 1h)
     -l, --language    Comma-separated list of languages to validate
                       (go, templ, typescript, tsx, nix, rust, hcl, terraform)
+    --exclude         Glob pattern to exclude (repeatable, e.g. --exclude vendor/*)
+    --skip-directive  Custom skip directive (repeatable, e.g. --skip-directive "// example")
+    --init            Create a default .md-go-validator.yaml config file
+    --baseline        Baseline file of known errors (file:line per line); only new errors fail
     -h, --help        Show this help message
     -V, --version     Show version information
 

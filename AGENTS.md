@@ -10,6 +10,8 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 - Go 1.26.3+
 - [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.20.2 — pure Go tree-sitter for multi-language parsing
 - [go-output](https://github.com/larsartmann/go-output) v0.11.0 — multi-format output (JSON, YAML, CSV, table)
+- [go-finding](https://github.com/larsartmann/go-finding) v1.0.0 — neutral Finding type for SARIF/LSP/JSON interchange
+- [go-faster/yaml](https://github.com/go-faster/yaml) v0.4.6 — YAML parsing for config files
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
 
@@ -46,10 +48,12 @@ goreleaser release
 ### pkg/validator.go
 
 - `FileValidator` — Main validator with file/directory validation
-- `New(verbose) → WithLanguages().WithMaxFiles().WithConcurrency()` — Functional options pattern
+- `New(verbose) → WithLanguages().WithMaxFiles().WithConcurrency().WithExcludePatterns().WithSkipDirectives().WithFileFilter()` — Functional options pattern
 - `SupportedExtensions()` → `[]types.FileType`
 - `IsSupportedFile(path)` → bool
+- `ValidateDirectoryFunc(ctx, dir, callback)` — Streaming validation with per-result callback
 - Concurrent directory processing via worker pool with channels
+- Exported sentinel errors: `ErrPathEmpty`, `ErrNoValidatorForLang`, `ErrPathNullByte`
 
 ### pkg/context.go
 
@@ -70,7 +74,7 @@ Branded types for type safety:
 - `Language(string)` — branded type with `IsSupported()`, `Validate()`, `Extensions()`
 - `Validator` interface — `Language()`, `Validate(ctx, code)`, `IsAvailable()`
 - `Registry` — validator registry with `Register()`, `Get()`, `GetByString()`, `GetAvailable()`
-- `GoValidator` — stdlib parser with 5-strategy approach (the canonical implementation)
+- `GoValidator` — stdlib parser with 6-strategy approach + elision normalization + pseudo go.mod detection
 - `TreeSitterValidator` — tree-sitter based validator for rust/typescript/tsx/nix/hcl/terraform/templ
 
 ### pkg/output/
@@ -82,16 +86,41 @@ Branded types for type safety:
 
 - `IndentCode()` — Indent for function wrapping
 - `ParseGo()` — Go stdlib parser wrapper
+- `NormalizeDocIdioms()` — Normalizes documentation elision idioms (`{ ... }` → `{}`, ellipsis-only lines dropped)
+- `IsPseudoModuleFile()` — Detects go.mod directives in Go code blocks (require/replace/module)
+
+### pkg/config/
+
+- `Config` struct — Project-level config (languages, exclude, skip-directives, format)
+- `Load(path)` / `LoadFromDir(dir)` — YAML/JSON config loading
+- `Save(path, cfg)` — Write config
+- `InitFile(path)` — Scaffold default `.md-go-validator.yaml`
+
+### pkg/finding/
+
+- `FromResult(r)` / `FromResults([]r)` — Convert validation Results to neutral go-finding Findings
+- Enables SARIF/LSP/JSON interchange with a one-liner
+
+### pkg/baseline/
+
+- `Set` — Collection of known error signatures (file:line)
+- `Load(path)` — Read baseline file
+- `FilterNew(results)` — Filter out known errors, return only new ones
 
 ## Key Patterns
 
 ### Multi-Strategy Parsing (single implementation in GoValidator)
 
+0. Pre-processing: NormalizeDocIdioms ({ ... } → {}, ellipsis line removal)
+0. Pseudo go.mod detection (skip module directives)
 1. Complete file parsing
 2. Package wrapper (`package main`)
 3. Function wrapper (`func main()`)
 4. Expression (`_ = <code>`)
 5. Statements (function body)
+6. Imports + statements (split import block from statements — the dominant docs pattern)
+
+Error reporting uses best-attempt selection (highest error line from the strategy that parsed furthest), plus mixed-scope detection and skip-directive hints.
 
 ### Skip Directives
 

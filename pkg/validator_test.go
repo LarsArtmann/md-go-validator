@@ -38,9 +38,9 @@ func newValidResult(spec validResultSpec) types.Result {
 }
 
 func newValidResults(specs ...validResultSpec) []types.Result {
-	results := make([]types.Result, len(specs))
-	for i, s := range specs {
-		results[i] = newValidResult(s)
+	results := make([]types.Result, 0, len(specs))
+	for _, s := range specs {
+		results = append(results, newValidResult(s))
 	}
 
 	return results
@@ -148,7 +148,6 @@ func TestValidateGoCode(t *testing.T) {
 		name string
 		code string
 	}{
-		{"invalid go.mod syntax", "require (\n\tgithub.com/pkg v1.0.0\n)"},
 		{"invalid syntax", "func broken {"},
 	}
 

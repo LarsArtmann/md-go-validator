@@ -3,6 +3,7 @@ package languages
 import (
 	"context"
 	"errors"
+	"strings"
 	"testing"
 )
 
@@ -63,6 +64,14 @@ func goValidatorValidCases() []struct {
 		{"method declaration", "func (s *Server) Start() error"},
 		{"interface", "type Reader interface {\n\tRead(p []byte) (n int, err error)\n}"},
 		{"const block", "const (\n\tA = 1\n\tB = 2\n)"},
+		// Elision idioms — { ... } → {}
+		{"elided struct body", "type Foo struct { ... }"},
+		{"elided func body", "func DoSomething() error { ... }"},
+		{"elided interface body", "type Reader interface { ... }"},
+		// Imports + statements (strategy 6 — the dominant docs pattern)
+		{"imports and statements", "import \"fmt\"\n\nfmt.Println(\"hello\")"},
+		{"multi-import and statements", "import (\n\t\"fmt\"\n\t\"os\"\n)\n\nfmt.Println(os.Args[0])"},
+		{"import and assignment", "import \"strings\"\n\nresult := strings.ToUpper(\"hello\")"},
 	}
 }
 
@@ -153,6 +162,169 @@ func TestValidationError_Error_NoPosition(t *testing.T) {
 	got := e.Error()
 	if got != "simple error" {
 		t.Errorf("expected %q, got %q", "simple error", got)
+	}
+}
+
+func TestGoValidator_ErrorIncludesSkipDirectiveHint(t *testing.T) {
+	t.Parallel()
+
+	v := &GoValidator{}
+	ctx := context.Background()
+
+	err := v.Validate(ctx, "func broken {")
+	if err == nil {
+		t.Fatal("expected error")
+	}
+
+	var valErr *ValidationError
+	if !errors.As(err, &valErr) {
+		t.Fatalf("expected ValidationError, got %T: %v", err, err)
+	}
+
+	if !strings.Contains(valErr.Message, "skip-validate") {
+		t.Errorf("error message should mention skip-validate, got: %s", valErr.Message)
+	}
+}
+
+func TestGoValidator_ErrorIncludesMixedScopeHint(t *testing.T) {
+	t.Parallel()
+
+	v := &GoValidator{}
+	ctx := context.Background()
+
+	// Mixed-scope: import (package-level) + bare statement (function-body)
+	code := "import \"fmt\"\n\nresult := &&&broken"
+
+	err := v.Validate(ctx, code)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+
+	var valErr *ValidationError
+	if !errors.As(err, &valErr) {
+		t.Fatalf("expected ValidationError, got %T: %v", err, err)
+	}
+
+	if !strings.Contains(valErr.Message, "mix") {
+		t.Errorf("error message should mention mixed-scope, got: %s", valErr.Message)
+	}
+}
+
+func TestGoValidator_BestAttemptReporting(t *testing.T) {
+	t.Parallel()
+
+	v := &GoValidator{}
+	ctx := context.Background()
+
+	// A snippet that fails all strategies but strategy 3 (func wrapper) gets
+	// further than strategy 1 (raw) — the error should reference a later line.
+	code := "func broken {"
+
+	err := v.Validate(ctx, code)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+
+	var valErr *ValidationError
+	if !errors.As(err, &valErr) {
+		t.Fatalf("expected ValidationError, got %T: %v", err, err)
+	}
+
+	// The best-attempt error should have a line number > 0 (from a wrapped strategy).
+	if valErr.Line == 0 {
+		t.Errorf("expected non-zero line from best attempt, got line=0")
+	}
+}
+
+func TestSplitImportsAndStatements(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name       string
+		code       string
+		wantImport string
+		wantRest   string
+		wantOk     bool
+	}{
+		{
+			name:       "single import + statement",
+			code:       "import \"fmt\"\n\nfmt.Println(\"hi\")",
+			wantImport: "import \"fmt\"",
+			wantRest:   "\nfmt.Println(\"hi\")",
+			wantOk:     true,
+		},
+		{
+			name:       "multi-line import + statement",
+			code:       "import (\n\t\"fmt\"\n\t\"os\"\n)\n\nfmt.Println(os.Args[0])",
+			wantImport: "import (\n\t\"fmt\"\n\t\"os\"\n)",
+			wantRest:   "\nfmt.Println(os.Args[0])",
+			wantOk:     true,
+		},
+		{
+			name:       "no imports",
+			code:       "fmt.Println(\"hi\")",
+			wantImport: "",
+			wantRest:   "",
+			wantOk:     false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			imp, rest, ok := splitImportsAndStatements(tc.code)
+			if ok != tc.wantOk {
+				t.Errorf("ok = %v, want %v", ok, tc.wantOk)
+
+				return
+			}
+
+			if imp != tc.wantImport {
+				t.Errorf("import = %q, want %q", imp, tc.wantImport)
+			}
+
+			if rest != tc.wantRest {
+				t.Errorf("rest = %q, want %q", rest, tc.wantRest)
+			}
+		})
+	}
+}
+
+func TestDetectMixedScopeHint(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name string
+		code string
+		want string
+	}{
+		{
+			name: "import + statement",
+			code: "import \"fmt\"\n\nfmt.Println(\"hi\")",
+			want: "snippet mixes package-level declarations with function-body statements",
+		},
+		{
+			name: "only declarations",
+			code: "type Foo struct {\n\tName string\n}",
+			want: "",
+		},
+		{
+			name: "only statements",
+			code: "x := 42\nfmt.Println(x)",
+			want: "",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			got := detectMixedScopeHint(tc.code)
+			if got != tc.want {
+				t.Errorf("got %q, want %q", got, tc.want)
+			}
+		})
 	}
 }
 

@@ -259,8 +259,8 @@ The validator uses a pluggable architecture:
 │   Extractor     │────▶│  Language Registry│────▶│   Validators    │
 │                 │     │                  │     │                 │
 │ - Parse markdown│     │ - Map lang to    │     │ - Go (built-in) │
-│ - Find code     │     │   validator      │     │ - External cmds │
-│   blocks        │     │ - Check avail.   │     │ - Custom        │
+│ - Find code     │     │   validator      │     │ - Tree-sitter   │
+│   blocks        │     │ - Check avail.   │     │   (embedded)    │
 └─────────────────┘     └──────────────────┘     └─────────────────┘
 ```
 
@@ -294,8 +294,8 @@ registry.Register(&MyLanguageValidator{})
 ## Future Enhancements
 
 - **More languages** - Python, Java, C/C++, etc.
-- **Custom validators** - User-defined validation rules
 - **Fix suggestions** - Auto-fix common syntax errors
+- **Config file** - `.md-go-validator.yaml` for project-level settings
 
 ## License
 

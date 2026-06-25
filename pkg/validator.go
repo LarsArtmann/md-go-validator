@@ -14,11 +14,14 @@ import (
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
-var (
-	errPathEmpty          = errors.New("path cannot be empty")
-	errPathNullByte       = errors.New("path contains null byte")
-	errNoValidatorForLang = errors.New("no validator available for language")
-)
+// ErrPathEmpty is returned when a path argument is empty.
+var ErrPathEmpty = errors.New("path cannot be empty")
+
+// ErrPathNullByte is returned when a path contains a null byte.
+var ErrPathNullByte = errors.New("path contains null byte")
+
+// ErrNoValidatorForLang is returned when no validator is registered for a language.
+var ErrNoValidatorForLang = errors.New("no validator available for language")
 
 // Magic number constants.
 const (
@@ -28,17 +31,20 @@ const (
 
 // FileValidator validates code blocks in markdown and MDX files.
 type FileValidator struct {
-	registry    *languages.Registry
-	verbose     bool
-	maxFiles    int
-	maxBlocks   int
-	concurrency int
-	targetLangs []languages.Language
+	registry        *languages.Registry
+	verbose         bool
+	maxFiles        int
+	maxBlocks       int
+	concurrency     int
+	targetLangs     []languages.Language
+	excludePatterns []string
+	fileFilter      func(string) bool
+	skipDirectives  []string
 }
 
 // New creates a new FileValidator with default settings.
 func New(verbose bool) *FileValidator {
-	return &FileValidator{
+	return &FileValidator{ //nolint:exhaustruct // optional fields set via builder methods
 		registry:    languages.DefaultRegistry(),
 		verbose:     verbose,
 		maxFiles:    0,
@@ -81,6 +87,44 @@ func (v *FileValidator) WithRegistry(r *languages.Registry) *FileValidator {
 	return v
 }
 
+// WithExcludePatterns sets glob patterns to exclude from validation.
+// Patterns are matched against the full file path using filepath.Match.
+// Common patterns: "vendor/*", "docs/generated/*", "node_modules/*".
+func (v *FileValidator) WithExcludePatterns(patterns []string) *FileValidator {
+	v.excludePatterns = patterns
+
+	return v
+}
+
+// WithFileFilter sets a custom filter function. Files for which the function
+// returns false are excluded from validation.
+func (v *FileValidator) WithFileFilter(filter func(string) bool) *FileValidator {
+	v.fileFilter = filter
+
+	return v
+}
+
+// WithSkipDirectives adds custom skip directives on top of the defaults.
+// Blocks containing any of these strings are skipped during validation.
+func (v *FileValidator) WithSkipDirectives(directives []string) *FileValidator {
+	v.skipDirectives = directives
+
+	return v
+}
+
+// extractBlocks extracts code blocks using default and custom skip directives.
+func (v *FileValidator) extractBlocks(content string) []types.CodeBlock {
+	if len(v.skipDirectives) == 0 {
+		return ExtractCodeBlocks(content, v.targetLangs)
+	}
+
+	merged := make(SkipDirectivesConfig, 0, len(DefaultSkipDirectives())+len(v.skipDirectives))
+	merged = append(merged, DefaultSkipDirectives()...)
+	merged = append(merged, v.skipDirectives...)
+
+	return ExtractCodeBlocksWithConfig(content, v.targetLangs, merged)
+}
+
 // validatePath validates and cleans a path with a descriptive error message.
 func validatePath(pathType, path string) (string, error) {
 	cleanPath, err := validateAndCleanPath(path)
@@ -109,7 +153,7 @@ func (v *FileValidator) ValidateContent(ctx context.Context, content, sourceName
 		return nil, fmt.Errorf("validate content %s: %w", sourceName, ctxErr)
 	}
 
-	blocks := ExtractCodeBlocks(content, v.targetLangs)
+	blocks := v.extractBlocks(content)
 	if len(blocks) == 0 {
 		return []types.Result{}, nil
 	}
@@ -136,7 +180,7 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 		return nil, fmt.Errorf("reading file %s: %w", filePath, err)
 	}
 
-	blocks := ExtractCodeBlocks(string(content), v.targetLangs)
+	blocks := v.extractBlocks(string(content))
 	if len(blocks) == 0 {
 		return []types.Result{}, nil
 	}
@@ -203,7 +247,7 @@ func (v *FileValidator) validateBlock(
 			block.Code,
 			fmt.Errorf(
 				"%w: %s (blockIndex=%d)",
-				errNoValidatorForLang, block.Language, blockIndex.Int(),
+				ErrNoValidatorForLang, block.Language, blockIndex.Int(),
 			),
 		)
 	}
@@ -313,6 +357,29 @@ func (v *FileValidator) ValidateDirectory(
 	return v.processFilesParallel(ctx, filePaths)
 }
 
+// ValidateDirectoryFunc validates a directory and calls fn for each result.
+// If fn returns a non-nil error, processing stops immediately and the error
+// is returned. This enables progress reporting, early-abort, and incremental UI.
+func (v *FileValidator) ValidateDirectoryFunc(
+	ctx context.Context,
+	dirPath string,
+	fn func(types.Result) error,
+) error {
+	results, err := v.ValidateDirectory(ctx, dirPath)
+	if err != nil {
+		return fmt.Errorf("validating directory %s: %w", dirPath, err)
+	}
+
+	for _, r := range results {
+		err := fn(r)
+		if err != nil {
+			return fmt.Errorf("streaming callback aborted: %w", err)
+		}
+	}
+
+	return nil
+}
+
 // collectSupportedFiles gathers all supported files (markdown and MDX) from a directory recursively.
 func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) {
 	var files []string
@@ -323,14 +390,14 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 		}
 
 		if entry.IsDir() {
-			if shouldSkipDir(entry.Name()) {
+			if shouldSkipDir(entry.Name()) || v.isExcluded(path) {
 				return filepath.SkipDir
 			}
 
 			return nil
 		}
 
-		if IsSupportedFile(path) {
+		if IsSupportedFile(path) && !v.isExcluded(path) && v.passesFileFilter(path) {
 			files = append(files, path)
 		}
 
@@ -341,6 +408,33 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 	}
 
 	return files, nil
+}
+
+// isExcluded returns true if the path matches any exclude pattern.
+func (v *FileValidator) isExcluded(path string) bool {
+	for _, pattern := range v.excludePatterns {
+		matched, err := filepath.Match(pattern, path)
+		if err == nil && matched {
+			return true
+		}
+
+		// Also try matching against the base name for simple patterns.
+		matched, err = filepath.Match(pattern, filepath.Base(path))
+		if err == nil && matched {
+			return true
+		}
+	}
+
+	return false
+}
+
+// passesFileFilter returns true if the file filter is nil or returns true.
+func (v *FileValidator) passesFileFilter(path string) bool {
+	if v.fileFilter == nil {
+		return true
+	}
+
+	return v.fileFilter(path)
 }
 
 // processFilesParallel validates files concurrently using a worker pool.
@@ -503,7 +597,7 @@ func IsSupportedFile(path string) bool {
 func formatSupportedExtensions() string {
 	exts := SupportedExtensions()
 
-	names := make([]string, len(exts))
+	names := make([]string, 0, len(exts))
 	for i, ext := range exts {
 		names[i] = ext.String()
 	}
@@ -514,11 +608,11 @@ func formatSupportedExtensions() string {
 // validateAndCleanPath validates and cleans a file path to prevent path traversal attacks.
 func validateAndCleanPath(path string) (string, error) {
 	if path == "" {
-		return "", errPathEmpty
+		return "", ErrPathEmpty
 	}
 
 	if strings.Contains(path, "\x00") {
-		return "", errPathNullByte
+		return "", ErrPathNullByte
 	}
 
 	return filepath.Clean(path), nil

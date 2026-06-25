@@ -1,0 +1,7 @@
+- id: md-go-validator
+  name: md-go-validator
+  description: Validate code blocks in Markdown and MDX documentation files
+  entry: md-go-validator
+  language: golang
+  types: [markdown]
+  pass_filenames: true

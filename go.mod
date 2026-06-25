@@ -3,6 +3,8 @@ module github.com/larsartmann/md-go-validator
 go 1.26.3
 
 require (
+	github.com/go-faster/yaml v0.4.6
+	github.com/larsartmann/go-finding v1.0.0
 	github.com/larsartmann/go-output v0.17.2
 	github.com/larsartmann/go-output/delimited v0.17.2
 	github.com/larsartmann/go-output/serialization v0.17.2
@@ -12,7 +14,6 @@ require (
 require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-faster/jx v1.2.0 // indirect
-	github.com/go-faster/yaml v0.4.6 // indirect
 	github.com/larsartmann/go-branded-id v0.3.1 // indirect
 	github.com/larsartmann/go-output/enum v0.17.1 // indirect
 	github.com/larsartmann/go-output/envdetect v0.17.1 // indirect
