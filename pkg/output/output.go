@@ -2,15 +2,18 @@
 package output
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
 	"os"
 	"strings"
 
+	gofinding "github.com/larsartmann/go-finding"
 	"github.com/larsartmann/go-output"
 	"github.com/larsartmann/go-output/delimited"
 	"github.com/larsartmann/go-output/serialization"
+	"github.com/larsartmann/md-go-validator/pkg/finding"
 	"github.com/larsartmann/md-go-validator/pkg/types"
 )
 
@@ -28,6 +31,7 @@ const (
 	formatStrYAML     = "yaml"
 	formatStrCSV      = "csv"
 	formatStrQuiet    = "quiet"
+	formatStrSARIF    = "sarif"
 )
 
 var errInvalidFormat = errors.New("invalid format")
@@ -48,6 +52,8 @@ const (
 	FormatCSV = output.FormatCSV
 	// FormatQuiet outputs only summary information.
 	FormatQuiet Format = "quiet"
+	// FormatSARIF outputs SARIF format for CI integration (GitHub Code Scanning).
+	FormatSARIF Format = "sarif"
 )
 
 const (
@@ -77,9 +83,11 @@ func ParseFormat(s string) (Format, error) {
 		return FormatCSV, nil
 	case formatStrQuiet, "q":
 		return FormatQuiet, nil
+	case formatStrSARIF:
+		return FormatSARIF, nil
 	default:
 		return "", fmt.Errorf(
-			"%w: %q (allowed: table, json, markdown, yaml, csv, quiet)",
+			"%w: %q (allowed: table, json, markdown, yaml, csv, quiet, sarif)",
 			errInvalidFormat,
 			s,
 		)
@@ -123,6 +131,8 @@ func PrintReportTo(
 		return printCSVTo(w, results, showCode)
 	case FormatQuiet:
 		return printQuietTo(w, results)
+	case FormatSARIF:
+		return printSARIFTo(w, results)
 	default:
 		return printTableTo(w, results, colorMode, showCode)
 	}
@@ -297,6 +307,22 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 	_, err := fmt.Fprintf(w, "All %d code blocks valid\n", report.Summary.Valid)
 	if err != nil {
 		return newOutputError("quiet output", results, false, err)
+	}
+
+	return nil
+}
+
+func printSARIFTo(w io.Writer, results []types.Result) error {
+	findings := finding.FromResults(results)
+
+	report := gofinding.NewReport(gofinding.ToolInfo{ //nolint:exhaustruct // version optional
+		Name: finding.ToolName,
+	})
+	report.AddFindings(findings)
+
+	err := report.WriteSARIF(context.Background(), w)
+	if err != nil {
+		return fmt.Errorf("write SARIF output (%d results): %w", len(results), err)
 	}
 
 	return nil
