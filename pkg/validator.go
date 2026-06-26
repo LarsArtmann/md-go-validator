@@ -7,6 +7,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 
@@ -56,12 +57,16 @@ func New(verbose bool) *FileValidator {
 
 // WithMaxFiles sets the maximum number of files to process.
 func (v *FileValidator) WithMaxFiles(maxFiles int) *FileValidator {
-	return v.withInt(&v.maxFiles, maxFiles)
+	v.maxFiles = maxFiles
+
+	return v
 }
 
 // WithMaxBlocks sets the maximum number of blocks per file to process.
 func (v *FileValidator) WithMaxBlocks(maxBlocks int) *FileValidator {
-	return v.withInt(&v.maxBlocks, maxBlocks)
+	v.maxBlocks = maxBlocks
+
+	return v
 }
 
 // WithConcurrency sets the number of concurrent workers for directory validation.
@@ -129,17 +134,7 @@ func (v *FileValidator) extractBlocks(content string) []types.CodeBlock {
 func validatePath(pathType, path string) (string, error) {
 	cleanPath, err := validateAndCleanPath(path)
 	if err != nil {
-		return "", fmt.Errorf("invalid %s %s: %w", pathType, path, err)
-	}
-
-	return cleanPath, nil
-}
-
-// validateAndReturnPath validates path and returns it, or returns error.
-func (v *FileValidator) validateAndReturnPath(pathType, path string) (string, error) {
-	cleanPath, err := validatePath(pathType, path)
-	if err != nil {
-		return "", fmt.Errorf("pathType=%s: %w", pathType, err)
+		return "", fmt.Errorf("invalid %s %q: %w", pathType, path, err)
 	}
 
 	return cleanPath, nil
@@ -168,12 +163,12 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 		return nil, fmt.Errorf("validate file %s: %w", filePath, ctxErr)
 	}
 
-	cleanPath, err := v.validateAndReturnPath("file", filePath)
+	cleanPath, err := validatePath("file", filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	// Path is already validated and cleaned by validateAndReturnPath
+	// Path is already validated and cleaned by validatePath
 	//nolint:gosec // G304: Path is validated via validateAndCleanPath before use
 	content, err := os.ReadFile(cleanPath)
 	if err != nil {
@@ -330,7 +325,7 @@ func (v *FileValidator) ValidateDirectory(
 	ctx context.Context,
 	dirPath string,
 ) ([]types.Result, error) {
-	cleanPath, err := v.validateAndReturnPath("directory", dirPath)
+	cleanPath, err := validatePath("directory", dirPath)
 	if err != nil {
 		return nil, fmt.Errorf("validating directory %s: %w", dirPath, err)
 	}
@@ -365,7 +360,7 @@ func (v *FileValidator) ValidateDirectoryFunc(
 	dirPath string,
 	fn func(types.Result) error,
 ) error {
-	cleanPath, err := v.validateAndReturnPath("directory", dirPath)
+	cleanPath, err := validatePath("directory", dirPath)
 	if err != nil {
 		return fmt.Errorf("validating directory %s: %w", dirPath, err)
 	}
@@ -595,25 +590,12 @@ func (v *FileValidator) collectResults(
 	return allResults, nil
 }
 
-func (v *FileValidator) withInt(field *int, value int) *FileValidator {
-	*field = value
-
-	return v
-}
-
 func shouldSkipDir(name string) bool {
 	if strings.HasPrefix(name, ".") {
 		return true
 	}
 
-	skipDirs := map[string]bool{
-		"node_modules": true,
-		"vendor":       true,
-		"build":        true,
-		"dist":         true,
-	}
-
-	return skipDirs[name]
+	return slices.Contains([]string{"node_modules", "vendor", "build", "dist"}, name)
 }
 
 // SupportedExtensions returns all supported file extensions in sorted order.
