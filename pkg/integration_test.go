@@ -181,3 +181,28 @@ func TestIntegration_MarkdownAltExtension(t *testing.T) {
 		t.Errorf("expected StatusValid, got %s", results[0].Status)
 	}
 }
+
+func TestIntegration_VerboseDirectoryValidation(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	content := []byte("# Test\n\n```go\npackage main\n```\n")
+
+	err := os.WriteFile(filepath.Join(tmpDir, "test.md"), content, 0o600)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	v := New(true)
+	ctx := context.Background()
+
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+	if err != nil {
+		t.Fatalf("ValidateDirectory verbose error: %v", err)
+	}
+
+	if len(results) == 0 {
+		t.Error("expected results from verbose directory validation")
+	}
+}
