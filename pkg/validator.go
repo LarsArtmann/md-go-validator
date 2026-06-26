@@ -635,8 +635,8 @@ func formatSupportedExtensions() string {
 	exts := SupportedExtensions()
 
 	names := make([]string, 0, len(exts))
-	for i, ext := range exts {
-		names[i] = ext.String()
+	for _, ext := range exts {
+		names = append(names, ext.String())
 	}
 
 	return strings.Join(names, ", ")

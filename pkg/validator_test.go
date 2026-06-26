@@ -794,3 +794,18 @@ func TestValidator_ValidateContent(t *testing.T) {
 		}
 	})
 }
+
+func TestFormatSupportedExtensions(t *testing.T) {
+	t.Parallel()
+
+	result := formatSupportedExtensions()
+	if result == "" {
+		t.Error("formatSupportedExtensions() returned empty string")
+	}
+
+	for _, ext := range SupportedExtensions() {
+		if !strings.Contains(result, ext.String()) {
+			t.Errorf("formatSupportedExtensions() = %q, missing extension %s", result, ext)
+		}
+	}
+}
