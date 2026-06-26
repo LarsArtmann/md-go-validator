@@ -22,19 +22,17 @@ import (
 
 var errUnsupportedLanguage = errors.New("unsupported language")
 
-// Magic number constants.
-const (
-	resultsCapacityMultiplier = 10
-	defaultDirPermissions     = 0o750
-	defaultFilePermissions    = 0o600
-)
-
 // Exit codes follow Unix linting-tool convention:
 // 0 = success, 1 = validation errors found, 2 = tool/usage errors.
 const (
 	exitSuccess       = 0
 	exitValidationErr = 1
 	exitToolErr       = 2
+)
+
+const (
+	defaultDirPermissions  = 0o750
+	defaultFilePermissions = 0o600
 )
 
 // Flag name constants.
@@ -287,13 +285,8 @@ func singleValueArgHandler[T any](
 	}
 }
 
-// parseStringValue is a parse function that returns the input string unchanged.
-func parseStringValue(s string) (string, error) {
-	return s, nil
-}
-
 func stringArgHandler(flagName string, setter func(*config, string)) argHandler {
-	return singleValueArgHandler(flagName, parseStringValue, setter)
+	return singleValueArgHandler(flagName, func(s string) (string, error) { return s, nil }, setter)
 }
 
 // appendArgHandler creates a handler for repeatable string flags that append
@@ -518,22 +511,13 @@ var (
 
 // languagesArgHandler creates a handler for language flags that accepts comma-separated language names.
 func languagesArgHandler() argHandler {
-	return listArgHandler(
+	return singleValueArgHandler(
 		"language",
 		parseLanguages,
 		func(cfg *config, langs []languages.Language) {
 			cfg.languages = langs
 		},
 	)
-}
-
-// listArgHandler creates a handler for flags that accept comma-separated values.
-func listArgHandler[T any](
-	flagName string,
-	parser func(string) ([]T, error),
-	setter func(*config, []T),
-) argHandler {
-	return singleValueArgHandler(flagName, parser, setter)
 }
 
 // parseLanguages parses a comma-separated string of language names.
@@ -560,7 +544,7 @@ func validatePaths(
 	validator *mdgovalidator.FileValidator,
 	paths []string,
 ) ([]types.Result, bool) {
-	allResults := make([]types.Result, 0, len(paths)*resultsCapacityMultiplier)
+	allResults := make([]types.Result, 0)
 
 	var hadToolError bool
 
@@ -768,12 +752,12 @@ EXAMPLES:
     md-go-validator .                           # Validate all .md and .mdx files
     md-go-validator README.md                   # Validate a specific file
     md-go-validator -v .                        # Verbose output
-    md-go-validator -f json .                 # JSON output for CI
-    md-go-validator -l go,typescript .        # Validate Go and TypeScript
-    md-go-validator -l templ,nix .            # Validate Templ and Nix
-    md-go-validator --color never .             # Disable colors
+    md-go-validator -f json .        # JSON output for CI
+    md-go-validator -l go,typescript .  # Validate Go and TypeScript
+    md-go-validator -l templ,nix .      # Validate Templ and Nix
+    md-go-validator --color never .     # Disable colors
     md-go-validator -o report.json -f json .  # Write JSON to file
-    md-go-validator --timeout 30s .           # 30 second timeout
-    cat README.md | md-go-validator -          # Validate markdown from stdin
+    md-go-validator --timeout 30s .     # 30 second timeout
+    cat README.md | md-go-validator -   # Validate markdown from stdin
 `
 }
