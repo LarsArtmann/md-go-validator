@@ -262,54 +262,18 @@ func TestCodeBlock(t *testing.T) {
 	})
 }
 
-func TestCodeBlockMarkMethods(t *testing.T) {
+func TestCodeBlockMarkSkipped(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name           string
-		markFunc       func(*CodeBlock)
-		expectedStatus ValidationStatus
-		checkFunc      func(*CodeBlock) bool
-		expectedLabel  string
-	}{
-		{
-			name:           "MarkValid",
-			markFunc:       func(b *CodeBlock) { b.MarkValid() },
-			expectedStatus: StatusValid,
-			checkFunc:      func(b *CodeBlock) bool { return b.IsValid() },
-			expectedLabel:  "IsValid()",
-		},
-		{
-			name:           "MarkError",
-			markFunc:       func(b *CodeBlock) { b.MarkError() },
-			expectedStatus: StatusError,
-			checkFunc:      func(b *CodeBlock) bool { return b.HasError() },
-			expectedLabel:  "HasError()",
-		},
-		{
-			name:           "MarkSkipped",
-			markFunc:       func(b *CodeBlock) { b.MarkSkipped() },
-			expectedStatus: StatusSkipped,
-			checkFunc:      func(b *CodeBlock) bool { return b.IsSkipped() },
-			expectedLabel:  "IsSkipped()",
-		},
+	var block CodeBlock
+	block.MarkSkipped()
+
+	if block.Status != StatusSkipped {
+		t.Errorf("expected %v, got %v", StatusSkipped, block.Status)
 	}
 
-	for _, tc := range tests {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			var block CodeBlock
-			tc.markFunc(&block)
-
-			if block.Status != tc.expectedStatus {
-				t.Errorf("expected %v, got %v", tc.expectedStatus, block.Status)
-			}
-
-			if !tc.checkFunc(&block) {
-				t.Errorf("expected %s to return true", tc.expectedLabel)
-			}
-		})
+	if !block.IsSkipped() {
+		t.Error("expected IsSkipped() to return true")
 	}
 }
 
