@@ -104,53 +104,6 @@ func TestContextConfigBuildTimeout(t *testing.T) {
 	)
 }
 
-func TestContextConfigBranch(t *testing.T) {
-	t.Parallel()
-
-	cfg := DefaultContextConfig()
-
-	ctx, cancel := cfg.Branch()
-	defer cancel()
-
-	testutil.AssertContextNotNil(ctx, t)
-	testutil.AssertContextCondition(ctx, t, false, "branch should not be done immediately")
-}
-
-func TestContextConfigBranchWithTimeout(t *testing.T) {
-	t.Parallel()
-
-	cfg := DefaultContextConfig()
-
-	ctx, cancel := cfg.BranchWithTimeout(10 * time.Millisecond)
-	defer cancel()
-
-	time.Sleep(20 * time.Millisecond)
-
-	testutil.AssertContextErr(
-		ctx, t,
-		context.DeadlineExceeded,
-		"context should be done after timeout",
-	)
-}
-
-func TestContextConfigBranchWithDeadline(t *testing.T) {
-	t.Parallel()
-
-	cfg := DefaultContextConfig()
-	deadline := time.Now().Add(10 * time.Millisecond)
-
-	ctx, cancel := cfg.BranchWithDeadline(deadline)
-	defer cancel()
-
-	time.Sleep(20 * time.Millisecond)
-
-	testutil.AssertContextErr(
-		ctx, t,
-		context.DeadlineExceeded,
-		"context should be done after deadline",
-	)
-}
-
 func TestContextConfigBuildChainedTimeoutAndDeadline(t *testing.T) {
 	t.Parallel()
 

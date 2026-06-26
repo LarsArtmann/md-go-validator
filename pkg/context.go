@@ -5,9 +5,6 @@ import (
 	"time"
 )
 
-// ContextWrapper is a function that wraps a context with additional behavior.
-type ContextWrapper func(context.Context) (context.Context, context.CancelFunc)
-
 // ContextConfig holds configuration for context behavior in validation flows.
 // This enables proper context propagation, timeouts, and cancellation support
 // throughout the validation pipeline.
@@ -59,29 +56,11 @@ func (c ContextConfig) WithParent(parent context.Context) ContextConfig {
 	return c
 }
 
-// wrapContextWithCancel wraps a context with a derived context and chains
-// the cancel functions so both are called when the returned cancel is invoked.
-func wrapContextWithCancel(
-	ctx context.Context,
-	cancel context.CancelFunc,
-	wrap ContextWrapper,
-) (context.Context, context.CancelFunc) {
-	derivedCtx, derivedCancel := wrap(ctx)
-	originalCancel := cancel
-
-	return derivedCtx, func() {
-		derivedCancel()
-		originalCancel()
-	}
-}
-
-// buildContextWrapper creates a wrapper function for context.WithCancel chaining.
-func buildContextWrapper[T any](
-	value T,
-	wrapFn func(context.Context, T) (context.Context, context.CancelFunc),
-) ContextWrapper {
-	return func(parent context.Context) (context.Context, context.CancelFunc) {
-		return wrapFn(parent, value)
+// chainCancel returns a CancelFunc that calls both cancelFuncs.
+func chainCancel(c1, c2 context.CancelFunc) context.CancelFunc {
+	return func() {
+		c1()
+		c2()
 	}
 }
 
@@ -91,64 +70,21 @@ func buildContextWrapper[T any](
 func (c ContextConfig) Build() (context.Context, context.CancelFunc) {
 	parent := c.getParent()
 
-	// Start with a cancelable context
 	ctx, cancel := context.WithCancel(parent)
 
-	// Apply timeout if set
 	if c.Timeout > 0 {
-		ctx, cancel = wrapContextWithCancel(
-			ctx,
-			cancel,
-			buildContextWrapper(c.Timeout, context.WithTimeout),
-		)
+		timeoutCtx, timeoutCancel := context.WithTimeout(ctx, c.Timeout)
+		ctx = timeoutCtx
+		cancel = chainCancel(cancel, timeoutCancel)
 	}
 
-	// Apply deadline if set
 	if !c.Deadline.IsZero() {
-		ctx, cancel = wrapContextWithCancel(
-			ctx,
-			cancel,
-			buildContextWrapper(c.Deadline, context.WithDeadline),
-		)
+		deadlineCtx, deadlineCancel := context.WithDeadline(ctx, c.Deadline)
+		ctx = deadlineCtx
+		cancel = chainCancel(cancel, deadlineCancel)
 	}
 
 	return ctx, cancel
-}
-
-// Branch creates a new branch context for parallel operations.
-// This is useful when validating multiple files concurrently,
-// where each file should get its own context that can be cancelled independently.
-func (c ContextConfig) Branch() (context.Context, context.CancelFunc) {
-	parent := c.getParent()
-
-	// Create a new cancelable context branching from the parent
-	return context.WithCancel(parent)
-}
-
-// BranchWithTimeout creates a new branch context with a timeout for parallel operations.
-func (c ContextConfig) BranchWithTimeout(
-	timeout time.Duration,
-) (context.Context, context.CancelFunc) {
-	parent := c.getParent()
-
-	if timeout > 0 {
-		return context.WithTimeout(parent, timeout)
-	}
-
-	return context.WithCancel(parent)
-}
-
-// BranchWithDeadline creates a new branch context with a deadline for parallel operations.
-func (c ContextConfig) BranchWithDeadline(
-	deadline time.Time,
-) (context.Context, context.CancelFunc) {
-	parent := c.getParent()
-
-	if !deadline.IsZero() {
-		return context.WithDeadline(parent, deadline)
-	}
-
-	return context.WithCancel(parent)
 }
 
 // getParent returns the parent context, defaulting to context.Background if nil.
