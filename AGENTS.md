@@ -128,13 +128,13 @@ Branded types for type safety:
 ### Multi-Strategy Parsing (single implementation in GoValidator)
 
 0. Pre-processing: NormalizeDocIdioms ({ ... } → {}, ellipsis line removal)
-0. Pseudo go.mod detection (skip module directives)
-1. Complete file parsing
-2. Package wrapper (`package main`)
-3. Function wrapper (`func main()`)
-4. Expression (`_ = <code>`)
-5. Statements (function body)
-6. Imports + statements (split import block from statements — the dominant docs pattern)
+1. Pseudo go.mod detection (skip module directives)
+2. Complete file parsing
+3. Package wrapper (`package main`)
+4. Function wrapper (`func main()`)
+5. Expression (`_ = <code>`)
+6. Statements (function body)
+7. Imports + statements (split import block from statements — the dominant docs pattern)
 
 Error reporting uses best-attempt selection (highest error line from the strategy that parsed furthest), plus mixed-scope detection and skip-directive hints.
 

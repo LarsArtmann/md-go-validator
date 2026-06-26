@@ -30,117 +30,262 @@
         --warning: var(--color-yellow);
         --radius: 0px;
         --radius-sm: 0px;
-        --font-heading: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        --font-body: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        --font-mono: ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas, monospace;
+        --font-heading:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-body:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
+        --font-mono:
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
+          monospace;
       }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
-      html { scroll-behavior: smooth; }
-      section[id], [id] { scroll-margin-top: 60px; }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      section[id],
+      [id] {
+        scroll-margin-top: 60px;
+      }
       body {
-        background: var(--surface); color: var(--text);
-        font-family: var(--font-body); font-size: 15px; line-height: 1.6;
+        background: var(--surface);
+        color: var(--text);
+        font-family: var(--font-body);
+        font-size: 15px;
+        line-height: 1.6;
         -webkit-font-smoothing: antialiased;
       }
       .top-bar {
-        background: var(--surface-sunken); border-bottom: 1px solid var(--border);
-        padding: 0.5rem 2rem; display: flex; gap: 2rem;
-        font-family: var(--font-mono); font-size: 0.7rem; font-weight: 600;
-        text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint);
+        background: var(--surface-sunken);
+        border-bottom: 1px solid var(--border);
+        padding: 0.5rem 2rem;
+        display: flex;
+        gap: 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
       }
-      .layout { display: flex; max-width: 1200px; margin: 0 auto; padding: 2rem; gap: 2rem; }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        gap: 2rem;
+      }
       .sidebar {
-        display: none; flex-shrink: 0; width: 200px; position: sticky; top: 2rem; align-self: flex-start;
+        display: none;
+        flex-shrink: 0;
+        width: 200px;
+        position: sticky;
+        top: 2rem;
+        align-self: flex-start;
       }
-      .sidebar nav { display: flex; flex-direction: column; gap: 0.35rem; }
+      .sidebar nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
       .sidebar .label {
-        font-family: var(--font-mono); font-size: 0.65rem; font-weight: 700;
-        text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--text-faint);
         margin-bottom: 0.5rem;
       }
       .sidebar a {
-        color: var(--text-muted); text-decoration: none; font-size: 0.88rem;
-        padding: 0.25rem 0; border-left: 2px solid transparent; padding-left: 0.75rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 0.88rem;
+        padding: 0.25rem 0;
+        border-left: 2px solid transparent;
+        padding-left: 0.75rem;
       }
-      .sidebar a:hover, .sidebar a.active { color: var(--accent); border-left-color: var(--accent); }
-      .main { flex: 1; min-width: 0; }
+      .sidebar a:hover,
+      .sidebar a.active {
+        color: var(--accent);
+        border-left-color: var(--accent);
+      }
+      .main {
+        flex: 1;
+        min-width: 0;
+      }
       h1 {
-        font-family: var(--font-heading); font-size: 2.5rem; font-weight: 900;
-        letter-spacing: -0.04em; line-height: 1.05; margin: 0.5rem 0;
+        font-family: var(--font-heading);
+        font-size: 2.5rem;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1.05;
+        margin: 0.5rem 0;
       }
       h2 {
-        font-family: var(--font-heading); font-size: 1.6rem; font-weight: 800;
-        letter-spacing: -0.02em; margin: 2.5rem 0 0.5rem; padding-bottom: 0.5rem;
+        font-family: var(--font-heading);
+        font-size: 1.6rem;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        margin: 2.5rem 0 0.5rem;
+        padding-bottom: 0.5rem;
         border-bottom: 1px solid var(--border);
       }
       h3 {
-        font-family: var(--font-heading); font-size: 1.15rem; font-weight: 700;
+        font-family: var(--font-heading);
+        font-size: 1.15rem;
+        font-weight: 700;
         margin: 1.5rem 0 0.5rem;
       }
-      h4 { font-size: 1rem; font-weight: 700; margin: 0.5rem 0; }
-      p { margin: 0.5rem 0; color: var(--text-muted); }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+      }
+      p {
+        margin: 0.5rem 0;
+        color: var(--text-muted);
+      }
       .hero {
-        padding: 2rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;
+        padding: 2rem 0 1rem;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 1rem;
       }
       .hero-badge {
-        display: inline-block; font-family: var(--font-mono); font-size: 0.68rem;
-        font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
-        color: var(--accent); border: 1px solid var(--accent); padding: 0.2rem 0.6rem;
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--accent);
+        border: 1px solid var(--accent);
+        padding: 0.2rem 0.6rem;
         margin-bottom: 0.75rem;
       }
-      .hero-subtitle { color: var(--text-muted); font-size: 1.05rem; margin-top: 0.5rem; }
+      .hero-subtitle {
+        color: var(--text-muted);
+        font-size: 1.05rem;
+        margin-top: 0.5rem;
+      }
       .num {
-        display: inline-block; font-family: var(--font-mono); font-size: 0.8rem;
-        font-weight: 700; color: var(--accent); margin-right: 0.6rem;
-        border: 1px solid var(--accent); padding: 0.1rem 0.45rem; vertical-align: middle;
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-right: 0.6rem;
+        border: 1px solid var(--accent);
+        padding: 0.1rem 0.45rem;
+        vertical-align: middle;
       }
       .stat-grid {
-        display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 0.75rem; margin: 1rem 0 1.5rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 0.75rem;
+        margin: 1rem 0 1.5rem;
       }
       .stat-card {
-        background: var(--surface-raised); border: 1px solid var(--border);
-        padding: 1.1rem 1rem; position: relative;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.1rem 1rem;
+        position: relative;
       }
       .stat-card::before {
-        content: ""; position: absolute; top: 0; left: 0; right: 0;
-        height: 2px; background: var(--border-strong);
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: var(--border-strong);
       }
-      .stat-bad::before { background: var(--problem); }
-      .stat-good::before { background: var(--solution); }
-      .stat-warn::before { background: var(--warning); }
+      .stat-bad::before {
+        background: var(--problem);
+      }
+      .stat-good::before {
+        background: var(--solution);
+      }
+      .stat-warn::before {
+        background: var(--warning);
+      }
       .stat-value {
-        font-family: var(--font-heading); font-size: 2rem; font-weight: 800;
-        line-height: 1; letter-spacing: -0.03em;
+        font-family: var(--font-heading);
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1;
+        letter-spacing: -0.03em;
       }
-      .stat-bad .stat-value { color: var(--problem); }
-      .stat-good .stat-value { color: var(--solution); }
-      .stat-warn .stat-value { color: var(--warning); }
+      .stat-bad .stat-value {
+        color: var(--problem);
+      }
+      .stat-good .stat-value {
+        color: var(--solution);
+      }
+      .stat-warn .stat-value {
+        color: var(--warning);
+      }
       .stat-label {
-        font-family: var(--font-mono); font-size: 0.65rem; font-weight: 600;
-        text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.65rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-faint);
         margin-top: 0.5rem;
       }
       .card {
-        background: var(--surface-raised); border: 1px solid var(--border);
-        padding: 1.2rem; margin: 1rem 0;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        padding: 1.2rem;
+        margin: 1rem 0;
       }
-      .card-problem { border-left: 3px solid var(--problem); }
-      .card-warning { border-left: 3px solid var(--warning); }
-      .card-solution { border-left: 3px solid var(--solution); }
-      .card h3 { margin-top: 0; }
+      .card-problem {
+        border-left: 3px solid var(--problem);
+      }
+      .card-warning {
+        border-left: 3px solid var(--warning);
+      }
+      .card-solution {
+        border-left: 3px solid var(--solution);
+      }
+      .card h3 {
+        margin-top: 0;
+      }
       .badge {
-        display: inline-block; font-family: var(--font-mono); font-size: 0.62rem;
-        font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-        padding: 0.18rem 0.5rem; border: 1px solid var(--border-strong); color: var(--text-muted);
+        display: inline-block;
+        font-family: var(--font-mono);
+        font-size: 0.62rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        padding: 0.18rem 0.5rem;
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
       }
-      .badge-critical { color: var(--problem); border-color: var(--problem); }
-      .badge-fixed { color: var(--solution); border-color: var(--solution); }
-      .badge-medium { color: var(--accent); border-color: var(--accent); }
+      .badge-critical {
+        color: var(--problem);
+        border-color: var(--problem);
+      }
+      .badge-fixed {
+        color: var(--solution);
+        border-color: var(--solution);
+      }
+      .badge-medium {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
       .callout {
-        margin: 0.8rem 0 0; padding: 0.7rem 0.9rem;
+        margin: 0.8rem 0 0;
+        padding: 0.7rem 0.9rem;
         border-left: 3px solid var(--border-strong);
-        background: rgba(244, 244, 240, 0.05); font-size: 0.9rem;
+        background: rgba(244, 244, 240, 0.05);
+        font-size: 0.9rem;
       }
       .callout-solution {
         border-left-color: var(--solution);
@@ -151,67 +296,156 @@
         background: rgba(244, 211, 94, 0.1);
       }
       code {
-        font-family: var(--font-mono); font-size: 0.85rem;
-        background: var(--surface-sunken); padding: 0.1rem 0.35rem;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        background: var(--surface-sunken);
+        padding: 0.1rem 0.35rem;
         color: var(--accent);
       }
       pre {
-        background: var(--surface-sunken); border: 1px solid var(--border);
-        padding: 0.8rem 1rem; margin: 0.8rem 0; overflow-x: auto;
-        font-family: var(--font-mono); font-size: 0.82rem; line-height: 1.6;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        padding: 0.8rem 1rem;
+        margin: 0.8rem 0;
+        overflow-x: auto;
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        line-height: 1.6;
       }
-      pre code { background: none; padding: 0; color: var(--text); }
-      .tok-keyword { color: var(--warning); }
-      .tok-type { color: var(--warning); }
-      .tok-string { color: var(--solution); }
-      .tok-comment { color: var(--text-faint); font-style: italic; }
-      .tok-builtin { color: #4dd9ff; }
-      .tok-problem { color: var(--problem); font-weight: 600; }
+      pre code {
+        background: none;
+        padding: 0;
+        color: var(--text);
+      }
+      .tok-keyword {
+        color: var(--warning);
+      }
+      .tok-type {
+        color: var(--warning);
+      }
+      .tok-string {
+        color: var(--solution);
+      }
+      .tok-comment {
+        color: var(--text-faint);
+        font-style: italic;
+      }
+      .tok-builtin {
+        color: #4dd9ff;
+      }
+      .tok-problem {
+        color: var(--problem);
+        font-weight: 600;
+      }
       .migration-step {
-        display: grid; grid-template-columns: 48px 1fr; gap: 1rem;
-        margin: 1rem 0; padding: 1rem; background: var(--surface-raised);
-        border: 1px solid var(--border); border-left: 3px solid var(--accent);
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: var(--surface-raised);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--accent);
       }
-      .migration-step.done { border-left-color: var(--solution); }
+      .migration-step.done {
+        border-left-color: var(--solution);
+      }
       .migration-num {
-        font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem;
+        font-family: var(--font-mono);
+        font-weight: 800;
+        font-size: 1.5rem;
         line-height: 1;
       }
-      .migration-step.done .migration-num { color: var(--solution); }
-      .migration-step:not(.done) .migration-num { color: var(--accent); }
-      .migration-content h4 { margin-bottom: 0.2rem; }
-      .migration-content p { margin-bottom: 0; color: var(--text-muted); font-size: 0.92rem; }
-      .strengths { display: grid; gap: 0.5rem; margin: 1rem 0 1.5rem; }
+      .migration-step.done .migration-num {
+        color: var(--solution);
+      }
+      .migration-step:not(.done) .migration-num {
+        color: var(--accent);
+      }
+      .migration-content h4 {
+        margin-bottom: 0.2rem;
+      }
+      .migration-content p {
+        margin-bottom: 0;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+      .strengths {
+        display: grid;
+        gap: 0.5rem;
+        margin: 1rem 0 1.5rem;
+      }
       .strength {
-        display: grid; grid-template-columns: auto 1fr; gap: 0.8rem;
-        padding: 0.7rem 0; border-bottom: 1px solid var(--border);
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.8rem;
+        padding: 0.7rem 0;
+        border-bottom: 1px solid var(--border);
       }
       .strength .check {
-        font-family: var(--font-mono); font-weight: 700; color: var(--solution);
-        font-size: 1.1rem; line-height: 1.4;
+        font-family: var(--font-mono);
+        font-weight: 700;
+        color: var(--solution);
+        font-size: 1.1rem;
+        line-height: 1.4;
       }
-      .strength .text strong { display: block; margin-bottom: 0.15rem; }
-      .strength .text span { color: var(--text-muted); font-size: 0.9rem; }
+      .strength .text strong {
+        display: block;
+        margin-bottom: 0.15rem;
+      }
+      .strength .text span {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
       table {
-        width: 100%; border-collapse: collapse; margin: 1rem 0 1.5rem; font-size: 0.9rem;
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.9rem;
       }
       th {
-        text-align: left; padding: 0.6rem 0.9rem; background: var(--surface-raised);
-        color: var(--text-faint); font-family: var(--font-mono); font-size: 0.66rem;
-        font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+        text-align: left;
+        padding: 0.6rem 0.9rem;
+        background: var(--surface-raised);
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
         border-bottom: 1px solid var(--border-strong);
       }
-      td { padding: 0.6rem 0.9rem; border-bottom: 1px solid var(--border); }
-      tr:hover td { background: var(--surface-raised); }
-      .footer {
-        margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border);
-        font-size: 0.8rem; color: var(--text-faint); font-family: var(--font-mono);
+      td {
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid var(--border);
       }
-      @media (min-width: 1024px) { .sidebar { display: block; } }
+      tr:hover td {
+        background: var(--surface-raised);
+      }
+      .footer {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+        font-size: 0.8rem;
+        color: var(--text-faint);
+        font-family: var(--font-mono);
+      }
+      @media (min-width: 1024px) {
+        .sidebar {
+          display: block;
+        }
+      }
       @media (max-width: 768px) {
-        .layout { flex-direction: column; padding: 1rem; }
-        .stat-grid { grid-template-columns: repeat(2, 1fr); }
-        .migration-step { grid-template-columns: 1fr; }
+        .layout {
+          flex-direction: column;
+          padding: 1rem;
+        }
+        .stat-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .migration-step {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -239,7 +473,9 @@
         <div class="hero">
           <div class="hero-badge">Brutal Self-Review</div>
           <h1>md-go-validator</h1>
-          <p class="hero-subtitle">Honest reflection on code quality, what was forgotten, and what to fix next.</p>
+          <p class="hero-subtitle">
+            Honest reflection on code quality, what was forgotten, and what to fix next.
+          </p>
         </div>
 
         <h2 id="summary"><span class="num">01</span>Summary</h2>
@@ -270,131 +506,196 @@
           </div>
         </div>
 
-        <p>The codebase is in <strong>good shape</strong> — well-structured packages, branded types, functional options,
-        streaming validation, and solid test coverage. But a <strong>runtime panic</strong> hiding in verbose mode went
-        unnoticed for weeks because the function was never tested. That's the headline.</p>
+        <p>
+          The codebase is in <strong>good shape</strong> — well-structured packages, branded types,
+          functional options, streaming validation, and solid test coverage. But a
+          <strong>runtime panic</strong> hiding in verbose mode went unnoticed for weeks because the
+          function was never tested. That's the headline.
+        </p>
 
         <h2 id="self-review"><span class="num">02</span>Self-Review Questions</h2>
 
         <div class="card card-problem">
           <h3>1. What did you forget?</h3>
-          <p>During the initial HTML fix, I <strong>fixed one tag without verifying the scope</strong>. I wrote a Python
-          script that <strong>truncated a 1643-line file to 0 bytes</strong> because <code>open(f, 'w')</code> runs
-          before the write call. I then wrote a second script that <strong>broke a valid <code>&lt;/code&gt;</code> tag</strong>
-          because its regex <code>&lt;code&gt;</code> didn't match <code>&lt;code class="raw"&gt;</code>. Three mistakes
-          in a row, all from acting before understanding.</p>
+          <p>
+            During the initial HTML fix, I
+            <strong>fixed one tag without verifying the scope</strong>. I wrote a Python script that
+            <strong>truncated a 1643-line file to 0 bytes</strong> because
+            <code>open(f, 'w')</code> runs before the write call. I then wrote a second script that
+            <strong>broke a valid <code>&lt;/code&gt;</code> tag</strong> because its regex
+            <code>&lt;code&gt;</code> didn't match <code>&lt;code class="raw"&gt;</code>. Three
+            mistakes in a row, all from acting before understanding.
+          </p>
           <div class="callout callout-solution">
-            <strong>Lesson:</strong> Always verify with a proper parser before and after changes. Write to temp files.
-            Never open with 'w' until you're ready to write.
+            <strong>Lesson:</strong> Always verify with a proper parser before and after changes.
+            Write to temp files. Never open with 'w' until you're ready to write.
           </div>
         </div>
 
         <div class="card card-problem">
           <h3>2. What is something stupid that we do anyway?</h3>
-          <p><code>formatSupportedExtensions()</code> created a <strong>length-0 slice</strong> and then indexed into it.
-          This is a textbook Go bug: <code>make([]string, 0, n)</code> + <code>names[i]</code> = panic. It survived because
-          the function is only called in verbose mode and was never tested.</p>
+          <p>
+            <code>formatSupportedExtensions()</code> created a <strong>length-0 slice</strong> and
+            then indexed into it. This is a textbook Go bug: <code>make([]string, 0, n)</code> +
+            <code>names[i]</code> = panic. It survived because the function is only called in
+            verbose mode and was never tested.
+          </p>
         </div>
 
         <div class="card card-warning">
           <h3>3. What could you have done better?</h3>
-          <p>Test <strong>every exported function</strong>, especially ones behind feature flags (verbose, quiet, etc.).
-          The <code>CodeBlock</code> type had 4 ghost methods (<code>MarkValid</code>, <code>MarkError</code>,
-          <code>IsValid</code>, <code>HasError</code>) that were never called in production — only in their own tests.
-          These created a false impression that <code>CodeBlock</code> carries validation status, when in reality that
-          lives exclusively in <code>Result</code>.</p>
+          <p>
+            Test <strong>every exported function</strong>, especially ones behind feature flags
+            (verbose, quiet, etc.). The <code>CodeBlock</code> type had 4 ghost methods
+            (<code>MarkValid</code>, <code>MarkError</code>, <code>IsValid</code>,
+            <code>HasError</code>) that were never called in production — only in their own tests.
+            These created a false impression that <code>CodeBlock</code> carries validation status,
+            when in reality that lives exclusively in <code>Result</code>.
+          </p>
         </div>
 
         <div class="card card-warning">
           <h3>4. What could you still improve?</h3>
-          <p><code>ValidationError.Line</code> and <code>ValidationError.Column</code> are plain <code>int</code> instead
-          of branded types. The rest of the codebase uses <code>LineNumber</code>, <code>BlockIndex</code>, etc. This
-          inconsistency breaks the type safety story. Also, <code>splitImportsAndStatements</code> is a string-matching
-          mini-parser that could be fragile against edge cases (imports in comments, strings).</p>
+          <p>
+            <code>ValidationError.Line</code> and <code>ValidationError.Column</code> are plain
+            <code>int</code> instead of branded types. The rest of the codebase uses
+            <code>LineNumber</code>, <code>BlockIndex</code>, etc. This inconsistency breaks the
+            type safety story. Also, <code>splitImportsAndStatements</code> is a string-matching
+            mini-parser that could be fragile against edge cases (imports in comments, strings).
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>5. Did you lie to me?</h3>
-          <p><strong>No.</strong> The initial HTML "fix" was unnecessary — the files were already valid at HEAD.
-          I restored everything cleanly. The code fixes are real, tested, and verified.</p>
+          <p>
+            <strong>No.</strong> The initial HTML "fix" was unnecessary — the files were already
+            valid at HEAD. I restored everything cleanly. The code fixes are real, tested, and
+            verified.
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>6. How can we be less stupid?</h3>
-          <p>Add a <strong>verbose-mode integration test</strong> that actually runs the CLI with <code>--verbose</code>
-          against a directory with files. This would have caught the panic instantly. Also, any function that builds
-          output for the user should have at least one test.</p>
+          <p>
+            Add a <strong>verbose-mode integration test</strong> that actually runs the CLI with
+            <code>--verbose</code> against a directory with files. This would have caught the panic
+            instantly. Also, any function that builds output for the user should have at least one
+            test.
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>7. Ghost systems?</h3>
-          <p><strong>Found and removed:</strong> <code>CodeBlock.MarkValid()</code>, <code>MarkError()</code>,
-          <code>IsValid()</code>, <code>HasError()</code>. These were ghost methods — defined, tested in isolation,
-          but never wired into the actual validation pipeline. <code>CodeBlock</code> only tracks extraction-time
-          status (skipped or unknown); validation status lives in <code>Result</code>. Now the type surface is honest.</p>
+          <p>
+            <strong>Found and removed:</strong> <code>CodeBlock.MarkValid()</code>,
+            <code>MarkError()</code>, <code>IsValid()</code>, <code>HasError()</code>. These were
+            ghost methods — defined, tested in isolation, but never wired into the actual validation
+            pipeline. <code>CodeBlock</code> only tracks extraction-time status (skipped or
+            unknown); validation status lives in <code>Result</code>. Now the type surface is
+            honest.
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>8. Scope creep?</h3>
-          <p><strong>No.</strong> All changes were within the existing architecture. No new features, packages, or
-          abstractions were added. Only bugs fixed and dead code removed.</p>
+          <p>
+            <strong>No.</strong> All changes were within the existing architecture. No new features,
+            packages, or abstractions were added. Only bugs fixed and dead code removed.
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>9. Did we remove something useful?</h3>
-          <p><strong>No.</strong> The ghost methods were confirmed unused via grep across all <code>.go</code> files.
-          The <code>withInt</code> indirection added a function call for zero benefit.</p>
+          <p>
+            <strong>No.</strong> The ghost methods were confirmed unused via grep across all
+            <code>.go</code> files. The <code>withInt</code> indirection added a function call for
+            zero benefit.
+          </p>
         </div>
 
         <div class="card card-solution">
           <h3>10. Split brains?</h3>
-          <p><strong>Fixed one:</strong> <code>CodeBlock.Status</code> could be set to <code>StatusValid</code> or
-          <code>StatusError</code> via the ghost methods, creating ambiguity about whether <code>CodeBlock</code> or
-          <code>Result</code> was the source of truth for validation status. Now <code>CodeBlock</code> only has
-          <code>StatusUnknown</code> and <code>StatusSkipped</code> — clear extraction-time semantics.</p>
+          <p>
+            <strong>Fixed one:</strong> <code>CodeBlock.Status</code> could be set to
+            <code>StatusValid</code> or <code>StatusError</code> via the ghost methods, creating
+            ambiguity about whether <code>CodeBlock</code> or <code>Result</code> was the source of
+            truth for validation status. Now <code>CodeBlock</code> only has
+            <code>StatusUnknown</code> and <code>StatusSkipped</code> — clear extraction-time
+            semantics.
+          </p>
         </div>
 
         <div class="card card-warning">
           <h3>11. How are we doing on tests?</h3>
-          <p>Coverage is solid (74-100% per package). But <strong>verbose mode is a blind spot</strong> — the panic bug
-          existed for weeks because no test exercised <code>formatSupportedExtensions()</code>. Added a test for it now.
-          The <code>streamFilesParallel</code> and <code>processFilesParallel</code> code paths share most of their
-          structure but are tested separately, which is correct.</p>
+          <p>
+            Coverage is solid (74-100% per package). But
+            <strong>verbose mode is a blind spot</strong> — the panic bug existed for weeks because
+            no test exercised <code>formatSupportedExtensions()</code>. Added a test for it now. The
+            <code>streamFilesParallel</code> and <code>processFilesParallel</code> code paths share
+            most of their structure but are tested separately, which is correct.
+          </p>
         </div>
 
         <h2 id="issues"><span class="num">03</span>Issues Found</h2>
 
         <div class="card card-problem">
-          <h3>Runtime Panic in formatSupportedExtensions <span class="badge badge-critical">Critical</span> <span class="badge badge-fixed">Fixed</span></h3>
+          <h3>
+            Runtime Panic in formatSupportedExtensions
+            <span class="badge badge-critical">Critical</span>
+            <span class="badge badge-fixed">Fixed</span>
+          </h3>
           <p><strong>File:</strong> <code>pkg/validator.go:634</code></p>
-          <p><code>make([]string, 0, len(exts))</code> creates a length-0 slice, then <code>names[i] = ext.String()</code>
-          panics with index out of range. Triggered whenever verbose directory validation finds files.</p>
+          <p>
+            <code>make([]string, 0, len(exts))</code> creates a length-0 slice, then
+            <code>names[i] = ext.String()</code> panics with index out of range. Triggered whenever
+            verbose directory validation finds files.
+          </p>
           <div class="callout callout-solution">
-            <strong>Fix:</strong> Changed to <code>names = append(names, ext.String())</code> + added <code>TestFormatSupportedExtensions</code>.
+            <strong>Fix:</strong> Changed to <code>names = append(names, ext.String())</code> +
+            added <code>TestFormatSupportedExtensions</code>.
           </div>
         </div>
 
         <div class="card card-problem">
-          <h3>Ghost CodeBlock Methods <span class="badge badge-medium">Medium</span> <span class="badge badge-fixed">Fixed</span></h3>
+          <h3>
+            Ghost CodeBlock Methods <span class="badge badge-medium">Medium</span>
+            <span class="badge badge-fixed">Fixed</span>
+          </h3>
           <p><strong>File:</strong> <code>pkg/types/code_block.go</code></p>
-          <p><code>MarkValid()</code>, <code>MarkError()</code>, <code>IsValid()</code>, <code>HasError()</code> were
-          never called in production code — only in their own unit tests. They created a split brain where
-          <code>CodeBlock</code> appeared to own validation state it never tracked.</p>
+          <p>
+            <code>MarkValid()</code>, <code>MarkError()</code>, <code>IsValid()</code>,
+            <code>HasError()</code> were never called in production code — only in their own unit
+            tests. They created a split brain where <code>CodeBlock</code> appeared to own
+            validation state it never tracked.
+          </p>
         </div>
 
         <div class="card card-warning">
-          <h3>Double Error Wrapping <span class="badge badge-medium">Medium</span> <span class="badge badge-fixed">Fixed</span></h3>
+          <h3>
+            Double Error Wrapping <span class="badge badge-medium">Medium</span>
+            <span class="badge badge-fixed">Fixed</span>
+          </h3>
           <p><strong>File:</strong> <code>pkg/validator.go:139</code></p>
-          <p><code>validateAndReturnPath</code> wrapped errors from <code>validatePath</code> with a redundant
-          <code>"pathType=%s: "</code> prefix, producing messages like <code>"pathType=file: invalid file ..."</code>.
-          Removed the wrapper; callers use <code>validatePath</code> directly.</p>
+          <p>
+            <code>validateAndReturnPath</code> wrapped errors from <code>validatePath</code> with a
+            redundant <code>"pathType=%s: "</code> prefix, producing messages like
+            <code>"pathType=file: invalid file ..."</code>. Removed the wrapper; callers use
+            <code>validatePath</code> directly.
+          </p>
         </div>
 
         <div class="card card-warning">
-          <h3>Unnecessary Indirection &amp; Map Allocation <span class="badge badge-medium">Medium</span> <span class="badge badge-fixed">Fixed</span></h3>
+          <h3>
+            Unnecessary Indirection &amp; Map Allocation
+            <span class="badge badge-medium">Medium</span>
+            <span class="badge badge-fixed">Fixed</span>
+          </h3>
           <p><strong>File:</strong> <code>pkg/validator.go</code></p>
-          <p><code>withInt</code> method added a function call for setting a single field. <code>shouldSkipDir</code>
-          allocated a <code>map[string]bool</code> on every call for 4 entries. Both simplified.</p>
+          <p>
+            <code>withInt</code> method added a function call for setting a single field.
+            <code>shouldSkipDir</code> allocated a <code>map[string]bool</code> on every call for 4
+            entries. Both simplified.
+          </p>
         </div>
 
         <h2 id="fixed"><span class="num">04</span>What Was Fixed Today</h2>
@@ -438,7 +739,10 @@
         </div>
 
         <h2 id="plan"><span class="num">05</span>Execution Plan (Remaining Items)</h2>
-        <p>Sorted by work required vs impact. Items marked <span class="badge badge-fixed">Done</span> are complete.</p>
+        <p>
+          Sorted by work required vs impact. Items marked
+          <span class="badge badge-fixed">Done</span> are complete.
+        </p>
 
         <div class="migration-step done">
           <div class="migration-num">1</div>
@@ -468,8 +772,11 @@
           <div class="migration-num">4</div>
           <div class="migration-content">
             <h4>Add verbose-mode integration test</h4>
-            <p>15 min work, high impact. Run CLI with <code>--verbose</code> against a test directory to catch panics
-            in output paths. Prevents future <code>formatSupportedExtensions</code>-class bugs.</p>
+            <p>
+              15 min work, high impact. Run CLI with <code>--verbose</code> against a test directory
+              to catch panics in output paths. Prevents future
+              <code>formatSupportedExtensions</code>-class bugs.
+            </p>
           </div>
         </div>
 
@@ -477,8 +784,11 @@
           <div class="migration-num">5</div>
           <div class="migration-content">
             <h4>Brand ValidationError.Line and .Column</h4>
-            <p>20 min work, medium impact. Replace <code>int</code> with branded types for consistency with
-            <code>LineNumber</code> etc. Requires updating <code>languages</code> package consumers.</p>
+            <p>
+              20 min work, medium impact. Replace <code>int</code> with branded types for
+              consistency with <code>LineNumber</code> etc. Requires updating
+              <code>languages</code> package consumers.
+            </p>
           </div>
         </div>
 
@@ -486,8 +796,11 @@
           <div class="migration-num">6</div>
           <div class="migration-content">
             <h4>Consider go/parser for splitImportsAndStatements</h4>
-            <p>30 min work, low impact. The current string-matching approach works for common cases but may break on
-            edge cases (imports in comments/strings). Could use <code>go/parser</code> for robustness.</p>
+            <p>
+              30 min work, low impact. The current string-matching approach works for common cases
+              but may break on edge cases (imports in comments/strings). Could use
+              <code>go/parser</code> for robustness.
+            </p>
           </div>
         </div>
 
@@ -499,7 +812,9 @@
             <div class="check">&#10003;</div>
             <div class="text">
               <strong>Branded types throughout</strong>
-              <span>FileID, LineNumber, BlockIndex, ExcludePattern, Language — prevents mixing</span>
+              <span
+                >FileID, LineNumber, BlockIndex, ExcludePattern, Language — prevents mixing</span
+              >
             </div>
           </div>
           <div class="strength">
@@ -544,34 +859,35 @@
           <tbody>
             <tr>
               <td>YAML</td>
-              <td style="color: var(--solution);">go-faster/yaml</td>
+              <td style="color: var(--solution)">go-faster/yaml</td>
               <td>Correct — not yaml.v2/v3</td>
             </tr>
             <tr>
               <td>Errors</td>
-              <td style="color: var(--warning);">stdlib errors</td>
+              <td style="color: var(--warning)">stdlib errors</td>
               <td>Functional but could use go-faster/errors for structured wrapping</td>
             </tr>
             <tr>
               <td>JSON</td>
-              <td style="color: var(--solution);">stdlib</td>
+              <td style="color: var(--solution)">stdlib</td>
               <td>Go 1.26 — encoding/json is sufficient</td>
             </tr>
             <tr>
               <td>Banned deps</td>
-              <td style="color: var(--solution);">None found</td>
+              <td style="color: var(--solution)">None found</td>
               <td>No testify, gorm, viper, etc.</td>
             </tr>
             <tr>
               <td>Testing</td>
-              <td style="color: var(--warning);">table-driven</td>
+              <td style="color: var(--warning)">table-driven</td>
               <td>Solid but no BDD (Ginkgo) for critical user paths</td>
             </tr>
           </tbody>
         </table>
 
         <div class="footer">
-          Generated 2026-06-26 by brutal-self-review skill. All findings verified against actual code.
+          Generated 2026-06-26 by brutal-self-review skill. All findings verified against actual
+          code.
         </div>
       </main>
     </div>
