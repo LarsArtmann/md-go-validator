@@ -15,6 +15,11 @@
       url = "github:numtide/treefmt-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    go-finding-src = {
+      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=refs/tags/v1.0.0";
+      flake = false;
+    };
   };
 
   outputs =
@@ -34,7 +39,10 @@
         {
           # The package definition lives in package.nix (single source of truth).
           # We pass `self` so the build gets the git-derived version.
-          packages.default = pkgs.callPackage ./package.nix { inherit self; };
+          packages.default = pkgs.callPackage ./package.nix {
+            inherit self;
+            inherit (inputs) go-finding-src;
+          };
 
           apps = {
             default = {

@@ -2,10 +2,11 @@
   lib,
   buildGoModule,
   self ? { },
+  go-finding-src ? null,
 }:
 let
   version = self.shortRev or self.dirtyShortRev or "dev";
-  vendorHash = "sha256-sNDTW0u2GO/IhEw2iKV2xMQEfY/gIeD/3VNDiPwYCIc=";
+  vendorHash = "sha256-AR3Uuc3vmkr/4sOpxpJSOBi29dj5S59SPgRNn3smq2o=";
 
   src = lib.fileset.toSource {
     root = ./.;
@@ -20,6 +21,16 @@ in
 buildGoModule {
   pname = "md-go-validator";
   inherit version vendorHash src;
+  proxyVendor = true;
+  postPatch =
+    if go-finding-src != null then
+      ''
+        if ! grep -q 'replace github.com/larsartmann/go-finding => ' go.mod; then
+          echo 'replace github.com/larsartmann/go-finding => ${go-finding-src}' >> go.mod
+        fi
+      ''
+    else
+      null;
   ldflags = [
     "-s"
     "-w"

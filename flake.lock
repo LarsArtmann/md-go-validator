@@ -20,6 +20,23 @@
         "type": "github"
       }
     },
+    "go-finding-src": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1782262705,
+        "narHash": "sha256-vWd9zlwjTpVBnwJMA4wf4Q+7Dj+V4iwdU8fViFv3AeU=",
+        "ref": "refs/tags/v1.0.0",
+        "rev": "64bada22e3664788a73c21d5b7f21faa0f3a5b7f",
+        "revCount": 827,
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+      },
+      "original": {
+        "ref": "refs/tags/v1.0.0",
+        "type": "git",
+        "url": "ssh://git@github.com/LarsArtmann/go-finding"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1782467914,
@@ -39,6 +56,7 @@
     "root": {
       "inputs": {
         "flake-parts": "flake-parts",
+        "go-finding-src": "go-finding-src",
         "nixpkgs": "nixpkgs",
         "systems": "systems",
         "treefmt-nix": "treefmt-nix"
