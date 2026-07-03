@@ -1,21 +1,4 @@
-.DS_Store
-/.go/
-/go.work
-/go.work.sum
-/md-go-validator
-/dist/
-# Dependencies
-node_modules/
-Test coverage
-/coverage
-Copy/paste detection report
-/report/jscpd-report.json
-# Sensitive files
-*.db
-# Nix build output
-/result
-
-# >>> buildflow-managed (.gitignore) >>>
+# >>> buildflow-managed (.dockerignore) >>>
 # Auto-managed by buildflow. Edit outside these markers; this block is regenerated on `buildflow --fix`.
 
 ## Secrets and environment
@@ -25,11 +8,17 @@ Copy/paste detection report
 *.pem
 *.key
 
-## Databases
-*.db-shm
-*.db-wal
+## Version control
+.git
+.gitignore
+.gitattributes
+
+## Ci cd
+.github/
+.gitlab-ci.yml
 
 ## Operating systems
+.DS_Store
 ._*
 .Spotlight-V100
 .Trashes
@@ -43,6 +32,10 @@ ehthumbs.db
 *.swo
 *~
 
+## Documentation
+docs/
+*.md
+
 ## Logs and temporaries
 *.log
 *.tmp
@@ -53,8 +46,11 @@ audit-log.*
 workflow-audit-log.*
 .buildflow-workflow-baseline.json
 
-## Reports and coverage
-reports/
+## Test artifacts
+*.test
+*.out
+coverage.out
+*.html
 
 ## Go
 *.exe
@@ -64,9 +60,13 @@ reports/
 *.test
 *.out
 vendor/
+go.work
+go.work.sum
+/md-go-validator
 
 ## Nix
+result
 result-*
 .envrc
 .direnv/
-# <<< buildflow-managed (.gitignore) <<<
+# <<< buildflow-managed (.dockerignore) <<<
