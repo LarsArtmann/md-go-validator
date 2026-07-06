@@ -23,7 +23,7 @@ func FromResult(r types.Result) (finding.Finding, bool) {
 	}
 
 	pos := finding.Position{
-		File:   r.File.String(),
+		File:   finding.FilePath(r.File.String()),
 		Line:   r.LineNumber.Int(),
 		Column: 1,
 		Offset: -1,
