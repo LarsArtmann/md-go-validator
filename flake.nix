@@ -93,6 +93,7 @@
                   ;
               };
               GOWORK = "off";
+              GOPRIVATE = "github.com/larsartmann/*";
             };
           };
 
