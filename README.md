@@ -169,11 +169,16 @@ type MyStruct struct {
 
 The Go validator tries multiple approaches to parse code:
 
-1. **Complete File** - Parse as-is
-2. **Package Wrapper** - Wrap in `package main`
-3. **Function Wrapper** - Wrap in `func main() { ... }`
-4. **Expression** - Wrap as `_ = <code>`
-5. **Statements** - Wrap as function body
+0. **Pre-processing** - Normalize documentation idioms (`{ ... }` → `{}`, drop ellipsis-only lines)
+1. **Pseudo go.mod detection** - Skip module directives (`require`, `replace`, `module`)
+2. **Complete File** - Parse as-is
+3. **Package Wrapper** - Wrap in `package main`
+4. **Function Wrapper** - Wrap in `func main() { ... }`
+5. **Expression** - Wrap as `_ = <code>`
+6. **Statements** - Wrap as function body
+7. **Imports + Statements** - Split import block from statements (the dominant docs pattern)
+
+Error reporting uses best-attempt selection (the error from the strategy that parsed furthest).
 
 This handles:
 

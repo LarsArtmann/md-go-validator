@@ -1,67 +1,62 @@
 # Domain Language
 
-A **Unified Language** for `.` — shared across Customer, Product Owner, Developer, and AI.
+A **Unified Language** for md-go-validator — shared across maintainers, contributors, and AI.
 Inspired by Domain-Driven Design (DDD) Ubiquitous Language.
 
 Every term below should mean the **same thing** to everyone who reads it.
-If a word means something different to a developer than to a customer, define it here.
 
 ## Glossary
 
-| Term         | Definition               | Context                        |
-| ------------ | ------------------------ | ------------------------------ |
-| .            | The project/product name | What we call this system       |
-| Example Term | A placeholder definition | Replace with your actual terms |
+| Term            | Definition                                                           | Context                              |
+| --------------- | -------------------------------------------------------------------- | ------------------------------------ |
+| Code Block      | A fenced code region in Markdown/MDX (e.g., ` ```go ... ``` `)       | Extraction, validation               |
+| Code Block Info | The language tag on a fenced code block (e.g., `go`, `typescript`)   | Extraction, language identification  |
+| Skip Directive  | A comment that marks a code block as intentionally invalid           | Extraction, validation               |
+| Strategy        | One of the parsing approaches tried by the Go validator              | Go validation                        |
+| Best-attempt    | The error from the strategy that parsed furthest before failing      | Error reporting                      |
+| Baseline        | A file of known error signatures; only new errors fail the build     | Baseline regression mode             |
+| Signature       | `file:line:errorcode` tuple identifying a specific known error       | Baseline                             |
+| Finding         | A neutral validation result convertible to SARIF/LSP/JSON            | Finding interchange (`pkg/finding/`) |
+| Exclude Pattern | A glob pattern that filters files/dirs from validation               | File processing                      |
+| Branded Type    | A named type wrapping a primitive to prevent mixing (e.g., `FileID`) | Type safety (`pkg/types/`)           |
 
 ## Entities
 
-Objects with identity and lifecycle (e.g., User, Order, Account).
+Objects with identity and lifecycle.
 
-<!-- Add your entities here:
-| Term | Definition | Context |
-|------|-----------|---------|
-| User | A person who interacts with the system | Customer-facing |
--->
+| Term                | Definition                                            | Context            |
+| ------------------- | ----------------------------------------------------- | ------------------ |
+| FileValidator       | The main validator orchestrating file/directory scans | `pkg/validator.go` |
+| Registry            | Maps languages to their validators                    | `pkg/languages/`   |
+| GoValidator         | stdlib-based Go parser with multi-strategy approach   | `pkg/languages/`   |
+| TreeSitterValidator | tree-sitter-based validator for non-Go languages      | `pkg/languages/`   |
 
 ## Value Objects
 
-Immutable objects defined by attributes (e.g., Email, Money, Address).
+Immutable objects defined by attributes.
 
-<!-- Add your value objects here:
-| Term | Definition | Context |
-|------|-----------|---------|
-| Email | A validated email address | Unique identifier for users |
--->
-
-## Events
-
-Things that happen in the domain (e.g., UserRegistered, PaymentProcessed).
-
-<!-- Add your events here:
-| Term | Definition | Context |
-|------|-----------|---------|
-| UserRegistered | A new user completed signup | Triggers welcome email |
--->
-
-## Commands
-
-Actions the system can perform (e.g., CreateUser, ProcessPayment).
-
-<!-- Add your commands here:
-| Term | Definition | Context |
-|------|-----------|---------|
-| CreateUser | Registers a new user account | Admin action |
--->
+| Term             | Definition                                          | Context          |
+| ---------------- | --------------------------------------------------- | ---------------- |
+| CodeBlock        | Extracted code block with language, content, line   | `pkg/types/`     |
+| Result           | Validation outcome for a single code block          | `pkg/types/`     |
+| ValidationStatus | Enum: unknown/valid/skipped/error                   | `pkg/types/`     |
+| ErrorCode        | Enum: syntax/not_available/not_registered/unknown   | `pkg/types/`     |
+| FileID           | Branded string identifying a source file            | `pkg/types/`     |
+| LineNumber       | Branded uint for 1-based line numbers               | `pkg/types/`     |
+| BlockIndex       | Branded uint for code block position in a file      | `pkg/types/`     |
+| ExcludePattern   | Branded string with encapsulated glob matching      | `pkg/types/`     |
+| Language         | Branded string for a supported programming language | `pkg/languages/` |
 
 ## Bounded Contexts
 
-Subsystems with distinct vocabulary (e.g., Billing vs. Shipping).
-
-<!-- Define contexts where the same word means different things:
-| Context | Description |
-|---------|------------|
-| Billing | Handles payments and invoices |
--->
+| Context    | Description                                                |
+| ---------- | ---------------------------------------------------------- |
+| Extraction | Parsing Markdown/MDX to find and classify code blocks      |
+| Validation | Running language-specific parsers against extracted code   |
+| Output     | Formatting and emitting results in various formats         |
+| Config     | Loading and merging `.md-go-validator.yaml` with CLI flags |
+| Baseline   | Tracking known errors to support incremental adoption      |
+| Finding    | Converting results to neutral Finding type for interchange |
 
 ---
 

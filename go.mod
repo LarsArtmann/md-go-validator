@@ -6,21 +6,19 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-faster/yaml v0.4.6
 	github.com/larsartmann/go-finding v1.2.0
-	github.com/larsartmann/go-output v0.30.1
-	github.com/larsartmann/go-output/delimited v0.30.1
-	github.com/larsartmann/go-output/serialization v0.30.1
-	github.com/odvcencio/gotreesitter v0.21.0
+	github.com/larsartmann/go-output v0.30.4
+	github.com/larsartmann/go-output/delimited v0.30.4
+	github.com/larsartmann/go-output/serialization v0.30.4
+	github.com/odvcencio/gotreesitter v0.37.0
 )
 
 require (
 	github.com/go-faster/errors v0.7.1 // indirect
 	github.com/go-faster/jx v1.2.0 // indirect
-	github.com/larsartmann/go-branded-id v0.3.1 // indirect
-	github.com/larsartmann/go-output/testhelpers v0.30.1 // indirect
-	github.com/larsartmann/go-output/testhelpers/graphtest v0.30.1 // indirect
+	github.com/larsartmann/go-branded-id v0.3.2 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.46.0 // indirect
-	golang.org/x/term v0.44.0 // indirect
+	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/term v0.45.0 // indirect
 )

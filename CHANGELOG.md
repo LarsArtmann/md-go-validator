@@ -6,6 +6,40 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Added
+
+- SARIF output format for CI integration (GitHub Code Scanning)
+- `--config` flag for explicit config file path
+- `--save-baseline` flag and improved baseline signature precision (includes error code)
+- `--list-languages` flag to print all supported languages
+- `--fail-on-skipped` flag for strict mode (exit 1 if any blocks skipped)
+- `**` recursive glob support for exclude patterns via doublestar
+- FEATURES.md, TODO_LIST.md, ROADMAP.md documentation
+
+### Changed
+
+- Upgraded go-output to v0.30.1 (now uses `go-output/delimited` and `go-output/serialization` sub-packages)
+- Upgraded go-finding to v1.2.0 (breaking: `Position.File` is now branded `FilePath` type)
+- Upgraded gotreesitter to v0.21.0
+- Upgraded Go version to 1.26.4
+- CLI flags now override (not union with) config file repeatable values
+- `ValidateDirectoryFunc` now truly streams results via worker pool
+- Type `Config.Languages` as `[]languages.Language` to eliminate stringly-typed split brain
+- `ExcludePattern` is now a branded type with encapsulated `Match` logic
+- Added `GOPRIVATE` for `github.com/larsartmann/*` modules in CI devShell
+- CI uses golangci-lint-action v7 with `GOEXPERIMENT=jsonv2`
+
+### Removed
+
+- Ghost `CodeBlock` methods that split validation status
+- Ghost `ContextConfig.Branch` methods (simplified to `Build()` / `BranchWithTimeout()`)
+- CLI indirection wrappers (direct handler dispatch)
+
+### Fixed
+
+- Panic in `formatSupportedExtensions` during verbose mode
+- `ValidateDirectoryFunc` streaming correctness via worker pool
+
 ## [0.3.0] - 2026-06-17
 
 ### Added

@@ -7,10 +7,10 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 
 ## Tech Stack
 
-- Go 1.26.3+
-- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.20.2 — pure Go tree-sitter for multi-language parsing
-- [go-output](https://github.com/larsartmann/go-output) v0.11.0 — multi-format output (JSON, YAML, CSV, table)
-- [go-finding](https://github.com/larsartmann/go-finding) v1.0.0 — neutral Finding type for SARIF/LSP/JSON interchange
+- Go 1.26.4+
+- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.21.0 — pure Go tree-sitter for multi-language parsing
+- [go-output](https://github.com/larsartmann/go-output) v0.30.1 — multi-format output (JSON, YAML, CSV, table, markdown)
+- [go-finding](https://github.com/larsartmann/go-finding) v1.2.0 — neutral Finding type for SARIF/LSP/JSON interchange
 - [go-faster/yaml](https://github.com/go-faster/yaml) v0.4.6 — YAML parsing for config files
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
@@ -92,10 +92,12 @@ Branded types for type safety:
 ### pkg/finding/
 
 - `FromResult()` / `FromResults()`: converts `types.Result` → neutral `go-finding.Finding`
+- Enables SARIF/LSP/JSON interchange with a one-liner
+- Uses branded `finding.FilePath` type (v1.2.0 API)
 
 ### pkg/output/
 
-- `PrintReport()` / `PrintReportTo()` — Multi-format output (table/json/yaml/csv/markdown/quiet)
+- `PrintReport()` / `PrintReportTo()` — Multi-format output (table/json/yaml/csv/markdown/quiet/sarif)
 - `Format`, `ColorMode` — type aliases from go-output
 
 ### pkg/code/
@@ -104,24 +106,6 @@ Branded types for type safety:
 - `ParseGo()` — Go stdlib parser wrapper
 - `NormalizeDocIdioms()` — Normalizes documentation elision idioms (`{ ... }` → `{}`, ellipsis-only lines dropped)
 - `IsPseudoModuleFile()` — Detects go.mod directives in Go code blocks (require/replace/module)
-
-### pkg/config/
-
-- `Config` struct — Project-level config (languages, exclude, skip-directives, format)
-- `Load(path)` / `LoadFromDir(dir)` — YAML/JSON config loading
-- `Save(path, cfg)` — Write config
-- `InitFile(path)` — Scaffold default `.md-go-validator.yaml`
-
-### pkg/finding/
-
-- `FromResult(r)` / `FromResults([]r)` — Convert validation Results to neutral go-finding Findings
-- Enables SARIF/LSP/JSON interchange with a one-liner
-
-### pkg/baseline/
-
-- `Set` — Collection of known error signatures (file:line)
-- `Load(path)` — Read baseline file
-- `FilterNew(results)` — Filter out known errors, return only new ones
 
 ## Key Patterns
 
@@ -174,17 +158,20 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 
 ## Coverage
 
+Run `go test -cover ./...` for current numbers.
+
 | Package       | Coverage |
 | ------------- | -------- |
-| pkg           | 80.1%    |
+| pkg           | 85.2%    |
 | pkg/baseline  | 73.0%    |
 | pkg/code      | 95.7%    |
 | pkg/config    | 84.8%    |
 | pkg/finding   | 100.0%   |
 | pkg/languages | 88.0%    |
-| pkg/output    | 91.0%    |
-| pkg/types     | 83.7%    |
-| cmd           | 74.0%    |
+| pkg/output    | 85.7%    |
+| pkg/testutil  | 75.0%    |
+| pkg/types     | 81.0%    |
+| cmd           | 73.9%    |
 
 ## Nix
 
@@ -197,7 +184,24 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 - Source filtering via `lib.fileset` (only includes go.mod, go.sum, cmd/, pkg/)
 - Version derived from git: `self.rev or self.dirtyRev or "dev"`
 - Overlay exported at `overlays.default` via `package.nix`
-- Previous nix build issue resolved: go.work removed, go-output v0.10.0 published with stable API
+
+### Nix Gotcha: go-finding-src replace directive
+
+`package.nix` injects a `replace github.com/larsartmann/go-finding => <flake-input-src>`
+via `postPatch`. This means the nix build compiles against whatever version the
+`go-finding-src` flake input points to, **not** the version in `go.mod`.
+
+**Every `go-finding` bump requires a coordinated 3-place update:**
+
+1. `go.mod` / `go.sum`
+2. `flake.nix` `go-finding-src` input ref
+3. `flake.lock` re-lock
+
+Forgetting any one produces a split-brain where `go build` (uses go.mod) passes
+but `nix build` (uses flake input via replace) fails, or vice versa.
+
+The overlay path (`flake.overlays.default`) calls `package.nix` **without**
+`go-finding-src`, so the replace is skipped there.
 
 ## Release
 

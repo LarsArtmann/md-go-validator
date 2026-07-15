@@ -39,13 +39,13 @@ Successfully completed migration from external command-based validators to pure 
 
 ### c) NOT STARTED ⏸️
 
-| #   | Item                            | Priority |
+| # | Item | Priority |
 | --- | ------------------------------- | -------- | ----------------------------------------------------------------------------- |
-| 1   | **Grammar Subset Optimization** | Medium   | Using full grammars; could use grammar_subset build tags for smaller binaries |
-| 2   | **Parser Pool**                 | Low      | Could use `NewParserPool` for high-concurrency scenarios                      |
-| 3   | **Incremental Parsing**         | Low      | Not needed for validation use case                                            |
-| 4   | **Custom Token Sources**        | Low      | Default DFA token source sufficient                                           |
-| 5   | **Language Detection**          | Low      | Currently manual mapping; could use `DetectLanguageByName`                    |
+| 1 | **Grammar Subset Optimization** | Medium | Using full grammars; could use grammar_subset build tags for smaller binaries |
+| 2 | **Parser Pool** | Low | Could use `NewParserPool` for high-concurrency scenarios |
+| 3 | **Incremental Parsing** | Low | Not needed for validation use case |
+| 4 | **Custom Token Sources** | Low | Default DFA token source sufficient |
+| 5 | **Language Detection** | Low | Currently manual mapping; could use `DetectLanguageByName` |
 
 ### d) TOTALLY FUCKED UP ❌
 
