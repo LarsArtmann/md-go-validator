@@ -1,0 +1,59 @@
+---
+title: Go Parsing Strategies
+description: How the 7-strategy Go parser handles partial code snippets in documentation.
+---
+
+## The Problem
+
+Documentation code blocks are rarely complete programs. A snippet might show just a type declaration, a function signature, or a few statements. The Go parser (`go/parser`) rejects these as invalid because they don't form a complete Go file.
+
+## The Solution: 7 Progressive Strategies
+
+The Go validator tries each strategy in order. If one succeeds, the block is valid. If all fail, the error from the strategy that parsed furthest is reported (best-attempt selection).
+
+### Strategy 0: Pre-processing
+
+Before any parsing, the code is normalized:
+
+- `{ ... }` becomes `{}` (documentation elision idiom)
+- Ellipsis-only lines (`...`) are removed
+- This handles patterns like `func foo() { ... }` in docs
+
+### Strategy 1: Pseudo go.mod Detection
+
+If the code block contains module directives (`require`, `replace`, `module`), it is skipped. These are go.mod snippets, not Go source code.
+
+### Strategy 2: Complete File
+
+Parse the code as-is. This catches full programs, complete package declarations, and multi-statement snippets that are already valid Go files.
+
+### Strategy 3: Package Wrapper
+
+Wrap the code in `package main` if it is missing. This handles snippets that have imports and declarations but no package clause.
+
+### Strategy 4: Function Wrapper
+
+Wrap the code in `func main() { ... }`. This handles statement-level snippets like variable assignments and function calls.
+
+### Strategy 5: Expression
+
+Wrap the code as `_ = <code>`. This handles single expressions like `x == y` or `someFunc(arg)`.
+
+### Strategy 6: Statements
+
+Wrap the code as a function body. This handles individual Go statements.
+
+### Strategy 7: Imports + Statements
+
+Split import blocks from statements, wrap each appropriately. This is the dominant documentation pattern: an import block followed by example code.
+
+## Error Reporting
+
+When all strategies fail, the validator reports the error from the strategy that parsed the furthest. This gives the most useful error message, pointing to the actual syntax problem rather than a wrapping artifact.
+
+The validator also detects mixed-scope issues (e.g., a package-level declaration mixed with function-level code) and provides skip-directive hints for intentionally incomplete snippets.
+
+## See Also
+
+- [Skip Directives](/guides/skip-directives/) for excluding partial snippets
+- [CLI Options](/guides/cli-options/) for controlling output verbosity

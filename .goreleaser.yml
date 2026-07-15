@@ -15,6 +15,7 @@ builds:
     binary: md-go-validator
     env:
       - CGO_ENABLED=0
+      - GOEXPERIMENT=jsonv2
     goos:
       - linux
       - darwin
@@ -87,7 +88,7 @@ nfpms:
   - id: default
     package_name: md-go-validator
     file_name_template: "{{ .ConventionalFileName }}"
-    homepage: "https://github.com/LarsArtmann/md-go-validator"
+    homepage: "https://md-go-validator.lars.software"
     description: "Multi-language code block validator for Markdown and MDX"
     license: MIT
     maintainer: "Lars Artmann <lars@larsartmann.com>"
@@ -106,7 +107,7 @@ scoops:
     commit_author:
       name: goreleaserbot
       email: goreleaser@larsartmann.com
-    homepage: "https://github.com/LarsArtmann/md-go-validator"
+    homepage: "https://md-go-validator.lars.software"
     description: "Multi-language code block validator for Markdown and MDX"
     license: MIT
 

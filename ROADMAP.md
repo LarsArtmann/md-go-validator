@@ -3,6 +3,13 @@
 > Long-term direction and raw ideas. Items here are NOT actionable tasks.
 > When an idea is refined into bounded work, it moves to TODO_LIST.md.
 
+## Recently Shipped
+
+| Item                  | Details                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| Documentation website | [md-go-validator.lars.software](https://md-go-validator.lars.software) — Astro + Starlight + Tailwind v4 |
+| CI/CD auto-deploy     | `.github/workflows/website.yml` — Firebase Hosting on push to master                                     |
+
 ## Themes
 
 ### 1. Broader Language Coverage

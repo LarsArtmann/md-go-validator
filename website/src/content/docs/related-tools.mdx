@@ -1,0 +1,28 @@
+---
+title: Related Tools
+description: Other LarsArtmann projects and alternatives in the ecosystem.
+---
+
+## LarsArtmann Projects
+
+| Project                                                   | Description                                                                           |
+| --------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| [go-output](https://github.com/LarsArtmann/go-output)     | Multi-format output (JSON, YAML, CSV, SARIF, table) — powers md-go-validator's output |
+| [go-finding](https://github.com/LarsArtmann/go-finding)   | Neutral Finding type for SARIF/LSP/JSON interchange                                   |
+| [gogenfilter](https://github.com/LarsArtmann/gogenfilter) | Detect and filter auto-generated Go code files                                        |
+
+## Alternatives
+
+| Tool                                                        | Focus                                              |
+| ----------------------------------------------------------- | -------------------------------------------------- |
+| [markdownlint](https://github.com/DavidAnson/markdownlint)  | Markdown structure linting (not code block syntax) |
+| [prettier](https://prettier.io/)                            | Code and Markdown formatting                       |
+| [codespell](https://github.com/codespell-project/codespell) | Spelling checks in code and docs                   |
+
+## Complementary Tools
+
+md-go-validator works well alongside:
+
+- **markdownlint** — use markdownlint for structure, md-go-validator for code syntax
+- **golangci-lint** — use golangci-lint for Go source code, md-go-validator for Go in docs
+- **pre-commit** — run both formatters and validators in your hooks

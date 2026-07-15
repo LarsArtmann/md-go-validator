@@ -1,0 +1,95 @@
+---
+title: Skip Directives
+description: Mark code blocks as intentionally incomplete to skip validation.
+---
+
+## Built-in Directives
+
+Place these **before** the code block or **inside** it:
+
+| Directive                   | Format              |
+| --------------------------- | ------------------- |
+| `<!-- skip-validate -->`    | HTML comment        |
+| `<!-- skip-md-validate -->` | HTML comment        |
+| `<!-- md-skip -->`          | HTML comment        |
+| `<!-- no-validate -->`      | HTML comment        |
+| `// skip-validate`          | Go comment          |
+| `//nolint`                  | Go linter directive |
+
+## Usage
+
+### HTML Comment (before the block)
+
+````markdown
+<!-- skip-validate -->
+
+```go
+type MyStruct struct {
+    Name string
+}
+```
+````
+
+### HTML Comment (inside the block)
+
+````markdown
+```go
+<!-- skip-validate -->
+type MyStruct struct {
+    Name string
+}
+```
+````
+
+### Go Comment (inside the block)
+
+````markdown
+```go
+// skip-validate
+type MyStruct struct {
+    Name string
+}
+```
+````
+
+### nolint Directive
+
+````markdown
+```go
+//nolint
+func example() {
+    // intentionally incomplete
+}
+```
+````
+
+## Custom Directives
+
+Define your own skip directives in the config file or via CLI:
+
+```bash
+md-go-validator --skip-directive "<!-- sketch -->" .
+```
+
+Or in `.md-go-validator.yaml`:
+
+```yaml
+skipDirectives:
+  - "<!-- sketch -->"
+  - "<!-- wip -->"
+```
+
+## Fail on Skipped
+
+By default, skipped blocks do not cause validation failures. Use `--fail-on-skipped` to exit 1 if any blocks are skipped:
+
+```bash
+md-go-validator --fail-on-skipped .
+```
+
+This is useful in strict CI pipelines where all incomplete snippets should be explicitly marked with a meaningful directive.
+
+## See Also
+
+- [Configuration File](/guides/configuration/) for YAML-based defaults
+- [CLI Options](/guides/cli-options/) for all flags

@@ -1,0 +1,60 @@
+---
+title: Configuration File
+description: Configure md-go-validator with a YAML config file.
+---
+
+## Creating a Config File
+
+Run `--init` to scaffold a default config:
+
+```bash
+md-go-validator --init
+```
+
+This creates `.md-go-validator.yaml` in the current directory.
+
+## Config File Format
+
+```yaml
+languages:
+  - go
+  - typescript
+exclude:
+  - "vendor/*"
+  - "node_modules/**"
+skipDirectives:
+  - "<!-- sketch -->"
+format: table
+```
+
+## Fields
+
+| Field            | Type   | Description                                                                        |
+| ---------------- | ------ | ---------------------------------------------------------------------------------- |
+| `languages`      | list   | Languages to validate (identifiers from [Supported Languages](/guides/languages/)) |
+| `exclude`        | list   | Glob patterns to exclude (supports `**`)                                           |
+| `skipDirectives` | list   | Custom skip directives in addition to the built-in ones                            |
+| `format`         | string | Default output format                                                              |
+
+## Auto-Discovery
+
+By default, md-go-validator looks for `.md-go-validator.yaml` in the current working directory. Use `--config` to specify a custom path:
+
+```bash
+md-go-validator --config /path/to/config.yaml .
+```
+
+## CLI Override
+
+CLI flags always override config file values. This lets you set defaults in the config file and override per-invocation:
+
+```bash
+# Config sets format: table, override to JSON
+md-go-validator -f json .
+```
+
+## See Also
+
+- [CLI Options](/guides/cli-options/) for all flags
+- [Skip Directives](/guides/skip-directives/) for built-in and custom directives
+- [Supported Languages](/guides/languages/) for language identifiers

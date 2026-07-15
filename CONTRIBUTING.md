@@ -11,10 +11,35 @@ Thanks for your interest in contributing!
 
 ## Development Setup
 
-Run the following commands to set up your development environment:
+Enter the Nix development shell (provides Go, golangci-lint, goreleaser):
 
-    go test ./... -race
-    golangci-lint run ./...
+```bash
+nix develop
+```
+
+Then run the core checks:
+
+```bash
+go test ./... -race
+golangci-lint run ./...
+nix flake check
+```
+
+## Documentation Website
+
+The documentation website lives in `website/` and uses Astro + Starlight + Tailwind v4.
+Full setup and commands are documented in `website/flake.nix`.
+
+```bash
+cd website
+nix develop          # dev shell with Node.js + Firebase Tools
+nix run .#dev        # local dev server
+nix run .#build      # production build
+nix run .#preview    # preview production build locally
+nix run .#deploy     # deploy to Firebase Hosting
+```
+
+The site auto-deploys on push to `master` via `.github/workflows/website.yml`.
 
 ## Reporting Issues
 

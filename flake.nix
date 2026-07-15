@@ -55,7 +55,10 @@
               program = pkgs.writeShellApplication {
                 name = "run-test";
                 runtimeInputs = [ pkgs.go_1_26 ];
-                text = "go test -race -v -coverprofile=coverage.out ./...";
+                text = ''
+                  export GOEXPERIMENT=jsonv2
+                  go test -race -v -coverprofile=coverage.out ./...
+                '';
               };
             };
 
@@ -67,7 +70,10 @@
                   pkgs.go_1_26
                   pkgs.golangci-lint
                 ];
-                text = "golangci-lint run ./...";
+                text = ''
+                  export GOEXPERIMENT=jsonv2
+                  golangci-lint run ./...
+                '';
               };
             };
           };
@@ -83,6 +89,7 @@
                   ;
               };
               GOWORK = "off";
+              GOEXPERIMENT = "jsonv2";
             };
 
             ci = pkgs.mkShellNoCC {
@@ -94,6 +101,7 @@
               };
               GOWORK = "off";
               GOPRIVATE = "github.com/larsartmann/*";
+              GOEXPERIMENT = "jsonv2";
             };
           };
 

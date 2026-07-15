@@ -1,0 +1,68 @@
+---
+title: Quick Start
+description: Validate your first documentation code blocks in under a minute.
+---
+
+## Validate a Directory
+
+The most common usage is to validate all code blocks in your project:
+
+```bash
+md-go-validator .
+```
+
+This scans all `.md`, `.markdown`, and `.mdx` files recursively and validates Go code blocks by default.
+
+## Validate Specific Files
+
+```bash
+md-go-validator README.md docs/
+```
+
+## Multiple Languages
+
+```bash
+# Validate Go and TypeScript
+md-go-validator -l go,typescript .
+
+# Validate all supported languages
+md-go-validator -l go,templ,typescript,nix,rust,hcl .
+```
+
+## CI Integration
+
+Add to your GitHub Actions workflow:
+
+```yaml
+name: Validate Docs
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+      - run: go install github.com/larsartmann/md-go-validator@latest
+      - run: md-go-validator -f json -o results.json .
+```
+
+## Pipe via STDIN
+
+```bash
+cat README.md | md-go-validator -
+```
+
+## Output Formats
+
+```bash
+md-go-validator -f table .      # Default: human-readable table
+md-go-validator -f json .       # JSON for CI integration
+md-go-validator -f sarif .      # SARIF for GitHub Code Scanning
+md-go-validator -f quiet .      # Summary only, no code in errors
+```
+
+## Next Steps
+
+- Learn about [CLI Options](/guides/cli-options/)
+- Understand [Go Parsing Strategies](/guides/go-strategies/)
+- Set up [CI Integration](/guides/ci-integration/)

@@ -1,0 +1,50 @@
+---
+title: Baseline Mode
+description: Adopt md-go-validator incrementally by baselining existing errors.
+---
+
+## What is Baseline Mode?
+
+When adding validation to an existing project, you may have many code blocks that already fail. Baseline mode lets you record these known errors so that only **new** errors cause CI failures.
+
+## Generate a Baseline
+
+Run the validator with `--save-baseline` to create a baseline file from the current state:
+
+```bash
+md-go-validator --save-baseline baseline.txt .
+```
+
+The baseline file contains signatures in the format `file:line:errorcode`. Each signature uniquely identifies a known error.
+
+## Use the Baseline
+
+In CI, pass `--baseline` to filter out known errors:
+
+```bash
+md-go-validator --baseline baseline.txt .
+```
+
+Only errors that are **not** in the baseline will cause a non-zero exit code.
+
+## Workflow
+
+1. **Initial adoption**: Run `--save-baseline` to capture existing errors
+2. **Commit the baseline**: `git add baseline.txt`
+3. **Fix incrementally**: As you fix errors, regenerate the baseline
+4. **Enforce going forward**: CI fails only on new errors
+
+## Updating the Baseline
+
+After fixing errors, regenerate:
+
+```bash
+md-go-validator --save-baseline baseline.txt .
+git add baseline.txt
+git commit -m "chore: update baseline after fixing doc errors"
+```
+
+## See Also
+
+- [CI Integration](/guides/ci-integration/) for pipeline setup
+- [CLI Options](/guides/cli-options/) for all flags

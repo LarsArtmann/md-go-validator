@@ -1,0 +1,53 @@
+---
+title: Installation
+description: Install md-go-validator as a CLI tool or Go library.
+---
+
+## Requirements
+
+- Go 1.26 or later (for building from source)
+- Or use the pre-built Docker image via GitHub Actions
+
+## Install the CLI
+
+```bash
+go install github.com/larsartmann/md-go-validator@latest
+```
+
+Verify the installation:
+
+```bash
+md-go-validator --version
+```
+
+## GitHub Action
+
+Use the built-in GitHub Action in your workflows (no install needed):
+
+```yaml
+- uses: LarsArtmann/md-go-validator@v1
+  with:
+    path: .
+    args: "-f json"
+```
+
+## As a Go Library
+
+```bash
+go get github.com/larsartmann/md-go-validator/pkg
+```
+
+Import in your code:
+
+```go
+import (
+    mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+    "github.com/larsartmann/md-go-validator/pkg/languages"
+)
+```
+
+## Next Steps
+
+- Follow the [Quick Start](/getting-started/quick-start/) for usage examples
+- Explore [CLI Options](/guides/cli-options/) for the full flag reference
+- See [Supported Languages](/guides/languages/) for all parsers

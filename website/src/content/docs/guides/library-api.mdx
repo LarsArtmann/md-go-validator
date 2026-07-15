@@ -1,0 +1,113 @@
+---
+title: Library API
+description: Use md-go-validator as a Go library in your own tools.
+---
+
+## Import
+
+```go
+import (
+    mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
+    "github.com/larsartmann/md-go-validator/pkg/languages"
+)
+```
+
+## Create a Validator
+
+```go
+validator := mdgovalidator.New(true).
+    WithLanguages([]languages.Language{
+        languages.LangGo,
+        languages.LangTypeScript,
+    })
+```
+
+## Validate a File
+
+```go
+ctx := context.Background()
+results, err := validator.ValidateFile(ctx, "README.md")
+if err != nil {
+    panic(err)
+}
+
+for _, r := range results {
+    if r.HasError() {
+        fmt.Printf("Error at line %s: %v\n", r.LineNumber, r.Error)
+    }
+}
+```
+
+## Validate a Directory
+
+```go
+results, err := validator.ValidateDirectory(ctx, "docs/")
+```
+
+## Streaming Validation
+
+Use `ValidateDirectoryFunc` for streaming results with a callback:
+
+```go
+err := validator.ValidateDirectoryFunc(ctx, "docs/", func(r types.Result) {
+    if r.HasError() {
+        fmt.Printf("%s:%s: %v\n", r.File, r.LineNumber, r.Error)
+    }
+})
+```
+
+## Builder Options
+
+| Method                           | Description                                                |
+| -------------------------------- | ---------------------------------------------------------- |
+| `New(verbose)`                   | Create a new validator (verbose controls per-block output) |
+| `.WithLanguages([]Language)`     | Set languages to validate                                  |
+| `.WithMaxFiles(n)`               | Limit concurrent file processing                           |
+| `.WithConcurrency(n)`            | Set worker pool size                                       |
+| `.WithExcludePatterns([]string)` | Glob patterns to exclude                                   |
+| `.WithSkipDirectives([]string)`  | Custom skip directives                                     |
+| `.WithFileFilter(fn)`            | Custom file filter function                                |
+
+## Result Type
+
+```go
+type Result struct {
+    File       types.FileID           // Source file path
+    LineNumber types.LineNumber       // 1-based line number
+    Block      types.BlockIndex       // 1-based block index
+    Code       string                 // Code block content
+    Status     types.ValidationStatus // valid, error, or skipped
+    Error      error                  // Validation error (nil if valid)
+    ErrorCode  types.ErrorCode        // syntax, not_available, etc.
+}
+```
+
+## Adding a Custom Language Validator
+
+Implement the `Validator` interface and register it:
+
+```go
+type MyValidator struct{}
+
+func (v *MyValidator) Language() languages.Language {
+    return languages.Language("mylang")
+}
+
+func (v *MyValidator) Validate(ctx context.Context, code string) error {
+    // Your validation logic
+    return nil
+}
+
+func (v *MyValidator) IsAvailable() bool {
+    return true
+}
+
+registry := languages.NewRegistry()
+registry.Register(&MyValidator{})
+```
+
+## See Also
+
+- [pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/md-go-validator) for full API reference
+- [Supported Languages](/guides/languages/) for built-in validators
+- [Output Formats](/guides/output-formats/) for result processing

@@ -8,6 +8,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Documentation website at [md-go-validator.lars.software](https://md-go-validator.lars.software) (Astro + Starlight + Tailwind v4)
+- CI/CD workflow for automatic website deployment to Firebase Hosting (`.github/workflows/website.yml`)
 - SARIF output format for CI integration (GitHub Code Scanning)
 - `--config` flag for explicit config file path
 - `--save-baseline` flag and improved baseline signature precision (includes error code)
@@ -18,9 +20,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Changed
 
+- Rewrote README.md for public presence (badges, comparison table, install/usage, library API, CI integration)
+- Replaced proprietary LICENSE template with MIT License
+- Updated `.goreleaser.yml` homepage URLs to `https://md-go-validator.lars.software`
 - Upgraded go-output to v0.30.1 (now uses `go-output/delimited` and `go-output/serialization` sub-packages)
 - Upgraded go-finding to v1.2.0 (breaking: `Position.File` is now branded `FilePath` type)
-- Upgraded gotreesitter to v0.21.0
+- Upgraded gotreesitter to v0.37.0
 - Upgraded Go version to 1.26.4
 - CLI flags now override (not union with) config file repeatable values
 - `ValidateDirectoryFunc` now truly streams results via worker pool

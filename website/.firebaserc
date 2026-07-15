@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "lars-software"
+  },
+  "targets": {
+    "lars-software": {
+      "hosting": {
+        "md-go-validator": [
+          "md-go-validator"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

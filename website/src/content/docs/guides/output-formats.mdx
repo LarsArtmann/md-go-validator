@@ -1,0 +1,70 @@
+---
+title: Output Formats
+description: JSON, YAML, CSV, Markdown, SARIF, table, and quiet output formats.
+---
+
+## Available Formats
+
+| Format   | Flag          | Use Case                                |
+| -------- | ------------- | --------------------------------------- |
+| Table    | `-f table`    | Default human-readable output           |
+| JSON     | `-f json`     | CI integration, programmatic processing |
+| YAML     | `-f yaml`     | Config-as-code pipelines                |
+| CSV      | `-f csv`      | Spreadsheet import, data analysis       |
+| Markdown | `-f markdown` | GitHub comments, PR reviews             |
+| SARIF    | `-f sarif`    | GitHub Code Scanning, Azure DevOps      |
+| Quiet    | `-f quiet`    | Summary only, no code in errors         |
+
+## JSON Output
+
+```bash
+md-go-validator -f json -o results.json .
+```
+
+The JSON output includes:
+
+- `file`: source file path
+- `lineNumber`: 1-based line number of the code block
+- `blockIndex`: 1-based index within the file
+- `language`: detected language
+- `status`: `valid`, `error`, or `skipped`
+- `errorCode`: `syntax`, `not_available`, `not_registered`, or `unknown`
+- `error`: error message (when status is error)
+
+The JSON schema is documented in [docs/json-schema.json](https://github.com/LarsArtmann/md-go-validator/blob/main/docs/json-schema.json).
+
+## SARIF Output
+
+```bash
+md-go-validator -f sarif -o results.sarif .
+```
+
+SARIF (Static Analysis Results Interchange Format) is supported by GitHub Code Scanning. Upload results in your CI workflow:
+
+```yaml
+- uses: github/codeql-action/upload-sarif@v3
+  with:
+    sarif_file: results.sarif
+```
+
+## Writing to File
+
+Use `-o` to write output to a file:
+
+```bash
+md-go-validator -f json -o results.json .
+md-go-validator -f sarif -o results.sarif .
+```
+
+## Color Control
+
+```bash
+md-go-validator --color auto .     # Default: detect terminal
+md-go-validator --color always .   # Force colors
+md-go-validator --color never .    # Disable colors
+```
+
+## See Also
+
+- [CI Integration](/guides/ci-integration/) for pipeline setup
+- [CLI Options](/guides/cli-options/) for all flags

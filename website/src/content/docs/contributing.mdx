@@ -1,0 +1,67 @@
+---
+title: Contributing
+description: How to contribute to md-go-validator.
+---
+
+## Development Setup
+
+The project uses Nix for reproducible builds. Enter the development shell:
+
+```bash
+nix develop
+```
+
+This provides Go, gopls, golangci-lint, and goreleaser.
+
+## Build Commands
+
+```bash
+nix build .#              # Build the package
+nix flake check           # Run all checks (format, build, test)
+go build ./cmd/md-go-validator   # Build the CLI directly
+go test ./...             # Run tests
+golangci-lint run ./...   # Lint
+```
+
+## Project Structure
+
+- `cmd/md-go-validator/` — CLI entry point
+- `pkg/` — Library code
+  - `parser.go` — Go validation entry point
+  - `extractor.go` — Code block extraction from Markdown/MDX
+  - `validator.go` — FileValidator with concurrent processing
+  - `languages/` — Language validators (Go, Tree-sitter)
+  - `types/` — Branded domain types
+  - `config/` — YAML config file support
+  - `baseline/` — Baseline regression mode
+  - `output/` — Multi-format output
+  - `code/` — Go code utilities (indent, parse, normalize)
+
+## Adding a New Language
+
+1. Implement the `Validator` interface in `pkg/languages/`
+2. Register the language in the default registry
+3. Add the language identifier to `Language.Validate()`
+4. Add tests in `*_test.go`
+5. Update the [Supported Languages](/guides/languages/) docs
+
+## Testing
+
+All tests use `t.Parallel()`. Run the full suite:
+
+```bash
+go test -race ./...
+go test -cover ./...
+```
+
+## Pull Requests
+
+1. Fork the repository
+2. Create a feature branch
+3. Ensure `golangci-lint run ./...` passes with 0 issues
+4. Ensure all tests pass
+5. Open a pull request
+
+## Reporting Issues
+
+Use the [GitHub issue tracker](https://github.com/LarsArtmann/md-go-validator/issues) for bug reports and feature requests.

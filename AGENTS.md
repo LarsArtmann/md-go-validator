@@ -8,8 +8,8 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 ## Tech Stack
 
 - Go 1.26.4+
-- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.21.0 — pure Go tree-sitter for multi-language parsing
-- [go-output](https://github.com/larsartmann/go-output) v0.30.1 — multi-format output (JSON, YAML, CSV, table, markdown)
+- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.37.0 — pure Go tree-sitter for multi-language parsing
+- [go-output](https://github.com/larsartmann/go-output) v0.30.4 — multi-format output (JSON, YAML, CSV, table, markdown)
 - [go-finding](https://github.com/larsartmann/go-finding) v1.2.0 — neutral Finding type for SARIF/LSP/JSON interchange
 - [go-faster/yaml](https://github.com/go-faster/yaml) v0.4.6 — YAML parsing for config files
 - Library code in `pkg/`
@@ -17,11 +17,14 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 
 ## Build Commands
 
+**All Go commands require `GOEXPERIMENT=jsonv2`** because `go-output` imports `encoding/json/v2`.
+The nix devShell sets this automatically; outside it, prefix commands or `export GOEXPERIMENT=jsonv2`.
+
 ```bash
 nix build .#                   # Build the package
 nix flake check                # Run all checks (format, build, test)
 nix fmt                        # Format .nix and .go files
-nix develop                    # Enter dev shell
+nix develop                    # Enter dev shell (sets GOEXPERIMENT=jsonv2)
 go build ./cmd/md-go-validator
 go test ./...
 go test -cover ./...
@@ -203,8 +206,37 @@ but `nix build` (uses flake input via replace) fails, or vice versa.
 The overlay path (`flake.overlays.default`) calls `package.nix` **without**
 `go-finding-src`, so the replace is skipped there.
 
+### Nix Gotcha: GOEXPERIMENT=jsonv2
+
+The dependency `go-output` (and transitively `go-branded-id`) imports
+`encoding/json/v2` and `encoding/json/jsontext`, which are experimental
+packages in Go 1.26 requiring `GOEXPERIMENT=jsonv2`.
+
+This is set in:
+
+1. `flake.nix` devShells (`GOEXPERIMENT = "jsonv2"`)
+2. `flake.nix` apps (`export GOEXPERIMENT=jsonv2` in test/lint scripts)
+3. `package.nix` (`GOEXPERIMENT = "jsonv2"` on the derivation)
+4. `.github/workflows/ci.yml` (`GOEXPERIMENT: jsonv2` env on test/build jobs)
+5. `.golangci.yml` (`goexperiment.jsonv2` build tag for linting)
+
+Without it, `go build` and `go test` fail with:
+`build constraints exclude all Go files in .../encoding/json/v2`
+
 ## Release
 
 ```bash
 goreleaser release
 ```
+
+## Website
+
+- **URL:** [md-go-validator.lars.software](https://md-go-validator.lars.software) (pending DNS propagation)
+- **Live:** [md-go-validator.web.app](https://md-go-validator.web.app)
+- **Stack:** Astro 7 + Starlight + Tailwind v4 (teal accent `#14b8a6`)
+- **Firebase:** Shared `lars-software` project, hosting target `md-go-validator`
+- **CI/CD:** `.github/workflows/website.yml` (two-job: build + deploy)
+- **Secret:** `FIREBASE_SERVICE_ACCOUNT` (firebase-adminsdk key for lars-software)
+- **DNS:** Staged in `domains/lars.software.tf` (CNAME + ACME TXT, BLOCKED on placeholder Namecheap API key)
+- **Build:** `cd website && nix shell nixpkgs#nodejs -c npm run build`
+- **Deploy:** `cd website && nix shell nixpkgs#nodejs nixpkgs#firebase-tools -c firebase deploy --only hosting:md-go-validator --project lars-software`

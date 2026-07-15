@@ -1,0 +1,89 @@
+---
+title: CLI Options
+description: Complete reference for all command-line flags and options.
+---
+
+## Flags
+
+| Flag                | Short | Description                                                    |
+| ------------------- | ----- | -------------------------------------------------------------- |
+| `--verbose`         | `-v`  | Show progress for each code block                              |
+| `--quiet`           | `-q`  | Only show summary (no code in errors)                          |
+| `--no-code`         |       | Do not show code snippets in error output                      |
+| `--language`        | `-l`  | Comma-separated list of languages to validate                  |
+| `--format`          | `-f`  | Output format (table, json, markdown, yaml, csv, quiet, sarif) |
+| `--color`           |       | Color mode (auto, always, never)                               |
+| `--output`          | `-o`  | Write output to file                                           |
+| `--timeout`         | `-t`  | Timeout for validation (e.g. 30s, 5m)                          |
+| `--exclude`         |       | Glob pattern to exclude (repeatable, supports `**`)            |
+| `--skip-directive`  |       | Custom skip directive (repeatable)                             |
+| `--init`            |       | Create a default `.md-go-validator.yaml` config file           |
+| `--baseline`        |       | Baseline file of known errors; only new errors fail            |
+| `--save-baseline`   |       | Generate baseline file from current run's errors               |
+| `--config`          |       | Path to config file (default: auto-discover in CWD)            |
+| `--list-languages`  |       | List all supported languages                                   |
+| `--fail-on-skipped` |       | Exit 1 if any blocks are skipped                               |
+| `--help`            | `-h`  | Show help message                                              |
+| `--version`         | `-V`  | Show version information                                       |
+
+## Exit Codes
+
+| Code | Meaning                                                        |
+| ---- | -------------------------------------------------------------- |
+| `0`  | Success — all code blocks valid or skipped                     |
+| `1`  | Validation errors — one or more code blocks have syntax errors |
+| `2`  | Tool error — file not found, bad flags, I/O errors             |
+
+## Examples
+
+### Basic Usage
+
+```bash
+md-go-validator .                    # Validate current directory
+md-go-validator README.md            # Validate a single file
+md-go-validator docs/ README.md      # Validate multiple paths
+```
+
+### Language Selection
+
+```bash
+md-go-validator -l go .              # Go only (default)
+md-go-validator -l go,typescript .   # Go and TypeScript
+md-go-validator -l go,ts,rs .        # Short forms
+```
+
+### Output Control
+
+```bash
+md-go-validator -f json -o out.json .  # JSON to file
+md-go-validator -f sarif .              # SARIF format
+md-go-validator -q .                    # Quiet mode
+md-go-validator -v .                    # Verbose mode
+```
+
+### Excluding Files
+
+```bash
+md-go-validator --exclude "vendor/**" --exclude "node_modules/**" .
+```
+
+### Timeout
+
+```bash
+md-go-validator -t 30s .    # 30 second timeout
+md-go-validator -t 5m .     # 5 minute timeout
+```
+
+## STDIN
+
+Read markdown from stdin with `-`:
+
+```bash
+cat README.md | md-go-validator -
+```
+
+## See Also
+
+- [Configuration File](/guides/configuration/) for YAML-based defaults
+- [Skip Directives](/guides/skip-directives/) for excluding specific blocks
+- [Baseline Mode](/guides/baseline-mode/) for incremental adoption

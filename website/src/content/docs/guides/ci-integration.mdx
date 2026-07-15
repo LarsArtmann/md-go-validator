@@ -1,0 +1,92 @@
+---
+title: CI Integration
+description: Integrate md-go-validator into GitHub Actions, pre-commit hooks, and CI pipelines.
+---
+
+## GitHub Actions
+
+### Using the Built-in Action
+
+```yaml
+name: Validate Documentation
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: LarsArtmann/md-go-validator@v1
+        with:
+          path: .
+          args: "-f json"
+```
+
+### Manual Installation
+
+```yaml
+name: Validate Documentation
+on: [push, pull_request]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+      - run: go install github.com/larsartmann/md-go-validator@latest
+      - run: md-go-validator .
+```
+
+## SARIF + GitHub Code Scanning
+
+Generate SARIF output and upload to GitHub Code Scanning for inline annotations:
+
+```yaml
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+      - run: go install github.com/larsartmann/md-go-validator@latest
+      - run: md-go-validator -f sarif -o results.sarif .
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: results.sarif
+```
+
+## Pre-commit Hook
+
+Add to your `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/LarsArtmann/md-go-validator
+    rev: v1.0.0
+    hooks:
+      - id: md-go-validator
+        args: ["-l", "go"]
+```
+
+## Baseline Workflow
+
+For incremental adoption, use baseline mode in CI:
+
+```yaml
+- run: md-go-validator --save-baseline baseline.txt .
+  if: ${{ github.event_name == 'workflow_dispatch' }}
+
+- run: md-go-validator --baseline baseline.txt .
+```
+
+## Docker
+
+The GitHub Action uses a Docker image. You can also run it directly:
+
+```bash
+docker run --rm -v $(pwd):/repo LarsArtmann/md-go-validator:latest .
+```
+
+## See Also
+
+- [Output Formats](/guides/output-formats/) for JSON and SARIF details
+- [Baseline Mode](/guides/baseline-mode/) for incremental adoption

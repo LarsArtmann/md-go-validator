@@ -69,4 +69,18 @@ vendor/
 result-*
 .envrc
 .direnv/
+
+## Javascript and typescript
+build/
+*.tsbuildinfo
+.next/
+.nuxt/
+.docusaurus/
+.eslintcache
+.cache/
+.parcel-cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 # <<< buildflow-managed (.gitignore) <<<

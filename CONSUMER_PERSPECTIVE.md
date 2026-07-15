@@ -10,24 +10,25 @@ A brutally honest assessment of what a new user would find lacking, confusing, o
 
 ## Resolved
 
-| Item                          | Resolution                                                                            |
-| ----------------------------- | ------------------------------------------------------------------------------------- |
-| ✅ `--version` flag           | Added `--version` / `-V`                                                              |
-| ✅ Error codes in output      | `errorCode` field in JSON/YAML output (`syntax`, `not_available`, `not_registered`)   |
-| ✅ Summary exit codes         | 0=success, 1=validation errors, 2=tool/usage errors                                   |
-| ✅ Self-validation in CI      | CI dogfoods — runs validator on its own docs                                          |
-| ✅ STDIN support              | `cat file.md \| md-go-validator -`                                                    |
-| ✅ JSON schema                | Output contract documented at `docs/json-schema.json`                                 |
-| ✅ Config file support (#2)   | `.md-go-validator.yaml` with `--config`; `pkg/config/config.go`                       |
-| ✅ `--init` command (#3)      | `md-go-validator --init` scaffolds default config                                     |
-| ✅ Exclude patterns (#4)      | `--exclude` flag with glob `**` support; `pkg/types/identifiers.go`                   |
-| ✅ CONTRIBUTING.md fixed (#5) | Current `CONTRIBUTING.md` references no dead files                                    |
-| ✅ GitHub Action (#6)         | `action.yml` published; `uses: LarsArtmann/md-go-validator@v1`                        |
-| ✅ Pre-commit hook (#7)       | `.pre-commit-hooks.yaml` published                                                    |
-| ✅ Baseline/regression (#10)  | `--baseline` / `--save-baseline`; `pkg/baseline/`                                     |
-| ✅ `--fail-on-skipped` (#15)  | Exit 1 if any blocks are skipped                                                      |
-| ✅ `--list-languages` (#17)   | `md-go-validator --list-languages`                                                    |
-| ✅ DESCRIPTION mismatch (#20) | `.goreleaser.yml` now says "Multi-language code block validator for Markdown and MDX" |
+| Item                          | Resolution                                                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| ✅ `--version` flag           | Added `--version` / `-V`                                                                                                 |
+| ✅ Error codes in output      | `errorCode` field in JSON/YAML output (`syntax`, `not_available`, `not_registered`)                                      |
+| ✅ Summary exit codes         | 0=success, 1=validation errors, 2=tool/usage errors                                                                      |
+| ✅ Self-validation in CI      | CI dogfoods — runs validator on its own docs                                                                             |
+| ✅ STDIN support              | `cat file.md \| md-go-validator -`                                                                                       |
+| ✅ JSON schema                | Output contract documented at `docs/json-schema.json`                                                                    |
+| ✅ Config file support (#2)   | `.md-go-validator.yaml` with `--config`; `pkg/config/config.go`                                                          |
+| ✅ `--init` command (#3)      | `md-go-validator --init` scaffolds default config                                                                        |
+| ✅ Exclude patterns (#4)      | `--exclude` flag with glob `**` support; `pkg/types/identifiers.go`                                                      |
+| ✅ CONTRIBUTING.md fixed (#5) | Current `CONTRIBUTING.md` references no dead files                                                                       |
+| ✅ GitHub Action (#6)         | `action.yml` published; `uses: LarsArtmann/md-go-validator@v1`                                                           |
+| ✅ Pre-commit hook (#7)       | `.pre-commit-hooks.yaml` published                                                                                       |
+| ✅ Baseline/regression (#10)  | `--baseline` / `--save-baseline`; `pkg/baseline/`                                                                        |
+| ✅ `--fail-on-skipped` (#15)  | Exit 1 if any blocks are skipped                                                                                         |
+| ✅ `--list-languages` (#17)   | `md-go-validator --list-languages`                                                                                       |
+| ✅ DESCRIPTION mismatch (#20) | `.goreleaser.yml` now says "Multi-language code block validator for Markdown and MDX"                                    |
+| ✅ Documentation website      | Live at [md-go-validator.lars.software](https://md-go-validator.lars.software) — Astro + Starlight, auto-deployed via CI |
 
 ---
 

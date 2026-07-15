@@ -82,6 +82,14 @@
 | Goreleaser      | 🟢 `FULLY_FUNCTIONAL` | `.goreleaser.yml`; version from git rev       |
 | Homebrew tap    | ⚪ `PLANNED`          | `.goreleaser.yml:101` has `skip_upload: true` |
 
+## Documentation
+
+| Feature               | Status                | Notes                                                                                                          |
+| --------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Documentation website | 🟢 `FULLY_FUNCTIONAL` | [md-go-validator.lars.software](https://md-go-validator.lars.software); Astro + Starlight                      |
+| CI/CD auto-deploy     | 🟢 `FULLY_FUNCTIONAL` | `.github/workflows/website.yml`; Firebase Hosting on push to master                                            |
+| pkg.go.dev reference  | 🟢 `FULLY_FUNCTIONAL` | [pkg.go.dev/github.com/LarsArtmann/md-go-validator](https://pkg.go.dev/github.com/LarsArtmann/md-go-validator) |
+
 ## Planned
 
 | Feature            | Status       | Notes                                    |

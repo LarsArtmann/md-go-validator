@@ -1,0 +1,16 @@
+{
+  "name": "md-go-validator",
+  "short_name": "md-go-validator",
+  "description": "Validate code blocks in Markdown and MDX documentation",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0908",
+  "theme_color": "#14b8a6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

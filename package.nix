@@ -6,7 +6,7 @@
 }:
 let
   version = self.shortRev or self.dirtyShortRev or "dev";
-  vendorHash = "sha256-vQQZbegtSyK3EM0/A6N30+TGQYqRbvXRub82yAjO3R8=";
+  vendorHash = "sha256-I7oN6zZueidT9TfytKNvbMhSkj6y0WLySQEzujRvnw0=";
 
   src = lib.fileset.toSource {
     root = ./.;
@@ -22,6 +22,7 @@ buildGoModule {
   pname = "md-go-validator";
   inherit version vendorHash src;
   proxyVendor = true;
+  GOEXPERIMENT = "jsonv2";
   postPatch =
     if go-finding-src != null then
       ''

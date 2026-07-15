@@ -1,0 +1,55 @@
+---
+title: Supported Languages
+description: All languages supported by md-go-validator and their parsers.
+---
+
+## Language Support
+
+| Language      | Identifier(s)            | Parser             | Strategy               |
+| ------------- | ------------------------ | ------------------ | ---------------------- |
+| Go            | `go`, `golang`           | Built-in Go parser | 7-strategy progressive |
+| TypeScript    | `typescript`, `ts`       | Tree-sitter        | Syntax validation      |
+| TSX           | `tsx`                    | Tree-sitter        | Syntax validation      |
+| Rust          | `rust`, `rs`             | Tree-sitter        | Syntax validation      |
+| Nix           | `nix`                    | Tree-sitter        | Syntax validation      |
+| HCL/Terraform | `hcl`, `terraform`, `tf` | Tree-sitter        | Syntax validation      |
+| Templ         | `templ`                  | Tree-sitter        | Syntax validation      |
+
+All parsers are embedded in the binary. No external tools, CLIs, or CGO required.
+
+## Selecting Languages
+
+Use the `-l` (or `--language`) flag:
+
+```bash
+# Single language
+md-go-validator -l go .
+
+# Multiple languages
+md-go-validator -l go,typescript,rust .
+
+# All supported languages
+md-go-validator -l go,templ,typescript,nix,rust,hcl .
+
+# Short forms
+md-go-validator -l go,ts,rs,tf .
+```
+
+## List Available Languages
+
+```bash
+md-go-validator --list-languages
+```
+
+## Tree-Sitter Integration
+
+Non-Go languages use [gotreesitter](https://github.com/odvcencio/gotreesitter), a pure-Go tree-sitter binding. The grammars are compiled into the binary at build time, so there are zero runtime dependencies.
+
+## Adding New Languages
+
+The validator uses a pluggable registry. See the [Library API](/guides/library-api/) guide for how to implement and register a custom validator.
+
+## See Also
+
+- [Go Parsing Strategies](/guides/go-strategies/) for the 7-strategy deep dive
+- [CLI Options](/guides/cli-options/) for language selection flags

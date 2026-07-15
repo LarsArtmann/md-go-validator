@@ -7,7 +7,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=0 go build -o /md-go-validator ./cmd/md-go-validator
+RUN CGO_ENABLED=0 GOEXPERIMENT=jsonv2 go build -o /md-go-validator ./cmd/md-go-validator
 
 FROM alpine:3.21
 

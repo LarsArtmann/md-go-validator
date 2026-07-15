@@ -1,0 +1,22 @@
+---
+import SectionHeader from './SectionHeader.astro';
+
+const steps = [
+  { num: "1", title: "Extract", desc: "Scan Markdown and MDX files for fenced code blocks. Recursive directory traversal with glob excludes." },
+  { num: "2", title: "Route", desc: "Each block is routed to the correct language validator via the registry. Auto-detected from the info string." },
+  { num: "3", title: "Validate", desc: "Go blocks pass through 7 progressive parsing strategies. Other languages use embedded tree-sitter parsers." },
+  { num: "4", title: "Report", desc: "Results in table, JSON, YAML, CSV, Markdown, SARIF, or quiet format. Structured exit codes for CI." },
+];
+---
+
+<SectionHeader title="How it works." subtitle="Four-step pipeline from markdown to validation report." />
+
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  {steps.map((step) => (
+    <div class="p-6 rounded-xl border border-border bg-bg-card">
+      <div class="w-10 h-10 rounded-lg bg-accent-dim border border-border flex items-center justify-center text-accent font-bold text-lg mb-4">{step.num}</div>
+      <h3 class="font-semibold text-text-primary mb-2">{step.title}</h3>
+      <p class="text-sm text-text-muted leading-relaxed">{step.desc}</p>
+    </div>
+  ))}
+</div>
