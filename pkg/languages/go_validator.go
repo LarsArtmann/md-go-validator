@@ -139,9 +139,7 @@ func selectBestAttempt(attempts []strategyAttempt) strategyAttempt {
 
 // errorLine extracts the highest line number from a parse error.
 func errorLine(err error) int {
-	var errList scanner.ErrorList
-
-	if errors.As(err, &errList) {
+	if errList, ok := errors.AsType[scanner.ErrorList](err); ok {
 		maxLine := 0
 
 		for _, e := range errList {

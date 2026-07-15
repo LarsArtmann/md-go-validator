@@ -119,13 +119,9 @@ func (s *extractorState) processLine(lineNum int, line string, blocks *[]types.C
 }
 
 func (s *extractorState) hasSkipDirective(line string) bool {
-	for _, directive := range s.skipDirectives {
-		if strings.Contains(line, directive) {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(s.skipDirectives, func(directive string) bool {
+		return strings.Contains(line, directive)
+	})
 }
 
 func (s *extractorState) handleCodeContent(line string) {

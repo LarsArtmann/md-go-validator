@@ -1,6 +1,7 @@
 package finding
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -136,5 +137,66 @@ func TestFromResult_GenericError(t *testing.T) {
 
 	if result.Message != "some error" {
 		t.Errorf("expected message 'some error', got %q", result.Message)
+	}
+}
+
+// TestFromResult_RoundTrip_RealValidationError exercises the full chain:
+// broken Go code -> GoValidator.Validate -> real *ValidationError ->
+// types.NewErrorResult (extracts ErrorCode via errors.AsType) ->
+// finding.FromResult. This proves the conversion preserves the branded
+// FilePath, source line, message, and severity against a real parser error,
+// not a hand-constructed ValidationError.
+func TestFromResult_RoundTrip_RealValidationError(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+	validator := &languages.GoValidator{}
+
+	// Unclosed function body: every strategy fails, yielding a real parse error.
+	brokenCode := "func broken() {\n\tfmt.Println(\"no closing brace\"\n"
+
+	err := validator.Validate(ctx, brokenCode)
+	if err == nil {
+		t.Fatal("expected validation error for broken Go code, got nil")
+	}
+
+	// NewErrorResult walks the error chain to extract ErrorCode.
+	fileID := types.NewFileID("docs/examples.md")
+	lineNum := types.NewLineNumber(15)
+	blockIdx := types.NewBlockIndex(0)
+	result := types.NewErrorResult(fileID, lineNum, blockIdx, brokenCode, err)
+
+	// Round-trip: Result -> Finding.
+	found, ok := FromResult(result)
+	if !ok {
+		t.Fatal("expected ok=true for error result")
+	}
+
+	if found.Position.File != "docs/examples.md" {
+		t.Errorf("expected file 'docs/examples.md', got %q", found.Position.File)
+	}
+
+	if found.Position.Line != 15 {
+		t.Errorf("expected line 15, got %d", found.Position.Line)
+	}
+
+	if found.ToolName != ToolName {
+		t.Errorf("expected tool %q, got %q", ToolName, found.ToolName)
+	}
+
+	if found.Rule != RuleName {
+		t.Errorf("expected rule %q, got %q", RuleName, found.Rule)
+	}
+
+	if found.Severity != "error" {
+		t.Errorf("expected severity 'error', got %q", found.Severity)
+	}
+
+	if found.Message == "" {
+		t.Error("expected non-empty message from real validation error")
+	}
+
+	if result.ErrorCode != languages.ErrCodeSyntax {
+		t.Errorf("expected ErrorCode ErrCodeSyntax, got %v", result.ErrorCode)
 	}
 }

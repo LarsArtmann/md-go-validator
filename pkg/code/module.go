@@ -1,6 +1,7 @@
 package code
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -51,10 +52,10 @@ func isModuleDirective(line string) bool {
 		"retract ",
 	}
 
-	for _, d := range directives {
-		if strings.HasPrefix(line, d) {
-			return true
-		}
+	if slices.ContainsFunc(directives, func(d string) bool {
+		return strings.HasPrefix(line, d)
+	}) {
+		return true
 	}
 
 	// "go 1.21" version directive.

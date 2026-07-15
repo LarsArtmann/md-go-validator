@@ -23,6 +23,21 @@ buildGoModule {
   inherit version vendorHash src;
   proxyVendor = true;
   GOEXPERIMENT = "jsonv2";
+
+  # When go-finding-src is passed (top-level flake build), inject a replace
+  # directive so the derivation compiles against the flake input's source
+  # rather than the go.mod version. This enables local iteration on go-finding
+  # without publishing a new module version.
+  #
+  # IMPORTANT: bumping go-finding requires a coordinated 3-place update:
+  #   1. go.mod / go.sum
+  #   2. flake.nix go-finding-src input ref
+  #   3. flake.lock re-lock
+  # Forgetting any one produces a split-brain: `go build` (go.mod) and
+  # `nix build` (flake input via replace) disagree.
+  #
+  # The overlay path (flake.overlays.default) calls this WITHOUT go-finding-src,
+  # so the replace is skipped there and go.mod is honored as-is.
   postPatch =
     if go-finding-src != null then
       ''

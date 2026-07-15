@@ -91,8 +91,7 @@ func NewResultWithStatus(
 func NewErrorResult(file FileID, line LineNumber, block BlockIndex, code string, err error) Result {
 	r := newResultWithStatusAndError(file, line, block, code, StatusError, err)
 
-	var valErr *languages.ValidationError
-	if errors.As(err, &valErr) {
+	if valErr, ok := errors.AsType[*languages.ValidationError](err); ok {
 		r.ErrorCode = valErr.Code
 	}
 

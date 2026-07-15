@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `--fail-on-skipped` flag for strict mode (exit 1 if any blocks skipped)
 - `**` recursive glob support for exclude patterns via doublestar
 - FEATURES.md, TODO_LIST.md, ROADMAP.md documentation
+- Finding round-trip integration test exercising a real `GoValidator` parse error through `finding.FromResult`
 
 ### Changed
 
@@ -33,6 +34,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `ExcludePattern` is now a branded type with encapsulated `Match` logic
 - Added `GOPRIVATE` for `github.com/larsartmann/*` modules in CI devShell
 - CI uses golangci-lint-action v7 with `GOEXPERIMENT=jsonv2`
+- Migrated 5 manual loops to `slices.ContainsFunc` (`isModuleDirective`, `hasSkipDirective`, `isExcluded`, `HasErrors`, `HasSkipped`)
+- Simplified `errors.As` to `errors.AsType` generic helper in `errorLine` and `NewErrorResult` (Go 1.26)
+- Added explanatory comment documenting the `postPatch` replace directive invariants in `package.nix`
 
 ### Removed
 

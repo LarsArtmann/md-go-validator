@@ -451,13 +451,9 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 
 // isExcluded returns true if the path matches any exclude pattern.
 func (v *FileValidator) isExcluded(path string) bool {
-	for _, pattern := range v.excludePatterns {
-		if pattern.Match(path) {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(v.excludePatterns, func(pattern types.ExcludePattern) bool {
+		return pattern.Match(path)
+	})
 }
 
 // passesFileFilter returns true if the file filter is nil or returns true.
@@ -639,22 +635,14 @@ func validateAndCleanPath(path string) (string, error) {
 
 // HasErrors returns true if any results have errors (excluding skipped).
 func HasErrors(results []types.Result) bool {
-	for _, r := range results {
-		if r.Status == types.StatusError {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(results, func(r types.Result) bool {
+		return r.Status == types.StatusError
+	})
 }
 
 // HasSkipped returns true if any results were skipped.
 func HasSkipped(results []types.Result) bool {
-	for _, r := range results {
-		if r.Status == types.StatusSkipped {
-			return true
-		}
-	}
-
-	return false
+	return slices.ContainsFunc(results, func(r types.Result) bool {
+		return r.Status == types.StatusSkipped
+	})
 }
