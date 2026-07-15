@@ -17,7 +17,7 @@ export const comparisons: ComparisonItem[] = [
     variant: "md-go-validator",
     pros: [
       "Validates code block syntax",
-      "7 Go parsing strategies",
+      "6 Go parsing strategies",
       "7 languages via tree-sitter",
       "Pure Go (no CGO)",
       "SARIF + JSON output",

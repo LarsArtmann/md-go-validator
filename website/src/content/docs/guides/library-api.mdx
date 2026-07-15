@@ -7,8 +7,12 @@ description: Use md-go-validator as a Go library in your own tools.
 
 ```go
 import (
+    "context"
+    "fmt"
+
     mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
     "github.com/larsartmann/md-go-validator/pkg/languages"
+    "github.com/larsartmann/md-go-validator/pkg/types"
 )
 ```
 
@@ -46,27 +50,31 @@ results, err := validator.ValidateDirectory(ctx, "docs/")
 
 ## Streaming Validation
 
-Use `ValidateDirectoryFunc` for streaming results with a callback:
+Use `ValidateDirectoryFunc` for streaming results with a callback.
+The callback returns an error to abort early, or nil to continue:
 
 ```go
-err := validator.ValidateDirectoryFunc(ctx, "docs/", func(r types.Result) {
+err := validator.ValidateDirectoryFunc(ctx, "docs/", func(r types.Result) error {
     if r.HasError() {
         fmt.Printf("%s:%s: %v\n", r.File, r.LineNumber, r.Error)
     }
+    return nil
 })
 ```
 
 ## Builder Options
 
-| Method                           | Description                                                |
-| -------------------------------- | ---------------------------------------------------------- |
-| `New(verbose)`                   | Create a new validator (verbose controls per-block output) |
-| `.WithLanguages([]Language)`     | Set languages to validate                                  |
-| `.WithMaxFiles(n)`               | Limit concurrent file processing                           |
-| `.WithConcurrency(n)`            | Set worker pool size                                       |
-| `.WithExcludePatterns([]string)` | Glob patterns to exclude                                   |
-| `.WithSkipDirectives([]string)`  | Custom skip directives                                     |
-| `.WithFileFilter(fn)`            | Custom file filter function                                |
+| Method                                   | Description                                                |
+| ---------------------------------------- | ---------------------------------------------------------- |
+| `New(verbose)`                           | Create a new validator (verbose controls per-block output) |
+| `.WithLanguages([]Language)`             | Set languages to validate                                  |
+| `.WithMaxFiles(n)`                       | Limit concurrent file processing                           |
+| `.WithMaxBlocks(n)`                      | Limit blocks per file                                      |
+| `.WithConcurrency(n)`                    | Set worker pool size                                       |
+| `.WithRegistry(r)`                       | Inject a custom validator registry                         |
+| `.WithExcludePatterns([]ExcludePattern)` | Glob patterns to exclude                                   |
+| `.WithSkipDirectives([]string)`          | Custom skip directives                                     |
+| `.WithFileFilter(fn)`                    | Custom file filter function                                |
 
 ## Result Type
 
@@ -78,7 +86,7 @@ type Result struct {
     Code       string                 // Code block content
     Status     types.ValidationStatus // valid, error, or skipped
     Error      error                  // Validation error (nil if valid)
-    ErrorCode  types.ErrorCode        // syntax, not_available, etc.
+    ErrorCode  languages.ErrorCode    // syntax, not_available, etc.
 }
 ```
 
@@ -103,11 +111,13 @@ func (v *MyValidator) IsAvailable() bool {
 }
 
 registry := languages.NewRegistry()
-registry.Register(&MyValidator{})
+if err := registry.Register(&MyValidator{}); err != nil {
+    panic(err)
+}
 ```
 
 ## See Also
 
-- [pkg.go.dev](https://pkg.go.dev/github.com/larsartmann/md-go-validator) for full API reference
+- [pkg.go.dev](https://pkg.go.dev/github.com/LarsArtmann/md-go-validator) for full API reference
 - [Supported Languages](/guides/languages/) for built-in validators
 - [Output Formats](/guides/output-formats/) for result processing

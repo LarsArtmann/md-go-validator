@@ -4,7 +4,7 @@ export const siteConfig = {
   description:
     "Validate code blocks in Markdown and MDX documentation. Multi-language, pure Go, CI-friendly.",
   ogDescription:
-    "Catch syntax errors in your documentation code blocks before users do. Supports Go, TypeScript, Rust, Nix, HCL, and Templ.",
+    "Catch syntax errors in your documentation code blocks before users do. Supports Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, and Templ.",
   siteUrl: "https://md-go-validator.lars.software",
   github: "https://github.com/LarsArtmann/md-go-validator",
   author: {

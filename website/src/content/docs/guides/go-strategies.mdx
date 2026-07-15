@@ -1,13 +1,13 @@
 ---
 title: Go Parsing Strategies
-description: How the 7-strategy Go parser handles partial code snippets in documentation.
+description: How the 6-strategy Go parser handles partial code snippets in documentation.
 ---
 
 ## The Problem
 
 Documentation code blocks are rarely complete programs. A snippet might show just a type declaration, a function signature, or a few statements. The Go parser (`go/parser`) rejects these as invalid because they don't form a complete Go file.
 
-## The Solution: 7 Progressive Strategies
+## The Solution: 6 Parsing Strategies + 2 Preprocessing Steps
 
 The Go validator tries each strategy in order. If one succeeds, the block is valid. If all fail, the error from the strategy that parsed furthest is reported (best-attempt selection).
 

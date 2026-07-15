@@ -42,7 +42,7 @@ Documentation rots. Code examples that compiled when written break silently afte
 
 1. **Extract** code blocks from Markdown/MDX files (recursive directory scanning)
 2. **Route** each block to the correct language validator via the registry
-3. **Validate** Go blocks through 7 progressive parsing strategies (complete file, package wrapper, function wrapper, expression, statements, imports+statements)
+3. **Validate** Go blocks through 6 progressive parsing strategies (complete file, package wrapper, function wrapper, expression, statements, imports+statements)
 4. **Validate** other languages via embedded pure-Go tree-sitter parsers
 5. **Report** results in table, JSON, YAML, CSV, Markdown, SARIF, or quiet format
 
@@ -117,7 +117,7 @@ Run `md-go-validator --init` to scaffold a default config file. CLI flags overri
 
 | Language      | Identifier(s)            | Parser                |
 | ------------- | ------------------------ | --------------------- |
-| Go            | `go`, `golang`           | Built-in (7-strategy) |
+| Go            | `go`, `golang`           | Built-in (6-strategy) |
 | TypeScript    | `typescript`, `ts`       | Tree-sitter           |
 | TSX           | `tsx`                    | Tree-sitter           |
 | Rust          | `rust`, `rs`             | Tree-sitter           |

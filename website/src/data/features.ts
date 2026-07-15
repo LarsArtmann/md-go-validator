@@ -8,7 +8,7 @@ export const features: Feature[] = [
   },
   {
     icon: "code",
-    title: "7-Strategy Go Parser",
+    title: "6-Strategy Go Parser",
     desc: "Progressive parsing handles partial snippets: complete files, package wrappers, function bodies, expressions, statements, and imports.",
   },
   {

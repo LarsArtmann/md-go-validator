@@ -4,7 +4,7 @@ import SectionHeader from './SectionHeader.astro';
 const steps = [
   { num: "1", title: "Extract", desc: "Scan Markdown and MDX files for fenced code blocks. Recursive directory traversal with glob excludes." },
   { num: "2", title: "Route", desc: "Each block is routed to the correct language validator via the registry. Auto-detected from the info string." },
-  { num: "3", title: "Validate", desc: "Go blocks pass through 7 progressive parsing strategies. Other languages use embedded tree-sitter parsers." },
+  { num: "3", title: "Validate", desc: "Go blocks pass through 6 progressive parsing strategies. Other languages use embedded tree-sitter parsers." },
   { num: "4", title: "Report", desc: "Results in table, JSON, YAML, CSV, Markdown, SARIF, or quiet format. Structured exit codes for CI." },
 ];
 ---
