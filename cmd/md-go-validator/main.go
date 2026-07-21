@@ -307,7 +307,7 @@ func appendArgHandler(flagName string, setter func(*config, string)) argHandler 
 // CLI flags are applied later and override these values.
 func applyConfigFile(cfg *config, fileCfg cfgpkg.Config, cfgErr error) {
 	if cfgErr != nil {
-		if !errors.Is(cfgErr, cfgpkg.ErrNotFound) {
+		if !errors.Is(cfgErr, cfgpkg.ErrNotFound) { //nolint:legacyerrors // value sentinel
 			fmt.Fprintf(os.Stderr, "Warning: failed to load config file: %v\n", cfgErr)
 		}
 

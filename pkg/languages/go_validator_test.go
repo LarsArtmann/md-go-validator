@@ -100,8 +100,8 @@ func TestGoValidator_Validate_Invalid(t *testing.T) {
 			}
 
 			// Verify it's a ValidationError with syntax code
-			var valErr *ValidationError
-			if !errors.As(err, &valErr) {
+			valErr, ok := errors.AsType[*ValidationError](err)
+			if !ok {
 				t.Errorf("expected ValidationError, got %T: %v", err, err)
 			}
 
@@ -176,8 +176,8 @@ func TestGoValidator_ErrorIncludesSkipDirectiveHint(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	var valErr *ValidationError
-	if !errors.As(err, &valErr) {
+	valErr, ok := errors.AsType[*ValidationError](err)
+	if !ok {
 		t.Fatalf("expected ValidationError, got %T: %v", err, err)
 	}
 
@@ -200,8 +200,8 @@ func TestGoValidator_ErrorIncludesMixedScopeHint(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	var valErr *ValidationError
-	if !errors.As(err, &valErr) {
+	valErr, ok := errors.AsType[*ValidationError](err)
+	if !ok {
 		t.Fatalf("expected ValidationError, got %T: %v", err, err)
 	}
 
@@ -225,8 +225,8 @@ func TestGoValidator_BestAttemptReporting(t *testing.T) {
 		t.Fatal("expected error")
 	}
 
-	var valErr *ValidationError
-	if !errors.As(err, &valErr) {
+	valErr, ok := errors.AsType[*ValidationError](err)
+	if !ok {
 		t.Fatalf("expected ValidationError, got %T: %v", err, err)
 	}
 

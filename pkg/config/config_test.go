@@ -123,7 +123,7 @@ func TestLoadFromDir_NotFound(t *testing.T) {
 	dir := t.TempDir()
 
 	_, err := LoadFromDir(dir)
-	if !errors.Is(err, ErrNotFound) {
+	if !errors.Is(err, ErrNotFound) { //nolint:legacyerrors // value sentinel
 		t.Errorf("expected ErrNotFound, got %v", err)
 	}
 }
@@ -203,7 +203,7 @@ func TestLoad_UnsupportedFormat(t *testing.T) {
 	}
 
 	_, err = Load(path)
-	if !errors.Is(err, ErrUnsupportedFormat) {
+	if !errors.Is(err, ErrUnsupportedFormat) { //nolint:legacyerrors // value sentinel
 		t.Errorf("expected ErrUnsupportedFormat, got %v", err)
 	}
 }

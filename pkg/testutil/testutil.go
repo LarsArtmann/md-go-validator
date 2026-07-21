@@ -115,7 +115,7 @@ func AssertContextErr(ctx context.Context, t *testing.T, expected error, msg str
 		t.Fatal(msg)
 	}
 
-	if !errors.Is(ctx.Err(), expected) {
+	if !errors.Is(ctx.Err(), expected) { //nolint:legacyerrors // context error sentinel
 		t.Errorf("expected %v, got %v", expected, ctx.Err())
 	}
 }

@@ -156,9 +156,9 @@ func errorLine(err error) int {
 
 // extractErrorMessage pulls the human-readable message from a parse error.
 func extractErrorMessage(attempt strategyAttempt) string {
-	var errList scanner.ErrorList
+	errList, ok := errors.AsType[scanner.ErrorList](attempt.err)
 
-	if errors.As(attempt.err, &errList) && len(errList) > 0 {
+	if ok && len(errList) > 0 {
 		return "Go syntax error: " + errList[0].Msg
 	}
 
@@ -167,9 +167,9 @@ func extractErrorMessage(attempt strategyAttempt) string {
 
 // extractErrorPosition pulls the line and column from a parse error.
 func extractErrorPosition(attempt strategyAttempt) (int, int) {
-	var errList scanner.ErrorList
+	errList, ok := errors.AsType[scanner.ErrorList](attempt.err)
 
-	if errors.As(attempt.err, &errList) && len(errList) > 0 {
+	if ok && len(errList) > 0 {
 		firstErr := errList[0]
 
 		if firstErr.Pos.IsValid() {

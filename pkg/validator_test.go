@@ -456,7 +456,7 @@ func TestValidator_ValidateDirectoryFunc_EarlyAbort(t *testing.T) {
 		t.Fatal("expected error from early abort")
 	}
 
-	if !errors.Is(err, errAbort) {
+	if !errors.Is(err, errAbort) { //nolint:legacyerrors // value sentinel
 		t.Errorf("expected errAbort in chain, got %v", err)
 	}
 }
