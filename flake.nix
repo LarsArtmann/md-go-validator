@@ -17,7 +17,7 @@
     };
 
     go-finding-src = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=refs/tags/v1.4.0";
+      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=refs/tags/v1.4.1";
       flake = false;
     };
   };
