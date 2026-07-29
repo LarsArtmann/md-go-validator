@@ -9,7 +9,7 @@ require (
 	github.com/larsartmann/go-output v0.35.0
 	github.com/larsartmann/go-output/delimited v0.35.0
 	github.com/larsartmann/go-output/serialization v0.35.0
-	github.com/odvcencio/gotreesitter v0.47.0
+	github.com/odvcencio/gotreesitter v0.47.1
 )
 
 require (
