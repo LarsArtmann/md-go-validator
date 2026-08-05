@@ -593,7 +593,7 @@ func validatePath(
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error validating %s: %v\n", absPath, err)
 
-		return nil, false
+		return results, false
 	}
 
 	return results, true

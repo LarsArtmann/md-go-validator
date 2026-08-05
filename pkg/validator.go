@@ -413,7 +413,7 @@ func (v *FileValidator) streamFilesParallel(
 	}
 
 	if len(errs) > 0 {
-		return fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
+		return fmt.Errorf("encountered %d error(s): %w", len(errs), errors.Join(errs...))
 	}
 
 	return nil
@@ -532,6 +532,9 @@ func (v *FileValidator) processJob(ctx context.Context, chans workerChannels) {
 
 		fileResults, err := v.ValidateFile(ctx, path)
 		if err != nil {
+			if fileResults != nil {
+				chans.results <- fileResults
+			}
 			chans.errors <- fmt.Errorf("file %s: %w", path, err)
 
 			continue
@@ -580,7 +583,7 @@ func (v *FileValidator) collectResults(
 	}
 
 	if len(errs) > 0 {
-		return allResults, fmt.Errorf("encountered %d errors: %w", len(errs), errs[0])
+		return allResults, fmt.Errorf("encountered %d error(s): %w", len(errs), errors.Join(errs...))
 	}
 
 	return allResults, nil
