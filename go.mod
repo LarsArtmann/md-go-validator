@@ -6,10 +6,10 @@ require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-faster/yaml v0.4.6
 	github.com/larsartmann/go-finding v1.4.1
-	github.com/larsartmann/go-output v0.35.0
-	github.com/larsartmann/go-output/delimited v0.35.0
-	github.com/larsartmann/go-output/serialization v0.35.0
-	github.com/odvcencio/gotreesitter v0.47.1
+	github.com/larsartmann/go-output v0.37.0
+	github.com/larsartmann/go-output/delimited v0.36.0
+	github.com/larsartmann/go-output/serialization v0.36.0
+	github.com/odvcencio/gotreesitter v0.48.1
 )
 
 require (
