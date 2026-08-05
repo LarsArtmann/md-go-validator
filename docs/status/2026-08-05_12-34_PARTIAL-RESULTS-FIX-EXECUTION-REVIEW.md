@@ -30,7 +30,7 @@
 
 ## b) PARTIALLY DONE
 
-1. **The planning doc** is comprehensive but was written *before* execution. It doesn't document what actually happened during execution (the race-detector flakiness, the wsl_v5 fixes, the BuildFlow pre-commit hook interaction). A post-execution retrospective section would make it a complete record.
+1. **The planning doc** is comprehensive but was written _before_ execution. It doesn't document what actually happened during execution (the race-detector flakiness, the wsl_v5 fixes, the BuildFlow pre-commit hook interaction). A post-execution retrospective section would make it a complete record.
 2. **AGENTS.md coverage table** still shows old coverage numbers. I ran `go test ./...` but didn't run `go test -cover ./...` to update the coverage table. The new tests likely moved the numbers, but I can't say by how much.
 3. **The status report from session 1** (`docs/status/2026-08-05_07-24_ZERO-ZERO-ZERO-REPORT-BUG-DIAGNOSIS.md`) listed 35 concrete next tasks. I addressed 9 of them (the immediate fix + tests + AGENTS.md + plan + commit). The remaining 26 are untouched. The status report should cross-reference which ones got done.
 
@@ -81,7 +81,7 @@
 
 ### Code improvements
 
-6. **File-read errors should produce a Result, not just an error.** The current fix preserves partial results from *other* files, but the *failed* file itself produces no Result entry — it's only in the joined error message. A `ValidationStatusFileError` (or similar) would let the report show "file X could not be read" as a distinct entry, visible in all output formats.
+6. **File-read errors should produce a Result, not just an error.** The current fix preserves partial results from _other_ files, but the _failed_ file itself produces no Result entry — it's only in the joined error message. A `ValidationStatusFileError` (or similar) would let the report show "file X could not be read" as a distinct entry, visible in all output formats.
 
 7. **`collectSupportedFiles` should log-and-skip, not fail.** A single unreadable directory entry during the walk kills the entire file collection. This is the same class of bug I just fixed in `processJob` — one bad entry poisoning the batch.
 
@@ -172,7 +172,7 @@
 
 ## g) Questions I Cannot Answer Myself
 
-1. **Should file-read errors produce individual Result entries in the report?** The current fix preserves results from *other* files, but the failed file itself only appears in the joined error message — not as a Result row in the report. Adding a `ValidationStatusFileError` would make the report more complete, but it changes the report's structure (a Result without a block index is a new concept). Is that a change you want, or should file-read errors stay as tool-level errors only?
+1. **Should file-read errors produce individual Result entries in the report?** The current fix preserves results from _other_ files, but the failed file itself only appears in the joined error message — not as a Result row in the report. Adding a `ValidationStatusFileError` would make the report more complete, but it changes the report's structure (a Result without a block index is a new concept). Is that a change you want, or should file-read errors stay as tool-level errors only?
 
 2. **Should I verify the fix end-to-end by re-running the validator against `/home/lars/projects`?** That would confirm the 0/0/0 bug is actually fixed in the real scenario that triggered it. But it requires running the validator across all your projects, which takes 8+ seconds and produces a lot of output. Do you want me to do that, or is the unit test coverage sufficient?
 

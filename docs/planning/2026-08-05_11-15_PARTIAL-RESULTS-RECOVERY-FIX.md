@@ -12,11 +12,11 @@ Running the validator on a directory containing one unreadable file (missing, pe
 
 Three bugs compound:
 
-| # | Bug | Location | Severity |
-|---|-----|----------|----------|
-| 1 | CLI discards partial results on error | `cmd/md-go-validator/main.go:596` | Critical |
-| 2 | `processJob` drops partial results when `ValidateFile` returns error | `pkg/validator.go:534-537` | High |
-| 3 | `collectResults`/`streamFilesParallel` wrap only the first error | `pkg/validator.go:583, 416` | Medium |
+| #   | Bug                                                                  | Location                          | Severity |
+| --- | -------------------------------------------------------------------- | --------------------------------- | -------- |
+| 1   | CLI discards partial results on error                                | `cmd/md-go-validator/main.go:596` | Critical |
+| 2   | `processJob` drops partial results when `ValidateFile` returns error | `pkg/validator.go:534-537`        | High     |
+| 3   | `collectResults`/`streamFilesParallel` wrap only the first error     | `pkg/validator.go:583, 416`       | Medium   |
 
 ---
 
@@ -76,6 +76,7 @@ With both fixes, even context-cancellation mid-validation preserves the blocks t
 **Fix Bug 1 + Bug 2 + Bug 3:** `errors.Join` in both `collectResults` and `streamFilesParallel`.
 
 All three fixes + regression tests covering:
+
 - Directory with unreadable file → partial results preserved
 - Context cancellation mid-validation → partial results preserved
 - Multiple errors → all surfaced via `errors.Join`
@@ -90,36 +91,36 @@ All three fixes + regression tests covering:
 
 ## Comprehensive Task List (30-100 min)
 
-| ID | Task | Impact | Effort | Priority |
-|----|------|--------|--------|----------|
-| T1 | Fix Bug 1: CLI `validatePath` returns partial results | Critical | 30 min | P0 |
-| T2 | Fix Bug 2: `processJob` sends partial results on error | High | 40 min | P0 |
-| T3 | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium | 30 min | P1 |
-| T4 | Write regression tests (3 tests: CLI, validator, error-join) | High | 90 min | P1 |
-| T5 | Run full verification (build + test + race + lint) | Critical | 30 min | P0 |
-| T6 | Update AGENTS.md with partial-results contract | Low | 30 min | P2 |
-| T7 | Write planning doc + commit + push | Low | 30 min | P2 |
+| ID  | Task                                                                 | Impact   | Effort | Priority |
+| --- | -------------------------------------------------------------------- | -------- | ------ | -------- |
+| T1  | Fix Bug 1: CLI `validatePath` returns partial results                | Critical | 30 min | P0       |
+| T2  | Fix Bug 2: `processJob` sends partial results on error               | High     | 40 min | P0       |
+| T3  | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium   | 30 min | P1       |
+| T4  | Write regression tests (3 tests: CLI, validator, error-join)         | High     | 90 min | P1       |
+| T5  | Run full verification (build + test + race + lint)                   | Critical | 30 min | P0       |
+| T6  | Update AGENTS.md with partial-results contract                       | Low      | 30 min | P2       |
+| T7  | Write planning doc + commit + push                                   | Low      | 30 min | P2       |
 
 ---
 
 ## Micro-Task Breakdown (max 12 min each)
 
-| ID | Task | Est | Depends On |
-|----|------|-----|------------|
-| M1 | Edit `main.go:596`: `return nil, false` → `return results, false` | 3 min | — |
-| M2 | Edit `processJob` in `validator.go`: send partial results before error | 5 min | — |
-| M3 | Edit `collectResults` in `validator.go`: `errors.Join(errs...)` instead of `errs[0]` | 3 min | — |
-| M4 | Edit `streamFilesParallel` in `validator.go`: same `errors.Join` fix | 3 min | — |
-| M5 | Verify no syntax errors via `go build ./cmd/md-go-validator` | 2 min | M1-M4 |
-| M6 | Write `TestValidatePath_PartialResultsOnDirectoryError` in main_test.go | 12 min | M5 |
-| M7 | Write `TestValidator_ValidateDirectory_UnreadableFile` in validator_test.go | 12 min | M5 |
-| M8 | Write `TestValidator_ProcessJob_PartialResultsOnCancellation` in validator_test.go | 10 min | M5 |
-| M9 | Run `go test ./...` | 5 min | M6-M8 |
-| M10 | Run `go test -race ./...` | 5 min | M9 |
-| M11 | Run `golangci-lint run ./...` | 5 min | M10 |
-| M12 | Update AGENTS.md error-handling section | 5 min | M11 |
-| M13 | Write this planning doc (already in progress) | 10 min | — |
-| M14 | Git commit with detailed message | 5 min | M12 |
+| ID  | Task                                                                                 | Est    | Depends On |
+| --- | ------------------------------------------------------------------------------------ | ------ | ---------- |
+| M1  | Edit `main.go:596`: `return nil, false` → `return results, false`                    | 3 min  | —          |
+| M2  | Edit `processJob` in `validator.go`: send partial results before error               | 5 min  | —          |
+| M3  | Edit `collectResults` in `validator.go`: `errors.Join(errs...)` instead of `errs[0]` | 3 min  | —          |
+| M4  | Edit `streamFilesParallel` in `validator.go`: same `errors.Join` fix                 | 3 min  | —          |
+| M5  | Verify no syntax errors via `go build ./cmd/md-go-validator`                         | 2 min  | M1-M4      |
+| M6  | Write `TestValidatePath_PartialResultsOnDirectoryError` in main_test.go              | 12 min | M5         |
+| M7  | Write `TestValidator_ValidateDirectory_UnreadableFile` in validator_test.go          | 12 min | M5         |
+| M8  | Write `TestValidator_ProcessJob_PartialResultsOnCancellation` in validator_test.go   | 10 min | M5         |
+| M9  | Run `go test ./...`                                                                  | 5 min  | M6-M8      |
+| M10 | Run `go test -race ./...`                                                            | 5 min  | M9         |
+| M11 | Run `golangci-lint run ./...`                                                        | 5 min  | M10        |
+| M12 | Update AGENTS.md error-handling section                                              | 5 min  | M11        |
+| M13 | Write this planning doc (already in progress)                                        | 10 min | —          |
+| M14 | Git commit with detailed message                                                     | 5 min  | M12        |
 
 ---
 
@@ -177,13 +178,13 @@ graph TD
 
 ### What could go wrong (and why it won't)
 
-| Risk | Mitigation |
-|------|------------|
-| `processJob` sends to results channel that's not ready | Channels are buffered to `len(filesToProcess)` — each file sends at most 1 result + 1 error |
-| `errors.Join` changes error message format | Existing tests check `strings.Contains`, not exact match. "cancelled" still appears in joined error |
-| `TestValidatePathWithErrors` expects `nil` for non-existent path | That test hits `os.Stat` failure, NOT `ValidateDirectory` error — unaffected |
-| Partial results from cancelled file double-count | No: `processJob` sends the results slice once, then the error. No duplication |
-| Race condition: worker sends results + error in new order | Channels are independent. Order within a worker doesn't matter. Buffer prevents blocking |
+| Risk                                                             | Mitigation                                                                                          |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `processJob` sends to results channel that's not ready           | Channels are buffered to `len(filesToProcess)` — each file sends at most 1 result + 1 error         |
+| `errors.Join` changes error message format                       | Existing tests check `strings.Contains`, not exact match. "cancelled" still appears in joined error |
+| `TestValidatePathWithErrors` expects `nil` for non-existent path | That test hits `os.Stat` failure, NOT `ValidateDirectory` error — unaffected                        |
+| Partial results from cancelled file double-count                 | No: `processJob` sends the results slice once, then the error. No duplication                       |
+| Race condition: worker sends results + error in new order        | Channels are independent. Order within a worker doesn't matter. Buffer prevents blocking            |
 
 ### What I'm NOT changing
 
