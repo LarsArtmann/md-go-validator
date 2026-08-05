@@ -125,6 +125,16 @@ Branded types for type safety:
 
 Error reporting uses best-attempt selection (highest error line from the strategy that parsed furthest), plus mixed-scope detection and skip-directive hints.
 
+### Partial Results on Error Contract
+
+`ValidateDirectory` and `ValidateDirectoryFunc` return partial results even when errors occur (e.g. unreadable files, context cancellation). The error signals that _something_ went wrong, but the results slice contains every block that was successfully validated before the error.
+
+- `processJob` sends partial results to the results channel BEFORE sending to the errors channel
+- `collectResults` returns `(allResults, error)` — callers must not discard `allResults`
+- `validatePath` (CLI) returns `results, false` on error — the `false` drives exit code 2, the `results` populate the report
+- Multiple errors are joined via `errors.Join` so all are surfaced, not just the first
+- The CLI report should never show 0/0/0 unless no blocks were actually processed
+
 ### Skip Directives
 
 - `<!-- skip-validate -->`, `<!-- skip-md-validate -->`, `<!-- md-skip -->`, `<!-- no-validate -->`

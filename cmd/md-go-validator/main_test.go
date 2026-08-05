@@ -544,6 +544,45 @@ func TestValidatePathWithErrors(t *testing.T) {
 	})
 }
 
+func TestValidatePath_PartialResultsOnDirectoryError(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	// Create a valid markdown file
+	content := []byte("```go\npackage main\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "valid.md", content)
+
+	// Create a broken symlink that looks like a .md file to trigger a read error
+	brokenLink := filepath.Join(tmpDir, "broken.md")
+
+	symlinkErr := os.Symlink(filepath.Join(tmpDir, "nonexistent-target.md"), brokenLink)
+	if symlinkErr != nil {
+		t.Fatalf("failed to create symlink: %v", symlinkErr)
+	}
+
+	validator := mdgovalidator.New(false)
+	results, ok := validatePath(context.Background(), validator, tmpDir)
+
+	// Tool error expected (broken symlink triggers read error)
+	if ok {
+		t.Error("expected ok=false for directory with unreadable file")
+	}
+
+	// Partial results from the valid file must survive despite the error
+	if len(results) == 0 {
+		t.Error("expected partial results from valid files, got 0 — " +
+			"validatePath should preserve partial results on error")
+	}
+
+	// The recovered result should be valid
+	for _, r := range results {
+		if r.Status != types.StatusValid {
+			t.Errorf("expected partial result to be valid, got status %s", r.Status)
+		}
+	}
+}
+
 func TestValidatePathsCapacity(t *testing.T) {
 	t.Parallel()
 

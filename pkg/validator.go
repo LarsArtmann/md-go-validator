@@ -535,6 +535,7 @@ func (v *FileValidator) processJob(ctx context.Context, chans workerChannels) {
 			if fileResults != nil {
 				chans.results <- fileResults
 			}
+
 			chans.errors <- fmt.Errorf("file %s: %w", path, err)
 
 			continue

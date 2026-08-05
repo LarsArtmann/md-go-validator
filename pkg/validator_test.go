@@ -402,6 +402,77 @@ func TestValidator_ValidateDirectory_SkipDirs(t *testing.T) {
 	testutil.AssertResultCount(t, results, 1)
 }
 
+func TestValidator_ValidateDirectory_UnreadableFile(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	// Create two valid markdown files
+	content := []byte("```go\npackage main\n```\n")
+	testutil.WriteTestFile(t, tmpDir, "valid1.md", content)
+	testutil.WriteTestFile(t, tmpDir, "valid2.md", content)
+
+	// Create a broken symlink that looks like a .md file to trigger a read error
+	brokenLink := filepath.Join(tmpDir, "broken.md")
+
+	symlinkErr := os.Symlink(filepath.Join(tmpDir, "nonexistent-target.md"), brokenLink)
+	if symlinkErr != nil {
+		t.Fatalf("failed to create symlink: %v", symlinkErr)
+	}
+
+	v := New(false)
+	results, err := v.ValidateDirectory(context.Background(), tmpDir)
+
+	// Error expected from the unreadable symlink
+	if err == nil {
+		t.Error("expected error for directory with unreadable file")
+	}
+
+	// Partial results from valid files must be preserved despite the error
+	if len(results) < 2 {
+		t.Errorf("expected at least 2 partial results from valid files, got %d", len(results))
+	}
+
+	// All recovered results should be valid (not errors)
+	for _, r := range results {
+		if r.Status != types.StatusValid {
+			t.Errorf("expected all partial results to be valid, got status %s for %s:%s",
+				r.Status, r.File, r.LineNumber)
+		}
+	}
+}
+
+func TestValidator_ValidateDirectory_CancellationPreservesPartialResults(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := t.TempDir()
+
+	// Create multiple files with multiple code blocks each
+	for i := range 10 {
+		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
+		testutil.WriteTestFile(t, tmpDir, fmt.Sprintf("file%d.md", i), content)
+	}
+
+	v := New(false).WithConcurrency(1) // Single worker for predictable partial processing
+
+	ctx, cancel := context.WithTimeout(context.Background(), 50*time.Millisecond)
+	defer cancel()
+
+	results, err := v.ValidateDirectory(ctx, tmpDir)
+
+	// An error is expected (timeout), but partial results must survive
+	if err != nil && !strings.Contains(err.Error(), "cancelled") {
+		t.Fatalf("expected cancellation error, got: %v", err)
+	}
+
+	// At least one block should have been validated before cancellation.
+	// With 10 files x 2 blocks = 20 potential results, single-worker, 50ms timeout,
+	// at least 1 block should complete even under race detector overhead.
+	if len(results) < 1 {
+		t.Errorf("expected at least 1 partial result before cancellation, got %d", len(results))
+	}
+}
+
 func TestValidator_ValidateDirectoryFunc_Streaming(t *testing.T) {
 	t.Parallel()
 
