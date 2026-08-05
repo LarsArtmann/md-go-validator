@@ -109,7 +109,11 @@ func (v *MyValidator) Validate(ctx context.Context, code string) error {
 func (v *MyValidator) IsAvailable() bool {
     return true
 }
+```
 
+Then register it:
+
+```go
 registry := languages.NewRegistry()
 if err := registry.Register(&MyValidator{}); err != nil {
     panic(err)
