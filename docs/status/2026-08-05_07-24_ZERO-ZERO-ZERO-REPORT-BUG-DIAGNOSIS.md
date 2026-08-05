@@ -49,14 +49,14 @@ Nothing. The diagnosis is complete; the fix is at zero percent.
 
 2. **My first answer to the user was based entirely on an agent's findings.** I delegated the
    investigation to a sub-agent, then presented its conclusions as my own without having read a
-   single line of code myself at that point. I only verified *afterward*. If the agent had
+   single line of code myself at that point. I only verified _afterward_. If the agent had
    hallucinated a file path or line number, I would have confidently relayed misinformation. The
    agent was correct this time, but trusting agent output unverified and un-attributed is a
    reliability hole.
 
 3. **I stopped at the first bug I found.** The deeper design flaw — that a single unreadable file
    should never be a fatal batch error in the first place — I mentioned only in passing. I did not
-   press on it as the *real* fix. I treated the symptom (CLI discards results) as the story, when
+   press on it as the _real_ fix. I treated the symptom (CLI discards results) as the story, when
    the disease (processJob escalates per-file failures to batch failures) is worse.
 
 4. **I did not run a single test, build, or linter** the entire session. Zero verification.
@@ -159,7 +159,7 @@ walker should either stat-at-read or the error should be non-fatal (see Layer 2)
 ## g) Questions I Cannot Answer Myself
 
 1. **Is the `errorsChan` → fatal-error design intentional or accidental?** The `collectResults`
-   pattern of returning `(allResults, err)` suggests someone *intended* partial results to survive,
+   pattern of returning `(allResults, err)` suggests someone _intended_ partial results to survive,
    but `processJob` escalating per-file read errors to the batch level suggests the opposite intent.
    I cannot tell which behavior you want without asking. My recommendation: per-file read errors
    should be non-fatal Results, context/catastrophic errors should be fatal. Is that the contract

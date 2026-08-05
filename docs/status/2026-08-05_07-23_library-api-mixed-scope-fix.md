@@ -9,7 +9,7 @@ _Session focused on fixing a validation error reported in the website docs._
 1. **Fixed mixed-scope code block in `library-api.mdx`** (line 97, block #7)
    - **Root cause:** The snippet mixed package-level declarations (`type MyValidator struct{}` + methods) with function-body statements (`registry := ...`, `if err := ...`). No single Go scope can contain both — this is a true mixed-scope error that no parsing strategy can resolve.
    - **Fix:** Split into two valid code blocks — (1) the interface implementation (package-level, handled by package-wrapper strategy) and (2) the registration code (function-body statements, handled by statements strategy). Connected with a "Then register it:" sentence.
-   - **Why not `// skip-validate`:** Using a skip directive would signal "this code is broken" in the project's *own* docs — the validator should be able to validate its own documentation. Splitting produces genuinely valid Go.
+   - **Why not `// skip-validate`:** Using a skip directive would signal "this code is broken" in the project's _own_ docs — the validator should be able to validate its own documentation. Splitting produces genuinely valid Go.
 
 2. **Verified the fix:**
    - `library-api.mdx` alone: 8 valid, 0 errors
@@ -38,7 +38,7 @@ Nothing — this was a single-file fix, fully completed.
 
 Nothing catastrophic. But one honest miss:
 
-- **I declared "Done" without investigating the 4 skipped blocks.** I saw "Skipped: 4" in the report and moved on without checking *why* they were skipped. I only investigated them just now (for this report). They turned out to be legitimate (they're in `skip-directives.mdx`, intentionally demonstrating skip directives), but I got lucky. A skipped block could have been hiding a broken snippet that someone slapped `// skip-validate` on as a band-aid. **I should always investigate skips, not just errors.**
+- **I declared "Done" without investigating the 4 skipped blocks.** I saw "Skipped: 4" in the report and moved on without checking _why_ they were skipped. I only investigated them just now (for this report). They turned out to be legitimate (they're in `skip-directives.mdx`, intentionally demonstrating skip directives), but I got lucky. A skipped block could have been hiding a broken snippet that someone slapped `// skip-validate` on as a band-aid. **I should always investigate skips, not just errors.**
 
 ---
 
@@ -50,9 +50,9 @@ Nothing catastrophic. But one honest miss:
 
 2. **The project should validate its own website docs in CI.** Currently `.github/workflows/` has `ci.yml` (Go) and `website.yml` (Astro build/deploy), but there's no step that runs `md-go-validator` on `website/src/content/docs/`. The validator should eat its own dog food — this error should have been caught by CI, not found manually.
 
-3. **The mixed-scope error message is excellent but the hint could be better.** The current hint says "add `// skip-validate`". For snippets that *can* be split into valid blocks (like this one), a better hint might be: "consider splitting package-level declarations from function-body statements into separate code blocks." The skip directive should be the last resort, not the first suggestion.
+3. **The mixed-scope error message is excellent but the hint could be better.** The current hint says "add `// skip-validate`". For snippets that _can_ be split into valid blocks (like this one), a better hint might be: "consider splitting package-level declarations from function-body statements into separate code blocks." The skip directive should be the last resort, not the first suggestion.
 
-4. **No grep-based audit for similar mixed-scope patterns in other docs.** The validator catches *syntax* errors, but there may be snippets across the 14 doc files that are technically valid yet poor quality (e.g., snippets that only pass via the weakest strategy when they could be cleaner).
+4. **No grep-based audit for similar mixed-scope patterns in other docs.** The validator catches _syntax_ errors, but there may be snippets across the 14 doc files that are technically valid yet poor quality (e.g., snippets that only pass via the weakest strategy when they could be cleaner).
 
 ### Code/Doc Quality Observations
 
