@@ -1020,7 +1020,7 @@
           <div class="where">buildflow update &mdash; 2 passed / 2 skipped</div>
           <p>
             <code>buildflow update</code> ran 4 sub-steps: <code>cargo-update</code> and
-            <code>npm-update</code> were correctly skipped (no Rust/JS in this repo), and
+            <code>pnpm-update</code> were correctly skipped (no Rust/JS in this repo), and
             <code>go-mod-update</code> + <code>nix-flake-update</code> passed. But "passed" only
             means the step executed &mdash; it does <strong>not</strong> mean the build still works
             afterwards, nor that the vendorHash was synced, nor that all inputs actually moved. The

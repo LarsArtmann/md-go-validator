@@ -49,7 +49,7 @@ The dependency `go-output@v0.30.4` (and transitively `go-branded-id@v0.3.2`) imp
 | Item                     | Status          | Detail                                                                                                                                                                                                                                                                                                              |
 | ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `go-auto-upgrade:repair` | Warnings remain | 5 functions flagged as reimplementing `slices.Contains` as for-loops. These are informational warnings, not compilation errors. The repair step fails because it runs a post-repair compile check without GOEXPERIMENT — now fixed via `.envrc`, but the actual `slices.Contains` migrations have not been applied. |
-| `npm-update` warning     | Harmless noise  | `failed to read package file "website": read website: is a directory` — BuildFlow bug treating a directory as a package.json path. Still shows green.                                                                                                                                                               |
+| `pnpm-update` warning     | Harmless noise  | `failed to read package file "website": read website: is a directory` — BuildFlow bug treating a directory as a package.json path. Still shows green.                                                                                                                                                               |
 
 ---
 
@@ -63,7 +63,7 @@ The dependency `go-output@v0.30.4` (and transitively `go-branded-id@v0.3.2`) imp
    - `pkg/validator.go:641` — `HasErrors`
    - `pkg/validator.go:652` — `HasSkipped`
 2. **`.envrc` is gitignored** — other developers cloning this repo won't get the fix automatically. Consider documenting the requirement in README or adding a `.envrc.example`.
-3. **Website `npm-update`** — BuildFlow can't update website npm deps due to the directory-vs-file bug. May need BuildFlow upstream fix or a workaround.
+3. **Website `pnpm-update`** — BuildFlow can't update website pnpm deps due to the directory-vs-file bug. May need BuildFlow upstream fix or a workaround.
 
 ---
 

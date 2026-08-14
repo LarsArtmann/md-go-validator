@@ -25,7 +25,7 @@ The website-launch skill completed all 7 phases and the user committed the work 
 | Missing imports in code examples           | `library-api.mdx`                                                                                          | Added `context`, `fmt`, `types` imports needed for examples to compile.                                                                                              |
 | Missing builder methods                    | `library-api.mdx`                                                                                          | Added `WithMaxBlocks(n)` and `WithRegistry(r)` to the options table. Also corrected `WithExcludePatterns` parameter type to `[]ExcludePattern`.                      |
 | OG description includes TSX                | `config.ts`                                                                                                | ogDescription omitted TSX (a supported language). Now lists all 7 languages.                                                                                         |
-| CI workflow: `npm install` → `npm ci`      | `website.yml`                                                                                              | `npm ci` is the CI standard for reproducible builds from lockfile.                                                                                                   |
+| CI workflow: `pnpm install` → `pnpm install --frozen-lockfile`      | `website.yml`                                                                                              | `pnpm install --frozen-lockfile` is the CI standard for reproducible builds from lockfile.                                                                                                   |
 | `X-XSS-Protection` header fixed            | `firebase.json`                                                                                            | Changed from deprecated `"1; mode=block"` to `"0"`. With CSP in place, this header is unnecessary and can introduce vulnerabilities.                                 |
 | CTASection icon corrected                  | `CTASection.astro`                                                                                         | "Quick Start" link used `arrow-external` icon but points to internal page. Changed to `arrow-right`.                                                                 |
 | Empty `api/` directory removed             | `website/src/content/docs/api/`                                                                            | Empty directory with no content; sidebar correctly links to pkg.go.dev instead.                                                                                      |
@@ -77,7 +77,7 @@ The website-launch skill completed all 7 phases and the user committed the work 
 | **Strategy count was wrong everywhere**            | HIGH     | The website, README, and docs ALL said "7-Strategy" when the code constant is `strategyCount = 6`. This was a factual lie told to every reader. The initial website-launch session wrote "7" and nobody verified against source. Fixed this session.                                        |
 | **Library API docs had 4 compile-breaking errors** | HIGH     | `ValidateDirectoryFunc` callback signature was wrong (missing `error` return), `ErrorCode` was attributed to the wrong package, `Registry.Register` error return was ignored, and imports were incomplete. A user copy-pasting these examples would get compile errors. Fixed this session. |
 | **ogDescription omitted a supported language**     | MEDIUM   | TSX is a supported language but wasn't listed in the OG description. Misleading for social media previews. Fixed this session.                                                                                                                                                              |
-| **`npm install` in CI**                            | MEDIUM   | `npm install` can resolve different versions than the lockfile, making CI builds non-reproducible. Should always be `npm ci`. Fixed this session.                                                                                                                                           |
+| **`pnpm install` in CI**                            | MEDIUM   | `pnpm install` can resolve different versions than the lockfile, making CI builds non-reproducible. Should always be `pnpm install --frozen-lockfile`. Fixed this session.                                                                                                                                           |
 | **Deprecated security header**                     | LOW      | `X-XSS-Protection: 1; mode=block` is deprecated and can introduce vulnerabilities in modern browsers. Fixed this session.                                                                                                                                                                   |
 
 ---
@@ -92,7 +92,7 @@ The website-launch skill completed all 7 phases and the user committed the work 
 
 3. **Security headers need periodic review.** The `X-XSS-Protection` issue is a known industry deprecation. Firebase security configs should be audited against current OWASP recommendations.
 
-4. **CI should use `npm ci` always.** This is table stakes. The initial workflow used `npm install` — a basic CI mistake.
+4. **CI should use `pnpm install --frozen-lockfile` always.** This is table stakes. The initial workflow used `pnpm install` — a basic CI mistake.
 
 5. **Self-review should happen BEFORE commit, not after.** The user committed `69fcb10` with all 16 issues. A 10-minute source verification pass before declaring "done" would have caught 9 of them.
 
@@ -167,7 +167,7 @@ The website-launch skill completed all 7 phases and the user committed the work 
 35. Publish Homebrew tap (goreleaser has `skip_upload: true`)
 36. Publish Docker image to GitHub Container Registry
 37. Add AUR package
-38. Consider npm wrapper for JS-heavy teams
+38. Consider pnpm wrapper for JS-heavy teams
 39. Generate shell completions (bash/zsh/fish)
 40. Add `--watch` mode for development feedback
 

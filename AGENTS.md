@@ -248,5 +248,5 @@ goreleaser release
 - **CI/CD:** `.github/workflows/website.yml` (two-job: build + deploy)
 - **Secret:** `FIREBASE_SERVICE_ACCOUNT` (firebase-adminsdk key for lars-software)
 - **DNS:** Staged in `domains/lars.software.tf` (CNAME + ACME TXT, BLOCKED on placeholder Namecheap API key)
-- **Build:** `cd website && nix shell nixpkgs#nodejs -c npm run build`
+- **Build:** `cd website && nix shell nixpkgs#nodejs -c pnpm run build`
 - **Deploy:** `cd website && nix shell nixpkgs#nodejs nixpkgs#firebase-tools -c firebase deploy --only hosting:md-go-validator --project lars-software`

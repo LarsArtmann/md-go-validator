@@ -101,7 +101,7 @@ Nothing catastrophic. But one honest miss:
 24. **Consider a `make docs-validate` or flake app** for one-command docs validation.
 25. **Review website DNS status** — AGENTS.md says "pending DNS propagation"; check if resolved.
 26. **Verify Firebase deploy target** still works with current config.
-27. **Check `website/` npm dependencies** for security advisories.
+27. **Check `website/` pnpm dependencies** for security advisories.
 28. **Review Starlight/Astro version** for major updates.
 29. **Add a `CHANGELOG.md` entry** for the docs fix if the project maintains one.
 30. **Consider adding `md-go-validator.yaml` config** to the `website/` directory for custom validation settings.

@@ -42,7 +42,7 @@ Make the tool trivially easy to adopt and discover.
 Raw ideas:
 
 - AUR package for Arch Linux
-- npm wrapper for JS-heavy teams
+- pnpm wrapper for JS-heavy teams
 - Docker image publication for CI pipelines without Go/Nix
 
 ## Non-goals
