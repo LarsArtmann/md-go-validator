@@ -12,7 +12,7 @@ var errValidatorNil = errors.New("validator cannot be nil")
 
 // ErrorCode represents the type of validation error for programmatic handling.
 //
-//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
+
 type ErrorCode uint
 
 // Error codes for different validation failure types.

@@ -1,7 +1,7 @@
 # Status Report: Website Launch Quality Fixes
 
-**Date:** 2026-07-15 23:05  
-**Session:** Post-launch quality audit and fixes  
+**Date:** 2026-07-15 23:05\
+**Session:** Post-launch quality audit and fixes\
 **Trigger:** Self-assessment request after website-launch skill completion
 
 ---
@@ -16,19 +16,19 @@ The website-launch skill completed all 7 phases and the user committed the work 
 
 ### Quality fixes applied this session (11 files, uncommitted)
 
-| Fix                                        | File(s)                                                                                                    | Detail                                                                                                                                                               |
-| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Go strategy count corrected (7→6)          | `README.md`, `features.ts`, `sections.ts`, `HowItWorksSection.astro`, `go-strategies.mdx`, `languages.mdx` | Source code has `strategyCount = 6` in `go_validator.go:18`. The number "7" propagated everywhere from the initial website-launch session. Fixed in all 8 locations. |
-| `ValidateDirectoryFunc` callback signature | `library-api.mdx`                                                                                          | Docs showed `func(r types.Result)`. Actual signature returns `error`: `func(r types.Result) error`. Now documented correctly with abort semantics.                   |
-| `ErrorCode` package corrected              | `library-api.mdx`                                                                                          | Docs said `types.ErrorCode`. Actual type is `languages.ErrorCode` (`pkg/languages/validator.go:16`).                                                                 |
-| `Registry.Register` error handling         | `library-api.mdx`                                                                                          | Docs ignored return value. Actual signature returns `error`. Now shows proper error check.                                                                           |
-| Missing imports in code examples           | `library-api.mdx`                                                                                          | Added `context`, `fmt`, `types` imports needed for examples to compile.                                                                                              |
-| Missing builder methods                    | `library-api.mdx`                                                                                          | Added `WithMaxBlocks(n)` and `WithRegistry(r)` to the options table. Also corrected `WithExcludePatterns` parameter type to `[]ExcludePattern`.                      |
-| OG description includes TSX                | `config.ts`                                                                                                | ogDescription omitted TSX (a supported language). Now lists all 7 languages.                                                                                         |
-| CI workflow: `pnpm install` → `pnpm install --frozen-lockfile`      | `website.yml`                                                                                              | `pnpm install --frozen-lockfile` is the CI standard for reproducible builds from lockfile.                                                                                                   |
-| `X-XSS-Protection` header fixed            | `firebase.json`                                                                                            | Changed from deprecated `"1; mode=block"` to `"0"`. With CSP in place, this header is unnecessary and can introduce vulnerabilities.                                 |
-| CTASection icon corrected                  | `CTASection.astro`                                                                                         | "Quick Start" link used `arrow-external` icon but points to internal page. Changed to `arrow-right`.                                                                 |
-| Empty `api/` directory removed             | `website/src/content/docs/api/`                                                                            | Empty directory with no content; sidebar correctly links to pkg.go.dev instead.                                                                                      |
+| Fix                                                            | File(s)                                                                                                    | Detail                                                                                                                                                               |
+| -------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Go strategy count corrected (7→6)                              | `README.md`, `features.ts`, `sections.ts`, `HowItWorksSection.astro`, `go-strategies.mdx`, `languages.mdx` | Source code has `strategyCount = 6` in `go_validator.go:18`. The number "7" propagated everywhere from the initial website-launch session. Fixed in all 8 locations. |
+| `ValidateDirectoryFunc` callback signature                     | `library-api.mdx`                                                                                          | Docs showed `func(r types.Result)`. Actual signature returns `error`: `func(r types.Result) error`. Now documented correctly with abort semantics.                   |
+| `ErrorCode` package corrected                                  | `library-api.mdx`                                                                                          | Docs said `types.ErrorCode`. Actual type is `languages.ErrorCode` (`pkg/languages/validator.go:16`).                                                                 |
+| `Registry.Register` error handling                             | `library-api.mdx`                                                                                          | Docs ignored return value. Actual signature returns `error`. Now shows proper error check.                                                                           |
+| Missing imports in code examples                               | `library-api.mdx`                                                                                          | Added `context`, `fmt`, `types` imports needed for examples to compile.                                                                                              |
+| Missing builder methods                                        | `library-api.mdx`                                                                                          | Added `WithMaxBlocks(n)` and `WithRegistry(r)` to the options table. Also corrected `WithExcludePatterns` parameter type to `[]ExcludePattern`.                      |
+| OG description includes TSX                                    | `config.ts`                                                                                                | ogDescription omitted TSX (a supported language). Now lists all 7 languages.                                                                                         |
+| CI workflow: `pnpm install` → `pnpm install --frozen-lockfile` | `website.yml`                                                                                              | `pnpm install --frozen-lockfile` is the CI standard for reproducible builds from lockfile.                                                                           |
+| `X-XSS-Protection` header fixed                                | `firebase.json`                                                                                            | Changed from deprecated `"1; mode=block"` to `"0"`. With CSP in place, this header is unnecessary and can introduce vulnerabilities.                                 |
+| CTASection icon corrected                                      | `CTASection.astro`                                                                                         | "Quick Start" link used `arrow-external` icon but points to internal page. Changed to `arrow-right`.                                                                 |
+| Empty `api/` directory removed                                 | `website/src/content/docs/api/`                                                                            | Empty directory with no content; sidebar correctly links to pkg.go.dev instead.                                                                                      |
 
 ### Previously completed (in commit `69fcb10`)
 
@@ -77,7 +77,7 @@ The website-launch skill completed all 7 phases and the user committed the work 
 | **Strategy count was wrong everywhere**            | HIGH     | The website, README, and docs ALL said "7-Strategy" when the code constant is `strategyCount = 6`. This was a factual lie told to every reader. The initial website-launch session wrote "7" and nobody verified against source. Fixed this session.                                        |
 | **Library API docs had 4 compile-breaking errors** | HIGH     | `ValidateDirectoryFunc` callback signature was wrong (missing `error` return), `ErrorCode` was attributed to the wrong package, `Registry.Register` error return was ignored, and imports were incomplete. A user copy-pasting these examples would get compile errors. Fixed this session. |
 | **ogDescription omitted a supported language**     | MEDIUM   | TSX is a supported language but wasn't listed in the OG description. Misleading for social media previews. Fixed this session.                                                                                                                                                              |
-| **`pnpm install` in CI**                            | MEDIUM   | `pnpm install` can resolve different versions than the lockfile, making CI builds non-reproducible. Should always be `pnpm install --frozen-lockfile`. Fixed this session.                                                                                                                                           |
+| **`pnpm install` in CI**                           | MEDIUM   | `pnpm install` can resolve different versions than the lockfile, making CI builds non-reproducible. Should always be `pnpm install --frozen-lockfile`. Fixed this session.                                                                                                                  |
 | **Deprecated security header**                     | LOW      | `X-XSS-Protection: 1; mode=block` is deprecated and can introduce vulnerabilities in modern browsers. Fixed this session.                                                                                                                                                                   |
 
 ---
@@ -218,16 +218,16 @@ grep audit:     0 remaining "7-strategy" references
 ## File inventory (this session's uncommitted changes)
 
 ```
- .github/workflows/website.yml                     |  2 +-
- README.md                                         |  4 +--
- website/firebase.json                             |  2 +-
- website/src/components/CTASection.astro           |  2 +-
- website/src/components/HowItWorksSection.astro    |  2 +-
- website/src/content/docs/guides/go-strategies.mdx |  4 +--
- website/src/content/docs/guides/languages.mdx     |  4 +--
- website/src/content/docs/guides/library-api.mdx   | 38 ++++++++++++++---------
- website/src/data/config.ts                        |  2 +-
- website/src/data/features.ts                      |  2 +-
- website/src/data/sections.ts                      |  2 +-
- 11 files changed, 37 insertions(+), 27 deletions(-)
+.github/workflows/website.yml                     |  2 +-
+README.md                                         |  4 +--
+website/firebase.json                             |  2 +-
+website/src/components/CTASection.astro           |  2 +-
+website/src/components/HowItWorksSection.astro    |  2 +-
+website/src/content/docs/guides/go-strategies.mdx |  4 +--
+website/src/content/docs/guides/languages.mdx     |  4 +--
+website/src/content/docs/guides/library-api.mdx   | 38 ++++++++++++++---------
+website/src/data/config.ts                        |  2 +-
+website/src/data/features.ts                      |  2 +-
+website/src/data/sections.ts                      |  2 +-
+11 files changed, 37 insertions(+), 27 deletions(-)
 ```

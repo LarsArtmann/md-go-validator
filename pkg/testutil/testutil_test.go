@@ -33,7 +33,7 @@ func TestWriteTestFile(t *testing.T) {
 		}
 
 		// Verify content
-		got, err := os.ReadFile(path) //nolint:gosec // Path is validated by WriteTestFile helper
+		got, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatalf("failed to read file: %v", err)
 		}

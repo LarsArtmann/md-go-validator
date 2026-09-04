@@ -1,6 +1,6 @@
 # Comprehensive Status Report — GOPRIVATE Fix & Full Project Status
 
-**Date:** 2026-05-04 11:20  
+**Date:** 2026-05-04 11:20\
 **Session Focus:** Fix GOPRIVATE/GONOSUMDB case-sensitivity issue preventing private Go module resolution
 
 ---
@@ -26,33 +26,33 @@
 
 ### 3. Project Build & Test Status
 
-| Metric     | Value                               | Status                        |
-| ---------- | ----------------------------------- | ----------------------------- |
-| Build      | `go build ./...`                    | ✅ PASS                       |
-| Tests      | `go test ./...`                     | ✅ PASS                       |
-| Lint       | `golangci-lint run`                 | ✅ PASS (0 issues)            |
+| Metric     | Value                               | Status                       |
+| ---------- | ----------------------------------- | ---------------------------- |
+| Build      | `go build ./...`                    | ✅ PASS                      |
+| Tests      | `go test ./...`                     | ✅ PASS                      |
+| Lint       | `golangci-lint run`                 | ✅ PASS (0 issues)           |
 | LSP Errors | 16 errors in `pkg/output/output.go` | ⚠️ KNOWN ISSUE (pre-existing) |
 
 ### 4. Test Coverage by Package
 
-| Package               | Coverage | Status               |
-| --------------------- | -------- | -------------------- |
-| `pkg`                 | 81.9%    | ✅ Good              |
-| `pkg/types`           | 83.7%    | ✅ Good              |
-| `pkg/output`          | 91.5%    | ✅ Excellent         |
+| Package               | Coverage | Status              |
+| --------------------- | -------- | ------------------- |
+| `pkg`                 | 81.9%    | ✅ Good             |
+| `pkg/types`           | 83.7%    | ✅ Good             |
+| `pkg/output`          | 91.5%    | ✅ Excellent        |
 | `pkg/languages`       | 66.7%    | ⚠️ Needs improvement |
 | `cmd/md-go-validator` | 61.7%    | ⚠️ Needs improvement |
-| `pkg/code`            | 0.0%     | ❌ Critical gap      |
-| `pkg/testutil`        | 0.0%     | ❌ Critical gap      |
+| `pkg/code`            | 0.0%     | ❌ Critical gap     |
+| `pkg/testutil`        | 0.0%     | ❌ Critical gap     |
 
 ---
 
 ## B) PARTIALLY DONE
 
-| #   | Item                          | Status            | What's Left                                                                                         |
-| --- | ----------------------------- | ----------------- | --------------------------------------------------------------------------------------------------- |
-| 1   | `go-output` module resolution | Environment fixed | SystemNix needs `nixos-rebuild switch` to apply new GOPRIVATE/GONOSUMDB                             |
-| 2   | LSP/gopls integration         | Broken            | `pkg/output/output.go` shows 16 errors due to local `replace` directive not being resolved by gopls |
+| # | Item                          | Status            | What's Left                                                                                         |
+| - | ----------------------------- | ----------------- | --------------------------------------------------------------------------------------------------- |
+| 1 | `go-output` module resolution | Environment fixed | SystemNix needs `nixos-rebuild switch` to apply new GOPRIVATE/GONOSUMDB                             |
+| 2 | LSP/gopls integration         | Broken            | `pkg/output/output.go` shows 16 errors due to local `replace` directive not being resolved by gopls |
 
 ---
 
@@ -73,9 +73,9 @@
 
 ### 1. `pkg/output/output.go` LSP Errors (Pre-existing, NOT caused by this change)
 
-**Status:** 16 compile errors  
-**Root Cause:** LSP/gopls cannot resolve the local `replace` directive (`=> ../go-output`)  
-**Impact:** IDE experience broken, but tests pass (Go CLI handles `replace` correctly)  
+**Status:** 16 compile errors\
+**Root Cause:** LSP/gopls cannot resolve the local `replace` directive (`=> ../go-output`)\
+**Impact:** IDE experience broken, but tests pass (Go CLI handles `replace` correctly)\
 **Fix Options:**
 
 - (a) Publish `go-output` to make it fetchable
@@ -84,12 +84,12 @@
 
 ### 2. Pre-commit Hook Not Executable (Pre-existing)
 
-**Status:** Git warns on every commit  
+**Status:** Git warns on every commit\
 **Fix:** `chmod +x .git/hooks/pre-commit` or remove if not needed
 
 ### 3. `justfile` Still Exists (Pre-existing)
 
-**Status:** AGENTS.md says "justfile is deprecated" but it's still present  
+**Status:** AGENTS.md says "justfile is deprecated" but it's still present\
 **Fix:** Migrate to `flake.nix` or document why it's still needed
 
 ---

@@ -1,8 +1,8 @@
 # Comprehensive Status Report: Tree-Sitter Migration Complete
 
-**Date:** 2026-04-02 09:14  
-**Reporter:** Crush (AI Assistant)  
-**Session:** Tree-sitter Migration Finalization  
+**Date:** 2026-04-02 09:14\
+**Reporter:** Crush (AI Assistant)\
+**Session:** Tree-sitter Migration Finalization\
 **Commit:** a429c53de358731455262b0888ac16a8e3a8bb2b
 
 ---
@@ -17,25 +17,25 @@ Successfully completed migration from external command-based validators to pure 
 
 ### a) FULLY DONE ✅
 
-| #   | Item                                   | Details                                                                            |
-| --- | -------------------------------------- | ---------------------------------------------------------------------------------- |
-| 1   | **Tree-sitter Research**               | Researched gotreesitter API, grammar registration, error detection methods         |
-| 2   | **TreeSitterValidator Implementation** | Created `pkg/languages/treesitter_validator.go` with generic tree-sitter validator |
-| 3   | **Language Support**                   | All 7 languages: Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, Templ              |
-| 4   | **Registry Update**                    | Updated `DefaultRegistry()` to use tree-sitter validators                          |
-| 5   | **External Validator Removal**         | Deleted all external command validators (6 files, ~230 lines)                      |
-| 6   | **gotreesitter Integration**           | Added dependency, verified API compatibility                                       |
-| 7   | **Test Suite**                         | Created comprehensive tests for all tree-sitter validators                         |
-| 8   | **Documentation Update**               | Updated README with new architecture, removed external tool requirements           |
-| 9   | **Build Verification**                 | All packages compile without errors                                                |
-| 10  | **Test Verification**                  | All tests pass (5 packages)                                                        |
+| #  | Item                                   | Details                                                                            |
+| -- | -------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1  | **Tree-sitter Research**               | Researched gotreesitter API, grammar registration, error detection methods         |
+| 2  | **TreeSitterValidator Implementation** | Created `pkg/languages/treesitter_validator.go` with generic tree-sitter validator |
+| 3  | **Language Support**                   | All 7 languages: Go, TypeScript, TSX, Rust, Nix, HCL/Terraform, Templ              |
+| 4  | **Registry Update**                    | Updated `DefaultRegistry()` to use tree-sitter validators                          |
+| 5  | **External Validator Removal**         | Deleted all external command validators (6 files, ~230 lines)                      |
+| 6  | **gotreesitter Integration**           | Added dependency, verified API compatibility                                       |
+| 7  | **Test Suite**                         | Created comprehensive tests for all tree-sitter validators                         |
+| 8  | **Documentation Update**               | Updated README with new architecture, removed external tool requirements           |
+| 9  | **Build Verification**                 | All packages compile without errors                                                |
+| 10 | **Test Verification**                  | All tests pass (5 packages)                                                        |
 
 ### b) PARTIALLY DONE 🟡
 
-| #   | Item                     | Status | Notes                                                             |
-| --- | ------------------------ | ------ | ----------------------------------------------------------------- |
-| 1   | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |
-| 2   | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |
+| # | Item                     | Status | Notes                                                             |
+| - | ------------------------ | ------ | ----------------------------------------------------------------- |
+| 1 | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |
+| 2 | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |
 
 ### c) NOT STARTED ⏸️
 
@@ -330,6 +330,6 @@ Ready for production use.
 
 ---
 
-**Report Generated:** 2026-04-02 09:14  
-**Status:** COMPLETE  
+**Report Generated:** 2026-04-02 09:14\
+**Status:** COMPLETE\
 **Next Action:** Address Top #1 question (error line/column reporting)

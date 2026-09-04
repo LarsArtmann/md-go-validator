@@ -58,7 +58,7 @@ func Default() Config {
 // Load reads configuration from the given path. Supports YAML and JSON
 // based on file extension.
 func Load(path string) (Config, error) {
-	data, err := os.ReadFile(path) //nolint:gosec // G304: path is user-controlled config file
+	data, err := os.ReadFile(path)
 	if err != nil {
 		return Config{}, fmt.Errorf("read config file %s: %w", path, err)
 	}

@@ -169,7 +169,7 @@ func (v *FileValidator) ValidateFile(ctx context.Context, filePath string) ([]ty
 	}
 
 	// Path is already validated and cleaned by validatePath
-	//nolint:gosec // G304: Path is validated via validateAndCleanPath before use
+
 	content, err := os.ReadFile(cleanPath)
 	if err != nil {
 		return nil, fmt.Errorf("reading file %s: %w", filePath, err)

@@ -28,7 +28,7 @@ func Signature(r types.Result) string {
 // Load reads a baseline file containing one signature per line (file:line).
 // Blank lines and lines starting with # are ignored.
 func Load(path string) (Set, error) {
-	file, err := os.Open(path) //nolint:gosec // G304: path is user-controlled baseline file
+	file, err := os.Open(path)
 	if err != nil {
 		return Set{}, fmt.Errorf("open baseline file %s: %w", path, err)
 	}

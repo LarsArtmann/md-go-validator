@@ -164,33 +164,33 @@
 
 Sorted by Impact × (1/Effort).
 
-| #   | Task                                                                        | Impact | Effort | Category     |
-| --- | --------------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1   | Add `govulncheck` + `gosec` to flake.nix devShell                           | HIGH   | 10 min | Security     |
-| 2   | Brand `ValidationError.Line/Column` as typed ints                           | HIGH   | 20 min | Type model   |
-| 3   | Propagate actual Column in `finding.go` instead of hardcoded `1`            | MED    | 5 min  | Correctness  |
-| 4   | Add snapshot tests for JSON/YAML/SARIF output                               | HIGH   | 30 min | Testing      |
-| 5   | Write `CONTRIBUTING.md` with dev setup instructions                         | MED    | 15 min | Docs         |
-| 6   | Add property-based tests for `isModuleDirective` / `looksLikeModuleVersion` | MED    | 30 min | Testing      |
-| 7   | Improve baseline package coverage from 73% → 85%+                           | MED    | 30 min | Testing      |
-| 8   | Switch error wrapping to `go-faster/errors`                                 | MED    | 45 min | Architecture |
-| 9   | Add `--watch` mode for iterative validation                                 | HIGH   | 2h     | Feature      |
-| 10  | Replace `splitImportsAndStatements` with `go/parser`-based approach         | LOW    | 1h     | Robustness   |
-| 11  | Add go-snaps for table output regression                                    | MED    | 30 min | Testing      |
-| 12  | Write FEATURES.md (honest feature inventory)                                | MED    | 20 min | Docs         |
-| 13  | Write TODO_LIST.md (short-term actionable tasks)                            | MED    | 15 min | Docs         |
-| 14  | Add Ginkgo BDD tests for CLI critical paths (validate file/dir/stdin)       | MED    | 1h     | Testing      |
-| 15  | Add LSP diagnostics output format via go-finding                            | LOW    | 2h     | Feature      |
-| 16  | Harden `detectMixedScopeHint` with actual AST analysis                      | LOW    | 1h     | Robustness   |
-| 17  | Add `--fail-on-warning` flag for non-error findings                         | LOW    | 30 min | Feature      |
-| 18  | Improve GitHub Action (`action.yml`) with inputs for all flags              | MED    | 30 min | CI           |
-| 19  | Add `--install-hook` command for pre-commit setup                           | LOW    | 30 min | Feature      |
-| 20  | Add HTML report output format                                               | LOW    | 1h     | Feature      |
-| 21  | Benchmark optimization: reduce allocations in extraction (60 allocs/op)     | LOW    | 1h     | Performance  |
-| 22  | Add `go-fix` and `modernize` to BuildFlow linting                           | LOW    | 10 min | Tooling      |
-| 23  | Create `.github/ISSUE_TEMPLATE/` for bug reports                            | LOW    | 15 min | Community    |
-| 24  | Add `--diff` flag to only validate changed files (git-aware)                | MED    | 2h     | Feature      |
-| 25  | Write ROADMAP.md (long-term direction)                                      | LOW    | 20 min | Docs         |
+| #  | Task                                                                        | Impact | Effort | Category     |
+| -- | --------------------------------------------------------------------------- | ------ | ------ | ------------ |
+| 1  | Add `govulncheck` + `gosec` to flake.nix devShell                           | HIGH   | 10 min | Security     |
+| 2  | Brand `ValidationError.Line/Column` as typed ints                           | HIGH   | 20 min | Type model   |
+| 3  | Propagate actual Column in `finding.go` instead of hardcoded `1`            | MED    | 5 min  | Correctness  |
+| 4  | Add snapshot tests for JSON/YAML/SARIF output                               | HIGH   | 30 min | Testing      |
+| 5  | Write `CONTRIBUTING.md` with dev setup instructions                         | MED    | 15 min | Docs         |
+| 6  | Add property-based tests for `isModuleDirective` / `looksLikeModuleVersion` | MED    | 30 min | Testing      |
+| 7  | Improve baseline package coverage from 73% → 85%+                           | MED    | 30 min | Testing      |
+| 8  | Switch error wrapping to `go-faster/errors`                                 | MED    | 45 min | Architecture |
+| 9  | Add `--watch` mode for iterative validation                                 | HIGH   | 2h     | Feature      |
+| 10 | Replace `splitImportsAndStatements` with `go/parser`-based approach         | LOW    | 1h     | Robustness   |
+| 11 | Add go-snaps for table output regression                                    | MED    | 30 min | Testing      |
+| 12 | Write FEATURES.md (honest feature inventory)                                | MED    | 20 min | Docs         |
+| 13 | Write TODO_LIST.md (short-term actionable tasks)                            | MED    | 15 min | Docs         |
+| 14 | Add Ginkgo BDD tests for CLI critical paths (validate file/dir/stdin)       | MED    | 1h     | Testing      |
+| 15 | Add LSP diagnostics output format via go-finding                            | LOW    | 2h     | Feature      |
+| 16 | Harden `detectMixedScopeHint` with actual AST analysis                      | LOW    | 1h     | Robustness   |
+| 17 | Add `--fail-on-warning` flag for non-error findings                         | LOW    | 30 min | Feature      |
+| 18 | Improve GitHub Action (`action.yml`) with inputs for all flags              | MED    | 30 min | CI           |
+| 19 | Add `--install-hook` command for pre-commit setup                           | LOW    | 30 min | Feature      |
+| 20 | Add HTML report output format                                               | LOW    | 1h     | Feature      |
+| 21 | Benchmark optimization: reduce allocations in extraction (60 allocs/op)     | LOW    | 1h     | Performance  |
+| 22 | Add `go-fix` and `modernize` to BuildFlow linting                           | LOW    | 10 min | Tooling      |
+| 23 | Create `.github/ISSUE_TEMPLATE/` for bug reports                            | LOW    | 15 min | Community    |
+| 24 | Add `--diff` flag to only validate changed files (git-aware)                | MED    | 2h     | Feature      |
+| 25 | Write ROADMAP.md (long-term direction)                                      | LOW    | 20 min | Docs         |
 
 ---
 

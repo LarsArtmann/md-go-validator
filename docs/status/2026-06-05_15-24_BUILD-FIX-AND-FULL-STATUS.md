@@ -166,33 +166,33 @@ Entirely a boilerplate template with placeholder entries. No actual domain terms
 
 ## f) Top 25 Things We Should Get Done Next
 
-| #   | Priority | Item                                                                | Impact | Effort |
-| --- | -------- | ------------------------------------------------------------------- | ------ | ------ |
-| 1   | P0       | Add `--version` flag (#1 consumer complaint)                        | High   | Low    |
-| 2   | P0       | Fix skip directive false positives (check only outside code blocks) | High   | Low    |
-| 3   | P0       | Add `go mod tidy` check to CI                                       | High   | Low    |
-| 4   | P0       | Bump version to v0.2.0 and release                                  | High   | Low    |
-| 5   | P1       | Break `pkg/types` ↔ `pkg/languages` dependency cycle                | High   | Medium |
-| 6   | P1       | Add tree-sitter error line/column info                              | High   | Medium |
-| 7   | P1       | Add `--exclude` / `--ignore` patterns                               | High   | Medium |
-| 8   | P1       | Add output content assertions in tests                              | Medium | Medium |
-| 9   | P1       | Add self-validation step to CI                                      | Medium | Low    |
-| 10  | P1       | Fill in `DOMAIN_LANGUAGE.md` with actual domain terms               | Medium | Low    |
-| 11  | P1       | Fix `validatePath` error swallowing in main.go                      | Medium | Low    |
-| 12  | P1       | Add `main()` end-to-end CLI test                                    | Medium | Medium |
-| 13  | P1       | Add config file support (`.md-go-validator.yaml`)                   | High   | Medium |
-| 14  | P2       | Fix inconsistent `os.Exit` vs `osExit` in main.go                   | Low    | Low    |
-| 15  | P2       | Make `Registry` thread-safe with `sync.RWMutex`                     | Low    | Low    |
-| 16  | P2       | Fix `TruncateForError` to truncate by runes                         | Low    | Low    |
-| 17  | P2       | Log tree-sitter validator registration errors instead of ignoring   | Low    | Low    |
-| 18  | P2       | Replace hardcoded ANSI codes with go-output color library           | Low    | Low    |
-| 19  | P2       | Fix `CONTRIBUTING.md` dead references                               | Low    | Low    |
-| 20  | P2       | Add `b.ReportAllocs()` to all benchmarks                            | Low    | Low    |
-| 21  | P2       | Add JavaScript support via tree-sitter                              | Medium | Low    |
-| 22  | P2       | Add `~~~` tilde fence support in extractor                          | Medium | Low    |
-| 23  | P3       | Add OS matrix to CI (linux/darwin/windows)                          | Low    | Low    |
-| 24  | P3       | Enable Homebrew/Scoop uploads or remove configs                     | Low    | Low    |
-| 25  | P3       | Add Nix flake check to CI                                           | Low    | Low    |
+| #  | Priority | Item                                                                | Impact | Effort |
+| -- | -------- | ------------------------------------------------------------------- | ------ | ------ |
+| 1  | P0       | Add `--version` flag (#1 consumer complaint)                        | High   | Low    |
+| 2  | P0       | Fix skip directive false positives (check only outside code blocks) | High   | Low    |
+| 3  | P0       | Add `go mod tidy` check to CI                                       | High   | Low    |
+| 4  | P0       | Bump version to v0.2.0 and release                                  | High   | Low    |
+| 5  | P1       | Break `pkg/types` ↔ `pkg/languages` dependency cycle                | High   | Medium |
+| 6  | P1       | Add tree-sitter error line/column info                              | High   | Medium |
+| 7  | P1       | Add `--exclude` / `--ignore` patterns                               | High   | Medium |
+| 8  | P1       | Add output content assertions in tests                              | Medium | Medium |
+| 9  | P1       | Add self-validation step to CI                                      | Medium | Low    |
+| 10 | P1       | Fill in `DOMAIN_LANGUAGE.md` with actual domain terms               | Medium | Low    |
+| 11 | P1       | Fix `validatePath` error swallowing in main.go                      | Medium | Low    |
+| 12 | P1       | Add `main()` end-to-end CLI test                                    | Medium | Medium |
+| 13 | P1       | Add config file support (`.md-go-validator.yaml`)                   | High   | Medium |
+| 14 | P2       | Fix inconsistent `os.Exit` vs `osExit` in main.go                   | Low    | Low    |
+| 15 | P2       | Make `Registry` thread-safe with `sync.RWMutex`                     | Low    | Low    |
+| 16 | P2       | Fix `TruncateForError` to truncate by runes                         | Low    | Low    |
+| 17 | P2       | Log tree-sitter validator registration errors instead of ignoring   | Low    | Low    |
+| 18 | P2       | Replace hardcoded ANSI codes with go-output color library           | Low    | Low    |
+| 19 | P2       | Fix `CONTRIBUTING.md` dead references                               | Low    | Low    |
+| 20 | P2       | Add `b.ReportAllocs()` to all benchmarks                            | Low    | Low    |
+| 21 | P2       | Add JavaScript support via tree-sitter                              | Medium | Low    |
+| 22 | P2       | Add `~~~` tilde fence support in extractor                          | Medium | Low    |
+| 23 | P3       | Add OS matrix to CI (linux/darwin/windows)                          | Low    | Low    |
+| 24 | P3       | Enable Homebrew/Scoop uploads or remove configs                     | Low    | Low    |
+| 25 | P3       | Add Nix flake check to CI                                           | Low    | Low    |
 
 ---
 

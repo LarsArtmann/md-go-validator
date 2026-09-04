@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Feedback — Making md-go-validator Superb to Embed (Library/API Consumer Review)</title>
+    <title>
+      Feedback — Making md-go-validator Superb to Embed (Library/API Consumer
+      Review)
+    </title>
     <style>
       /* =========================================================================
          BAUHAUS LIGHT — Editorial template
@@ -45,14 +48,14 @@
 
         /* --- Type stacks (system only — zero external fonts) --- */
         --font-heading:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-body:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-mono:
-          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
-          monospace;
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
       }
 
       * {
@@ -397,11 +400,19 @@
       }
       .callout-teal {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 10%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 10%,
+          var(--surface-raised)
+        );
       }
       .callout-amber {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 18%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 18%,
+          var(--surface-raised)
+        );
       }
 
       /* --- Strengths --- */
@@ -657,13 +668,16 @@
 
       <main class="main">
         <header class="hero">
-          <div class="eyebrow">FEEDBACK &middot; 2026-06-25 &middot; LIBRARY / EMBEDDING ANGLE</div>
+          <div class="eyebrow">
+            FEEDBACK &middot; 2026-06-25 &middot; LIBRARY / EMBEDDING ANGLE
+          </div>
           <h1>Making md-go-validator superb to embed</h1>
           <p class="subtitle">
-            A review of md-go-validator as a <strong>Go library</strong> that other tools
-            (BuildFlow, CI runners, editors, doc-site generators) would import and call in-process
-            &mdash; the dimension the sibling CLI/accuracy review does not cover. The core engine is
-            excellent. The contract around it is what decides whether anyone embeds it.
+            A review of md-go-validator as a <strong>Go library</strong> that
+            other tools (BuildFlow, CI runners, editors, doc-site generators)
+            would import and call in-process &mdash; the dimension the sibling
+            CLI/accuracy review does not cover. The core engine is excellent.
+            The contract around it is what decides whether anyone embeds it.
           </p>
           <div class="meta">
             <span class="tag amber">Scope: public <code>pkg/</code> API</span>
@@ -696,70 +710,88 @@
         <section id="verdict">
           <h2><span class="num">00</span>The verdict</h2>
           <p>
-            As an engine &mdash; the extractor, the 5-strategy Go parser, the tree-sitter
-            validators, the invariant-enforcing <code>Result</code> type &mdash; md-go-validator is
-            genuinely good. As a
-            <strong>library that another Go program imports and drives in-process</strong>, it is
-            one decision away from being embeddable and four small changes away from being a
-            pleasure to embed.
+            As an engine &mdash; the extractor, the 5-strategy Go parser, the
+            tree-sitter validators, the invariant-enforcing
+            <code>Result</code> type &mdash; md-go-validator is genuinely good.
+            As a
+            <strong
+              >library that another Go program imports and drives
+              in-process</strong
+            >, it is one decision away from being embeddable and four small
+            changes away from being a pleasure to embed.
           </p>
           <p>
-            The single blocker is not performance, not correctness, not dependencies &mdash; it is
-            the
-            <strong>output contract</strong>. The library emits its own result types
-            (<code>types.Result</code>, <code>types.ReportData</code>) that no downstream ecosystem
-            speaks. Every embedder pays a bespoke adapter tax. Make the result interoperable and the
-            library becomes the obvious choice for anyone who needs "validate the code blocks in
+            The single blocker is not performance, not correctness, not
+            dependencies &mdash; it is the
+            <strong>output contract</strong>. The library emits its own result
+            types (<code>types.Result</code>, <code>types.ReportData</code>)
+            that no downstream ecosystem speaks. Every embedder pays a bespoke
+            adapter tax. Make the result interoperable and the library becomes
+            the obvious choice for anyone who needs "validate the code blocks in
             these docs" without shelling out to a binary.
           </p>
           <div class="callout callout-amber">
             <strong>The bottom line</strong>
-            A real, high-stakes consumer (BuildFlow) studied integrating this library in-process,
-            found the engine fit perfectly, and stopped at the output-model mismatch + an
-            unconditional tree-sitter dependency. Both are cheap to fix. Fix them and the library
-            gains a first-class embedder overnight.
+            A real, high-stakes consumer (BuildFlow) studied integrating this
+            library in-process, found the engine fit perfectly, and stopped at
+            the output-model mismatch + an unconditional tree-sitter dependency.
+            Both are cheap to fix. Fix them and the library gains a first-class
+            embedder overnight.
           </div>
           <p class="small">
-            Method: full read of <code>pkg/validator.go</code>, <code>pkg/extractor.go</code>,
-            <code>pkg/types/</code>, <code>pkg/languages/</code>, and <code>go.mod</code>;
-            cross-checked against a concrete integration study (BuildFlow's in-process SDK-checker
-            pattern). This report is intentionally narrow: it does <em>not</em> revisit CLI accuracy
-            or false-positive strategy coverage &mdash; see the sibling
+            Method: full read of <code>pkg/validator.go</code>,
+            <code>pkg/extractor.go</code>, <code>pkg/types/</code>,
+            <code>pkg/languages/</code>, and <code>go.mod</code>; cross-checked
+            against a concrete integration study (BuildFlow's in-process
+            SDK-checker pattern). This report is intentionally narrow: it does
+            <em>not</em> revisit CLI accuracy or false-positive strategy
+            coverage &mdash; see the sibling
             <code>make-it-superb.html</code> for that.
           </p>
         </section>
 
         <!-- Strengths -->
         <section id="strengths">
-          <h2><span class="num">&#9670;</span>What's already excellent (keep all of this)</h2>
+          <h2>
+            <span class="num">&#9670;</span>What's already excellent (keep all
+            of this)
+          </h2>
           <p>
-            Before the criticism: the foundation a library consumer wants is already here. None of
-            the proposed changes should compromise these.
+            Before the criticism: the foundation a library consumer wants is
+            already here. None of the proposed changes should compromise these.
           </p>
 
           <div class="strengths">
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Invariant-enforcing <code>Result</code> constructors</strong>
+                <strong
+                  >Invariant-enforcing <code>Result</code> constructors</strong
+                >
                 <span>
-                  <code>StatusError &hArr; Error != nil</code> is enforced at construction time via
-                  <code>newResultWithStatusAndError</code> (panics on violation). This is exactly
-                  how a library makes illegal states unrepresentable. A consumer never has to
-                  nil-check a status/error mismatch.
+                  <code>StatusError &hArr; Error != nil</code> is enforced at
+                  construction time via
+                  <code>newResultWithStatusAndError</code> (panics on
+                  violation). This is exactly how a library makes illegal states
+                  unrepresentable. A consumer never has to nil-check a
+                  status/error mismatch.
                 </span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Pluggable <code>languages.Validator</code> + <code>Registry</code></strong>
+                <strong
+                  >Pluggable <code>languages.Validator</code> +
+                  <code>Registry</code></strong
+                >
                 <span>
                   The <code>Validator</code> interface (<code>Language()</code>,
-                  <code>Validate(ctx, code)</code>, <code>IsAvailable()</code>) with
-                  <code>DefaultRegistry()</code> means an embedder can register their own validator
-                  or swap the registry wholesale via <code>WithRegistry()</code>. This is the right
-                  extension point.
+                  <code>Validate(ctx, code)</code>, <code>IsAvailable()</code>)
+                  with <code>DefaultRegistry()</code> means an embedder can
+                  register their own validator or swap the registry wholesale
+                  via <code>WithRegistry()</code>. This is the right extension
+                  point.
                 </span>
               </div>
             </div>
@@ -768,10 +800,12 @@
               <div class="text">
                 <strong>Branded types throughout</strong>
                 <span>
-                  <code>FileID</code>, <code>LineNumber</code>, <code>BlockIndex</code>,
-                  <code>Language</code>, <code>ErrorCode</code> &mdash; all branded strings/uints
-                  with <code>Validate()</code>. A consumer cannot accidentally pass a block index
-                  where a line number belongs. This discipline is rare and valuable.
+                  <code>FileID</code>, <code>LineNumber</code>,
+                  <code>BlockIndex</code>, <code>Language</code>,
+                  <code>ErrorCode</code> &mdash; all branded strings/uints with
+                  <code>Validate()</code>. A consumer cannot accidentally pass a
+                  block index where a line number belongs. This discipline is
+                  rare and valuable.
                 </span>
               </div>
             </div>
@@ -780,22 +814,27 @@
               <div class="text">
                 <strong>Pure Go, no CGO, context-aware</strong>
                 <span>
-                  The whole reason an embedder reaches for this over <code>tree-sitter-cli</code> is
-                  "one binary, no native deps, cross-compiles anywhere."
-                  <code>Validate()</code> takes a <code>context.Context</code> so a host can cancel.
-                  Both are essential for embedding.
+                  The whole reason an embedder reaches for this over
+                  <code>tree-sitter-cli</code> is "one binary, no native deps,
+                  cross-compiles anywhere." <code>Validate()</code> takes a
+                  <code>context.Context</code> so a host can cancel. Both are
+                  essential for embedding.
                 </span>
               </div>
             </div>
             <div class="strength">
               <div class="check">+</div>
               <div class="text">
-                <strong>Functional-options builder on <code>FileValidator</code></strong>
+                <strong
+                  >Functional-options builder on
+                  <code>FileValidator</code></strong
+                >
                 <span>
                   <code
                     >New(verbose).WithLanguages(&hellip;).WithConcurrency(n).WithMaxBlocks(n)</code
                   >
-                  is the idiomatic Go API style. Additive, zero booleans, readable at the call site.
+                  is the idiomatic Go API style. Additive, zero booleans,
+                  readable at the call site.
                 </span>
               </div>
             </div>
@@ -804,35 +843,48 @@
 
         <!-- Blocker -->
         <section id="blocker">
-          <h2><span class="num">01</span>The one blocker: the result speaks a private dialect</h2>
+          <h2>
+            <span class="num">01</span>The one blocker: the result speaks a
+            private dialect
+          </h2>
           <p>
-            Every other finding in this report is workable around. This one is structural. A
-            library's
-            <em>output type</em> is its most-imported surface &mdash; more code depends on it than
-            on any function. <code>types.Result</code> and <code>types.ReportData</code> are clean,
-            but they are <strong>md-go-validator's own vocabulary</strong>. No editor, no SARIF
-            emitter, no LSP server, no finding-aggregator speaks them natively.
+            Every other finding in this report is workable around. This one is
+            structural. A library's
+            <em>output type</em> is its most-imported surface &mdash; more code
+            depends on it than on any function. <code>types.Result</code> and
+            <code>types.ReportData</code> are clean, but they are
+            <strong>md-go-validator's own vocabulary</strong>. No editor, no
+            SARIF emitter, no LSP server, no finding-aggregator speaks them
+            natively.
           </p>
 
           <div class="issue issue-critical">
-            <span class="severity severity-critical">Blocking &middot; high impact</span>
+            <span class="severity severity-critical"
+              >Blocking &middot; high impact</span
+            >
             <h3>Result has no neutral interchange target</h3>
-            <div class="where">pkg/types/result.go &middot; pkg/types/report.go</div>
+            <div class="where">
+              pkg/types/result.go &middot; pkg/types/report.go
+            </div>
             <p>
-              A consumer that wants SARIF, JSON-LSP, or a unified finding pipeline must hand-write a
-              converter: <code>Result{Status:Error}</code> &rarr; their finding type, field by
-              field, including the <code>ErrorCode</code> enum mapping. That converter is bespoke
-              per consumer, drifts as <code>Result</code> evolves, and is the kind of glue that
-              makes maintainers say "let's just shell out to the CLI instead." The CLI at least
-              hands you a documented JSON schema.
+              A consumer that wants SARIF, JSON-LSP, or a unified finding
+              pipeline must hand-write a converter:
+              <code>Result{Status:Error}</code> &rarr; their finding type, field
+              by field, including the <code>ErrorCode</code> enum mapping. That
+              converter is bespoke per consumer, drifts as
+              <code>Result</code> evolves, and is the kind of glue that makes
+              maintainers say "let's just shell out to the CLI instead." The CLI
+              at least hands you a documented JSON schema.
             </p>
             <p>
-              The irony: the project already depends on <code>go-output</code> for rendering. The
-              sibling ecosystem <code>go-finding</code> (a typed <code>Finding</code> with
-              <code>Position{File,Line,Column}</code>, <code>Severity</code>, <code>RuleName</code>)
-              is the natural neutral contract and is what every modern Go linter emits. Adopting it
-              &mdash; or any documented interchange struct &mdash; turns every embedder's adapter
-              from ~30 lines into a one-liner.
+              The irony: the project already depends on
+              <code>go-output</code> for rendering. The sibling ecosystem
+              <code>go-finding</code> (a typed <code>Finding</code> with
+              <code>Position{File,Line,Column}</code>, <code>Severity</code>,
+              <code>RuleName</code>) is the natural neutral contract and is what
+              every modern Go linter emits. Adopting it &mdash; or any
+              documented interchange struct &mdash; turns every embedder's
+              adapter from ~30 lines into a one-liner.
             </p>
             <pre><code><span class="tok-comment">// What every embedder writes today (~30 lines, per-consumer, drift-prone):</span>
 <span class="tok-keyword">func</span> <span class="tok-func">resultToFindings</span>(toolName <span class="tok-type">string</span>, results []mdgovalidator.Result) Report {
@@ -855,44 +907,54 @@ report <span class="tok-punct">:=</span> validator.<span class="tok-func">Valida
 <span class="tok-comment">// report already IS a []Finding (or emits them via a callback).</span></code></pre>
             <div class="callout callout-teal">
               <strong>Fix</strong>
-              Expose a results &rarr; neutral-findings conversion <em>in the library</em>, not in
-              every consumer. Two options: (a) add a <code>finding</code> adapter sub-package that
-              converts <code>[]Result</code> &rarr; <code>[]Finding</code>; or (b) have
-              <code>ValidateDirectory</code> accept an <code>Emitter</code> callback (see the
-              proposal section). Either way, the library owns the mapping once.
+              Expose a results &rarr; neutral-findings conversion
+              <em>in the library</em>, not in every consumer. Two options: (a)
+              add a <code>finding</code> adapter sub-package that converts
+              <code>[]Result</code> &rarr; <code>[]Finding</code>; or (b) have
+              <code>ValidateDirectory</code> accept an
+              <code>Emitter</code> callback (see the proposal section). Either
+              way, the library owns the mapping once.
             </div>
           </div>
         </section>
 
         <!-- Findings -->
         <section id="findings">
-          <h2><span class="num">02</span>Library findings (ordered by embedder impact)</h2>
+          <h2>
+            <span class="num">02</span>Library findings (ordered by embedder
+            impact)
+          </h2>
 
           <div class="issue issue-critical">
-            <span class="severity severity-critical">Important &middot; dep-graph blocker</span>
+            <span class="severity severity-critical"
+              >Important &middot; dep-graph blocker</span
+            >
             <h3>gotreesitter is an unconditional transitive dependency</h3>
             <div class="where">
-              pkg/languages/treesitter_validator.go:7-8 &middot; imported at package level
+              pkg/languages/treesitter_validator.go:7-8 &middot; imported at
+              package level
             </div>
             <p>
               <code>pkg/languages</code> imports <code>gotreesitter</code> and
               <code>gotreesitter/grammars</code> at package scope. Because
-              <code>FileValidator</code> and the <code>Language</code> type live in
-              <code>pkg/languages</code>,
-              <strong>any embedder that only ever validates Go blocks</strong> (stdlib-only path)
-              still pulls in all six tree-sitter grammars &mdash; several megabytes of embedded
-              parser data and non-trivial compile time. An embedder that cares about binary size or
-              a lean dependency graph (BuildFlow has zero tree-sitter deps today) hits this
-              immediately.
+              <code>FileValidator</code> and the <code>Language</code> type live
+              in <code>pkg/languages</code>,
+              <strong>any embedder that only ever validates Go blocks</strong>
+              (stdlib-only path) still pulls in all six tree-sitter grammars
+              &mdash; several megabytes of embedded parser data and non-trivial
+              compile time. An embedder that cares about binary size or a lean
+              dependency graph (BuildFlow has zero tree-sitter deps today) hits
+              this immediately.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
               Move the tree-sitter validator into its own importable sub-package
               (<code>pkg/languages/treesitter</code>) and have
               <code>DefaultRegistry()</code> register it
-              <em>only when that package is imported</em> (blank-import or an explicit
-              <code>RegisterTreeSitter(r)</code> call). Go-only embedders then pay zero grammar
-              cost; multi-language embedders add one import line.
+              <em>only when that package is imported</em> (blank-import or an
+              explicit <code>RegisterTreeSitter(r)</code> call). Go-only
+              embedders then pay zero grammar cost; multi-language embedders add
+              one import line.
             </div>
           </div>
 
@@ -901,96 +963,131 @@ report <span class="tok-punct">:=</span> validator.<span class="tok-func">Valida
               >Important &middot; host cannot push config</span
             >
             <h3>No exclude / filter API for library callers</h3>
-            <div class="where">pkg/validator.go &middot; FileValidator has no WithExclude()</div>
+            <div class="where">
+              pkg/validator.go &middot; FileValidator has no WithExclude()
+            </div>
             <p>
-              <code>FileValidator</code> has <code>WithMaxFiles</code>, <code>WithMaxBlocks</code>,
-              <code>WithConcurrency</code>, <code>WithLanguages</code>,
-              <code>WithRegistry</code> &mdash; but no way to say "skip <code>vendor/</code>,
-              <code>node_modules/</code>, generated docs." <code>collectSupportedFiles</code> only
-              skips a hard-coded <code>shouldSkipDir</code> set. A host (BuildFlow, an editor)
-              almost always has its own exclude config it wants to push down. Today it can only
-              post-filter results, which means the validator still reads and parses files the host
-              will throw away.
+              <code>FileValidator</code> has <code>WithMaxFiles</code>,
+              <code>WithMaxBlocks</code>, <code>WithConcurrency</code>,
+              <code>WithLanguages</code>, <code>WithRegistry</code> &mdash; but
+              no way to say "skip <code>vendor/</code>,
+              <code>node_modules/</code>, generated docs."
+              <code>collectSupportedFiles</code> only skips a hard-coded
+              <code>shouldSkipDir</code> set. A host (BuildFlow, an editor)
+              almost always has its own exclude config it wants to push down.
+              Today it can only post-filter results, which means the validator
+              still reads and parses files the host will throw away.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
-              Add <code>WithExcludePatterns([]string)</code> (doublestar globs) and/or
-              <code>WithFileFilter(func(path string) bool)</code>. The CLI's missing exclude support
-              (<code>CONSUMER_PERSPECTIVE.md</code> #4) is the CLI symptom of this same library gap.
+              Add <code>WithExcludePatterns([]string)</code> (doublestar globs)
+              and/or <code>WithFileFilter(func(path string) bool)</code>. The
+              CLI's missing exclude support (<code
+                >CONSUMER_PERSPECTIVE.md</code
+              >
+              #4) is the CLI symptom of this same library gap.
             </div>
           </div>
 
           <div class="issue issue-important">
-            <span class="severity severity-important">Important &middot; loses error context</span>
-            <h3>Errors wrap with <code>fmt.Errorf</code>, not typed/sentinel</h3>
-            <div class="where">pkg/validator.go, pkg/extractor.go &mdash; throughout</div>
+            <span class="severity severity-important"
+              >Important &middot; loses error context</span
+            >
+            <h3>
+              Errors wrap with <code>fmt.Errorf</code>, not typed/sentinel
+            </h3>
+            <div class="where">
+              pkg/validator.go, pkg/extractor.go &mdash; throughout
+            </div>
             <p>
-              The library wraps errors as <code>fmt.Errorf("context: %w", err)</code> everywhere.
-              For a library consumer that wants to branch on failure class &mdash; "is this a
-              cancelled run, a missing file, a parse failure, or an unavailable validator?" &mdash;
-              there are exported sentinel errors (<code>errPathEmpty</code>,
-              <code>errNoValidatorForLang</code>) but they are <strong>unexported</strong>, so
-              <code>errors.Is</code> from outside the package cannot match them. A host is reduced
-              to string-matching.
+              The library wraps errors as
+              <code>fmt.Errorf("context: %w", err)</code> everywhere. For a
+              library consumer that wants to branch on failure class &mdash; "is
+              this a cancelled run, a missing file, a parse failure, or an
+              unavailable validator?" &mdash; there are exported sentinel errors
+              (<code>errPathEmpty</code>, <code>errNoValidatorForLang</code>)
+              but they are <strong>unexported</strong>, so
+              <code>errors.Is</code> from outside the package cannot match them.
+              A host is reduced to string-matching.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
               Export the sentinel errors (<code>ErrPathEmpty</code>,
-              <code>ErrNoValidatorForLang</code>, <code>ErrPathNullByte</code>) so embedders can do
-              <code>errors.Is(err, mdgovalidator.ErrNoValidatorForLang)</code>. Keep
-              <code>fmt.Errorf</code> wrapping (your <code>wrapcheck</code> linter is right to
-              require it); just make the targets referenceable.
+              <code>ErrNoValidatorForLang</code>, <code>ErrPathNullByte</code>)
+              so embedders can do
+              <code>errors.Is(err, mdgovalidator.ErrNoValidatorForLang)</code>.
+              Keep <code>fmt.Errorf</code> wrapping (your
+              <code>wrapcheck</code> linter is right to require it); just make
+              the targets referenceable.
             </div>
           </div>
 
           <div class="issue issue-important">
-            <span class="severity severity-important">Important &middot; buffering at scale</span>
+            <span class="severity severity-important"
+              >Important &middot; buffering at scale</span
+            >
             <h3>No streaming / callback API for large doc sets</h3>
             <div class="where">
-              pkg/validator.go &middot; ValidateDirectory returns []Result fully buffered
+              pkg/validator.go &middot; ValidateDirectory returns []Result fully
+              buffered
             </div>
             <p>
-              Internally there is a worker pool (<code>processFilesParallel</code>), but the public
-              API buffers every result into one <code>[]Result</code> slice before returning. For a
-              host validating a monorepo's worth of docs, that means holding all results in memory
-              and getting no feedback until the end. An embedder that wants a progress bar, an
-              early-abort on first-error, or incremental UI updates has no hook.
+              Internally there is a worker pool
+              (<code>processFilesParallel</code>), but the public API buffers
+              every result into one <code>[]Result</code> slice before
+              returning. For a host validating a monorepo's worth of docs, that
+              means holding all results in memory and getting no feedback until
+              the end. An embedder that wants a progress bar, an early-abort on
+              first-error, or incremental UI updates has no hook.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
               Add a variant that emits incrementally:
-              <code>ValidateDirectoryFunc(ctx, dir, func(Result) error) error</code>. The host
-              returns a non-nil error to stop early. Trivially implementable on top of the existing
-              worker pool by forwarding results instead of appending them.
+              <code
+                >ValidateDirectoryFunc(ctx, dir, func(Result) error) error</code
+              >. The host returns a non-nil error to stop early. Trivially
+              implementable on top of the existing worker pool by forwarding
+              results instead of appending them.
             </div>
           </div>
 
           <div class="issue issue-nice">
-            <span class="severity severity-nice">Nice to have &middot; version coupling</span>
-            <h3>Pinned <code>go-output v0.17.2</code> couples embedders to a stale line</h3>
+            <span class="severity severity-nice"
+              >Nice to have &middot; version coupling</span
+            >
+            <h3>
+              Pinned <code>go-output v0.17.2</code> couples embedders to a stale
+              line
+            </h3>
             <div class="where">go.mod</div>
             <p>
-              <code>go-output</code> is used only by <code>pkg/output</code> (CLI rendering). But
-              because it is a direct require, an embedder on a newer <code>go-output</code> (e.g.
-              v0.18/v0.19) gets MVS resolution that the library hasn't been validated against. For a
-              library whose <em>embedding</em> surface shouldn't need a renderer at all, this is
-              needless coupling.
+              <code>go-output</code> is used only by
+              <code>pkg/output</code> (CLI rendering). But because it is a
+              direct require, an embedder on a newer
+              <code>go-output</code> (e.g. v0.18/v0.19) gets MVS resolution that
+              the library hasn't been validated against. For a library whose
+              <em>embedding</em> surface shouldn't need a renderer at all, this
+              is needless coupling.
             </p>
             <div class="callout callout-teal">
               <strong>Fix</strong>
-              Move <code>pkg/output</code> behind the CLI boundary so library importers don't
-              transitively require <code>go-output</code>. Combined with the tree-sitter split, the
-              library's true dependency footprint shrinks to "Go stdlib + your branded-id helper."
+              Move <code>pkg/output</code> behind the CLI boundary so library
+              importers don't transitively require <code>go-output</code>.
+              Combined with the tree-sitter split, the library's true dependency
+              footprint shrinks to "Go stdlib + your branded-id helper."
             </div>
           </div>
         </section>
 
         <!-- Proposal -->
         <section id="proposal">
-          <h2><span class="num">03</span>What the target API could look like</h2>
+          <h2>
+            <span class="num">03</span>What the target API could look like
+          </h2>
           <p>
-            If the four findings were addressed, embedding md-go-validator into any Go tool becomes
-            a one-screen integration. Here is the shape a happy embedder would write.
+            If the four findings were addressed, embedding md-go-validator into
+            any Go tool becomes a one-screen integration. Here is the shape a
+            happy embedder would write.
           </p>
 
           <h3>Before &mdash; what an embedder writes today</h3>
@@ -1027,15 +1124,17 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
 })</code></pre>
           <div class="callout callout-teal">
             <strong>This is the target</strong>
-            Every line an embedder writes now lives in the embedder's domain; zero lines are spent
-            on format conversion, exclude re-implementation, or error classification. That is what
-            "obvious choice to embed" looks like.
+            Every line an embedder writes now lives in the embedder's domain;
+            zero lines are spent on format conversion, exclude
+            re-implementation, or error classification. That is what "obvious
+            choice to embed" looks like.
           </div>
 
           <h3>Minimal: if only one thing ships</h3>
           <p>
-            If only the output-contract fix ships, the integration still collapses from ~30 lines of
-            glue to ~3. That single change carries most of the value of this entire report.
+            If only the output-contract fix ships, the integration still
+            collapses from ~30 lines of glue to ~3. That single change carries
+            most of the value of this entire report.
           </p>
         </section>
 
@@ -1050,9 +1149,10 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
               <p>
                 Add <code>pkg/finding</code> exposing
                 <code>FromResult(tool string, r Result) Finding</code> and
-                <code>FromResults(tool string, rs []Result) []Finding</code> against a typed Finding
-                (go-finding or an equivalent neutral struct). Document it as the canonical way to
-                consume results. This alone unblocks most embedders.
+                <code>FromResults(tool string, rs []Result) []Finding</code>
+                against a typed Finding (go-finding or an equivalent neutral
+                struct). Document it as the canonical way to consume results.
+                This alone unblocks most embedders.
               </p>
             </div>
           </div>
@@ -1062,10 +1162,12 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
             <div class="migration-content">
               <h4>Split tree-sitter into an opt-in sub-package</h4>
               <p>
-                Move <code>treesitter_validator.go</code> to <code>pkg/languages/treesitter</code>.
-                <code>DefaultRegistry()</code> registers Go only; multi-language embedders add a
-                blank import or explicit <code>RegisterTreeSitter(r)</code>. Go-only embedders lose
-                the grammar binary cost entirely.
+                Move <code>treesitter_validator.go</code> to
+                <code>pkg/languages/treesitter</code>.
+                <code>DefaultRegistry()</code> registers Go only; multi-language
+                embedders add a blank import or explicit
+                <code>RegisterTreeSitter(r)</code>. Go-only embedders lose the
+                grammar binary cost entirely.
               </p>
             </div>
           </div>
@@ -1075,7 +1177,8 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
             <div class="migration-content">
               <h4>Export sentinels + add <code>WithExcludePatterns</code></h4>
               <p>
-                Export <code>ErrPathEmpty</code>, <code>ErrNoValidatorForLang</code>,
+                Export <code>ErrPathEmpty</code>,
+                <code>ErrNoValidatorForLang</code>,
                 <code>ErrPathNullByte</code> for <code>errors.Is</code>. Add
                 <code>WithExcludePatterns([]string)</code> /
                 <code>WithFileFilter(func(string) bool)</code>
@@ -1089,10 +1192,13 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
             <div class="migration-content">
               <h4>Add streaming + decouple the renderer</h4>
               <p>
-                Add <code>ValidateDirectoryFunc(ctx, dir, func(Result) error) error</code>. Move
-                <code>pkg/output</code> (go-output) behind the CLI boundary so library importers
-                don't transitively require a renderer. Publish an API-stability note for
-                <code>pkg/</code>.
+                Add
+                <code
+                  >ValidateDirectoryFunc(ctx, dir, func(Result) error)
+                  error</code
+                >. Move <code>pkg/output</code> (go-output) behind the CLI
+                boundary so library importers don't transitively require a
+                renderer. Publish an API-stability note for <code>pkg/</code>.
               </p>
             </div>
           </div>
@@ -1103,33 +1209,41 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
           <h2><span class="num">05</span>What NOT to do</h2>
           <ul>
             <li>
-              <strong>Don't weaken the invariant-enforcing constructors.</strong>
-              <code>newResultWithStatusAndError</code> panicking on bad state is a feature, not a
-              bug. Embedders rely on the <code>StatusError &hArr; Error</code> guarantee. The
+              <strong
+                >Don't weaken the invariant-enforcing constructors.</strong
+              >
+              <code>newResultWithStatusAndError</code> panicking on bad state is
+              a feature, not a bug. Embedders rely on the
+              <code>StatusError &hArr; Error</code> guarantee. The
               neutral-finding adapter must preserve it, not paper over it.
             </li>
             <li>
               <strong>Don't make <code>Result</code> an interface.</strong>
-              The concrete struct with branded fields is exactly what makes it cheap to convert and
-              impossible to misuse. A "Resultable" interface would add ceremony without value.
+              The concrete struct with branded fields is exactly what makes it
+              cheap to convert and impossible to misuse. A "Resultable"
+              interface would add ceremony without value.
             </li>
             <li>
               <strong>Don't hide tree-sitter behind a build tag.</strong>
-              Build tags fragment the build matrix and break <code>go install</code>. A sub-package
-              + explicit registration is the Go-idiomatic way to make a heavy dependency opt-in.
+              Build tags fragment the build matrix and break
+              <code>go install</code>. A sub-package + explicit registration is
+              the Go-idiomatic way to make a heavy dependency opt-in.
             </li>
             <li>
-              <strong>Don't ship the adapter as a separate module prematurely.</strong>
-              Keep <code>pkg/finding</code> in-repo until there's a real second consumer. Premature
-              module splits create replace-directive churn (BuildFlow's go-work experience is a
-              cautionary tale).
+              <strong
+                >Don't ship the adapter as a separate module
+                prematurely.</strong
+              >
+              Keep <code>pkg/finding</code> in-repo until there's a real second
+              consumer. Premature module splits create replace-directive churn
+              (BuildFlow's go-work experience is a cautionary tale).
             </li>
             <li>
               <strong>Don't conflate "validates" with "embeddable."</strong>
-              The engine validating correctly is necessary but not sufficient. A library is
-              embeddable when the output contract, dependency footprint, and error model all match
-              the embedder's world &mdash; none of which the parser's correctness tells you anything
-              about.
+              The engine validating correctly is necessary but not sufficient. A
+              library is embeddable when the output contract, dependency
+              footprint, and error model all match the embedder's world &mdash;
+              none of which the parser's correctness tells you anything about.
             </li>
           </ul>
         </section>
@@ -1194,21 +1308,24 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
 
           <div class="callout callout-amber">
             <strong>The one-sentence goal</strong>
-            A Go tool that needs "are the code blocks in these docs syntactically valid?" should
-            reach for
-            <code>md-govalidator.New(false)</code> before it reaches for a shell &mdash; and never
-            spend a line on format conversion. Today it reaches for the shell because the contract
-            makes the library more work. Close the contract gap and the library wins.
+            A Go tool that needs "are the code blocks in these docs
+            syntactically valid?" should reach for
+            <code>md-govalidator.New(false)</code> before it reaches for a shell
+            &mdash; and never spend a line on format conversion. Today it
+            reaches for the shell because the contract makes the library more
+            work. Close the contract gap and the library wins.
           </div>
         </section>
 
         <footer class="footer">
           <p>
-            Generated 2026-06-25 &middot; Library/API-consumer lens &middot; Reviewed against
-            md-go-validator v0.3.0 (<code>pkg/</code> public API, <code>go.mod</code>) &middot;
-            Complements the CLI/accuracy review
-            (<code>2026-06-25_product-feedback-make-it-superb.html</code>); the two reports are
-            intentionally non-overlapping. All code claims verified against source.
+            Generated 2026-06-25 &middot; Library/API-consumer lens &middot;
+            Reviewed against md-go-validator v0.3.0 (<code>pkg/</code> public
+            API, <code>go.mod</code>) &middot; Complements the CLI/accuracy
+            review
+            (<code>2026-06-25_product-feedback-make-it-superb.html</code>); the
+            two reports are intentionally non-overlapping. All code claims
+            verified against source.
           </p>
         </footer>
       </main>

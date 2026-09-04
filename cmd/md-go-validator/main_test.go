@@ -596,7 +596,6 @@ func TestValidatePathsCapacity(t *testing.T) {
 	for i := range 5 {
 		content := []byte("```go\npackage main\n```\n```go\npackage main\n```\n")
 
-		//nolint:gosec // G304: Controlled test data in temp directory
 		testFile, err := os.Create(filepath.Join(tmpDir, "test"+string(rune('0'+i))+".md"))
 		if err != nil {
 			t.Fatalf("failed to create test file: %v", err)
@@ -658,7 +657,6 @@ func assertWriteOutputToFile(t *testing.T, results []types.Result, cfg config) {
 func assertFileContains(t *testing.T, path, substr string) {
 	t.Helper()
 
-	//nolint:gosec // G304: Controlled test data path
 	content, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("failed to read output file: %v", err)

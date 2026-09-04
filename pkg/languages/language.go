@@ -11,7 +11,7 @@ var errUnsupportedLang = errors.New("unsupported language")
 
 // Language represents a supported programming language.
 //
-//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
+
 type Language string
 
 // Supported language constants.

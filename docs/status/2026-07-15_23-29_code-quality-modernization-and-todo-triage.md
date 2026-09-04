@@ -304,14 +304,14 @@ go test -bench                    NOT RUN
 ## File Inventory (uncommitted, 9 files)
 
 ```
- CHANGELOG.md                  |  4 +++
- TODO_LIST.md                  | 16 +++++------
- package.nix                   | 15 +++++++++++
- pkg/code/module.go            |  9 ++++---
- pkg/extractor.go              | 10 +++----
- pkg/finding/finding_test.go   | 62 +++++++++++++++++++++++++++++++++++++++++++
- pkg/languages/go_validator.go |  4 +--
- pkg/types/result.go           |  3 +--
- pkg/validator.go              | 30 +++++++--------------
- 9 files changed, 108 insertions(+), 45 deletions(-)
+CHANGELOG.md                  |  4 +++
+TODO_LIST.md                  | 16 +++++------
+package.nix                   | 15 +++++++++++
+pkg/code/module.go            |  9 ++++---
+pkg/extractor.go              | 10 +++----
+pkg/finding/finding_test.go   | 62 +++++++++++++++++++++++++++++++++++++++++++
+pkg/languages/go_validator.go |  4 +--
+pkg/types/result.go           |  3 +--
+pkg/validator.go              | 30 +++++++--------------
+9 files changed, 108 insertions(+), 45 deletions(-)
 ```

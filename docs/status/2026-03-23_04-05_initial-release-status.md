@@ -240,14 +240,14 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 | Metric                | Value   | Target | Status |
 | --------------------- | ------- | ------ | ------ |
 | golangci-lint issues  | 0       | 0      | ✅     |
-| Test coverage         | 68.6%   | 80%    | ⚠️     |
-| Test functions        | 11      | 15+    | ⚠️     |
-| Code complexity (avg) | 20.75   | <15    | ⚠️     |
+| Test coverage         | 68.6%   | 80%    | ⚠️      |
+| Test functions        | 11      | 15+    | ⚠️      |
+| Code complexity (avg) | 20.75   | <15    | ⚠️      |
 | Files under 350 lines | 100%    | 100%   | ✅     |
 | Error handling score  | 100/100 | 90+    | ✅     |
 | Composition score     | 100/100 | 90+    | ✅     |
-| Documentation files   | 5       | 8+     | ⚠️     |
-| Clone groups          | 2       | 0      | ⚠️     |
+| Documentation files   | 5       | 8+     | ⚠️      |
+| Clone groups          | 2       | 0      | ⚠️      |
 
 ---
 

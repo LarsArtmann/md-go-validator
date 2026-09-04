@@ -137,33 +137,33 @@ The only items that could qualify:
 
 ## F) Top #25 Things to Do Next
 
-| #   | Task                                                                           | Impact | Work   |
-| --- | ------------------------------------------------------------------------------ | ------ | ------ |
-| 1   | Add `ColumnNumber` branded type + migrate `ValidationError.Line/Column`        | High   | Medium |
-| 2   | Subprocess CLI tests (`main()`, `handleHelp()`, `returnParseError()`)          | High   | Medium |
-| 3   | Cover `logProgress` verbose=true paths                                         | Medium | Low    |
-| 4   | Cover `addError` error channel path                                            | Medium | Low    |
-| 5   | Cover `formatSupportedExtensions` (verbose directory output)                   | Low    | Low    |
-| 6   | Remove or document unused `Registry.GetByString()` / `Registry.Languages()`    | Low    | Low    |
-| 7   | Cache `GoValidator` in `ValidateGoCode` instead of allocating per call         | Low    | Low    |
-| 8   | Add `FileType` → `Language` mapping (or explicit "no mapping" design decision) | Medium | Low    |
-| 9   | Add fuzz tests for extractor/parser                                            | High   | Medium |
-| 10  | Add `Example*` test functions for godoc                                        | Medium | Low    |
-| 11  | Cover `newOutputError` write error paths                                       | Low    | Low    |
-| 12  | Create `CONTRIBUTING.md`                                                       | Medium | Low    |
-| 13  | Create `flake.nix` for Nix-based builds                                        | Medium | High   |
-| 14  | Add Go struct generation for branded types (`stringer`-like)                   | Low    | Medium |
-| 15  | Cover `validateAndCleanPath` null byte path                                    | Low    | Low    |
-| 16  | Cover `printErrorEntry` color=true path                                        | Low    | Low    |
-| 17  | Cover `requireArg` missing-arg branch                                          | Low    | Low    |
-| 18  | Inline `withInt` helper (marginal abstraction)                                 | Low    | Low    |
-| 18  | Add `CODEOWNERS` file                                                          | Low    | Low    |
-| 20  | Add tag-based release workflow in CI                                           | Medium | Medium |
-| 21  | Add `Result.Validate()` method for type safety                                 | Medium | Low    |
-| 22  | Add `ErrorEntry.Validate()` method                                             | Low    | Low    |
-| 23  | Remove `singleValueArgHandler` generic indirection in cmd                      | Low    | Low    |
-| 24  | Add `go vet` + `staticcheck` as separate CI steps                              | Low    | Low    |
-| 25  | Create ADR for branded type pattern                                            | Low    | Low    |
+| #  | Task                                                                           | Impact | Work   |
+| -- | ------------------------------------------------------------------------------ | ------ | ------ |
+| 1  | Add `ColumnNumber` branded type + migrate `ValidationError.Line/Column`        | High   | Medium |
+| 2  | Subprocess CLI tests (`main()`, `handleHelp()`, `returnParseError()`)          | High   | Medium |
+| 3  | Cover `logProgress` verbose=true paths                                         | Medium | Low    |
+| 4  | Cover `addError` error channel path                                            | Medium | Low    |
+| 5  | Cover `formatSupportedExtensions` (verbose directory output)                   | Low    | Low    |
+| 6  | Remove or document unused `Registry.GetByString()` / `Registry.Languages()`    | Low    | Low    |
+| 7  | Cache `GoValidator` in `ValidateGoCode` instead of allocating per call         | Low    | Low    |
+| 8  | Add `FileType` → `Language` mapping (or explicit "no mapping" design decision) | Medium | Low    |
+| 9  | Add fuzz tests for extractor/parser                                            | High   | Medium |
+| 10 | Add `Example*` test functions for godoc                                        | Medium | Low    |
+| 11 | Cover `newOutputError` write error paths                                       | Low    | Low    |
+| 12 | Create `CONTRIBUTING.md`                                                       | Medium | Low    |
+| 13 | Create `flake.nix` for Nix-based builds                                        | Medium | High   |
+| 14 | Add Go struct generation for branded types (`stringer`-like)                   | Low    | Medium |
+| 15 | Cover `validateAndCleanPath` null byte path                                    | Low    | Low    |
+| 16 | Cover `printErrorEntry` color=true path                                        | Low    | Low    |
+| 17 | Cover `requireArg` missing-arg branch                                          | Low    | Low    |
+| 18 | Inline `withInt` helper (marginal abstraction)                                 | Low    | Low    |
+| 18 | Add `CODEOWNERS` file                                                          | Low    | Low    |
+| 20 | Add tag-based release workflow in CI                                           | Medium | Medium |
+| 21 | Add `Result.Validate()` method for type safety                                 | Medium | Low    |
+| 22 | Add `ErrorEntry.Validate()` method                                             | Low    | Low    |
+| 23 | Remove `singleValueArgHandler` generic indirection in cmd                      | Low    | Low    |
+| 24 | Add `go vet` + `staticcheck` as separate CI steps                              | Low    | Low    |
+| 25 | Create ADR for branded type pattern                                            | Low    | Low    |
 
 ---
 

@@ -95,7 +95,7 @@ func (l LineNumber) Validate() error {
 // FileType is a branded type representing a supported file type.
 // Prevents accidentally mixing file extensions with other strings.
 //
-//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
+
 type FileType string
 
 // Supported file type constants.

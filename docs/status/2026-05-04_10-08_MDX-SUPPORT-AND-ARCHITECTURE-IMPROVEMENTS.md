@@ -1,61 +1,61 @@
 # Comprehensive Status Report — MDX Support & Architecture Improvements
 
-**Date:** 2026-05-04 10:08  
+**Date:** 2026-05-04 10:08\
 **Session Focus:** Add `.mdx` file support, then critically review and improve the implementation
 
 ---
 
 ## A) FULLY DONE
 
-| #   | Item                                                    | Commit    | Detail                                                               |
-| --- | ------------------------------------------------------- | --------- | -------------------------------------------------------------------- |
-| 1   | Add `.mdx` to extension check                           | `1624cea` | `supportedExtensions` map is the single source of truth              |
-| 2   | Extract extensions into `supportedExtensions` map       | `1624cea` | O(1) lookup, easy to add future extensions                           |
-| 3   | Rename `isMarkdownFile` → `isSupportedFile`             | `edf8003` | Name now correctly reflects all supported types                      |
-| 4   | Rename `collectMarkdownFiles` → `collectSupportedFiles` | `49295a8` | Method name accurate for .md/.markdown/.mdx                          |
-| 5   | Add 10 unit tests for `isSupportedFile`                 | `e408ff2` | All 3 extensions, case-insensitive variants, 5 negative cases        |
-| 6   | Derive verbose message dynamically                      | `7bede34` | `formatSupportedExtensions()` eliminates hardcoded extension strings |
-| 7   | Update stale doc comments across `pkg/`                 | `c9cf503` | 6 comments updated: extractor, validator, language, types            |
-| 8   | Fix CLI help header + package comment                   | `33a4109` | "Markdown and MDX files" in both places                              |
-| 9   | Update README.md                                        | `80a582d` | Description + supported file types mention                           |
-| 10  | Update CHANGELOG.md                                     | `80a582d` | MDX entry under `[Unreleased] / Added`                               |
-| 11  | Update AGENTS.md                                        | `80a582d` | Overview mentions MDX                                                |
-| 12  | Add MDX tests in `pkg/validator_test.go`                | `80a582d` | `ValidateFile_MDX`, `ValidateDirectory_MDX`                          |
-| 13  | Add MDX test in `cmd/md-go-validator/main_test.go`      | `80a582d` | `directory_with_MDX_files` subtest                                   |
-| 14  | Push all commits to remote                              | Done      | 8 commits on master                                                  |
+| #  | Item                                                    | Commit    | Detail                                                               |
+| -- | ------------------------------------------------------- | --------- | -------------------------------------------------------------------- |
+| 1  | Add `.mdx` to extension check                           | `1624cea` | `supportedExtensions` map is the single source of truth              |
+| 2  | Extract extensions into `supportedExtensions` map       | `1624cea` | O(1) lookup, easy to add future extensions                           |
+| 3  | Rename `isMarkdownFile` → `isSupportedFile`             | `edf8003` | Name now correctly reflects all supported types                      |
+| 4  | Rename `collectMarkdownFiles` → `collectSupportedFiles` | `49295a8` | Method name accurate for .md/.markdown/.mdx                          |
+| 5  | Add 10 unit tests for `isSupportedFile`                 | `e408ff2` | All 3 extensions, case-insensitive variants, 5 negative cases        |
+| 6  | Derive verbose message dynamically                      | `7bede34` | `formatSupportedExtensions()` eliminates hardcoded extension strings |
+| 7  | Update stale doc comments across `pkg/`                 | `c9cf503` | 6 comments updated: extractor, validator, language, types            |
+| 8  | Fix CLI help header + package comment                   | `33a4109` | "Markdown and MDX files" in both places                              |
+| 9  | Update README.md                                        | `80a582d` | Description + supported file types mention                           |
+| 10 | Update CHANGELOG.md                                     | `80a582d` | MDX entry under `[Unreleased] / Added`                               |
+| 11 | Update AGENTS.md                                        | `80a582d` | Overview mentions MDX                                                |
+| 12 | Add MDX tests in `pkg/validator_test.go`                | `80a582d` | `ValidateFile_MDX`, `ValidateDirectory_MDX`                          |
+| 13 | Add MDX test in `cmd/md-go-validator/main_test.go`      | `80a582d` | `directory_with_MDX_files` subtest                                   |
+| 14 | Push all commits to remote                              | Done      | 8 commits on master                                                  |
 
 ---
 
 ## B) PARTIALLY DONE
 
-| #   | Item                  | Status | What's Left                                                                                                                                            |
-| --- | --------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | Test name consistency | Stale  | Two cmd test names still say "valid markdown file" / "directory with markdown files" — they should say "supported file" or similar to reflect .mdx too |
+| # | Item                  | Status | What's Left                                                                                                                                            |
+| - | --------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1 | Test name consistency | Stale  | Two cmd test names still say "valid markdown file" / "directory with markdown files" — they should say "supported file" or similar to reflect .mdx too |
 
 ---
 
 ## C) NOT STARTED
 
-| #   | Item                                                           | Priority | Detail                                                  |
-| --- | -------------------------------------------------------------- | -------- | ------------------------------------------------------- |
-| 1   | `pkg/code/util.go` tests                                       | High     | `IndentCode` and `ParseGo` have 0% coverage             |
-| 2   | `pkg/testutil/testutil.go` tests                               | Medium   | 7+ exported helpers, 0% coverage                        |
-| 3   | `cmd/md-go-validator` coverage improvement                     | Medium   | Currently 60.8% — many paths untested                   |
-| 4   | `pkg/languages` coverage improvement                           | Medium   | Currently 66.7%                                         |
-| 5   | Export `SupportedExtensions` / `IsSupportedFile` as public API | Low      | Library users may want to check extensions              |
-| 6   | `--extension` CLI flag for custom extensions                   | Low      | Allow users to add custom file types                    |
-| 7   | MDX-specific integration test with JSX syntax                  | Medium   | Test that MDX files with JSX components parse correctly |
-| 8   | Example directory (`examples/`) with sample .md and .mdx files | Low      | Referenced in old status reports as a TODO              |
+| # | Item                                                           | Priority | Detail                                                  |
+| - | -------------------------------------------------------------- | -------- | ------------------------------------------------------- |
+| 1 | `pkg/code/util.go` tests                                       | High     | `IndentCode` and `ParseGo` have 0% coverage             |
+| 2 | `pkg/testutil/testutil.go` tests                               | Medium   | 7+ exported helpers, 0% coverage                        |
+| 3 | `cmd/md-go-validator` coverage improvement                     | Medium   | Currently 60.8% — many paths untested                   |
+| 4 | `pkg/languages` coverage improvement                           | Medium   | Currently 66.7%                                         |
+| 5 | Export `SupportedExtensions` / `IsSupportedFile` as public API | Low      | Library users may want to check extensions              |
+| 6 | `--extension` CLI flag for custom extensions                   | Low      | Allow users to add custom file types                    |
+| 7 | MDX-specific integration test with JSX syntax                  | Medium   | Test that MDX files with JSX components parse correctly |
+| 8 | Example directory (`examples/`) with sample .md and .mdx files | Low      | Referenced in old status reports as a TODO              |
 
 ---
 
 ## D) TOTALLY FUCKED UP
 
-| #   | Item                              | Detail                                                                                                                                                                                                                                                                                         |
-| --- | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `pkg/output/output.go` LSP errors | 16 compile errors from broken `go-output` import — the LSP/gopls cannot resolve the local `replace` directive (`=> ../go-output`) properly. Tests still pass because Go compiler handles `replace` correctly, but IDE experience is broken. **Pre-existing issue, not caused by our changes.** |
-| 2   | Pre-commit hook not executable    | `.git/hooks/pre-commit` exists but isn't set as executable — git warns on every commit. **Pre-existing.**                                                                                                                                                                                      |
-| 3   | `justfile` still exists           | AGENTS.md says "justfile is deprecated" and should be migrated to `flake.nix`, but it's still present. **Pre-existing.**                                                                                                                                                                       |
+| # | Item                              | Detail                                                                                                                                                                                                                                                                                         |
+| - | --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 | `pkg/output/output.go` LSP errors | 16 compile errors from broken `go-output` import — the LSP/gopls cannot resolve the local `replace` directive (`=> ../go-output`) properly. Tests still pass because Go compiler handles `replace` correctly, but IDE experience is broken. **Pre-existing issue, not caused by our changes.** |
+| 2 | Pre-commit hook not executable    | `.git/hooks/pre-commit` exists but isn't set as executable — git warns on every commit. **Pre-existing.**                                                                                                                                                                                      |
+| 3 | `justfile` still exists           | AGENTS.md says "justfile is deprecated" and should be migrated to `flake.nix`, but it's still present. **Pre-existing.**                                                                                                                                                                       |
 
 ---
 

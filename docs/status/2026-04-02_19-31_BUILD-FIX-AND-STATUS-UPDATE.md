@@ -200,33 +200,33 @@ Consider `go-multierror` for collecting multiple validation errors
 
 ## F) TOP 25 THINGS TO DO NEXT
 
-| #   | Priority    | Task                                                      | Effort      | Impact                 |
-| --- | ----------- | --------------------------------------------------------- | ----------- | ---------------------- |
-| 1   | 🔴 CRITICAL | Free disk space (>20GB)                                   | User action | Unblocks everything    |
-| 2   | 🔴 CRITICAL | Verify `go mod tidy` produces same go.mod with free disk  | 5min        | Dependency integrity   |
-| 3   | 🔴 HIGH     | Run full test suite with coverage: `go test -cover ./...` | 5min        | Quality metric         |
-| 4   | 🔴 HIGH     | Update CI workflow to Go 1.26.1                           | 15min       | Pipeline health        |
-| 5   | 🔴 HIGH     | Push commits to origin                                    | 1min        | Backup & collaboration |
-| 6   | 🟡 MED      | Add `slices.Contains` modernization hints                 | 15min       | Code modernization     |
-| 7   | 🟡 MED      | Refactor `processFilesParallel` to reduce complexity      | 1hr         | Maintainability        |
-| 8   | 🟡 MED      | Propagate context to `validateBlock`                      | 30min       | Timeout correctness    |
-| 9   | 🟡 MED      | Add benchmark suite for core validation paths             | 2hr         | Performance baseline   |
-| 10  | 🟡 MED      | Remove global `argHandlers` in main.go                    | 30min       | Linter compliance      |
-| 11  | 🟡 MED      | Add test coverage threshold enforcement                   | 30min       | Quality gate           |
-| 12  | 🟡 MED      | Update README with Go 1.26.1 requirement                  | 10min       | Documentation          |
-| 13  | 🟡 MED      | Add goreleaser config for Go 1.26.1                       | 15min       | Release readiness      |
-| 14  | 🟢 LOW      | Implement CodeBlock immutability (after benchmarks)       | 2hr         | Code purity            |
-| 15  | 🟢 LOW      | Add Result Handler interface                              | 1hr         | Extensibility          |
-| 16  | 🟢 LOW      | Explore multi-error aggregation                           | 30min       | Error quality          |
-| 17  | 🟢 LOW      | Add integration tests for CLI                             | 2hr         | Reliability            |
-| 18  | 🟢 LOW      | Refactor main.go into smaller functions                   | 1hr         | Readability            |
-| 19  | 🟢 LOW      | Add Go doc examples for public API                        | 2hr         | Documentation          |
-| 20  | 🟢 LOW      | Set up pre-commit hooks                                   | 30min       | Developer experience   |
-| 21  | 🟢 LOW      | Add Makefile/justfile targets for coverage reports        | 15min       | Developer experience   |
-| 22  | 🟢 LOW      | Investigate workspace isolation (GOWORK=off)              | 30min       | Build reliability      |
-| 23  | ⚪ NICE     | Add configuration file support (.md-go-validator.yaml)    | 3hr         | User configurability   |
-| 24  | ⚪ NICE     | Add JSON output format for CI integration                 | 1hr         | CI integration         |
-| 25  | ⚪ NICE     | Add auto-fix capability for common issues                 | 1day        | User experience        |
+| #  | Priority    | Task                                                      | Effort      | Impact                 |
+| -- | ----------- | --------------------------------------------------------- | ----------- | ---------------------- |
+| 1  | 🔴 CRITICAL | Free disk space (>20GB)                                   | User action | Unblocks everything    |
+| 2  | 🔴 CRITICAL | Verify `go mod tidy` produces same go.mod with free disk  | 5min        | Dependency integrity   |
+| 3  | 🔴 HIGH     | Run full test suite with coverage: `go test -cover ./...` | 5min        | Quality metric         |
+| 4  | 🔴 HIGH     | Update CI workflow to Go 1.26.1                           | 15min       | Pipeline health        |
+| 5  | 🔴 HIGH     | Push commits to origin                                    | 1min        | Backup & collaboration |
+| 6  | 🟡 MED      | Add `slices.Contains` modernization hints                 | 15min       | Code modernization     |
+| 7  | 🟡 MED      | Refactor `processFilesParallel` to reduce complexity      | 1hr         | Maintainability        |
+| 8  | 🟡 MED      | Propagate context to `validateBlock`                      | 30min       | Timeout correctness    |
+| 9  | 🟡 MED      | Add benchmark suite for core validation paths             | 2hr         | Performance baseline   |
+| 10 | 🟡 MED      | Remove global `argHandlers` in main.go                    | 30min       | Linter compliance      |
+| 11 | 🟡 MED      | Add test coverage threshold enforcement                   | 30min       | Quality gate           |
+| 12 | 🟡 MED      | Update README with Go 1.26.1 requirement                  | 10min       | Documentation          |
+| 13 | 🟡 MED      | Add goreleaser config for Go 1.26.1                       | 15min       | Release readiness      |
+| 14 | 🟢 LOW      | Implement CodeBlock immutability (after benchmarks)       | 2hr         | Code purity            |
+| 15 | 🟢 LOW      | Add Result Handler interface                              | 1hr         | Extensibility          |
+| 16 | 🟢 LOW      | Explore multi-error aggregation                           | 30min       | Error quality          |
+| 17 | 🟢 LOW      | Add integration tests for CLI                             | 2hr         | Reliability            |
+| 18 | 🟢 LOW      | Refactor main.go into smaller functions                   | 1hr         | Readability            |
+| 19 | 🟢 LOW      | Add Go doc examples for public API                        | 2hr         | Documentation          |
+| 20 | 🟢 LOW      | Set up pre-commit hooks                                   | 30min       | Developer experience   |
+| 21 | 🟢 LOW      | Add Makefile/justfile targets for coverage reports        | 15min       | Developer experience   |
+| 22 | 🟢 LOW      | Investigate workspace isolation (GOWORK=off)              | 30min       | Build reliability      |
+| 23 | ⚪ NICE     | Add configuration file support (.md-go-validator.yaml)    | 3hr         | User configurability   |
+| 24 | ⚪ NICE     | Add JSON output format for CI integration                 | 1hr         | CI integration         |
+| 25 | ⚪ NICE     | Add auto-fix capability for common issues                 | 1day        | User experience        |
 
 ---
 

@@ -1,20 +1,20 @@
 # Comprehensive Status Report
 
-**Date:** 2026-05-26 12:03 PM CEST  
-**Project:** md-go-validator  
-**Branch:** master  
+**Date:** 2026-05-26 12:03 PM CEST\
+**Project:** md-go-validator\
+**Branch:** master\
 **Last Commit:** b72a1be (docs: add CONTRIBUTING.md from ecosystem template)
 
 ---
 
 ## Executive Summary
 
-| Metric                             | Status                          |
-| ---------------------------------- | ------------------------------- |
-| Build                              | ✅ PASSING                      |
-| Tests                              | ✅ ALL PASSING (7 packages)     |
-| Linter                             | ✅ 0 ISSUES                     |
-| Production Code Duplication (t=15) | ✅ **0 CLONE GROUPS**           |
+| Metric                             | Status                         |
+| ---------------------------------- | ------------------------------ |
+| Build                              | ✅ PASSING                     |
+| Tests                              | ✅ ALL PASSING (7 packages)    |
+| Linter                             | ✅ 0 ISSUES                    |
+| Production Code Duplication (t=15) | ✅ **0 CLONE GROUPS**          |
 | Test Code Duplication (t=15)       | ⚠️ 12 CLONE GROUPS (acceptable) |
 
 ---
@@ -32,8 +32,8 @@
 
 ### B) PARTIALLY DONE
 
-| Task                    | Status     | Notes                                                                     |
-| ----------------------- | ---------- | ------------------------------------------------------------------------- |
+| Task                    | Status    | Notes                                                                     |
+| ----------------------- | --------- | ------------------------------------------------------------------------- |
 | Test file deduplication | ⚠️ PARTIAL | 12 clone groups remain in test files only (acceptable per skill guidance) |
 
 ### C) NOT STARTED
@@ -120,13 +120,13 @@ Clone groups in tests are common Go patterns:
 
 ## E) What We Should Improve
 
-| #   | Improvement                                            | Priority | Impact                     |
-| --- | ------------------------------------------------------ | -------- | -------------------------- |
-| 1   | Increase `cmd` package test coverage (currently 70.9%) | Medium   | Better confidence          |
-| 2   | Add integration tests for all supported languages      | Medium   | Better validation coverage |
-| 3   | Create benchmark comparisons vs other tools            | Low      | Marketing/performance      |
-| 4   | Add property-based tests (testing/quick)               | Low      | Edge case coverage         |
-| 5   | Add fuzzy matching for language detection              | Low      | UX improvement             |
+| # | Improvement                                            | Priority | Impact                     |
+| - | ------------------------------------------------------ | -------- | -------------------------- |
+| 1 | Increase `cmd` package test coverage (currently 70.9%) | Medium   | Better confidence          |
+| 2 | Add integration tests for all supported languages      | Medium   | Better validation coverage |
+| 3 | Create benchmark comparisons vs other tools            | Low      | Marketing/performance      |
+| 4 | Add property-based tests (testing/quick)               | Low      | Edge case coverage         |
+| 5 | Add fuzzy matching for language detection              | Low      | UX improvement             |
 
 ---
 

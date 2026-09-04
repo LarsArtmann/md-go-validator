@@ -3,7 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Status Report — 2026-06-22 — BuildFlow Recovery & Root-Cause Fixes</title>
+    <title>
+      Status Report — 2026-06-22 — BuildFlow Recovery & Root-Cause Fixes
+    </title>
     <style>
       /* =========================================================================
          BAUHAUS DARK — Dashboard template
@@ -44,14 +46,14 @@
 
         /* --- Type stacks (system only) --- */
         --font-heading:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-body:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-mono:
-          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
-          monospace;
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
       }
 
       * {
@@ -227,15 +229,27 @@
       }
       .card-problem {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .card-solution {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .card-warning {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
 
       /* --- Issue cards --- */
@@ -248,15 +262,27 @@
       }
       .issue-critical {
         border-left-color: var(--problem);
-        background: color-mix(in srgb, var(--problem) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--problem) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-important {
         border-left-color: var(--warning);
-        background: color-mix(in srgb, var(--warning) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--warning) 8%,
+          var(--surface-raised)
+        );
       }
       .issue-nice {
         border-left-color: var(--solution);
-        background: color-mix(in srgb, var(--solution) 8%, var(--surface-raised));
+        background: color-mix(
+          in srgb,
+          var(--solution) 8%,
+          var(--surface-raised)
+        );
       }
       .issue h3 {
         margin-bottom: 0.3rem;
@@ -582,8 +608,9 @@
           <div class="hero-badge">BuildFlow Recovery</div>
           <h1>BuildFlow Recovery &amp; Root-Cause Fixes</h1>
           <p class="hero-subtitle">
-            8 BuildFlow failures traced to 3 root causes. All fixed, all verified. A hidden data
-            race uncovered along the way. The project is now fully green across every quality gate.
+            8 BuildFlow failures traced to 3 root causes. All fixed, all
+            verified. A hidden data race uncovered along the way. The project is
+            now fully green across every quality gate.
           </p>
         </div>
 
@@ -605,12 +632,14 @@
         <!-- Summary -->
         <h2 id="summary"><span class="num">00</span>Executive Summary</h2>
         <p>
-          The session began with a BuildFlow run reporting <strong>8 failed steps</strong>:
-          <code>test-coverage</code>, <code>hierarchical-errors</code>, <code>golangci-lint</code>,
+          The session began with a BuildFlow run reporting
+          <strong>8 failed steps</strong>: <code>test-coverage</code>,
+          <code>hierarchical-errors</code>, <code>golangci-lint</code>,
           <code>go-fix</code>, <code>nix-build</code>, <code>test-race</code>,
-          <code>nix-flake-check</code>, and <code>modernize</code>. On the surface this looked like
-          8 independent problems. In reality, <strong>3 root causes</strong> explained all of them —
-          and one was hiding a genuine concurrency bug.
+          <code>nix-flake-check</code>, and <code>modernize</code>. On the
+          surface this looked like 8 independent problems. In reality,
+          <strong>3 root causes</strong> explained all of them — and one was
+          hiding a genuine concurrency bug.
         </p>
 
         <div class="stat-grid">
@@ -635,10 +664,12 @@
         <div class="card card-solution">
           <h4>Quality Gates — All Green</h4>
           <p>
-            <code>nix build .#</code> &middot; <code>nix flake check</code> &middot;
+            <code>nix build .#</code> &middot;
+            <code>nix flake check</code> &middot;
             <code>go test -race -count=1 ./...</code> (&times;3) &middot;
-            <code>go test -cover ./...</code> &middot; <code>golangci-lint</code> (0 issues)
-            &middot; <code>go fix</code> &middot; <code>modernize</code> &middot;
+            <code>go test -cover ./...</code> &middot;
+            <code>golangci-lint</code> (0 issues) &middot;
+            <code>go fix</code> &middot; <code>modernize</code> &middot;
             <code>nix fmt</code>
           </p>
         </div>
@@ -691,9 +722,15 @@
             </tr>
           </tbody>
         </table>
-        <p style="color: var(--text-faint); font-family: var(--font-mono); font-size: 0.8rem">
-          3,404 source LOC &middot; 5,087 test LOC &middot; 21 source files &middot; 14 test files
-          &middot; 4 direct deps
+        <p
+          style="
+            color: var(--text-faint);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+          "
+        >
+          3,404 source LOC &middot; 5,087 test LOC &middot; 21 source files
+          &middot; 14 test files &middot; 4 direct deps
         </p>
 
         <!-- ============================================== -->
@@ -715,20 +752,26 @@
             <tr>
               <td>1</td>
               <td>
-                <strong>Added <code>md-go-validator</code> to parent <code>go.work</code></strong>
-                — the module was absent from the workspace, breaking every Go command with
+                <strong
+                  >Added <code>md-go-validator</code> to parent
+                  <code>go.work</code></strong
+                >
+                — the module was absent from the workspace, breaking every Go
+                command with
                 <code>directory prefix . does not contain modules</code>.
               </td>
               <td>
-                golangci-lint, go-fix, modernize, test-race, test-coverage, hierarchical-errors
+                golangci-lint, go-fix, modernize, test-race, test-coverage,
+                hierarchical-errors
               </td>
               <td><span class="badge badge-fixed">Fixed</span></td>
             </tr>
             <tr>
               <td>2</td>
               <td>
-                <strong>Updated stale nix <code>vendorHash</code></strong> — the go-output
-                v0.13&rarr;v0.17 upgrade changed go.sum but the hash was never updated.
+                <strong>Updated stale nix <code>vendorHash</code></strong> — the
+                go-output v0.13&rarr;v0.17 upgrade changed go.sum but the hash
+                was never updated.
               </td>
               <td>nix-build, nix-flake-check</td>
               <td><span class="badge badge-fixed">Fixed</span></td>
@@ -736,9 +779,12 @@
             <tr>
               <td>3</td>
               <td>
-                <strong>Fixed data race in <code>TestHandleVersion</code></strong> — it mutated
-                <code>os.Stdout</code>, <code>osExit</code>, and <code>version</code> under
-                <code>t.Parallel()</code>, racing with ~15 other parallel tests.
+                <strong
+                  >Fixed data race in <code>TestHandleVersion</code></strong
+                >
+                — it mutated <code>os.Stdout</code>, <code>osExit</code>, and
+                <code>version</code> under <code>t.Parallel()</code>, racing
+                with ~15 other parallel tests.
               </td>
               <td>test-race (real bug, previously masked by #1)</td>
               <td><span class="badge badge-fixed">Fixed</span></td>
@@ -748,9 +794,9 @@
 
         <div class="callout callout-solution">
           <strong>Bonus:</strong>
-          Reconciled <code>go.work</code> go directive from 1.26.4 back to 1.26.3 (matching all
-          member modules) to unbreak gopls. Added module via <code>go work use</code> which had
-          auto-bumped it.
+          Reconciled <code>go.work</code> go directive from 1.26.4 back to
+          1.26.3 (matching all member modules) to unbreak gopls. Added module
+          via <code>go work use</code> which had auto-bumped it.
         </div>
 
         <h3>Core Functionality (carried forward — production-ready)</h3>
@@ -760,8 +806,8 @@
             <div class="text">
               <strong>Multi-language validation</strong>
               <span
-                >Go, TypeScript, TSX, Rust, Nix, HCL, Terraform, Templ — all via pure-Go tree-sitter
-                (no CGO).</span
+                >Go, TypeScript, TSX, Rust, Nix, HCL, Terraform, Templ — all via
+                pure-Go tree-sitter (no CGO).</span
               >
             </div>
           </div>
@@ -770,8 +816,8 @@
             <div class="text">
               <strong>5-strategy Go parsing</strong>
               <span
-                >Complete file, package wrapper, function wrapper, expression, statements — handles
-                partial snippets in docs.</span
+                >Complete file, package wrapper, function wrapper, expression,
+                statements — handles partial snippets in docs.</span
               >
             </div>
           </div>
@@ -780,8 +826,8 @@
             <div class="text">
               <strong>STDIN support &amp; structured exit codes</strong>
               <span
-                >Pipe markdown via <code>-</code>; exit 0=success, 1=validation errors, 2=tool/usage
-                errors.</span
+                >Pipe markdown via <code>-</code>; exit 0=success, 1=validation
+                errors, 2=tool/usage errors.</span
               >
             </div>
           </div>
@@ -790,8 +836,8 @@
             <div class="text">
               <strong>Branded types throughout</strong>
               <span
-                >FileID, LineNumber, BlockIndex, FileType, ValidationStatus — impossible states
-                unrepresentable.</span
+                >FileID, LineNumber, BlockIndex, FileType, ValidationStatus —
+                impossible states unrepresentable.</span
               >
             </div>
           </div>
@@ -800,8 +846,8 @@
             <div class="text">
               <strong>ErrorCode threading</strong>
               <span
-                >Branded ErrorCode type with JSON marshaling, visible in JSON/YAML output,
-                documented via JSON schema.</span
+                >Branded ErrorCode type with JSON marshaling, visible in
+                JSON/YAML output, documented via JSON schema.</span
               >
             </div>
           </div>
@@ -810,8 +856,8 @@
             <div class="text">
               <strong>Full Nix flake build system</strong>
               <span
-                >flake-parts + treefmt-nix, source filtering, overlay export, goreleaser v2 config,
-                version from git.</span
+                >flake-parts + treefmt-nix, source filtering, overlay export,
+                goreleaser v2 config, version from git.</span
               >
             </div>
           </div>
@@ -820,8 +866,8 @@
             <div class="text">
               <strong>Concurrent directory processing</strong>
               <span
-                >Worker pool with channels, context-aware cancellation, configurable
-                concurrency.</span
+                >Worker pool with channels, context-aware cancellation,
+                configurable concurrency.</span
               >
             </div>
           </div>
@@ -835,24 +881,31 @@
         <div class="issue issue-important">
           <span class="severity severity-important">Architectural debt</span>
           <h3>go-error-family not adopted (92 hierarchical-errors findings)</h3>
-          <div class="where">All packages — 45 ignored + 45 generic_return + 2 silent_swallow</div>
+          <div class="where">
+            All packages — 45 ignored + 45 generic_return + 2 silent_swallow
+          </div>
           <p>
-            The <code>hierarchical-errors</code> checker now <em>runs</em> (go.work fixed) and
-            surfaces 92 findings. The 45 <code>generic_return</code> items reflect the project's
-            non-adoption of <code>go-error-family</code> for structured, classified errors. This is
-            the same concern flagged by <code>library-policy</code> and the BuildFlow lint warning.
-            It is a deliberate architectural decision spanning every package — not a quick fix.
+            The <code>hierarchical-errors</code> checker now
+            <em>runs</em> (go.work fixed) and surfaces 92 findings. The 45
+            <code>generic_return</code> items reflect the project's non-adoption
+            of <code>go-error-family</code> for structured, classified errors.
+            This is the same concern flagged by <code>library-policy</code> and
+            the BuildFlow lint warning. It is a deliberate architectural
+            decision spanning every package — not a quick fix.
           </p>
         </div>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Stale doc</span>
           <h3>docs/DOMAIN_LANGUAGE.md is still a placeholder template</h3>
-          <div class="where">docs/DOMAIN_LANGUAGE.md — 2174 bytes, all placeholder text</div>
+          <div class="where">
+            docs/DOMAIN_LANGUAGE.md — 2174 bytes, all placeholder text
+          </div>
           <p>
-            The file still says "Example Term &mdash; A placeholder definition". Per the project
-            documentation standards, this should hold the ubiquitous language for the domain
-            (CodeBlock, ValidationResult, FileValidator, ErrorCode, SkipDirective, etc.). The domain
+            The file still says "Example Term &mdash; A placeholder definition".
+            Per the project documentation standards, this should hold the
+            ubiquitous language for the domain (CodeBlock, ValidationResult,
+            FileValidator, ErrorCode, SkipDirective, etc.). The domain
             vocabulary exists in code but is not documented.
           </p>
         </div>
@@ -862,9 +915,9 @@
           <h3>cmd (76.7%) and testutil (75.0%) coverage trail the rest</h3>
           <div class="where">cmd/md-go-validator, pkg/testutil</div>
           <p>
-            The rest of the codebase sits at 87&ndash;94%. The cmd package is harder to test (CLI
-            entry point, global state), and testutil is a support package. Both have room to reach
-            85&ndash;90%.
+            The rest of the codebase sits at 87&ndash;94%. The cmd package is
+            harder to test (CLI entry point, global state), and testutil is a
+            support package. Both have room to reach 85&ndash;90%.
           </p>
         </div>
 
@@ -909,12 +962,17 @@
             </tr>
             <tr>
               <td><strong>DOMAIN_LANGUAGE.md</strong></td>
-              <td>Actual domain glossary (file exists but is a template stub)</td>
+              <td>
+                Actual domain glossary (file exists but is a template stub)
+              </td>
               <td>Doc freshness</td>
             </tr>
             <tr>
               <td><strong>Injectable stdout writer</strong></td>
-              <td>Eliminate os.Stdout global mutation in cmd (root cause of test races)</td>
+              <td>
+                Eliminate os.Stdout global mutation in cmd (root cause of test
+                races)
+              </td>
               <td>Session finding</td>
             </tr>
             <tr>
@@ -934,54 +992,70 @@
           <span class="severity severity-critical">Process failure</span>
           <h3>The parent go.work silently excluded md-go-validator</h3>
           <div class="where">
-            /home/lars/projects/go.work — only listed go-localsync + github-local-sync
+            /home/lars/projects/go.work — only listed go-localsync +
+            github-local-sync
           </div>
           <p>
             A single missing <code>use ./md-go-validator</code> line made
-            <strong>6 different BuildFlow steps fail</strong> with a cryptic error:
-            <code>directory prefix . does not contain modules listed in go.work</code>. This looked
-            like 6 independent problems (golangci-lint, go-fix, modernize, test-race, test-coverage,
-            hierarchical-errors) when it was <strong>one root cause</strong>. The go.work file is
-            local dev state, gitignored, so there was no signal in version control that the module
-            was missing.
+            <strong>6 different BuildFlow steps fail</strong> with a cryptic
+            error:
+            <code
+              >directory prefix . does not contain modules listed in
+              go.work</code
+            >. This looked like 6 independent problems (golangci-lint, go-fix,
+            modernize, test-race, test-coverage, hierarchical-errors) when it
+            was <strong>one root cause</strong>. The go.work file is local dev
+            state, gitignored, so there was no signal in version control that
+            the module was missing.
           </p>
           <div class="callout callout-solution">
             <strong>Fix:</strong>
-            <code>go work use ./md-go-validator</code>. One command. Six "failures" vanished.
+            <code>go work use ./md-go-validator</code>. One command. Six
+            "failures" vanished.
           </div>
         </div>
 
         <div class="issue issue-critical">
           <span class="severity severity-critical">Hidden bug</span>
           <h3>A real data race was masked by the go.work failure</h3>
-          <div class="where">cmd/md-go-validator/main_test.go — TestHandleVersion</div>
+          <div class="where">
+            cmd/md-go-validator/main_test.go — TestHandleVersion
+          </div>
           <p>
-            Because <code>test-race</code> couldn't even run (go.work blocked it), a genuine data
-            race went undetected. <code>TestHandleVersion</code> mutated three process globals
-            (<code>os.Stdout</code>, <code>osExit</code>, <code>version</code>) while running under
-            <code>t.Parallel()</code> &mdash; racing with ~15 other parallel tests that call
-            <code>printUsage()</code> or run the CLI. The sibling test
-            <code>TestParseArgsVersionFlag</code> already had the correct pattern (serial, with
-            <code>//nolint:paralleltest</code>), so <code>TestHandleVersion</code> was an oversight,
-            not a design choice.
+            Because <code>test-race</code> couldn't even run (go.work blocked
+            it), a genuine data race went undetected.
+            <code>TestHandleVersion</code> mutated three process globals
+            (<code>os.Stdout</code>, <code>osExit</code>, <code>version</code>)
+            while running under <code>t.Parallel()</code> &mdash; racing with
+            ~15 other parallel tests that call <code>printUsage()</code> or run
+            the CLI. The sibling test
+            <code>TestParseArgsVersionFlag</code> already had the correct
+            pattern (serial, with <code>//nolint:paralleltest</code>), so
+            <code>TestHandleVersion</code> was an oversight, not a design
+            choice.
           </p>
           <div class="callout callout-warning">
             <strong>Lesson:</strong>
-            When a gate can't run, it can't catch bugs. The go.work failure created a blind spot
-            that hid a concurrency defect for an unknown period.
+            When a gate can't run, it can't catch bugs. The go.work failure
+            created a blind spot that hid a concurrency defect for an unknown
+            period.
           </div>
         </div>
 
         <div class="issue issue-nice">
           <span class="severity severity-nice">False positives</span>
           <h3>"Executable in repo" warnings on gitignored files</h3>
-          <div class="where">dist/*, result — confirmed untracked via git ls-files</div>
+          <div class="where">
+            dist/*, result — confirmed untracked via git ls-files
+          </div>
           <p>
-            BuildFlow flagged 6 binaries in <code>dist/</code> and a <code>result</code>
-            symlink as "compiled binaries committed to version control". They are
+            BuildFlow flagged 6 binaries in <code>dist/</code> and a
+            <code>result</code>
+            symlink as "compiled binaries committed to version control". They
+            are
             <strong>not tracked</strong> &mdash; <code>.gitignore</code> covers
-            <code>/dist/</code> and <code>/result</code>. The lint tool scans the filesystem, not
-            git. These are noise, not real issues.
+            <code>/dist/</code> and <code>/result</code>. The lint tool scans
+            the filesystem, not git. These are noise, not real issues.
           </p>
         </div>
 
@@ -993,52 +1067,59 @@
         <div class="card card-warning">
           <h4>1. Never let a gate be un-runnable</h4>
           <p>
-            The go.work failure disabled 6 quality gates simultaneously. A single missing workspace
-            entry created a blind spot that hid a data race. The fix is process-level: any gate that
-            can't run should fail loud and block everything, not silently produce "failed to wait
-            for command" errors that look like 6 different problems.
+            The go.work failure disabled 6 quality gates simultaneously. A
+            single missing workspace entry created a blind spot that hid a data
+            race. The fix is process-level: any gate that can't run should fail
+            loud and block everything, not silently produce "failed to wait for
+            command" errors that look like 6 different problems.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>2. Eliminate global mutation in cmd/main.go</h4>
           <p>
-            The data race root cause is architectural: <code>cmd/md-go-validator/main.go</code> uses
-            package-level globals (<code>version</code>, <code>osExit</code>,
-            <code>os.Stdout</code>) that tests must mutate. This forces serial tests and
-            <code>//nolint:paralleltest</code> hacks. The proper fix is dependency injection: pass
-            an <code>io.Writer</code> and an exit function into a struct, so tests never touch
-            globals.
+            The data race root cause is architectural:
+            <code>cmd/md-go-validator/main.go</code> uses package-level globals
+            (<code>version</code>, <code>osExit</code>, <code>os.Stdout</code>)
+            that tests must mutate. This forces serial tests and
+            <code>//nolint:paralleltest</code> hacks. The proper fix is
+            dependency injection: pass an <code>io.Writer</code> and an exit
+            function into a struct, so tests never touch globals.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>3. Populate the missing standard doc files</h4>
           <p>
-            <code>FEATURES.md</code>, <code>TODO_LIST.md</code>, <code>ROADMAP.md</code> are all
-            absent. <code>docs/DOMAIN_LANGUAGE.md</code> is a placeholder. These are defined in the
-            project documentation standards as required files with distinct purposes. Their absence
-            means project state is invisible without reading code.
+            <code>FEATURES.md</code>, <code>TODO_LIST.md</code>,
+            <code>ROADMAP.md</code> are all absent.
+            <code>docs/DOMAIN_LANGUAGE.md</code> is a placeholder. These are
+            defined in the project documentation standards as required files
+            with distinct purposes. Their absence means project state is
+            invisible without reading code.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>4. Make the go-error-family decision explicit</h4>
           <p>
-            92 <code>hierarchical-errors</code> findings (45 of them <code>generic_return</code>)
-            will keep failing BuildFlow until either (a) go-error-family is adopted, or (b) the
-            check is explicitly disabled/acknowledged. This is a deliberate architectural choice
-            that should be documented as an ADR rather than left as a persistent red gate.
+            92 <code>hierarchical-errors</code> findings (45 of them
+            <code>generic_return</code>) will keep failing BuildFlow until
+            either (a) go-error-family is adopted, or (b) the check is
+            explicitly disabled/acknowledged. This is a deliberate architectural
+            choice that should be documented as an ADR rather than left as a
+            persistent red gate.
           </p>
         </div>
 
         <div class="card card-warning">
           <h4>5. Add the 2 silent_swallow findings to the backlog</h4>
           <p>
-            <code>pkg/validator.go:431</code> discards a context error with a bare
-            <code>break</code>. <code>pkg/validator.go:412</code> sends to an error channel but the
-            checker flags the non-returning pattern. These are benign for concurrent worker code but
-            should be explicitly acknowledged or refactored.
+            <code>pkg/validator.go:431</code> discards a context error with a
+            bare <code>break</code>. <code>pkg/validator.go:412</code> sends to
+            an error channel but the checker flags the non-returning pattern.
+            These are benign for concurrent worker code but should be explicitly
+            acknowledged or refactored.
           </p>
         </div>
 
@@ -1064,9 +1145,9 @@
               <td>1</td>
               <td><span class="badge badge-critical">P0</span></td>
               <td>
-                <strong>Decide on go-error-family</strong> — adopt it (resolves 45 generic_return
-                findings) OR write an ADR + disable the hierarchical-errors gate. Either way, stop
-                the persistent red.
+                <strong>Decide on go-error-family</strong> — adopt it (resolves
+                45 generic_return findings) OR write an ADR + disable the
+                hierarchical-errors gate. Either way, stop the persistent red.
               </td>
               <td>Unblocks BuildFlow green</td>
             </tr>
@@ -1074,8 +1155,8 @@
               <td>2</td>
               <td><span class="badge badge-critical">P0</span></td>
               <td>
-                <strong>Create FEATURES.md</strong> — honest feature inventory by status
-                (DONE/PARTIAL/PLANNED). Use the features-audit skill.
+                <strong>Create FEATURES.md</strong> — honest feature inventory
+                by status (DONE/PARTIAL/PLANNED). Use the features-audit skill.
               </td>
               <td>Project visibility</td>
             </tr>
@@ -1083,9 +1164,9 @@
               <td>3</td>
               <td><span class="badge badge-critical">P0</span></td>
               <td>
-                <strong>Populate docs/DOMAIN_LANGUAGE.md</strong> — replace placeholder stub with
-                actual ubiquitous language (CodeBlock, ValidationResult, FileValidator, ErrorCode,
-                SkipDirective, etc.)
+                <strong>Populate docs/DOMAIN_LANGUAGE.md</strong> — replace
+                placeholder stub with actual ubiquitous language (CodeBlock,
+                ValidationResult, FileValidator, ErrorCode, SkipDirective, etc.)
               </td>
               <td>Shared vocabulary</td>
             </tr>
@@ -1093,9 +1174,10 @@
               <td>4</td>
               <td><span class="badge badge-high">P1</span></td>
               <td>
-                <strong>Refactor cmd/main.go to inject dependencies</strong> — replace
-                os.Stdout/osExit/version globals with an injected struct. Eliminates test races at
-                the root and removes //nolint:paralleltest hacks.
+                <strong>Refactor cmd/main.go to inject dependencies</strong> —
+                replace os.Stdout/osExit/version globals with an injected
+                struct. Eliminates test races at the root and removes
+                //nolint:paralleltest hacks.
               </td>
               <td>Eliminates race class</td>
             </tr>
@@ -1103,8 +1185,8 @@
               <td>5</td>
               <td><span class="badge badge-high">P1</span></td>
               <td>
-                <strong>Create TODO_LIST.md</strong> — interactive short/mid-term task list. Use the
-                todo-list-builder skill.
+                <strong>Create TODO_LIST.md</strong> — interactive
+                short/mid-term task list. Use the todo-list-builder skill.
               </td>
               <td>Work tracking</td>
             </tr>
@@ -1112,8 +1194,8 @@
               <td>6</td>
               <td><span class="badge badge-high">P1</span></td>
               <td>
-                <strong>Create ROADMAP.md</strong> — long-term direction and raw ideas not yet
-                refined into tasks.
+                <strong>Create ROADMAP.md</strong> — long-term direction and raw
+                ideas not yet refined into tasks.
               </td>
               <td>Strategic clarity</td>
             </tr>
@@ -1121,8 +1203,9 @@
               <td>7</td>
               <td><span class="badge badge-high">P1</span></td>
               <td>
-                <strong>Address validator.go:431 silent_swallow</strong> — the context error from
-                checkContext is discarded with a bare break. At minimum log it; ideally propagate.
+                <strong>Address validator.go:431 silent_swallow</strong> — the
+                context error from checkContext is discarded with a bare break.
+                At minimum log it; ideally propagate.
               </td>
               <td>Error visibility</td>
             </tr>
@@ -1130,8 +1213,9 @@
               <td>8</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Improve cmd coverage 76.7% &rarr; 85%+</strong> — add integration tests for
-                flag parsing edge cases, error paths, help/version output.
+                <strong>Improve cmd coverage 76.7% &rarr; 85%+</strong> — add
+                integration tests for flag parsing edge cases, error paths,
+                help/version output.
               </td>
               <td>Test confidence</td>
             </tr>
@@ -1139,8 +1223,8 @@
               <td>9</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Improve testutil coverage 75% &rarr; 85%+</strong> — test assertion helpers,
-                fixture loaders.
+                <strong>Improve testutil coverage 75% &rarr; 85%+</strong> —
+                test assertion helpers, fixture loaders.
               </td>
               <td>Test confidence</td>
             </tr>
@@ -1148,8 +1232,9 @@
               <td>10</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Evaluate internal/ directory move</strong> — move private implementation
-                (pkg internals) to enforce encapsulation. Assess import breakage first.
+                <strong>Evaluate internal/ directory move</strong> — move
+                private implementation (pkg internals) to enforce encapsulation.
+                Assess import breakage first.
               </td>
               <td>Encapsulation</td>
             </tr>
@@ -1157,8 +1242,9 @@
               <td>11</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Add benchmark coverage</strong> — only 1 benchmark file exists. Add
-                benchmarks for extractor, validator worker pool, multi-language parsing.
+                <strong>Add benchmark coverage</strong> — only 1 benchmark file
+                exists. Add benchmarks for extractor, validator worker pool,
+                multi-language parsing.
               </td>
               <td>Perf baseline</td>
             </tr>
@@ -1166,9 +1252,10 @@
               <td>12</td>
               <td><span class="badge badge-medium">P2</span></td>
               <td>
-                <strong>Address the 45 "ignored" error findings</strong> — review each
-                <code>_, _ = fmt.Fprintf(...)</code> and <code>_ = ...</code> in output.go and
-                elsewhere. Acknowledge or handle.
+                <strong>Address the 45 "ignored" error findings</strong> —
+                review each <code>_, _ = fmt.Fprintf(...)</code> and
+                <code>_ = ...</code> in output.go and elsewhere. Acknowledge or
+                handle.
               </td>
               <td>Code hygiene</td>
             </tr>
@@ -1176,8 +1263,9 @@
               <td>13</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Add more testdata fixtures</strong> — only 5 fixtures exist. Add edge cases:
-                deeply nested MDX, mixed languages, large files.
+                <strong>Add more testdata fixtures</strong> — only 5 fixtures
+                exist. Add edge cases: deeply nested MDX, mixed languages, large
+                files.
               </td>
               <td>Test richness</td>
             </tr>
@@ -1185,8 +1273,9 @@
               <td>14</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Self-validate more doc files</strong> — the tool dogfoods on its own docs;
-                expand coverage to include all .md files in the repo.
+                <strong>Self-validate more doc files</strong> — the tool
+                dogfoods on its own docs; expand coverage to include all .md
+                files in the repo.
               </td>
               <td>Dogfooding</td>
             </tr>
@@ -1194,9 +1283,9 @@
               <td>15</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Review goreleaser config for new targets</strong> — current config builds
-                darwin/linux/windows amd64+arm64. Consider freebsd, or WASM target for browser
-                usage.
+                <strong>Review goreleaser config for new targets</strong> —
+                current config builds darwin/linux/windows amd64+arm64. Consider
+                freebsd, or WASM target for browser usage.
               </td>
               <td>Distribution</td>
             </tr>
@@ -1204,8 +1293,9 @@
               <td>16</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Add a CONTRIBUTING.md</strong> — guide for contributors: dev shell setup,
-                test commands, code style, linter gotchas (already in AGENTS.md but user-facing).
+                <strong>Add a CONTRIBUTING.md</strong> — guide for contributors:
+                dev shell setup, test commands, code style, linter gotchas
+                (already in AGENTS.md but user-facing).
               </td>
               <td>Onboarding</td>
             </tr>
@@ -1213,7 +1303,8 @@
               <td>17</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Add CI badge to README</strong> — link to the nix flake check CI status.
+                <strong>Add CI badge to README</strong> — link to the nix flake
+                check CI status.
               </td>
               <td>Presentation</td>
             </tr>
@@ -1221,8 +1312,9 @@
               <td>18</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Document the validator registry plugin pattern</strong> — how to add a new
-                language validator. The architecture supports it; it's not documented for users.
+                <strong>Document the validator registry plugin pattern</strong>
+                — how to add a new language validator. The architecture supports
+                it; it's not documented for users.
               </td>
               <span>Extensibility</span>
             </tr>
@@ -1230,8 +1322,12 @@
               <td>19</td>
               <td><span class="badge badge-low">P3</span></td>
               <td>
-                <strong>Add version flag integration test for all output formats</strong> — verify
-                --version works consistently with table/json/yaml/csv/markdown.
+                <strong
+                  >Add version flag integration test for all output
+                  formats</strong
+                >
+                — verify --version works consistently with
+                table/json/yaml/csv/markdown.
               </td>
               <td>Test completeness</td>
             </tr>
@@ -1239,8 +1335,8 @@
               <td>20</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Consider a Go API example in README</strong> — show library usage
-                (FileValidator) not just CLI usage.
+                <strong>Consider a Go API example in README</strong> — show
+                library usage (FileValidator) not just CLI usage.
               </td>
               <td>Discoverability</td>
             </tr>
@@ -1248,8 +1344,8 @@
               <td>21</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Add skip-directive documentation to README</strong> — list all supported
-                skip directives with examples.
+                <strong>Add skip-directive documentation to README</strong> —
+                list all supported skip directives with examples.
               </td>
               <td>Usability</td>
             </tr>
@@ -1257,8 +1353,8 @@
               <td>22</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Review gotreesitter v0.20.2 for upgrades</strong> — check for newer versions
-                or grammar improvements.
+                <strong>Review gotreesitter v0.20.2 for upgrades</strong> —
+                check for newer versions or grammar improvements.
               </td>
               <td>Dependency health</td>
             </tr>
@@ -1266,8 +1362,8 @@
               <td>23</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Add JSON schema validation test</strong> — verify actual CLI JSON output
-                conforms to docs/json-schema.json.
+                <strong>Add JSON schema validation test</strong> — verify actual
+                CLI JSON output conforms to docs/json-schema.json.
               </td>
               <td>Contract integrity</td>
             </tr>
@@ -1275,8 +1371,9 @@
               <td>24</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Consider context.Context propagation audit</strong> — ensure all
-                long-running paths respect cancellation (validator worker pool, tree walking).
+                <strong>Consider context.Context propagation audit</strong> —
+                ensure all long-running paths respect cancellation (validator
+                worker pool, tree walking).
               </td>
               <td>Reliability</td>
             </tr>
@@ -1284,8 +1381,8 @@
               <td>25</td>
               <td><span class="badge badge-low">P4</span></td>
               <td>
-                <strong>Cut v0.3.1 or v0.4.0 release</strong> — the vendorHash fix + race fix
-                warrant a patch release. Run goreleaser.
+                <strong>Cut v0.3.1 or v0.4.0 release</strong> — the vendorHash
+                fix + race fix warrant a patch release. Run goreleaser.
               </td>
               <td>Release hygiene</td>
             </tr>
@@ -1295,41 +1392,49 @@
         <!-- ============================================== -->
         <!-- g) TOP QUESTION -->
         <!-- ============================================== -->
-        <h2 id="question"><span class="num">G</span>Top Question I Cannot Answer Myself</h2>
+        <h2 id="question">
+          <span class="num">G</span>Top Question I Cannot Answer Myself
+        </h2>
 
         <div class="issue issue-important">
           <span class="severity severity-important">Decision needed</span>
           <h3>
-            Should md-go-validator adopt go-error-family, or is the hierarchical-errors gate wrong
-            for this project?
+            Should md-go-validator adopt go-error-family, or is the
+            hierarchical-errors gate wrong for this project?
           </h3>
           <p>
-            The <code>hierarchical-errors</code> checker reports <strong>92 findings</strong> (45
-            <code>generic_return</code> + 45 <code>ignored</code> + 2 <code>silent_swallow</code>),
-            and <code>library-policy</code> independently flags the missing
-            <code>go-error-family</code> dependency. This makes BuildFlow perpetually red on a gate
-            that cannot pass without a codebase-wide architectural change.
+            The <code>hierarchical-errors</code> checker reports
+            <strong>92 findings</strong> (45 <code>generic_return</code> + 45
+            <code>ignored</code> + 2 <code>silent_swallow</code>), and
+            <code>library-policy</code> independently flags the missing
+            <code>go-error-family</code> dependency. This makes BuildFlow
+            perpetually red on a gate that cannot pass without a codebase-wide
+            architectural change.
           </p>
           <p>
-            I cannot determine whether <code>go-error-family</code> is a hard project standard (in
-            which case it should be adopted &mdash; a multi-file refactor) or whether the
-            <code>hierarchical-errors</code> gate is over-eager for a small CLI/library that
-            deliberately uses plain Go errors (in which case it should be disabled or acknowledged
-            via ADR). The AGENTS.md references go-error-family as a recommendation but the codebase
-            has never used it across 22 status reports and multiple releases.
+            I cannot determine whether <code>go-error-family</code> is a hard
+            project standard (in which case it should be adopted &mdash; a
+            multi-file refactor) or whether the
+            <code>hierarchical-errors</code> gate is over-eager for a small
+            CLI/library that deliberately uses plain Go errors (in which case it
+            should be disabled or acknowledged via ADR). The AGENTS.md
+            references go-error-family as a recommendation but the codebase has
+            never used it across 22 status reports and multiple releases.
           </p>
           <div class="callout callout-warning">
             <strong>Why I'm stuck:</strong>
-            Adopting go-error-family touches every <code>return ... : %w, err</code> site in
-            <code>pkg/</code> and <code>cmd/</code> (45 sites). Disabling the gate changes a quality
-            standard. Either path is a deliberate architectural decision only you can make. Until
-            then, BuildFlow will report this step as failed.
+            Adopting go-error-family touches every
+            <code>return ... : %w, err</code> site in <code>pkg/</code> and
+            <code>cmd/</code> (45 sites). Disabling the gate changes a quality
+            standard. Either path is a deliberate architectural decision only
+            you can make. Until then, BuildFlow will report this step as failed.
           </div>
         </div>
 
         <footer class="footer">
-          Generated 2026-06-22 13:02 CEST &middot; All claims verified against source code and live
-          gate runs &middot; Branch master @ 0fc0f12 + uncommitted fixes
+          Generated 2026-06-22 13:02 CEST &middot; All claims verified against
+          source code and live gate runs &middot; Branch master @ 0fc0f12 +
+          uncommitted fixes
         </footer>
       </main>
     </div>

@@ -9,7 +9,7 @@ Every term below should mean the **same thing** to everyone who reads it.
 
 | Term            | Definition                                                           | Context                              |
 | --------------- | -------------------------------------------------------------------- | ------------------------------------ |
-| Code Block      | A fenced code region in Markdown/MDX (e.g., ` ```go ... ``` `)       | Extraction, validation               |
+| Code Block      | A fenced code region in Markdown/MDX (e.g., `` ```go ... ``` ``)     | Extraction, validation               |
 | Code Block Info | The language tag on a fenced code block (e.g., `go`, `typescript`)   | Extraction, language identification  |
 | Skip Directive  | A comment that marks a code block as intentionally invalid           | Extraction, validation               |
 | Strategy        | One of the parsing approaches tried by the Go validator              | Go validation                        |

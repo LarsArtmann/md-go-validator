@@ -88,23 +88,23 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### From CONSUMER_PERSPECTIVE.md (15 gaps, none started):
 
-| #   | Gap                                                    | Severity |
-| --- | ------------------------------------------------------ | -------- |
-| 1   | `--version` flag                                       | Critical |
-| 2   | Configuration file support (`.md-go-validator.yaml`)   | Critical |
-| 3   | `--init` command for config generation                 | Critical |
-| 4   | `.md-go-validator-ignore` / exclude patterns           | Critical |
-| 5   | Fix CONTRIBUTING.md dead references                    | Critical |
-| 6   | Reusable GitHub Action (`action.yml`)                  | Major    |
-| 7   | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |
-| 8   | Watch / incremental mode (`--watch`)                   | Major    |
-| 9   | Error codes in CLI output                              | Major    |
-| 10  | Diff / regression mode (`--baseline`)                  | Major    |
-| 11  | `--dry-run` flag                                       | Moderate |
-| 12  | Progress indicator                                     | Moderate |
-| 13  | Granular exit codes (errors vs crash vs no files)      | Moderate |
-| 14  | Self-validation in CI (dogfooding)                     | Moderate |
-| 15  | `--fail-on-skipped` option                             | Minor    |
+| #  | Gap                                                    | Severity |
+| -- | ------------------------------------------------------ | -------- |
+| 1  | `--version` flag                                       | Critical |
+| 2  | Configuration file support (`.md-go-validator.yaml`)   | Critical |
+| 3  | `--init` command for config generation                 | Critical |
+| 4  | `.md-go-validator-ignore` / exclude patterns           | Critical |
+| 5  | Fix CONTRIBUTING.md dead references                    | Critical |
+| 6  | Reusable GitHub Action (`action.yml`)                  | Major    |
+| 7  | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |
+| 8  | Watch / incremental mode (`--watch`)                   | Major    |
+| 9  | Error codes in CLI output                              | Major    |
+| 10 | Diff / regression mode (`--baseline`)                  | Major    |
+| 11 | `--dry-run` flag                                       | Moderate |
+| 12 | Progress indicator                                     | Moderate |
+| 13 | Granular exit codes (errors vs crash vs no files)      | Moderate |
+| 14 | Self-validation in CI (dogfooding)                     | Moderate |
+| 15 | `--fail-on-skipped` option                             | Minor    |
 
 ### Other Not Started:
 
@@ -159,48 +159,48 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### Tier 1: Critical (Adoption Blockers)
 
-| #   | Task                                           | Impact                           | Effort |
-| --- | ---------------------------------------------- | -------------------------------- | ------ |
-| 1   | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |
-| 2   | **Add `--version` flag**                       | Users can verify installation    | Small  |
-| 3   | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |
-| 4   | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |
-| 5   | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |
+| # | Task                                           | Impact                           | Effort |
+| - | ---------------------------------------------- | -------------------------------- | ------ |
+| 1 | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |
+| 2 | **Add `--version` flag**                       | Users can verify installation    | Small  |
+| 3 | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |
+| 4 | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |
+| 5 | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |
 
 ### Tier 2: High Impact (Quality of Life)
 
-| #   | Task                                                     | Impact                        | Effort |
-| --- | -------------------------------------------------------- | ----------------------------- | ------ |
-| 6   | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |
-| 7   | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |
-| 8   | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |
-| 9   | **`--init` command**                                     | Generate starter config       | Small  |
-| 10  | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |
+| #  | Task                                                     | Impact                        | Effort |
+| -- | -------------------------------------------------------- | ----------------------------- | ------ |
+| 6  | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |
+| 7  | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |
+| 8  | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |
+| 9  | **`--init` command**                                     | Generate starter config       | Small  |
+| 10 | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |
 
 ### Tier 3: Important (Polish)
 
-| #   | Task                                                             | Impact                           | Effort |
-| --- | ---------------------------------------------------------------- | -------------------------------- | ------ |
-| 11  | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |
-| 12  | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |
-| 13  | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |
-| 14  | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |
-| 15  | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |
-| 16  | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |
+| #  | Task                                                             | Impact                           | Effort |
+| -- | ---------------------------------------------------------------- | -------------------------------- | ------ |
+| 11 | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |
+| 12 | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |
+| 13 | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |
+| 14 | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |
+| 15 | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |
+| 16 | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |
 
 ### Tier 4: Nice to Have (Enhancement)
 
-| #   | Task                                     | Impact                          | Effort |
-| --- | ---------------------------------------- | ------------------------------- | ------ |
-| 17  | **Watch mode (`--watch`)**               | Development workflow            | Medium |
-| 18  | **Progress indicator**                   | UX for large directories        | Small  |
-| 19  | **`--dry-run` flag**                     | Debug config without running    | Small  |
-| 20  | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |
-| 21  | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |
-| 22  | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |
-| 23  | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |
-| 24  | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |
-| 25  | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |
+| #  | Task                                     | Impact                          | Effort |
+| -- | ---------------------------------------- | ------------------------------- | ------ |
+| 17 | **Watch mode (`--watch`)**               | Development workflow            | Medium |
+| 18 | **Progress indicator**                   | UX for large directories        | Small  |
+| 19 | **`--dry-run` flag**                     | Debug config without running    | Small  |
+| 20 | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |
+| 21 | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |
+| 22 | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |
+| 23 | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |
+| 24 | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |
+| 25 | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |
 
 ---
 

@@ -41,33 +41,33 @@ Add the remaining high-leverage items that turn a working library into an adopta
 
 Each task is designed to be **30–100 minutes** of focused work. Total: ~25 tasks.
 
-| #   | Task                                                            | Impact | Effort | Tier | Notes                                                                       |
-| --- | --------------------------------------------------------------- | ------ | ------ | ---- | --------------------------------------------------------------------------- |
-| 1   | **Cut v0.2.0 release**                                          | 🔥🔥🔥 | S      | P0   | Tag + goreleaser. Unlocks all subsequent value.                             |
-| 2   | **Add `--version` flag**                                        | 🔥🔥🔥 | S      | P0   | Read `main.version` ldflag; print and exit 0. Tests in `cmd/`.              |
-| 3   | **Fix `flake.overlays.default`**                                | 🔥🔥   | S      | P0   | Either create `package.nix` or remove overlay export.                       |
-| 4   | **Fix `CONTRIBUTING.md` dead references**                       | 🔥🔥   | S      | P0   | Replace `just` with `nix` commands; remove dead script refs.                |
-| 5   | **Add self-validation to CI**                                   | 🔥🔥   | S      | P0   | Run built binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md`.     |
-| 6   | **Create `FEATURES.md`**                                        | 🔥🔥   | S      | P1   | Honest inventory by status (DONE / PARTIAL / PLANNED).                      |
-| 7   | **Create `TODO_LIST.md`**                                       | 🔥🔥   | S      | P1   | Short/mid-term actionable tasks, not vague ideas.                           |
-| 8   | **Add granular exit codes**                                     | 🔥🔥   | S      | P1   | 0=valid, 1=errors, 2=crash, 3=no files found.                               |
-| 9   | **Add error codes to JSON output**                              | 🔥     | S      | P1   | Extend `types.ErrorEntry` with stable error code.                           |
-| 10  | **Add `--init` command**                                        | 🔥🔥   | S      | P1   | Generate `.md-go-validator.yaml` with defaults.                             |
-| 11  | **Configuration file support (`.md-go-validator.yaml`)**        | 🔥🔥🔥 | M      | P1   | Use `viper` or `koanf`. Merge file < env < CLI flags.                       |
-| 12  | **Exclude patterns (`.md-go-validator-ignore`)**                | 🔥🔥   | M      | P1   | Use `doublestar` for `.gitignore`-style matching.                           |
-| 13  | **GitHub Action (`action.yml`)**                                | 🔥🔥🔥 | M      | P1   | Composite action using released binary. Single-line CI integration.         |
-| 14  | **Pre-commit hooks (`.pre-commit-hooks.yaml`)**                 | 🔥🔥   | S      | P1   | Hook definition for ecosystem discoverability.                              |
-| 15  | **Introduce `go-error-family` for structured errors**           | 🔥🔥   | M      | P1   | Classify errors: input/validation/internal/rejected.                        |
-| 16  | **Refactor `Result` into a sum type**                           | 🔥🔥   | M      | P2   | `ValidResult` / `SkippedResult` / `ErrorResult` + interface.                |
-| 17  | **Create `pkg/config` domain type**                             | 🔥🔥   | M      | P2   | Centralize defaults, validation, flag mapping.                              |
-| 18  | **Break `pkg/types` ↔ `pkg/languages` cycle**                   | 🔥🔥   | M      | P2   | Move `Language` type to `pkg/language` or `pkg/types`.                      |
-| 19  | **Increase `cmd/` test coverage to 85%+**                       | 🔥     | M      | P2   | Currently 70.9%; focus on flag parsing edge cases.                          |
-| 20  | **Add `internal/` package boundary**                            | 🔥     | M      | P2   | Move non-public implementation under `internal/`.                           |
-| 21  | **Remove stray `md-go-validator` binary + update `.gitignore`** | 🔥     | S      | P2   | Prevents accidental commit.                                                 |
-| 22  | **Add progress indicator for large directories**                | 🔥     | S      | P3   | `cheggaaa/pb` or bubbletea; respect `--quiet`.                              |
-| 23  | **Add `--dry-run` flag**                                        | 🔥     | S      | P3   | List files/blocks that would be validated.                                  |
-| 24  | **Implement watch mode (`--watch`)**                            | 🔥     | M      | P3   | Use `fsnotify`; debounce and re-run.                                        |
-| 25  | **Migrate CLI to `cobra` + `viper`**                            | 🔥🔥   | L      | P3   | Enables subcommands, completion, config, `--version`. Replaces hand parser. |
+| #  | Task                                                            | Impact | Effort | Tier | Notes                                                                       |
+| -- | --------------------------------------------------------------- | ------ | ------ | ---- | --------------------------------------------------------------------------- |
+| 1  | **Cut v0.2.0 release**                                          | 🔥🔥🔥 | S      | P0   | Tag + goreleaser. Unlocks all subsequent value.                             |
+| 2  | **Add `--version` flag**                                        | 🔥🔥🔥 | S      | P0   | Read `main.version` ldflag; print and exit 0. Tests in `cmd/`.              |
+| 3  | **Fix `flake.overlays.default`**                                | 🔥🔥   | S      | P0   | Either create `package.nix` or remove overlay export.                       |
+| 4  | **Fix `CONTRIBUTING.md` dead references**                       | 🔥🔥   | S      | P0   | Replace `just` with `nix` commands; remove dead script refs.                |
+| 5  | **Add self-validation to CI**                                   | 🔥🔥   | S      | P0   | Run built binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md`.     |
+| 6  | **Create `FEATURES.md`**                                        | 🔥🔥   | S      | P1   | Honest inventory by status (DONE / PARTIAL / PLANNED).                      |
+| 7  | **Create `TODO_LIST.md`**                                       | 🔥🔥   | S      | P1   | Short/mid-term actionable tasks, not vague ideas.                           |
+| 8  | **Add granular exit codes**                                     | 🔥🔥   | S      | P1   | 0=valid, 1=errors, 2=crash, 3=no files found.                               |
+| 9  | **Add error codes to JSON output**                              | 🔥     | S      | P1   | Extend `types.ErrorEntry` with stable error code.                           |
+| 10 | **Add `--init` command**                                        | 🔥🔥   | S      | P1   | Generate `.md-go-validator.yaml` with defaults.                             |
+| 11 | **Configuration file support (`.md-go-validator.yaml`)**        | 🔥🔥🔥 | M      | P1   | Use `viper` or `koanf`. Merge file < env < CLI flags.                       |
+| 12 | **Exclude patterns (`.md-go-validator-ignore`)**                | 🔥🔥   | M      | P1   | Use `doublestar` for `.gitignore`-style matching.                           |
+| 13 | **GitHub Action (`action.yml`)**                                | 🔥🔥🔥 | M      | P1   | Composite action using released binary. Single-line CI integration.         |
+| 14 | **Pre-commit hooks (`.pre-commit-hooks.yaml`)**                 | 🔥🔥   | S      | P1   | Hook definition for ecosystem discoverability.                              |
+| 15 | **Introduce `go-error-family` for structured errors**           | 🔥🔥   | M      | P1   | Classify errors: input/validation/internal/rejected.                        |
+| 16 | **Refactor `Result` into a sum type**                           | 🔥🔥   | M      | P2   | `ValidResult` / `SkippedResult` / `ErrorResult` + interface.                |
+| 17 | **Create `pkg/config` domain type**                             | 🔥🔥   | M      | P2   | Centralize defaults, validation, flag mapping.                              |
+| 18 | **Break `pkg/types` ↔ `pkg/languages` cycle**                   | 🔥🔥   | M      | P2   | Move `Language` type to `pkg/language` or `pkg/types`.                      |
+| 19 | **Increase `cmd/` test coverage to 85%+**                       | 🔥     | M      | P2   | Currently 70.9%; focus on flag parsing edge cases.                          |
+| 20 | **Add `internal/` package boundary**                            | 🔥     | M      | P2   | Move non-public implementation under `internal/`.                           |
+| 21 | **Remove stray `md-go-validator` binary + update `.gitignore`** | 🔥     | S      | P2   | Prevents accidental commit.                                                 |
+| 22 | **Add progress indicator for large directories**                | 🔥     | S      | P3   | `cheggaaa/pb` or bubbletea; respect `--quiet`.                              |
+| 23 | **Add `--dry-run` flag**                                        | 🔥     | S      | P3   | List files/blocks that would be validated.                                  |
+| 24 | **Implement watch mode (`--watch`)**                            | 🔥     | M      | P3   | Use `fsnotify`; debounce and re-run.                                        |
+| 25 | **Migrate CLI to `cobra` + `viper`**                            | 🔥🔥   | L      | P3   | Enables subcommands, completion, config, `--version`. Replaces hand parser. |
 
 ---
 

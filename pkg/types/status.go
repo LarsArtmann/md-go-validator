@@ -10,7 +10,7 @@ var errUnsupportedStatus = errors.New("unsupported validation status")
 // ValidationStatus represents the validation status of a code block.
 // Uses explicit enum instead of boolean for clarity.
 //
-//nolint:recvcheck // UnmarshalText must use pointer receiver to mutate
+
 type ValidationStatus uint
 
 // Validation status constants.

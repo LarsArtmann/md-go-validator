@@ -24,13 +24,13 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 ### Features Delivered This Session
 
-| #   | Feature                                                                                      | Status  | Files Changed                                     |
-| --- | -------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------- |
-| 1   | **STDIN support** — `cat README.md \| md-go-validator -`                                     | ✅ Done | `pkg/validator.go`, `cmd/md-go-validator/main.go` |
-| 2   | **Structured exit codes** — `0`=success, `1`=validation errors, `2`=tool/usage errors        | ✅ Done | `cmd/md-go-validator/main.go`                     |
-| 3   | **`ErrorCode` branded type** — `String()`, `Validate()`, `MarshalText()`/`UnmarshalText()`   | ✅ Done | `pkg/languages/validator.go`                      |
-| 4   | **`ErrorCode` threaded through `Result`/`ErrorEntry`** — visible as `errorCode` in JSON/YAML | ✅ Done | `pkg/types/result.go`, `pkg/types/report.go`      |
-| 5   | **JSON schema** — output contract documented and validated                                   | ✅ Done | `docs/json-schema.json`                           |
+| # | Feature                                                                                      | Status  | Files Changed                                     |
+| - | -------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------- |
+| 1 | **STDIN support** — `cat README.md \| md-go-validator -`                                     | ✅ Done | `pkg/validator.go`, `cmd/md-go-validator/main.go` |
+| 2 | **Structured exit codes** — `0`=success, `1`=validation errors, `2`=tool/usage errors        | ✅ Done | `cmd/md-go-validator/main.go`                     |
+| 3 | **`ErrorCode` branded type** — `String()`, `Validate()`, `MarshalText()`/`UnmarshalText()`   | ✅ Done | `pkg/languages/validator.go`                      |
+| 4 | **`ErrorCode` threaded through `Result`/`ErrorEntry`** — visible as `errorCode` in JSON/YAML | ✅ Done | `pkg/types/result.go`, `pkg/types/report.go`      |
+| 5 | **JSON schema** — output contract documented and validated                                   | ✅ Done | `docs/json-schema.json`                           |
 
 ### Root-Cause Fixes
 
@@ -112,8 +112,8 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 **Nothing is currently fucked up.** All quality gates pass. However:
 
-| Issue                                           | Severity | Impact                                                                                                                                              | Status                                       |
-| ----------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| Issue                                           | Severity | Impact                                                                                                                                              | Status                                      |
+| ----------------------------------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
 | **`oxfmt` fails on `reports/html/` web assets** | 🟡 Low   | `buildflow --build-mode=full` fails on oxfmt step because tracked minified CSS/JS (`prism.js`, `tailwind.css`) don't meet Go formatter expectations | ⚠️ Pre-existing — not caused by this session |
 
 ---
@@ -152,33 +152,33 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 ## f) Top 25 Things to Get Done Next
 
-| #   | Task                                                                 | Impact | Effort | Category     |
-| --- | -------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1   | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                  | High   | Low    | Release      |
-| 2   | **Confirm go-output v0.11.0 upgrade intent**                         | High   | Low    | Decision     |
-| 3   | **Create GitHub Action** (`action.yml`)                              | High   | Low    | Adoption     |
-| 4   | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)                   | Medium | Low    | Adoption     |
-| 5   | **Config file support** (`.md-go-validator.yaml`)                    | High   | Medium | Feature      |
-| 6   | **Exclude patterns** (CLI flag + config)                             | Medium | Low    | Feature      |
-| 7   | **Move `pkg/` to `internal/`** for visibility enforcement            | Medium | Medium | Architecture |
-| 8   | **Migrate to `go-error-family`** for structured error classification | Medium | Medium | Architecture |
-| 9   | **`--languages` discovery command**                                  | Low    | Low    | DX           |
-| 10  | **`--init` command** for config file generation                      | Low    | Low    | DX           |
-| 11  | **BDD tests** for critical user flows (Ginkgo)                       | Low    | Medium | Testing      |
-| 12  | **Property-based tests** for extractor state machine                 | Low    | Medium | Testing      |
-| 13  | **Grammar edge-case tests** — unicode, nesting                       | Low    | Medium | Testing      |
-| 14  | **Watch mode** (`--watch` flag)                                      | Low    | High   | Feature      |
-| 15  | **Diff/regression mode** (`--baseline`)                              | Low    | Medium | Feature      |
-| 16  | **Shell completions** (bash/zsh/fish)                                | Low    | Low    | DX           |
-| 17  | **Rename `ErrorEntry.Code` → `Snippet`** for clarity                 | Low    | Low    | Architecture |
-| 18  | **Add deprecation notice** to `ValidateGoCode` in `parser.go`        | Low    | Low    | Maintenance  |
-| 19  | **`go mod tidy` in CI**                                              | Low    | Low    | Ops          |
-| 20  | **Performance regression tracking** in CI                            | Low    | Medium | Ops          |
-| 21  | **Cross-platform testing** (macOS/Windows)                           | Low    | Low    | Testing      |
-| 22  | **API stability documentation** for library consumers                | Low    | Low    | Docs         |
-| 23  | **`--fail-on-skipped` option** for strict validation                 | Low    | Low    | Feature      |
-| 24  | **Fix `oxfmt` failing on `reports/html/` web assets**                | Low    | Low    | DX           |
-| 25  | **Homebrew tap publication**                                         | Low    | Low    | Adoption     |
+| #  | Task                                                                 | Impact | Effort | Category     |
+| -- | -------------------------------------------------------------------- | ------ | ------ | ------------ |
+| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                  | High   | Low    | Release      |
+| 2  | **Confirm go-output v0.11.0 upgrade intent**                         | High   | Low    | Decision     |
+| 3  | **Create GitHub Action** (`action.yml`)                              | High   | Low    | Adoption     |
+| 4  | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)                   | Medium | Low    | Adoption     |
+| 5  | **Config file support** (`.md-go-validator.yaml`)                    | High   | Medium | Feature      |
+| 6  | **Exclude patterns** (CLI flag + config)                             | Medium | Low    | Feature      |
+| 7  | **Move `pkg/` to `internal/`** for visibility enforcement            | Medium | Medium | Architecture |
+| 8  | **Migrate to `go-error-family`** for structured error classification | Medium | Medium | Architecture |
+| 9  | **`--languages` discovery command**                                  | Low    | Low    | DX           |
+| 10 | **`--init` command** for config file generation                      | Low    | Low    | DX           |
+| 11 | **BDD tests** for critical user flows (Ginkgo)                       | Low    | Medium | Testing      |
+| 12 | **Property-based tests** for extractor state machine                 | Low    | Medium | Testing      |
+| 13 | **Grammar edge-case tests** — unicode, nesting                       | Low    | Medium | Testing      |
+| 14 | **Watch mode** (`--watch` flag)                                      | Low    | High   | Feature      |
+| 15 | **Diff/regression mode** (`--baseline`)                              | Low    | Medium | Feature      |
+| 16 | **Shell completions** (bash/zsh/fish)                                | Low    | Low    | DX           |
+| 17 | **Rename `ErrorEntry.Code` → `Snippet`** for clarity                 | Low    | Low    | Architecture |
+| 18 | **Add deprecation notice** to `ValidateGoCode` in `parser.go`        | Low    | Low    | Maintenance  |
+| 19 | **`go mod tidy` in CI**                                              | Low    | Low    | Ops          |
+| 20 | **Performance regression tracking** in CI                            | Low    | Medium | Ops          |
+| 21 | **Cross-platform testing** (macOS/Windows)                           | Low    | Low    | Testing      |
+| 22 | **API stability documentation** for library consumers                | Low    | Low    | Docs         |
+| 23 | **`--fail-on-skipped` option** for strict validation                 | Low    | Low    | Feature      |
+| 24 | **Fix `oxfmt` failing on `reports/html/` web assets**                | Low    | Low    | DX           |
+| 25 | **Homebrew tap publication**                                         | Low    | Low    | Adoption     |
 
 ---
 

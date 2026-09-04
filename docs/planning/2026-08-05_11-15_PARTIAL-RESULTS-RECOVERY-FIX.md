@@ -12,11 +12,11 @@ Running the validator on a directory containing one unreadable file (missing, pe
 
 Three bugs compound:
 
-| #   | Bug                                                                  | Location                          | Severity |
-| --- | -------------------------------------------------------------------- | --------------------------------- | -------- |
-| 1   | CLI discards partial results on error                                | `cmd/md-go-validator/main.go:596` | Critical |
-| 2   | `processJob` drops partial results when `ValidateFile` returns error | `pkg/validator.go:534-537`        | High     |
-| 3   | `collectResults`/`streamFilesParallel` wrap only the first error     | `pkg/validator.go:583, 416`       | Medium   |
+| # | Bug                                                                  | Location                          | Severity |
+| - | -------------------------------------------------------------------- | --------------------------------- | -------- |
+| 1 | CLI discards partial results on error                                | `cmd/md-go-validator/main.go:596` | Critical |
+| 2 | `processJob` drops partial results when `ValidateFile` returns error | `pkg/validator.go:534-537`        | High     |
+| 3 | `collectResults`/`streamFilesParallel` wrap only the first error     | `pkg/validator.go:583, 416`       | Medium   |
 
 ---
 
@@ -91,15 +91,15 @@ All three fixes + regression tests covering:
 
 ## Comprehensive Task List (30-100 min)
 
-| ID  | Task                                                                 | Impact   | Effort | Priority |
-| --- | -------------------------------------------------------------------- | -------- | ------ | -------- |
-| T1  | Fix Bug 1: CLI `validatePath` returns partial results                | Critical | 30 min | P0       |
-| T2  | Fix Bug 2: `processJob` sends partial results on error               | High     | 40 min | P0       |
-| T3  | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium   | 30 min | P1       |
-| T4  | Write regression tests (3 tests: CLI, validator, error-join)         | High     | 90 min | P1       |
-| T5  | Run full verification (build + test + race + lint)                   | Critical | 30 min | P0       |
-| T6  | Update AGENTS.md with partial-results contract                       | Low      | 30 min | P2       |
-| T7  | Write planning doc + commit + push                                   | Low      | 30 min | P2       |
+| ID | Task                                                                 | Impact   | Effort | Priority |
+| -- | -------------------------------------------------------------------- | -------- | ------ | -------- |
+| T1 | Fix Bug 1: CLI `validatePath` returns partial results                | Critical | 30 min | P0       |
+| T2 | Fix Bug 2: `processJob` sends partial results on error               | High     | 40 min | P0       |
+| T3 | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium   | 30 min | P1       |
+| T4 | Write regression tests (3 tests: CLI, validator, error-join)         | High     | 90 min | P1       |
+| T5 | Run full verification (build + test + race + lint)                   | Critical | 30 min | P0       |
+| T6 | Update AGENTS.md with partial-results contract                       | Low      | 30 min | P2       |
+| T7 | Write planning doc + commit + push                                   | Low      | 30 min | P2       |
 
 ---
 

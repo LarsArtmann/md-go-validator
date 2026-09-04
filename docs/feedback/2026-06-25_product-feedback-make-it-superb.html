@@ -40,14 +40,14 @@
         --radius-sm: 0px;
 
         --font-heading:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-body:
-          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         --font-mono:
-          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono", Menlo, Consolas,
-          monospace;
+          ui-monospace, "Cascadia Code", "Source Code Pro", "JetBrains Mono",
+          Menlo, Consolas, monospace;
       }
       * {
         box-sizing: border-box;
@@ -490,9 +490,11 @@
           <span class="hero-badge">External Product Review</span>
           <h1>From "syntactically strict" to "actually usable"</h1>
           <p class="hero-subtitle">
-            A field report on what happens when <strong>md-go-validator</strong> meets a real,
-            high-quality Go library (<code>go-cqrs-lite</code>), and a concrete plan to make the
-            tool trustworthy enough to put in CI without training people to ignore it.
+            A field report on what happens when
+            <strong>md-go-validator</strong> meets a real, high-quality Go
+            library (<code>go-cqrs-lite</code>), and a concrete plan to make the
+            tool trustworthy enough to put in CI without training people to
+            ignore it.
           </p>
           <div class="hero-meta">
             <span>Target: <b>md-go-validator</b></span>
@@ -523,32 +525,41 @@
         <section id="verdict">
           <h2><span class="num">01</span> The Verdict</h2>
           <p>
-            The tool has a solid foundation — clean architecture, branded types, functional options,
-            tree-sitter for non-Go languages, structured exit codes, JSON/YAML output. As
-            <em>engineering</em> it's well built. As a <em>product</em> it has one fatal flaw that
-            sits between the tool and every consumer:
+            The tool has a solid foundation — clean architecture, branded types,
+            functional options, tree-sitter for non-Go languages, structured
+            exit codes, JSON/YAML output. As
+            <em>engineering</em> it's well built. As a <em>product</em> it has
+            one fatal flaw that sits between the tool and every consumer:
           </p>
           <div class="callout problem">
             <span class="tag">The core problem</span>
             Run on a real Go library's documentation, the validator reports
-            <strong>130 errors and finds zero real bugs — a 100% false-positive rate.</strong> The
-            five "parsing strategies" don't cover the three documentation conventions that real
-            technical writers use every day. A tool that cries wolf this loudly cannot live in CI;
-            contributors will mute it within a week.
+            <strong
+              >130 errors and finds zero real bugs — a 100% false-positive
+              rate.</strong
+            >
+            The five "parsing strategies" don't cover the three documentation
+            conventions that real technical writers use every day. A tool that
+            cries wolf this loudly cannot live in CI; contributors will mute it
+            within a week.
           </div>
           <p class="small">
-            The good news: the gap is narrow and entirely fixable. This is not a redesign — it's
-            filling a well-understood coverage hole and adding the adoption ergonomics the project's
-            own <code>CONSUMER_PERSPECTIVE.md</code> already identifies.
+            The good news: the gap is narrow and entirely fixable. This is not a
+            redesign — it's filling a well-understood coverage hole and adding
+            the adoption ergonomics the project's own
+            <code>CONSUMER_PERSPECTIVE.md</code> already identifies.
           </p>
         </section>
 
         <section id="evidence">
-          <h2><span class="num">02</span> Evidence — One Real Run, Zero Value Delivered</h2>
+          <h2>
+            <span class="num">02</span> Evidence — One Real Run, Zero Value
+            Delivered
+          </h2>
           <p>
-            Running <code class="raw">md-go-validator -f json</code> recursively over
-            <code>go-cqrs-lite</code> (a multi-module CQRS/Event-Sourcing library with extensive
-            docs) yields:
+            Running <code class="raw">md-go-validator -f json</code> recursively
+            over <code>go-cqrs-lite</code> (a multi-module CQRS/Event-Sourcing
+            library with extensive docs) yields:
           </p>
           <table>
             <thead>
@@ -573,14 +584,17 @@
                 <td>Ellipsis bodies <code>{ ... }</code></td>
                 <td class="num">57</td>
                 <td>
-                  "Implementation elided" shorthand. <code>...</code> is intentionally not Go.
+                  "Implementation elided" shorthand. <code>...</code> is
+                  intentionally not Go.
                 </td>
                 <td><span class="pill p0">False positive</span></td>
               </tr>
               <tr>
                 <td>Pseudo <code>go.mod</code> / <code>require</code></td>
                 <td class="num">5</td>
-                <td>Module-directive text shown inside a Go fence for context.</td>
+                <td>
+                  Module-directive text shown inside a Go fence for context.
+                </td>
                 <td><span class="pill p0">False positive</span></td>
               </tr>
               <tr>
@@ -597,10 +611,12 @@
             </tbody>
           </table>
           <p class="small">
-            For contrast, the same repo's own lightweight <code>cmd/doc-check</code> tool (which
-            only verifies import paths resolve and <code>pkg.Symbol</code> references exist) reports
-            <strong>"All 445 references valid"</strong> — it catches the bug class that actually
-            hurts consumers (renamed/removed symbols, broken imports) with zero noise.
+            For contrast, the same repo's own lightweight
+            <code>cmd/doc-check</code> tool (which only verifies import paths
+            resolve and <code>pkg.Symbol</code> references exist) reports
+            <strong>"All 445 references valid"</strong> — it catches the bug
+            class that actually hurts consumers (renamed/removed symbols, broken
+            imports) with zero noise.
           </p>
 
           <h3>The three patterns, in code</h3>
@@ -615,10 +631,11 @@
 b, _ := lib.New()
 defer b.Close()</pre>
           <p class="small">
-            Strategy 2 (<code>package main</code> + code) fails because a top-level statement can't
-            live outside a function. Strategy 5 (wrap in <code>func _()</code>) fails because
-            <code>import</code> can't live <em>inside</em> a function. The two strategies are
-            mutually exclusive for this shape.
+            Strategy 2 (<code>package main</code> + code) fails because a
+            top-level statement can't live outside a function. Strategy 5 (wrap
+            in <code>func _()</code>) fails because <code>import</code> can't
+            live <em>inside</em> a function. The two strategies are mutually
+            exclusive for this shape.
           </p>
 
           <h4>Pattern B — Ellipsis placeholders (57 cases)</h4>
@@ -634,15 +651,19 @@ defer b.Close()</pre>
         </section>
 
         <section id="root-cause">
-          <h2><span class="num">03</span> Root Cause — A Strategy Coverage Gap</h2>
+          <h2>
+            <span class="num">03</span> Root Cause — A Strategy Coverage Gap
+          </h2>
           <div class="callout insight">
             <span class="tag">The architectural insight</span>
             The Go validator's five wrap strategies (<code class="raw"
               >pkg/languages/go_validator.go</code
-            >) cover two buckets — <em>declarations only</em> or <em>statements only</em> — but
-            never <strong>imports + statements together</strong>, which is the dominant
-            documentation shape. The strategies are tried sequentially; none of them can split an
-            import block from a statement block and reassemble them correctly.
+            >) cover two buckets — <em>declarations only</em> or
+            <em>statements only</em> — but never
+            <strong>imports + statements together</strong>, which is the
+            dominant documentation shape. The strategies are tried sequentially;
+            none of them can split an import block from a statement block and
+            reassemble them correctly.
           </div>
           <p>The consequence is a tool that is strict about the wrong thing:</p>
           <table>
@@ -668,9 +689,10 @@ defer b.Close()</pre>
             </tbody>
           </table>
           <p>
-            This is a category error: <strong>documentation snippets are not programs.</strong> A
-            useful validator must meet docs where they are, not where the Go parser wishes they
-            were.
+            This is a category error:
+            <strong>documentation snippets are not programs.</strong> A useful
+            validator must meet docs where they are, not where the Go parser
+            wishes they were.
           </p>
         </section>
 
@@ -678,8 +700,9 @@ defer b.Close()</pre>
           <h2><span class="num">04</span> Gap Analysis</h2>
           <p>
             Beyond the false-positive core, the project's own
-            <code>CONSUMER_PERSPECTIVE.md</code> already inventories the adoption gaps. This review
-            confirms and reprioritizes them against the evidence.
+            <code>CONSUMER_PERSPECTIVE.md</code> already inventories the
+            adoption gaps. This review confirms and reprioritizes them against
+            the evidence.
           </p>
 
           <h3>4.1 — Accuracy gaps (the blockers)</h3>
@@ -703,7 +726,9 @@ defer b.Close()</pre>
               </tr>
               <tr>
                 <td class="num">G2</td>
-                <td>Ellipsis <code>{ ... }</code> not recognized as "elided"</td>
+                <td>
+                  Ellipsis <code>{ ... }</code> not recognized as "elided"
+                </td>
                 <td>Every "API surface" block is a false positive</td>
                 <td class="num">~1h</td>
                 <td><span class="pill p0">P0</span></td>
@@ -744,13 +769,18 @@ defer b.Close()</pre>
               </tr>
               <tr>
                 <td class="num">A2</td>
-                <td>Config file (<code>.md-go-validator.yaml</code>) + <code>--init</code></td>
+                <td>
+                  Config file (<code>.md-go-validator.yaml</code>) +
+                  <code>--init</code>
+                </td>
                 <td>Open</td>
                 <td><span class="pill p0">P0</span></td>
               </tr>
               <tr>
                 <td class="num">A3</td>
-                <td>Exclude / ignore patterns (<code>vendor/</code>, generated)</td>
+                <td>
+                  Exclude / ignore patterns (<code>vendor/</code>, generated)
+                </td>
                 <td>Open</td>
                 <td><span class="pill p1">P1</span></td>
               </tr>
@@ -774,13 +804,19 @@ defer b.Close()</pre>
               </tr>
               <tr>
                 <td class="num">A7</td>
-                <td>Homebrew tap publish (goreleaser <code>skip_upload: true</code>)</td>
+                <td>
+                  Homebrew tap publish (goreleaser
+                  <code>skip_upload: true</code>)
+                </td>
                 <td>Open</td>
                 <td><span class="pill p3">P3</span></td>
               </tr>
               <tr>
                 <td class="num">A8</td>
-                <td><code>--languages</code> / <code>list-languages</code> discovery</td>
+                <td>
+                  <code>--languages</code> /
+                  <code>list-languages</code> discovery
+                </td>
                 <td>Open</td>
                 <td><span class="pill p3">P3</span></td>
               </tr>
@@ -796,32 +832,37 @@ defer b.Close()</pre>
           <div class="callout warning">
             <span class="tag">Positioning note</span>
             <code>.goreleaser.yml</code> still describes the tool as
-            <em>"Markdown validation tool for Go projects"</em> — but it validates Go, TypeScript,
-            Rust, Nix, HCL, and Templ. The one-line description undersells the product and repels
-            half its audience. Fix the copy.
+            <em>"Markdown validation tool for Go projects"</em> — but it
+            validates Go, TypeScript, Rust, Nix, HCL, and Templ. The one-line
+            description undersells the product and repels half its audience. Fix
+            the copy.
           </div>
         </section>
 
         <section id="roadmap">
           <h2><span class="num">05</span> The Pareto Roadmap</h2>
           <p>
-            Ordered so the first step delivers the largest swing in perceived quality. The single
-            highest-leverage change is <strong>accuracy</strong> — no amount of polish rescues a
-            tool that's wrong 100% of the time.
+            Ordered so the first step delivers the largest swing in perceived
+            quality. The single highest-leverage change is
+            <strong>accuracy</strong> — no amount of polish rescues a tool
+            that's wrong 100% of the time.
           </p>
 
           <h3>1% → 51% — Make it right before you make it shiny</h3>
           <ul class="checklist">
             <li>
-              <strong>Fix the strategy coverage gap (G1).</strong> Add a 6th strategy that splits
-              the snippet into a <em>leading import block</em> and a
-              <em>trailing statement block</em>, wraps the imports at package level and the
-              statements inside <code>func main()</code>. This alone clears ~68/130 false positives.
+              <strong>Fix the strategy coverage gap (G1).</strong> Add a 6th
+              strategy that splits the snippet into a
+              <em>leading import block</em> and a
+              <em>trailing statement block</em>, wraps the imports at package
+              level and the statements inside <code>func main()</code>. This
+              alone clears ~68/130 false positives.
             </li>
             <li>
-              <strong>Recognize elision (G2).</strong> Before parsing, detect <code>{ ... }</code>,
-              <code>{...}</code>, and bare trailing <code>...</code> as "body omitted." Either skip
-              these snippets, or normalize <code>{ ... }</code> → <code>{}</code> before parsing.
+              <strong>Recognize elision (G2).</strong> Before parsing, detect
+              <code>{ ... }</code>, <code>{...}</code>, and bare trailing
+              <code>...</code> as "body omitted." Either skip these snippets, or
+              normalize <code>{ ... }</code> → <code>{}</code> before parsing.
               Clears ~57/130.
             </li>
           </ul>
@@ -829,18 +870,21 @@ defer b.Close()</pre>
           <h3>4% → 64% — Make it adoptable</h3>
           <ul class="checklist">
             <li>
-              <strong>Config file + <code>--init</code> (A2).</strong> A committed
-              <code>.md-go-validator.yaml</code> so <code>md-go-validator .</code> "just works" with
-              per-repo settings.
+              <strong>Config file + <code>--init</code> (A2).</strong> A
+              committed <code>.md-go-validator.yaml</code> so
+              <code>md-go-validator .</code> "just works" with per-repo
+              settings.
             </li>
             <li>
-              <strong>Exclude patterns (A3).</strong> Glob ignore for <code>vendor/</code>,
-              <code>node_modules/</code>, generated docs. Required for any real monorepo.
+              <strong>Exclude patterns (A3).</strong> Glob ignore for
+              <code>vendor/</code>, <code>node_modules/</code>, generated docs.
+              Required for any real monorepo.
             </li>
             <li>
-              <strong><code>--baseline</code> regression mode (G4).</strong> Accept a snapshot of
-              known errors; fail only on <em>new</em> ones. This is what lets a noisy repo adopt the
-              tool today and ratchet down over time.
+              <strong><code>--baseline</code> regression mode (G4).</strong>
+              Accept a snapshot of known errors; fail only on <em>new</em> ones.
+              This is what lets a noisy repo adopt the tool today and ratchet
+              down over time.
             </li>
           </ul>
 
@@ -848,27 +892,31 @@ defer b.Close()</pre>
           <ul class="checklist">
             <li>
               <strong>Reusable GitHub Action (A1).</strong>
-              <code>uses: LarsArtmann/md-go-validator@v1</code> instead of a 4-step YAML block.
-              Highest-leverage distribution feature.
+              <code>uses: LarsArtmann/md-go-validator@v1</code> instead of a
+              4-step YAML block. Highest-leverage distribution feature.
             </li>
             <li>
-              <strong>Pre-commit hook (A4).</strong> One <code>.pre-commit-hooks.yaml</code> opens
-              the entire pre-commit.com ecosystem.
+              <strong>Pre-commit hook (A4).</strong> One
+              <code>.pre-commit-hooks.yaml</code> opens the entire
+              pre-commit.com ecosystem.
             </li>
             <li>
-              <strong>Strict <code>--fail-on-skipped</code> (A5).</strong> Let teams that want zero
-              escape-hatches enforce it.
+              <strong>Strict <code>--fail-on-skipped</code> (A5).</strong> Let
+              teams that want zero escape-hatches enforce it.
             </li>
           </ul>
         </section>
 
         <section id="quick-wins">
-          <h2><span class="num">06</span> Concrete Fixes — Ready to Implement</h2>
+          <h2>
+            <span class="num">06</span> Concrete Fixes — Ready to Implement
+          </h2>
 
           <h3>Fix 1: A pre-parse normalizer for elision</h3>
           <p>
-            Cheapest, highest-impact. Before handing code to the 5 strategies, normalize the three
-            documentation idioms. This is a pure-function string transform, trivially unit-testable.
+            Cheapest, highest-impact. Before handing code to the 5 strategies,
+            normalize the three documentation idioms. This is a pure-function
+            string transform, trivially unit-testable.
           </p>
           <pre><span class="com">// Pseudocode for code/normalize.go</span>
 <span class="good">func</span> NormalizeDocIdioms(code <span class="hi">string</span>) <span class="hi">string</span> {
@@ -881,9 +929,10 @@ defer b.Close()</pre>
 }</pre>
           <div class="callout solution">
             <span class="tag">Why this works</span>
-            Normalizing <code>{ ... }</code> → <code>{}</code> turns every API-surface snippet into
-            valid Go that the existing strategies 2/3 already accept. It costs one regex pass and
-            removes an entire false-positive category with zero new parser logic.
+            Normalizing <code>{ ... }</code> → <code>{}</code> turns every
+            API-surface snippet into valid Go that the existing strategies 2/3
+            already accept. It costs one regex pass and removes an entire
+            false-positive category with zero new parser logic.
           </div>
 
           <h3>Fix 2: A 6th strategy for import + statement snippets</h3>
@@ -895,8 +944,9 @@ defer b.Close()</pre>
            <span class="hi">"\nfunc main() {\n"</span> + indent(rest) + <span class="hi">"\n}"</span>
 }</pre>
           <p class="small">
-            Add this as strategy 6, before falling through to the error path. It handles the
-            dominant "show the import, show the usage" pattern that no current strategy can.
+            Add this as strategy 6, before falling through to the error path. It
+            handles the dominant "show the import, show the usage" pattern that
+            no current strategy can.
           </p>
 
           <h3>Fix 3: <code>--baseline</code> for incremental adoption</h3>
@@ -906,8 +956,9 @@ md-go-validator -f json . | jq <span class="hi">'.errors[].file + ":" + (.line|t
 <span class="com"># CI then fails only on NEW errors</span>
 md-go-validator --baseline .md-go-baseline.txt .</pre>
           <p class="small">
-            This converts "130 errors, I give up" into "0 new errors, ship it" — and lets teams
-            ratchet down the baseline as they fix real docs over time.
+            This converts "130 errors, I give up" into "0 new errors, ship it" —
+            and lets teams ratchet down the baseline as they fix real docs over
+            time.
           </p>
         </section>
 
@@ -915,20 +966,25 @@ md-go-validator --baseline .md-go-baseline.txt .</pre>
           <h2><span class="num">07</span> What NOT to Do</h2>
           <ul>
             <li>
-              <strong>Don't ship to CI before fixing accuracy.</strong> A 100% false-positive gate
-              teaches contributors to add <code>&lt;!-- skip-validate --&gt;</code> everywhere or
-              remove the check. Trust, once lost, is not regained.
+              <strong>Don't ship to CI before fixing accuracy.</strong> A 100%
+              false-positive gate teaches contributors to add
+              <code>&lt;!-- skip-validate --&gt;</code> everywhere or remove the
+              check. Trust, once lost, is not regained.
             </li>
             <li>
-              <strong>Don't make <code>...</code> a hard error with no escape.</strong> Elision is a
-              documentation feature, not a defect. The skip directive is a last resort, not the
-              primary UX.
+              <strong
+                >Don't make <code>...</code> a hard error with no
+                escape.</strong
+              >
+              Elision is a documentation feature, not a defect. The skip
+              directive is a last resort, not the primary UX.
             </li>
             <li>
-              <strong>Don't conflate "parses" with "valuable."</strong> The competing
-              <code>cmd/doc-check</code> proves that <em>symbol-resolution</em> (does
-              <code>pkg.Foo</code> exist?) catches real consumer-breaking bugs that pure syntax
-              never will. Consider a future "reference check" mode as a complement, not a
+              <strong>Don't conflate "parses" with "valuable."</strong> The
+              competing <code>cmd/doc-check</code> proves that
+              <em>symbol-resolution</em> (does <code>pkg.Foo</code> exist?)
+              catches real consumer-breaking bugs that pure syntax never will.
+              Consider a future "reference check" mode as a complement, not a
               replacement.
             </li>
           </ul>
@@ -938,28 +994,37 @@ md-go-validator --baseline .md-go-baseline.txt .</pre>
           <h2><span class="num">08</span> North Star</h2>
           <div class="callout insight">
             <span class="tag">The one-sentence goal</span>
-            A consumer should be able to drop <code>md-go-validator</code> into a mature repo's CI,
-            see <strong>either a clean pass or a short list of genuinely broken blocks</strong>, and
-            trust that the next failure they see is a real defect — never noise.
+            A consumer should be able to drop <code>md-go-validator</code> into
+            a mature repo's CI, see
+            <strong
+              >either a clean pass or a short list of genuinely broken
+              blocks</strong
+            >, and trust that the next failure they see is a real defect — never
+            noise.
           </div>
           <p>
-            Today that sentence is false: the tool reports 130 errors and zero of them matter. The
-            gap between here and there is two regexes, one extra parse strategy, a config file, and
-            a GitHub Action. None of it requires a rethink — it requires finishing the job the
-            architecture was already built to support.
+            Today that sentence is false: the tool reports 130 errors and zero
+            of them matter. The gap between here and there is two regexes, one
+            extra parse strategy, a config file, and a GitHub Action. None of it
+            requires a rethink — it requires finishing the job the architecture
+            was already built to support.
           </p>
           <p class="small">
-            The foundation (pure-Go, multi-language tree-sitter, clean registry, structured output)
-            is genuinely good. The remaining work is the difference between
-            <em>a tool that checks syntax</em> and <em>a tool people actually use.</em>
+            The foundation (pure-Go, multi-language tree-sitter, clean registry,
+            structured output) is genuinely good. The remaining work is the
+            difference between
+            <em>a tool that checks syntax</em> and
+            <em>a tool people actually use.</em>
           </p>
         </section>
 
         <p class="footer-note">
-          Evidence base: live run of <code>md-go-validator -f json</code> against
-          <code>go-cqrs-lite</code> (683 Go blocks, 130 reported errors, 0 real). Code audit of
-          <code>pkg/languages/go_validator.go</code>, <code>pkg/code/util.go</code>,
-          <code>pkg/extractor.go</code>. Gap inventory cross-referenced with the project's own
+          Evidence base: live run of
+          <code>md-go-validator -f json</code> against
+          <code>go-cqrs-lite</code> (683 Go blocks, 130 reported errors, 0
+          real). Code audit of <code>pkg/languages/go_validator.go</code>,
+          <code>pkg/code/util.go</code>, <code>pkg/extractor.go</code>. Gap
+          inventory cross-referenced with the project's own
           <code>CONSUMER_PERSPECTIVE.md</code>. Generated 2026-06-25.
         </p>
       </main>
