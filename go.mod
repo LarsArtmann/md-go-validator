@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-faster/yaml v0.4.6
-	github.com/larsartmann/go-finding v1.4.1
+	github.com/larsartmann/go-finding v1.8.0
 	github.com/larsartmann/go-output v0.37.0
 	github.com/larsartmann/go-output/delimited v0.36.0
 	github.com/larsartmann/go-output/serialization v0.36.0
@@ -20,6 +20,6 @@ require (
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/sys v0.47.0 // indirect
+	golang.org/x/sys v0.48.0 // indirect
 	golang.org/x/term v0.45.0 // indirect
 )
