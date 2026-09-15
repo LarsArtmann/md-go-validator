@@ -6,7 +6,7 @@
 }:
 let
   version = self.shortRev or self.dirtyShortRev or "dev";
-  vendorHash = "sha256-2Y60oSdV/BFvwEyBPxKWaXHACTMyzNWepSwg9BF1edg=";
+  vendorHash = "sha256-ZMZ6t01NQooBfBNJogZ5HTLtmqyFCsIABsaT1r+nQwM=";
 
   src = lib.fileset.toSource {
     root = ./.;
