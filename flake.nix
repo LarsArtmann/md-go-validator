@@ -52,19 +52,19 @@
 
             test = {
               type = "app";
-              program = pkgs.writeShellApplication {
+              program = pkgs.lib.getExe (pkgs.writeShellApplication {
                 name = "run-test";
                 runtimeInputs = [ pkgs.go_1_26 ];
                 text = ''
                   export GOEXPERIMENT=jsonv2
                   go test -race -v -coverprofile=coverage.out ./...
                 '';
-              };
+              });
             };
 
             lint = {
               type = "app";
-              program = pkgs.writeShellApplication {
+              program = pkgs.lib.getExe (pkgs.writeShellApplication {
                 name = "run-lint";
                 runtimeInputs = [
                   pkgs.go_1_26
@@ -74,7 +74,7 @@
                   export GOEXPERIMENT=jsonv2
                   golangci-lint run ./...
                 '';
-              };
+              });
             };
           };
 
