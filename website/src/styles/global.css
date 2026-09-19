@@ -18,6 +18,7 @@
   --color-accent-hover: #2dd4bf;
   --color-accent-dim: rgba(20, 184, 166, 0.1);
   --color-accent-light: #5eead4;
+  --color-on-accent: #0a0908;
 
   --color-code-inline-bg: #1c1917;
   --color-code-dot: #44403c;
@@ -47,12 +48,13 @@
 
   --color-text-primary: #1c1917;
   --color-text-secondary: #57534e;
-  --color-text-muted: #6b7280;
+  --color-text-muted: #57534e;
 
   --color-accent: #0d9488;
   --color-accent-hover: #14b8a6;
   --color-accent-dim: rgba(13, 148, 136, 0.1);
   --color-accent-light: #2dd4bf;
+  --color-on-accent: #0a0908;
 
   --color-code-inline-bg: #e7e5e4;
   --color-code-dot: #a8a29e;
