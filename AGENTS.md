@@ -250,3 +250,4 @@ goreleaser release
 - **DNS:** Staged in `domains/lars.software.tf` (CNAME + ACME TXT, BLOCKED on placeholder Namecheap API key)
 - **Build:** `cd website && nix shell nixpkgs#nodejs -c pnpm run build`
 - **Deploy:** `cd website && nix shell nixpkgs#nodejs nixpkgs#firebase-tools -c firebase deploy --only hosting:md-go-validator --project lars-software`
+- **pnpm 11 build-script approvals live in `website/pnpm-workspace.yaml` under `allowBuilds:`** (`esbuild: true`) — pnpm v11 ignores `pnpm.*` in `package.json` and silently skips unapproved postinstall scripts, so `astro build` then fails on a missing esbuild binary. A placeholder value (e.g. `esbuild: set this to true or false`) silently disables the whole key (cmdguard incident, fixed 2026-09-19).
