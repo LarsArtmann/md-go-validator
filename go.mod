@@ -5,7 +5,7 @@ go 1.26.7
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.0
 	github.com/go-faster/yaml v0.4.6
-	github.com/larsartmann/go-finding v1.10.0
+	github.com/larsartmann/go-finding v1.11.0
 	github.com/larsartmann/go-output v0.38.0
 	github.com/larsartmann/go-output/delimited v0.38.0
 	github.com/larsartmann/go-output/serialization v0.38.0
