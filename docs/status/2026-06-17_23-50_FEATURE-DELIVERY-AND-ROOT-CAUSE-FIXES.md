@@ -1,5 +1,8 @@
 # Comprehensive Status Report — 2026-06-17
 
+> ANNOTATED 2026-09-26 (docs-health pass): struck items cite closing commits; open
+> items left unstruck / routed to `TODO_LIST.md` / `ROADMAP.md`.
+
 > **Generated:** 2026-06-17T23:50+02:00
 > **Branch:** `master` (clean — all changes ready to commit)
 > **Baseline:** `go vet` ✓ · `go test -race -cover` ✓ · `golangci-lint` (0 issues) ✓ · `nix build .#` ✓ · `nix flake check` ✓ · `flake-meta-checker` ✓
@@ -84,9 +87,9 @@ BuildFlow (Lars's own tool), tested, and installed.
 | Area                             | Status                                                    | Gap                                                                       |
 | -------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
 | **v0.3.0 release**               | All code changes done, CHANGELOG `[Unreleased]` populated | No git tag, no goreleaser run — needs explicit cut                        |
-| **`ValidateGoCode` deprecation** | `parser.go` is a thin wrapper                             | No deprecation notice added to the function itself                        |
+~~| **`ValidateGoCode` deprecation** | `parser.go` is a thin wrapper                             | No deprecation notice added to the function itself                        |~~ Won't implement — wrapper is documented public API
 | **`internal/` restructuring**    | BuildFlow recommends it                                   | Not started — `pkg/` public API is still wider than necessary             |
-| **go-output v0.11.0 upgrade**    | Builds and tests pass                                     | Intent still unconfirmed (appeared mid-session without explicit decision) |
+~~| **go-output v0.11.0 upgrade**    | Builds and tests pass                                     | Intent still unconfirmed (appeared mid-session without explicit decision) |~~ done at resolved — kept and upgraded since (`220837d`, `511e2b2`)
 
 ---
 
@@ -94,12 +97,12 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 | Area                                              | Description                                                          |
 | ------------------------------------------------- | -------------------------------------------------------------------- |
-| **Config file support** (`.md-go-validator.yaml`) | No config file — flags only                                          |
+~~| **Config file support** (`.md-go-validator.yaml`) | No config file — flags only                                          |~~ done at `acfe5c4`
 | **Watch mode**                                    | No file-watcher for incremental re-validation                        |
-| **Exclude patterns**                              | No `.md-go-validator-ignore` or exclude flags                        |
-| **GitHub Action** (`action.yml`)                  | No reusable GitHub Action for `uses: LarsArtmann/md-go-validator@v1` |
-| **Pre-commit hook** (`.pre-commit-hooks.yaml`)    | Not created                                                          |
-| **`--init` command**                              | No config file generation                                            |
+~~| **Exclude patterns**                              | No `.md-go-validator-ignore` or exclude flags                        |~~ done at `da2f6f5`, `ce25525`
+~~| **GitHub Action** (`action.yml`)                  | No reusable GitHub Action for `uses: LarsArtmann/md-go-validator@v1` |~~ done at `acfe5c4`, `fba9fe5`
+~~| **Pre-commit hook** (`.pre-commit-hooks.yaml`)    | Not created                                                          |~~ done at `acfe5c4`
+~~| **`--init` command**                              | No config file generation                                            |~~ done at `c8e8ba8`
 | **BDD tests** (Ginkgo/Gomega)                     | Skill available but unused                                           |
 | **Property-based tests**                          | No `testing/quick` or `rapid` for extractor state machine            |
 | **Grammar edge-case tests**                       | No unicode, deeply nested, or grammar-specific error position tests  |
@@ -154,16 +157,16 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 | #  | Task                                                                 | Impact | Effort | Category     |
 | -- | -------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                  | High   | Low    | Release      |
-| 2  | **Confirm go-output v0.11.0 upgrade intent**                         | High   | Low    | Decision     |
-| 3  | **Create GitHub Action** (`action.yml`)                              | High   | Low    | Adoption     |
-| 4  | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)                   | Medium | Low    | Adoption     |
-| 5  | **Config file support** (`.md-go-validator.yaml`)                    | High   | Medium | Feature      |
-| 6  | **Exclude patterns** (CLI flag + config)                             | Medium | Low    | Feature      |
+~~| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                  | High   | Low    | Release      |~~ done at `c5830b8`
+~~| 2  | **Confirm go-output v0.11.0 upgrade intent**                         | High   | Low    | Decision     |~~ done at resolved — kept; upgraded since (`220837d`)
+~~| 3  | **Create GitHub Action** (`action.yml`)                              | High   | Low    | Adoption     |~~ done at `acfe5c4`, `fba9fe5`
+~~| 4  | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)                   | Medium | Low    | Adoption     |~~ done at `acfe5c4`
+~~| 5  | **Config file support** (`.md-go-validator.yaml`)                    | High   | Medium | Feature      |~~ done at `acfe5c4`
+~~| 6  | **Exclude patterns** (CLI flag + config)                             | Medium | Low    | Feature      |~~ done at `da2f6f5`, `ce25525`
 | 7  | **Move `pkg/` to `internal/`** for visibility enforcement            | Medium | Medium | Architecture |
 | 8  | **Migrate to `go-error-family`** for structured error classification | Medium | Medium | Architecture |
-| 9  | **`--languages` discovery command**                                  | Low    | Low    | DX           |
-| 10 | **`--init` command** for config file generation                      | Low    | Low    | DX           |
+~~| 9  | **`--languages` discovery command**                                  | Low    | Low    | DX           |~~ done at `fe11609` (`--list-languages`)
+~~| 10 | **`--init` command** for config file generation                      | Low    | Low    | DX           |~~ done at `c8e8ba8`
 | 11 | **BDD tests** for critical user flows (Ginkgo)                       | Low    | Medium | Testing      |
 | 12 | **Property-based tests** for extractor state machine                 | Low    | Medium | Testing      |
 | 13 | **Grammar edge-case tests** — unicode, nesting                       | Low    | Medium | Testing      |
@@ -176,15 +179,15 @@ BuildFlow (Lars's own tool), tested, and installed.
 | 20 | **Performance regression tracking** in CI                            | Low    | Medium | Ops          |
 | 21 | **Cross-platform testing** (macOS/Windows)                           | Low    | Low    | Testing      |
 | 22 | **API stability documentation** for library consumers                | Low    | Low    | Docs         |
-| 23 | **`--fail-on-skipped` option** for strict validation                 | Low    | Low    | Feature      |
-| 24 | **Fix `oxfmt` failing on `reports/html/` web assets**                | Low    | Low    | DX           |
+~~| 23 | **`--fail-on-skipped` option** for strict validation                 | Low    | Low    | Feature      |~~ done at `fe11609`
+~~| 24 | **Fix `oxfmt` failing on `reports/html/` web assets**                | Low    | Low    | DX           |~~ done at `a568367` (minified third-party assets removed)
 | 25 | **Homebrew tap publication**                                         | Low    | Low    | Adoption     |
 
 ---
 
 ## g) Top #1 Question I Cannot Figure Out Myself
 
-**Was the `go-output` v0.11.0 dependency upgrade intentional?**
+~~**Was the `go-output` v0.11.0 dependency upgrade intentional?**~~ done at resolved — kept and superseded by later bumps (`220837d`, `511e2b2`)
 
 This was the top question from the previous status report and it remains
 unanswered. The upgrade appeared in `go.mod`/`go.sum` during the prior review

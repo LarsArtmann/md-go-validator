@@ -1,5 +1,9 @@
 # Comprehensive Status Report
 
+> ARCHIVED 2026-09-26 — the architectural gaps this review identified (split brain,
+> raw types, no interfaces, no context) were all closed by v0.2.0; markers cite
+> closing commits. Current work: `TODO_LIST.md`.
+
 **Date:** 2026-03-24\
 **Project:** md-go-validator\
 **Status:** ACTIVE DEVELOPMENT
@@ -163,10 +167,10 @@ File → Read → Extract → Parse → Validate → Collect → Report
 
 ### Problems:
 
-1. No context support for cancellation
-2. No progress callbacks
-3. No parallel processing
-4. Results collected in slice, no pipeline type
+~~1. No context support for cancellation~~ done at `42b0a56`
+~~2. No progress callbacks~~ DUPLICATE — progress indicator tracked in `TODO_LIST.md`
+~~3. No parallel processing~~ done at `d3a4a1c`
+~~4. Results collected in slice, no pipeline type~~ done at `c75e28b` (streaming API)
 
 ### Suggested Flow (Future)
 
@@ -195,10 +199,10 @@ fmt.Errorf("reading file %s: %w", filePath, err)
 
 ### Issues:
 
-1. No structured error types
-2. No error codes
-3. No error categorization
-4. Errors don't carry file context properly
+~~1. No structured error types~~ done at `6d269dd`
+~~2. No error codes~~ done at `6d269dd`
+~~3. No error categorization~~ done at `6d269dd`
+~~4. Errors don't carry file context properly~~ done at `d3a4a1c` (`ErrorEntry` carries file/line/block)
 
 ### Suggested
 
@@ -292,43 +296,43 @@ pkg/
 
 ### P0 - Critical (Must Fix)
 
-1. **Split output/output.go** - Separate formatters into pkg/output/formatters/
-2. **Fix SPLIT BRAIN** - Unify ReportData/ErrorEntry with Result type
-3. **Add branded types** - FileID, LineNumber, BlockIndex
-4. **Fix gosec G304** - Validate file paths before reading
+~~1. **Split output/output.go** - Separate formatters into pkg/output/formatters/~~ Won't implement — single cohesive output file kept by design
+~~2. **Fix SPLIT BRAIN** - Unify ReportData/ErrorEntry with Result type~~ done at `d3a4a1c` (pkg/types unified domain)
+~~3. **Add branded types** - FileID, LineNumber, BlockIndex~~ done at `d3a4a1c`
+~~4. **Fix gosec G304** - Validate file paths before reading~~ done at — null-byte/path guards shipped (`acfe5c4`); warning documented safe
 
 ### P1 - High (Should Fix)
 
-5. **Add Validator interface** - For testability and mocking
-6. **Improve output test coverage** - 21.3% → 80%
-7. **Make SkipDirectives immutable** - Use configuration struct
-8. **Add context support** - For cancellation and timeouts
-9. **Split validator.go** - Extract PrintReport to output package
+~~5. **Add Validator interface** - For testability and mocking~~ done at `a429c53`
+~~6. **Improve output test coverage** - 21.3% → 80%~~ done at `d3a4a1c` (85.7% today)
+~~7. **Make SkipDirectives immutable** - Use configuration struct~~ done at `d3a4a1c` (`SkipDirectivesConfig`)
+~~8. **Add context support** - For cancellation and timeouts~~ done at `42b0a56`
+~~9. **Split validator.go** - Extract PrintReport to output package~~ done at `d3a4a1c`
 
 ### P2 - Medium (Nice to Have)
 
-10. **Add ValidationStatus enum** - Replace Skipped bool
-11. **Create pkg/types package** - Centralize domain types
-12. **Add structured errors** - pkg/errors with error codes
-13. **Add Reporter interface** - Pluggable reporters
-14. **Add progress callbacks** - For UI integration
+~~10. **Add ValidationStatus enum** - Replace Skipped bool~~ done at `d3a4a1c`
+~~11. **Create pkg/types package** - Centralize domain types~~ done at `d3a4a1c`
+~~12. **Add structured errors** - pkg/errors with error codes~~ done at `6d269dd` (`ErrorCode` on `ValidationError`)
+~~13. **Add Reporter interface** - Pluggable reporters~~ Won't implement — go-output integration covers formats (`d3a4a1c`)
+~~14. **Add progress callbacks** - For UI integration~~ DUPLICATE — progress indicator tracked in `TODO_LIST.md`
 
 ### P3 - Low (Future)
 
-15. **Parallel file processing** - Use goroutines with worker pool
-16. **Add SARIF output format** - GitHub code scanning
-17. **Add JUnit XML format** - CI integration
-18. **Add severity levels** - Error vs Warning
-19. **Configuration file** - .md-go-validator.yaml
-20. **Add exclude patterns** - Glob patterns for paths
+~~15. **Parallel file processing** - Use goroutines with worker pool~~ done at `d3a4a1c`
+~~16. **Add SARIF output format** - GitHub code scanning~~ done at `1ea7d41`
+~~17. **Add JUnit XML format** - CI integration~~ Won't implement — no demand signal
+~~18. **Add severity levels** - Error vs Warning~~ Won't implement — single severity (syntax errors) by design
+~~19. **Configuration file** - .md-go-validator.yaml~~ done at `acfe5c4`
+~~20. **Add exclude patterns** - Glob patterns for paths~~ done at `da2f6f5`, `ce25525`
 
 ### P4 - Technical Debt
 
-21. **Run golangci-lint --fix** - Auto-fix issues
-22. **Increase cmd test coverage** - 45.6% → 70%
-23. **Add BDD tests** - Ginkgo/Gomega for key flows
-24. **Document public API** - godoc comments
-25. **Add benchmarks** - Profile validation performance
+~~21. **Run golangci-lint --fix** - Auto-fix issues~~ done at `e4ddfbc` (70 → 0)
+~~22. **Increase cmd test coverage** - 45.6% → 70%~~ done at `f3a2c2c` (74.8%)
+~~23. **Add BDD tests** - Ginkgo/Gomega for key flows~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~24. **Document public API** - godoc comments~~ done at `e4ddfbc`
+~~25. **Add benchmarks** - Profile validation performance~~ done at `1d0232a`
 
 ---
 
@@ -336,31 +340,31 @@ pkg/
 
 ### Immediate (This Session)
 
-1. Create `pkg/types/` package with branded types
-2. Unify Result/ReportData/ErrorEntry
-3. Split output formatters
-4. Add Validator interface
+~~1. Create `pkg/types/` package with branded types~~ done at `d3a4a1c`
+~~2. Unify Result/ReportData/ErrorEntry~~ done at `d3a4a1c`
+~~3. Split output formatters~~ Won't implement — single cohesive output file kept by design
+~~4. Add Validator interface~~ done at `a429c53`
 
 ### Short Term (Next Sprint)
 
-5. Add context support
-6. Improve test coverage
-7. Add structured errors
+~~5. Add context support~~ done at `42b0a56`
+~~6. Improve test coverage~~ done at `3aa3536`, `58a1f5a`, `cb3e883`, `f3a2c2c`
+~~7. Add structured errors~~ done at `6d269dd`
 
 ### Long Term
 
-8. Consider parallel processing
-9. Add plugin system for reporters
-10. Performance benchmarks
+~~8. Consider parallel processing~~ done at `d3a4a1c`
+~~9. Add plugin system for reporters~~ done at `a429c53` (Registry)
+~~10. Performance benchmarks~~ done at `1d0232a`
 
 ---
 
 ## Questions to Resolve
 
-1. Should we support parallel validation? What's the expected input size?
-2. Do we need SARIF/JUnit output formats for CI integration?
-3. Should SkipDirectives be configurable via file?
-4. Do we need a configuration file (.md-go-validator.yaml)?
+~~1. Should we support parallel validation? What's the expected input size?~~ done at `d3a4a1c` (worker pool shipped)
+~~2. Do we need SARIF/JUnit output formats for CI integration?~~ done at SARIF `1ea7d41`; JUnit rejected (no demand)
+~~3. Should SkipDirectives be configurable via file?~~ done at `acfe5c4` (config file + `--skip-directive`)
+~~4. Do we need a configuration file (.md-go-validator.yaml)?~~ done at `acfe5c4`
 
 ---
 
@@ -368,9 +372,9 @@ pkg/
 
 ### Who Uses This?
 
-1. **Documentation maintainers** - Catch broken code examples
-2. **CI/CD pipelines** - Pre-commit validation
-3. **Library authors** - Ensure README examples work
+~~1. **Documentation maintainers** - Catch broken code examples~~ done — shipped for all three audiences (`d3a4a1c`)
+~~2. **CI/CD pipelines** - Pre-commit validation~~ done at `acfe5c4` (Action + pre-commit hook)
+~~3. **Library authors** - Ensure README examples work~~ done at `d3a4a1c` (library API)
 
 ### Value Drivers
 

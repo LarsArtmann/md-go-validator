@@ -1,5 +1,10 @@
 # Status Report — 2026-06-25 21:17
 
+> ANNOTATED 2026-09-26 (docs-health pass): Round 3 (2026-06-26) closed the streaming,
+> merge-semantics, README, and coverage gaps. Struck items cite closing commits;
+> open items (tree-sitter split, output decoupling, baseline path normalization,
+> watch mode, homebrew, API stability) left unstruck / routed.
+
 ## Overview
 
 md-go-validator has undergone a major feature expansion across two rounds of work,
@@ -41,11 +46,11 @@ This report covers the current state after Round 2 (self-review + fixes).
 
 | # | Item                                  | What's Done                                                   | What's Missing                                                                                                                                                                       |
 | - | ------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1 | `ValidateDirectoryFunc` streaming API | Function exists, takes callback, lint-clean                   | **Still buffers** all results before calling `fn`. Not truly streaming. Dead code (never called from CLI or tests).                                                                  |
+~~| 1 | `ValidateDirectoryFunc` streaming API | Function exists, takes callback, lint-clean                   | **Still buffers** all results before calling `fn`. Not truly streaming. Dead code (never called from CLI or tests).                                                                  |~~ done at `c75e28b` (truly streams via `streamFilesParallel`)
 | 2 | CLI integration tests for new flags   | Flag parsing handlers exist and lint clean                    | **Zero tests** for `--exclude`, `--skip-directive`, `--init`, `--baseline`, `--list-languages`, `--fail-on-skipped`, `applyConfigFile`, `handleEarlyExit`, `printSupportedLanguages` |
-| 3 | Config file → CLI merge semantics     | Config loads, applies languages/exclude/format/skipDirectives | **Bug**: repeatable flags (`--exclude`, `--skip-directive`) union with config values instead of overriding, contradicting README                                                     |
-| 4 | README accuracy                       | Options table updated, config section added                   | **Stale**: "Config file" still listed under "Future Enhancements" (line 320) despite being fully implemented                                                                         |
-| 5 | cmd coverage                          | 27 existing tests pass at 60.6%                               | Down from 63% — new untested code pulled it lower                                                                                                                                    |
+~~| 3 | Config file → CLI merge semantics     | Config loads, applies languages/exclude/format/skipDirectives | **Bug**: repeatable flags (`--exclude`, `--skip-directive`) union with config values instead of overriding, contradicting README                                                     |~~ done at `cfd8254` (flags override)
+~~| 4 | README accuracy                       | Options table updated, config section added                   | **Stale**: "Config file" still listed under "Future Enhancements" (line 320) despite being fully implemented                                                                         |~~ done at `4286541`
+~~| 5 | cmd coverage                          | 27 existing tests pass at 60.6%                               | Down from 63% — new untested code pulled it lower                                                                                                                                    |~~ done at `f3a2c2c` (74.8%)
 
 ---
 
@@ -112,34 +117,34 @@ Sorted by impact × (1/effort).
 | 1  | Write CLI integration tests for `--exclude`, `--skip-directive`                   | High   | Low     | **10** |
 | 2  | Write CLI integration tests for `--init`, `--list-languages`, `--fail-on-skipped` | High   | Low     | **10** |
 | 3  | Write CLI integration test for `--baseline` flag                                  | High   | Low     | **9**  |
-| 4  | Fix `ValidateDirectoryFunc` to actually stream via worker channel                 | High   | Medium  | **8**  |
-| 5  | Fix repeatable flag merge semantics (override, not union)                         | Medium | Low     | **8**  |
-| 6  | Remove "Config file" from README Future Enhancements                              | Low    | Trivial | **8**  |
-| 7  | Fix `ValidateDirectoryFunc` doc comment to not lie about streaming                | Low    | Trivial | **7**  |
-| 8  | Add `--save-baseline` flag to generate baseline from current run                  | Medium | Low     | **7**  |
-| 9  | Add test for config file malformed YAML error handling                            | Medium | Low     | **7**  |
+~~| 4  | Fix `ValidateDirectoryFunc` to actually stream via worker channel                 | High   | Medium  | **8**  |~~ done at `c75e28b`
+~~| 5  | Fix repeatable flag merge semantics (override, not union)                         | Medium | Low     | **8**  |~~ done at `cfd8254`
+~~| 6  | Remove "Config file" from README Future Enhancements                              | Low    | Trivial | **8**  |~~ done at `4286541`
+~~| 7  | Fix `ValidateDirectoryFunc` doc comment to not lie about streaming                | Low    | Trivial | **7**  |~~ done at `c75e28b`
+~~| 8  | Add `--save-baseline` flag to generate baseline from current run                  | Medium | Low     | **7**  |~~ done at `9d11fa0`
+~~| 9  | Add test for config file malformed YAML error handling                            | Medium | Low     | **7**  |~~ done at `0a9add7`
 | 10 | Normalize baseline paths (relative to CWD) for portability                        | Medium | Low     | **7**  |
 | 11 | Update AGENTS.md coverage table with new packages                                 | Low    | Trivial | **6**  |
-| 12 | Use `doublestar/v4` for `**` glob support in excludes                             | Medium | Low     | **6**  |
-| 13 | Add test for `ValidateDirectoryFunc` early-abort behavior                         | Medium | Low     | **6**  |
+~~| 12 | Use `doublestar/v4` for `**` glob support in excludes                             | Medium | Low     | **6**  |~~ done at `ce25525`
+~~| 13 | Add test for `ValidateDirectoryFunc` early-abort behavior                         | Medium | Low     | **6**  |~~ done at `c75e28b`
 | 14 | Add `Dockerfile` to `.goreleaser.yml` builds for Action                           | Medium | Medium  | **5**  |
 | 15 | Write API stability statement for `pkg/`                                          | Medium | Low     | **5**  |
 | 16 | Add benchmark for elision normalizer + strategy 6                                 | Low    | Low     | **5**  |
-| 17 | Change `Config.Languages` from `[]string` to typed languages                      | Medium | Medium  | **4**  |
+~~| 17 | Change `Config.Languages` from `[]string` to typed languages                      | Medium | Medium  | **4**  |~~ done at `8b24ba6`
 | 18 | Add Homebrew tap to goreleaser (`skip_upload: true` already set)                  | Low    | Low     | **4**  |
 | 19 | Split tree-sitter into opt-in sub-package                                         | High   | High    | **4**  |
 | 20 | Decouple `pkg/output` from library import graph                                   | Medium | High    | **3**  |
 | 21 | Add `--watch` incremental mode                                                    | Low    | High    | **2**  |
 | 22 | Add reference-resolution mode (check imports resolve)                             | Low    | High    | **2**  |
-| 23 | Add SARIF output format via `go-finding` SARIF exporter                           | Medium | Medium  | **4**  |
-| 24 | Add `--config` flag to specify config file path explicitly                        | Low    | Low     | **5**  |
+~~| 23 | Add SARIF output format via `go-finding` SARIF exporter                           | Medium | Medium  | **4**  |~~ done at `1ea7d41`
+~~| 24 | Add `--config` flag to specify config file path explicitly                        | Low    | Low     | **5**  |~~ done at `803de23`
 | 25 | Property-based testing for elision normalizer edge cases                          | Low    | Medium  | **3**  |
 
 ---
 
 ## G) Top Question I Cannot Figure Out Myself
 
-**Should `ValidateDirectoryFunc` be truly streaming (breaking the current `ValidateDirectory` API contract), or should we deprecate it and add a new `StreamDirectory` method?**
+~~**Should `ValidateDirectoryFunc` be truly streaming (breaking the current `ValidateDirectory` API contract), or should we deprecate it and add a new `StreamDirectory` method?**~~ done at resolved — option (c) `streamFilesParallel` shipped (`c75e28b`)
 
 The current `ValidateDirectory` returns `([]types.Result, error)` — it inherently buffers. Making `ValidateDirectoryFunc` truly streaming requires either:
 

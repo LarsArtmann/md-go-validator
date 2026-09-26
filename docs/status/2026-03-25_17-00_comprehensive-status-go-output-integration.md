@@ -1,5 +1,8 @@
 # md-go-validator Comprehensive Status Report
 
+> ANNOTATED 2026-09-26 (docs-health pass): go-output integration long since stabilized;
+> linting fixed (`e4ddfbc`), coverage now 73-100%. Open BDD idea tracked in `ROADMAP.md`.
+
 **Date:** 2026-03-25
 **Status:** ACTIVE DEVELOPMENT
 
@@ -124,7 +127,7 @@ Error: unsupported version of the configuration: ""
 
 **Status:** 28.6% - Needs more BDD-style tests
 
-### 3. No BDD Tests
+~~### 3. No BDD Tests~~ still open — testing-depth ideas tracked in `ROADMAP.md`
 
 **Status:** Not implemented yet
 
@@ -177,7 +180,7 @@ Error: unsupported version of the configuration: ""
 
 The `--format` and `--color` flags don't have dedicated tests in `main_test.go`.
 
-### 2. No BDD Tests
+~~### 2. No BDD Tests~~ still open — testing-depth ideas tracked in `ROADMAP.md`
 
 The project lacks behavior-driven tests which would improve confidence in output correctness.
 

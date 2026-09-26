@@ -1,5 +1,9 @@
 # Comprehensive Status Report — 2026-06-17
 
+> ANNOTATED 2026-09-26 (docs-health pass): v0.3.0 was cut the next day (`c5830b8`); most
+> open items closed in the 2026-06-25/26 rounds. Struck items cite closing commits;
+> open items (watch mode, internal/, BDD, grammar edge cases) left unstruck / routed.
+
 > **Generated:** 2026-06-17T18:16+02:00
 > **Branch:** `master` (clean, fully pushed to `origin/master`)
 > **Baseline:** `go vet` ✓ · `go test -race -cover` ✓ · `golangci-lint` (0 issues) ✓ · `nix build .#` ✓ · `nix flake check` ✓
@@ -101,14 +105,14 @@ extractor tests, CLI honesty fixes, and CI parity with the Nix workflow.
 
 | Area                               | Description                                                                                                                                    |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **v0.3.0 release**                 | No git tag, no goreleaser run, no CHANGELOG entry for post-v0.2.0 work                                                                         |
+~~| **v0.3.0 release**                 | No git tag, no goreleaser run, no CHANGELOG entry for post-v0.2.0 work                                                                         |~~ done at `c5830b8`
 | **`internal/` directory**          | BuildFlow flagged that private implementation code could move to `internal/` for stronger encapsulation (Go's internal visibility enforcement) |
 | **BDD tests**                      | No Ginkgo/Gomega BDD tests for critical user-facing flows (the project has BDD-testing skill available but it's unused)                        |
 | **Watch mode**                     | No file-watcher for incremental re-validation during editing                                                                                   |
 | **Configuration file**             | No `.md-go-validator.yaml` config file support (flags only)                                                                                    |
-| **Exit code semantics**            | Single exit code (0/1); no distinction between "validation errors" vs "tool errors" (e.g., file not found)                                     |
-| **STDIN support**                  | Cannot pipe markdown via stdin for validation                                                                                                  |
-| **JSON schema output**             | No formal JSON schema for the JSON output format                                                                                               |
+~~| **Exit code semantics**            | Single exit code (0/1); no distinction between "validation errors" vs "tool errors" (e.g., file not found)                                     |~~ done at `6d269dd`
+~~| **STDIN support**                  | Cannot pipe markdown via stdin for validation                                                                                                  |~~ done at `6d269dd`
+~~| **JSON schema output**             | No formal JSON schema for the JSON output format                                                                                               |~~ done at `4cbc43d`
 | **Performance benchmarking suite** | Benchmarks exist but no regression tracking or CI benchmark gating                                                                             |
 
 ---
@@ -158,37 +162,37 @@ extractor tests, CLI honesty fixes, and CI parity with the Nix workflow.
 
 | #  | Task                                                                                                                | Impact | Effort | Category     |
 | -- | ------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------ |
-| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                                                                 | High   | Low    | Release      |
-| 2  | **Populate CHANGELOG `[Unreleased]`** with this session's 11 commits                                                | High   | Low    | Docs         |
-| 3  | **Confirm go-output v0.11.0 upgrade intent** — verify it's desired                                                  | High   | Low    | Decision     |
+~~| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                                                                 | High   | Low    | Release      |~~ done at `c5830b8`
+~~| 2  | **Populate CHANGELOG `[Unreleased]`** with this session's 11 commits                                                | High   | Low    | Docs         |~~ done at `4cbc43d`
+~~| 3  | **Confirm go-output v0.11.0 upgrade intent** — verify it's desired                                                  | High   | Low    | Decision     |~~ done at resolved — kept; upgraded since (`220837d`)
 | 4  | **Add `internal/` directory** for private packages (BuildFlow recommendation)                                       | Medium | Medium | Architecture |
 | 5  | **Migrate to `go-error-family`** for structured error classification                                                | Medium | Medium | Architecture |
 | 6  | **CLI integration tests** — `--output`, `--timeout`, `--language`, exit codes (raise cmd coverage from 71.5%)       | Medium | Medium | Testing      |
 | 7  | **Fix stale gopls diagnostics** on `extractor_test.go`                                                              | Low    | Low    | DX           |
-| 8  | **Add JSON schema** for JSON output format (document the contract)                                                  | Medium | Low    | Docs         |
-| 9  | **STDIN support** — pipe markdown via stdin for validation                                                          | Medium | Low    | Feature      |
-| 10 | **Config file support** (`.md-go-validator.yaml`)                                                                   | Medium | Medium | Feature      |
+~~| 8  | **Add JSON schema** for JSON output format (document the contract)                                                  | Medium | Low    | Docs         |~~ done at `4cbc43d`
+~~| 9  | **STDIN support** — pipe markdown via stdin for validation                                                          | Medium | Low    | Feature      |~~ done at `6d269dd`
+~~| 10 | **Config file support** (`.md-go-validator.yaml`)                                                                   | Medium | Medium | Feature      |~~ done at `acfe5c4`
 | 11 | **Watch mode** — file watcher for incremental re-validation                                                         | Low    | High   | Feature      |
 | 12 | **Property-based tests** for extractor state machine                                                                | Low    | Medium | Testing      |
 | 13 | **Grammar edge-case tests** — unicode, nesting, grammar-specific syntax                                             | Low    | Medium | Testing      |
-| 14 | **Exit code semantics** — distinguish validation errors from tool errors                                            | Low    | Low    | Feature      |
-| 15 | **`ErrorCode` branded type** for consistency with domain types                                                      | Low    | Low    | Architecture |
-| 16 | **Review `CONSUMER_PERSPECTIVE.md`** for accuracy post-refactor                                                     | Low    | Low    | Docs         |
-| 17 | **Pre-commit hook robustness** — fix flake-meta-checker TTY flakiness                                               | Low    | Low    | DX           |
+~~| 14 | **Exit code semantics** — distinguish validation errors from tool errors                                            | Low    | Low    | Feature      |~~ done at `6d269dd`
+~~| 15 | **`ErrorCode` branded type** for consistency with domain types                                                      | Low    | Low    | Architecture |~~ done at `6d269dd`
+~~| 16 | **Review `CONSUMER_PERSPECTIVE.md`** for accuracy post-refactor                                                     | Low    | Low    | Docs         |~~ done at `4cbc43d`
+~~| 17 | **Pre-commit hook robustness** — fix flake-meta-checker TTY flakiness                                               | Low    | Low    | DX           |~~ done at fixed upstream in BuildFlow (`b7d5360a`)
 | 18 | **Performance regression tracking** — CI benchmark gating or tracking                                               | Low    | Medium | Ops          |
 | 19 | **BDD tests** for critical user flows (Ginkgo, per skill)                                                           | Low    | Medium | Testing      |
-| 20 | **Aggregate CHANGELOG entries** into a release-notes-friendly format                                                | Low    | Low    | Docs         |
+~~| 20 | **Aggregate CHANGELOG entries** into a release-notes-friendly format                                                | Low    | Low    | Docs         |~~ done at `c5830b8`
 | 21 | **`go mod tidy` in CI** — ensure go.mod/go.sum are always tidy                                                      | Low    | Low    | Ops          |
 | 22 | **Cross-platform testing** — verify on macOS/Windows (path handling, ANSI)                                          | Low    | Low    | Testing      |
 | 23 | **README examples** — verify all README code blocks are current                                                     | Low    | Low    | Docs         |
 | 24 | **Deprecation strategy** — `ValidateGoCode` in `parser.go` is a thin wrapper; consider deprecation timeline         | Low    | Low    | Architecture |
-| 25 | **Thread `ErrorCode` through `Result`** — currently `ValidationError.Code` is lost when wrapped into `Result.Error` | Low    | Low    | Architecture |
+~~| 25 | **Thread `ErrorCode` through `Result`** — currently `ValidationError.Code` is lost when wrapped into `Result.Error` | Low    | Low    | Architecture |~~ done at `6d269dd`
 
 ---
 
 ## g) Top #1 Question I Cannot Figure Out Myself
 
-**Was the `go-output` v0.11.0 dependency upgrade (plus `go-branded-id` v0.3.1, `go-toml` v2.4.0) intentional?**
+~~**Was the `go-output` v0.11.0 dependency upgrade (plus `go-branded-id` v0.3.1, `go-toml` v2.4.0) intentional?**~~ done at resolved — kept and superseded by later bumps (`220837d`, `511e2b2`)
 
 This upgrade appeared in `go.mod`/`go.sum` during the review session but was **not authored by this review** (no `go get` was run — only `go test`, `go build`, `go vet`, `go mod download`). The working tree showed it as already-modified at session start (timestamp 15:06, modified during the session window but before any of my tool calls touched go.mod).
 

@@ -1,5 +1,8 @@
 # md-go-validator - Comprehensive Status Report
 
+> ANNOTATED 2026-09-26 (docs-health pass): struck rows updated with current truth;
+> open items left unstruck.
+
 **Generated:** 2026-03-25 17:13:50 CET
 **Project:** github.com/larsartmann/md-go-validator
 **Branch:** master
@@ -22,9 +25,9 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 | **CLI Flags**             | ✅ FULLY DONE        | `-f/--format`, `--color`                        |
 | **Split-Brain Fix**       | ✅ FULLY DONE        | Deprecated old PrintReport                      |
 | **Core Validation**       | ✅ FULLY DONE        | Works correctly                                 |
-| **Test Coverage**         | ⚠️ PARTIALLY DONE     | 71-91% core, 28% output                         |
-| **BDD Tests**             | ❌ NOT STARTED       | No ginkgo/testify                               |
-| **Linting**               | ❌ TOTALLY FUCKED UP | golangci-lint config broken                     |
+~~| **Test Coverage**         | ⚠️ PARTIALLY DONE     | 71-91% core, 28% output                         |~~ done at — 73-100% today (AGENTS.md table)
+~~| **BDD Tests**             | ❌ NOT STARTED       | No ginkgo/testify                               |~~ still open — testing-depth ideas tracked in `ROADMAP.md`
+~~| **Linting**               | ❌ TOTALLY FUCKED UP | golangci-lint config broken                     |~~ done at `e4ddfbc` (0 issues since 2026-05-04)
 | **Documentation**         | ✅ FULLY DONE        | Status reports, README                          |
 
 ---
