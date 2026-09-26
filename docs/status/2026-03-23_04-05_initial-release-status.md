@@ -1,5 +1,9 @@
 # md-go-validator - Status Report
 
+> ARCHIVED 2026-09-26 — this is the initial extraction report (v1.0.0 era).
+> Every open item below was resolved or explicitly routed by later sessions;
+> markers cite the closing commit. Current work lives in `TODO_LIST.md`.
+
 **Date:** 2026-03-23 04:05 CET
 **Project:** github.com/larsartmann/md-go-validator
 **Status:** Production-Ready (v1.0.0)
@@ -96,13 +100,13 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 
 ### Code Duplication (2 clone groups)
 
-- **Status:** Reduced from 5 to 2 groups (60% improvement)
+~~- **Status:** Reduced from 5 to 2 groups (60% improvement)~~ done at `16ec967` (full test dedup pass)
 - **Remaining:** Test file patterns in `pkg/validator_test.go`
   - Clone 1: Lines 20-30 vs 32-42 (single block assertions)
   - Clone 2: Lines 44-54 vs 84-95 (skip assertion patterns)
 - **Assessment:** Acceptable for test readability; not critical
 
-### Go Toolchain Version Mismatch
+~~### Go Toolchain Version Mismatch~~ resolved — Go version bumps kept toolchain in sync (`abcce87`, `e0cdb85`)
 
 - **Issue:** Stdlib compiled with go1.26.1, running go1.26.0
 - **Impact:** Warning in test-coverage step, tests still pass
@@ -115,33 +119,33 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 
 ### v1.0.1 Improvements
 
-1. **CLI Tests** - No tests for `cmd/md-go-validator/main.go`
-2. **Benchmark Tests** - No performance benchmarks
-3. **Fuzz Testing** - No fuzz targets (`func Fuzz*(f *testing.F)`)
-4. **Examples Directory** - No `examples/` with sample markdown files
-5. **Makefile/Justfile** - No build automation beyond go commands
-6. **GitHub Actions Workflow** - `.github/workflows/` not created
-7. **Codecov Integration** - No coverage reporting service
-8. **Release Tags** - No git tags for version releases
-9. **Homebrew Formula** - No homebrew tap for easy installation
-10. **Docker Image** - No containerized distribution
+~~1. **CLI Tests** - No tests for `cmd/md-go-validator/main.go`~~ done at `a6047b0`
+~~2. **Benchmark Tests** - No performance benchmarks~~ done at `1d0232a`
+~~3. **Fuzz Testing** - No fuzz targets (`func Fuzz*(f *testing.F)`)~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~4. **Examples Directory** - No `examples/` with sample markdown files~~ Won't implement — `EXAMPLES.md` serves this role
+~~5. **Makefile/Justfile** - No build automation beyond go commands~~ Won't implement — `flake.nix` owns build automation
+~~6. **GitHub Actions Workflow** - `.github/workflows/` not created~~ done at `d3a4a1c` (v0.2.0 CI)
+~~7. **Codecov Integration** - No coverage reporting service~~ Won't implement — CI runs `go test -cover` (`60fa809`); no external service
+~~8. **Release Tags** - No git tags for version releases~~ done at `d3a4a1c` (v0.2.0), `16ec967` (v0.3.0)
+~~9. **Homebrew Formula** - No homebrew tap for easy installation~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~10. **Docker Image** - No containerized distribution~~ done at `acfe5c4`, `ae0c2b2` (Dockerfile)
 
 ### Documentation Gaps
 
-1. **CONTRIBUTING.md** - No contribution guidelines
-2. **CODE_OF_CONDUCT.md** - No code of conduct
-3. **SECURITY.md** - No security policy
-4. **API Documentation** - No godoc.org link in README
-5. **Architecture Diagrams** - No visual documentation
+~~1. **CONTRIBUTING.md** - No contribution guidelines~~ done at `b72a1be`
+~~2. **CODE_OF_CONDUCT.md** - No code of conduct~~ Won't implement — not requested since
+~~3. **SECURITY.md** - No security policy~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~4. **API Documentation** - No godoc.org link in README~~ done at `69fcb10` (pkg.go.dev badge + website)
+~~5. **Architecture Diagrams** - No visual documentation~~ Won't implement — `AGENTS.md` documents architecture in text
 
 ### Library Enhancements
 
-1. **Error Types** - Custom error types for better error handling
-2. **Options Pattern** - Functional options for Validator construction
-3. **Context Support** - No context.Context for cancellation
-4. **Concurrency** - No parallel file processing
-5. **Streaming API** - No iterator/yield pattern for large directories
-6. **Plugin System** - No custom validator plugins
+~~1. **Error Types** - Custom error types for better error handling~~ done at `6d269dd`
+~~2. **Options Pattern** - Functional options for Validator construction~~ done at `9eef8ba`
+~~3. **Context Support** - No context.Context for cancellation~~ done at `42b0a56`
+~~4. **Concurrency** - No parallel file processing~~ done at `d3a4a1c` (worker pool shipped pre-v0.2.0)
+~~5. **Streaming API** - No iterator/yield pattern for large directories~~ done at `c75e28b`
+~~6. **Plugin System** - No custom validator plugins~~ done at `a429c53` (pluggable `Registry`)
 
 ---
 
@@ -157,24 +161,24 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 
 ### High Priority (Should Do)
 
-1. **CLI Test Coverage** - Add tests for argument parsing and path validation
-2. **GitHub Actions CI** - Create `.github/workflows/ci.yml` for automated testing
-3. **Git Tags** - Tag v1.0.0 release for go install stability
+~~1. **CLI Test Coverage** - Add tests for argument parsing and path validation~~ done at `a6047b0`
+~~2. **GitHub Actions CI** - Create `.github/workflows/ci.yml` for automated testing~~ done at `d3a4a1c`
+~~3. **Git Tags** - Tag v1.0.0 release for go install stability~~ done at tagged `v0.2.0`/`v0.3.0` instead (`d3a4a1c`, `16ec967`)
 
 ### Medium Priority (Nice to Have)
 
-4. **Error Types** - Create structured errors with `errors.Is()` support
-5. **Context Support** - Add context for timeout/cancellation in long runs
-6. **Parallel Processing** - Use goroutines for directory scanning
-7. **Example Directory** - Add `examples/` with sample markdown files
-8. **Benchmark Suite** - Add performance benchmarks
+~~4. **Error Types** - Create structured errors with `errors.Is()` support~~ done at `6d269dd`
+~~5. **Context Support** - Add context for timeout/cancellation in long runs~~ done at `42b0a56`
+~~6. **Parallel Processing** - Use goroutines for directory scanning~~ done at `d3a4a1c`
+~~7. **Example Directory** - Add `examples/` with sample markdown files~~ Won't implement — `EXAMPLES.md` serves this role
+~~8. **Benchmark Suite** - Add performance benchmarks~~ done at `1d0232a`
 
 ### Low Priority (Future Consideration)
 
-9. **Options Pattern** - Replace `New(verbose bool)` with functional options
-10. **Streaming Results** - Channel-based result streaming
-11. **Plugin System** - Extensible validation strategies
-12. **WASM Build** - Browser-based validation
+~~9. **Options Pattern** - Replace `New(verbose bool)` with functional options~~ done at `9eef8ba`
+~~10. **Streaming Results** - Channel-based result streaming~~ done at `c75e28b`
+~~11. **Plugin System** - Extensible validation strategies~~ done at `a429c53`
+~~12. **WASM Build** - Browser-based validation~~ Won't implement — browser angle covered by `ROADMAP.md` web-playground idea
 
 ---
 
@@ -182,37 +186,37 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 
 ### Immediate (v1.0.1)
 
-1. Add CLI tests in `cmd/md-go-validator/main_test.go`
-2. Create `.github/workflows/ci.yml` with golangci-lint
-3. Tag v1.0.0 release: `git tag v1.0.0 && git push --tags`
-4. Add `CONTRIBUTING.md` with PR guidelines
-5. Add godoc badge to README
+~~1. Add CLI tests in `cmd/md-go-validator/main_test.go`~~ done at `a6047b0`
+~~2. Create `.github/workflows/ci.yml` with golangci-lint~~ done at `d3a4a1c`, `60fa809`
+~~3. Tag v1.0.0 release: `git tag v1.0.0 && git push --tags`~~ done at tagged `v0.2.0`/`v0.3.0` instead (`d3a4a1c`, `16ec967`)
+~~4. Add `CONTRIBUTING.md` with PR guidelines~~ done at `b72a1be`
+~~5. Add godoc badge to README~~ done at `69fcb10`
 
 ### Short-term (v1.1.0)
 
-6. Implement custom error types with `errors.As()` support
-7. Add context.Context to ValidateDirectory for cancellation
-8. Implement parallel directory scanning with worker pool
-9. Add `--version` flag to CLI
-10. Add `--output=json` flag for machine-readable output
-11. Add integration tests with real markdown files
-12. Create `examples/` directory with sample docs
-13. Add benchmark tests for extractor/parser
-14. Implement fuzz testing for parser
-15. Add pre-commit hook installation (`--install-hook`)
+~~6. Implement custom error types with `errors.As()` support~~ done at `6d269dd`
+~~7. Add context.Context to ValidateDirectory for cancellation~~ done at `42b0a56`
+~~8. Implement parallel directory scanning with worker pool~~ done at `d3a4a1c`
+~~9. Add `--version` flag to CLI~~ done at `d3a4a1c` (v0.2.0)
+~~10. Add `--output=json` flag for machine-readable output~~ done at `d3a4a1c` (`-f json`)
+~~11. Add integration tests with real markdown files~~ done at `13ac23a`
+~~12. Create `examples/` directory with sample docs~~ Won't implement — `EXAMPLES.md` serves this role
+~~13. Add benchmark tests for extractor/parser~~ done at `1d0232a`
+~~14. Implement fuzz testing for parser~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~15. Add pre-commit hook installation (`--install-hook`)~~ Won't implement — `.pre-commit-hooks.yaml` covers ecosystem discovery (`acfe5c4`)
 
 ### Medium-term (v1.2.0)
 
-16. Add Makefile or Justfile for common tasks
-17. Create Homebrew formula for easy installation
-18. Add Dockerfile for containerized distribution
-19. Implement config file support (`.md-go-validator.yaml`)
-20. Add `--fix` mode to auto-add skip directives
-21. Support `.mdx` files (JSX in markdown)
-22. Add diff output for error comparison
-23. Create VS Code extension
-24. Add skip directive comments: `<!-- skip-validate: reason -->`
-25. Build WASM version for browser playground
+~~16. Add Makefile or Justfile for common tasks~~ Won't implement — `flake.nix` owns build automation
+~~17. Create Homebrew formula for easy installation~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~18. Add Dockerfile for containerized distribution~~ done at `acfe5c4`, `ae0c2b2`
+~~19. Implement config file support (`.md-go-validator.yaml`)~~ done at `acfe5c4`
+~~20. Add `--fix` mode to auto-add skip directives~~ Won't implement — skip-directive hints in errors shipped instead (`acfe5c4`)
+~~21. Support `.mdx` files (JSX in markdown)~~ done at `80a582d`
+~~22. Add diff output for error comparison~~ done at `9d11fa0` (`--baseline`/`--save-baseline`)
+~~23. Create VS Code extension~~ Won't implement — no demand signal
+~~24. Add skip directive comments: `<!-- skip-validate: reason -->`~~ done at `acfe5c4` (custom `--skip-directive` values)
+~~25. Build WASM version for browser playground~~ Won't implement — browser angle covered by `ROADMAP.md` web-playground idea
 
 ---
 
@@ -228,8 +232,8 @@ No critical issues, no broken builds, no failing tests, no security vulnerabilit
 
 **Options:**
 
-1. **CI First** - Catch regressions early, enable PR checks
-2. **Tests First** - Ensure CLI behavior is documented and verified
+~~1. **CI First** - Catch regressions early, enable PR checks~~ done at `d3a4a1c`
+~~2. **Tests First** - Ensure CLI behavior is documented and verified~~ done at `a6047b0`
 
 **My Recommendation:** CI First. A basic GitHub Actions workflow takes 10 minutes to create and provides immediate value for any future contributions. CLI tests can follow.
 
