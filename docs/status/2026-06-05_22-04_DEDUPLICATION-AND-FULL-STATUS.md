@@ -76,11 +76,11 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 | Item                              | State | Details                                                                                           |
 | --------------------------------- | ----- | ------------------------------------------------------------------------------------------------- |
-| `README.md`                       | 90%   | Polished, covers CLI + library. Architecture diagram slightly misleading.                         |
-| `CHANGELOG.md`                    | 80%   | Unreleased section is substantial — no version bump since v0.1.0 in January                       |
-| `CONSUMER_PERSPECTIVE.md`         | 70%   | 15 gaps identified, none addressed yet                                                            |
-| `docs/modularization/PROPOSAL.md` | 50%   | Dead dependency cycle `pkg/types` ↔ `pkg/languages` identified, proposal written but not executed |
-| Nix build                         | 60%   | Hash mismatch in go-modules derivation. `go build` works, `nix build` does not.                   |
+~~| `README.md`                       | 90%   | Polished, covers CLI + library. Architecture diagram slightly misleading.                         |~~ done at `69fcb10`
+~~| `CHANGELOG.md`                    | 80%   | Unreleased section is substantial — no version bump since v0.1.0 in January                       |~~ done at `c5830b8`
+~~| `CONSUMER_PERSPECTIVE.md`         | 70%   | 15 gaps identified, none addressed yet                                                            |~~ done at `4cbc43d` (reconciled)
+~~| `docs/modularization/PROPOSAL.md` | 50%   | Dead dependency cycle `pkg/types` ↔ `pkg/languages` identified, proposal written but not executed |~~ DUPLICATE — tracked in `docs/modularization/`
+~~| Nix build                         | 60%   | Hash mismatch in go-modules derivation. `go build` works, `nix build` does not.                   |~~ done at `5dc7606` (vendorHash fixed; go.work removed)
 
 ---
 
@@ -90,30 +90,30 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 | #  | Gap                                                    | Severity |
 | -- | ------------------------------------------------------ | -------- |
-| 1  | `--version` flag                                       | Critical |
-| 2  | Configuration file support (`.md-go-validator.yaml`)   | Critical |
-| 3  | `--init` command for config generation                 | Critical |
-| 4  | `.md-go-validator-ignore` / exclude patterns           | Critical |
-| 5  | Fix CONTRIBUTING.md dead references                    | Critical |
-| 6  | Reusable GitHub Action (`action.yml`)                  | Major    |
-| 7  | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |
-| 8  | Watch / incremental mode (`--watch`)                   | Major    |
-| 9  | Error codes in CLI output                              | Major    |
-| 10 | Diff / regression mode (`--baseline`)                  | Major    |
-| 11 | `--dry-run` flag                                       | Moderate |
-| 12 | Progress indicator                                     | Moderate |
-| 13 | Granular exit codes (errors vs crash vs no files)      | Moderate |
-| 14 | Self-validation in CI (dogfooding)                     | Moderate |
-| 15 | `--fail-on-skipped` option                             | Minor    |
+~~| 1  | `--version` flag                                       | Critical |~~ done at `d3a4a1c`
+~~| 2  | Configuration file support (`.md-go-validator.yaml`)   | Critical |~~ done at `acfe5c4`
+~~| 3  | `--init` command for config generation                 | Critical |~~ done at `c8e8ba8`
+~~| 4  | `.md-go-validator-ignore` / exclude patterns           | Critical |~~ done at `da2f6f5`, `ce25525`
+~~| 5  | Fix CONTRIBUTING.md dead references                    | Critical |~~ done at `b72a1be`
+~~| 6  | Reusable GitHub Action (`action.yml`)                  | Major    |~~ done at `acfe5c4`, `fba9fe5`
+~~| 7  | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |~~ done at `acfe5c4`
+~~| 8  | Watch / incremental mode (`--watch`)                   | Major    |~~ DUPLICATE — tracked in `ROADMAP.md`
+~~| 9  | Error codes in CLI output                              | Major    |~~ done at `6d269dd`
+~~| 10 | Diff / regression mode (`--baseline`)                  | Major    |~~ done at `9d11fa0`
+~~| 11 | `--dry-run` flag                                       | Moderate |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 12 | Progress indicator                                     | Moderate |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 13 | Granular exit codes (errors vs crash vs no files)      | Moderate |~~ done at `6d269dd` (0/1/2; no-files variant not needed)
+~~| 14 | Self-validation in CI (dogfooding)                     | Moderate |~~ done at `d3a4a1c`, `ecda347`
+~~| 15 | `--fail-on-skipped` option                             | Minor    |~~ done at `fe11609`
 
 ### Other Not Started:
 
-- **`TODO_LIST.md`** — Does not exist
-- **`FEATURES.md`** — Does not exist
-- **`ROADMAP.md`** — Does not exist
-- **`docs/DOMAIN_LANGUAGE.md`** — Exists but needs review for completeness
-- **Version bump** — v0.1.0 was January 2026, 6 months of unreleased work
-- **Go workspace cleanup** — `go.work` references local go-output, blocks reproducible nix build
+~~- **`TODO_LIST.md`** — Does not exist~~ done at `50487d3`
+~~- **`FEATURES.md`** — Does not exist~~ done at `50487d3`
+~~- **`ROADMAP.md`** — Does not exist~~ done at `50487d3`
+~~- **`docs/DOMAIN_LANGUAGE.md`** — Exists but needs review for completeness~~ done at `7868a98`
+~~- **Version bump** — v0.1.0 was January 2026, 6 months of unreleased work~~ done at `d3a4a1c`, `c5830b8`
+~~- **Go workspace cleanup** — `go.work` references local go-output, blocks reproducible nix build~~ done at — no `go.work` remains; deps on proxy (`220837d`)
 
 ---
 
@@ -121,11 +121,11 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 | Issue                                          | Severity | Details                                                                                                                                                                                                                   |
 | ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Nix build broken**                           | HIGH     | `nix flake check` fails with go-modules hash mismatch. Root cause: `go.work` uses local go-output with newer API. The `go.mod` has v0.6.3 but `go.work` overrides to local. Nix doesn't use go.work, sees different hash. |
+~~| **Nix build broken**                           | HIGH     | `nix flake check` fails with go-modules hash mismatch. Root cause: `go.work` uses local go-output with newer API. The `go.mod` has v0.6.3 but `go.work` overrides to local. Nix doesn't use go.work, sees different hash. |~~ done at `5dc7606`
 | **6 months without a release**                 | HIGH     | v0.1.0 was 2026-01-01. Massive unreleased changes: MDX support, tree-sitter, branded types, multi-format output, context support, skip directives overhaul. Users on v0.1.0 have a fundamentally different tool.          |
 | **CONTRIBUTING.md is broken**                  | MEDIUM   | References `just` commands and setup scripts that don't exist. First contributor experience is broken.                                                                                                                    |
 | **No dogfooding in CI**                        | MEDIUM   | Tool validates markdown code blocks but doesn't validate its own docs in CI. Undermines credibility.                                                                                                                      |
-| **pkg/types ↔ pkg/languages dependency cycle** | LOW      | `pkg/types` imports `pkg/languages` (for `Language` type in `CodeBlock`), `pkg/languages` imports `pkg/types` (for result types). Documented in modularization proposal but unresolved.                                   |
+~~| **pkg/types ↔ pkg/languages dependency cycle** | LOW      | `pkg/types` imports `pkg/languages` (for `Language` type in `CodeBlock`), `pkg/languages` imports `pkg/types` (for result types). Documented in modularization proposal but unresolved.                                   |~~ DUPLICATE — tracked in `docs/modularization/`
 
 ---
 
@@ -133,25 +133,25 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### Architecture
 
-1. **Break the types ↔ languages cycle** — Move `Language` type to a shared `pkg/types` or create `pkg/language` package with just the type definition. The validator interface stays in `pkg/languages`.
-2. **Extract CLI config to its own package** — `cmd/md-go-validator/main.go` is a 730-line monolith mixing parsing, validation, and output. Extract to `cmd/config.go` at minimum.
-3. **Move from manual arg parsing to a proper library** — cobra or similar. The generics-based parser works but is hard to extend and doesn't support `--version`, config files, or shell completion.
+~~1. **Break the types ↔ languages cycle** — Move `Language` type to a shared `pkg/types` or create `pkg/language` package with just the type definition. The validator interface stays in `pkg/languages`.~~ DUPLICATE — tracked in `docs/modularization/`
+~~2. **Extract CLI config to its own package** — `cmd/md-go-validator/main.go` is a 730-line monolith mixing parsing, validation, and output. Extract to `cmd/config.go` at minimum.~~ Won't implement — CLI restructured via direct dispatch instead (`539cb8e`)
+~~3. **Move from manual arg parsing to a proper library** — cobra or similar. The generics-based parser works but is hard to extend and doesn't support `--version`, config files, or shell completion.~~ Won't implement — hand parser retained deliberately; config/flags stable
 
 ### Quality
 
-4. **Increase cmd coverage** — `cmd/md-go-validator` is at 70.9%, lowest in the project. Edge cases in arg parsing are undertested.
-5. **Add self-validation to CI** — Run `md-go-validator` against the project's own `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md` in a CI step.
-6. **Fix nix build** — Either remove `go.work` (use go.mod only) or configure nix to handle it properly. This is the #1 infra issue.
+~~4. **Increase cmd coverage** — `cmd/md-go-validator` is at 70.9%, lowest in the project. Edge cases in arg parsing are undertested.~~ done at `f3a2c2c`
+~~5. **Add self-validation to CI** — Run `md-go-validator` against the project's own `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md` in a CI step.~~ done at `d3a4a1c`, `ecda347`
+~~6. **Fix nix build** — Either remove `go.work` (use go.mod only) or configure nix to handle it properly. This is the #1 infra issue.~~ done at `5dc7606`
 
 ### Developer Experience
 
-7. **Fix CONTRIBUTING.md** — Remove `just` references, add nix-based commands, remove dead script references.
-8. **Add `FEATURES.md`** — Honest feature inventory for quick reference.
-9. **Add `TODO_LIST.md`** — Actionable, prioritized task list.
+~~7. **Fix CONTRIBUTING.md** — Remove `just` references, add nix-based commands, remove dead script references.~~ done at `b72a1be`
+~~8. **Add `FEATURES.md`** — Honest feature inventory for quick reference.~~ done at `50487d3`
+~~9. **Add `TODO_LIST.md`** — Actionable, prioritized task list.~~ done at `50487d3`
 
 ### Release
 
-10. **Cut v0.2.0** — The unreleased changes are substantial and production-ready. Ship them.
+~~10. **Cut v0.2.0** — The unreleased changes are substantial and production-ready. Ship them.~~ done at `d3a4a1c`
 
 ---
 
@@ -161,46 +161,46 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 | # | Task                                           | Impact                           | Effort |
 | - | ---------------------------------------------- | -------------------------------- | ------ |
-| 1 | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |
-| 2 | **Add `--version` flag**                       | Users can verify installation    | Small  |
-| 3 | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |
-| 4 | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |
-| 5 | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |
+~~| 1 | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |~~ done at `d3a4a1c`
+~~| 2 | **Add `--version` flag**                       | Users can verify installation    | Small  |~~ done at `d3a4a1c`
+~~| 3 | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |~~ done at `5dc7606`
+~~| 4 | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |~~ done at `b72a1be`
+~~| 5 | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |~~ done at `d3a4a1c`, `ecda347`
 
 ### Tier 2: High Impact (Quality of Life)
 
 | #  | Task                                                     | Impact                        | Effort |
 | -- | -------------------------------------------------------- | ----------------------------- | ------ |
-| 6  | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |
-| 7  | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |
-| 8  | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |
-| 9  | **`--init` command**                                     | Generate starter config       | Small  |
-| 10 | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |
+~~| 6  | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |~~ done at `acfe5c4`
+~~| 7  | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |~~ done at `acfe5c4`, `fba9fe5`
+~~| 8  | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |~~ done at `da2f6f5`, `ce25525`
+~~| 9  | **`--init` command**                                     | Generate starter config       | Small  |~~ done at `c8e8ba8`
+~~| 10 | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |~~ done at `acfe5c4`
 
 ### Tier 3: Important (Polish)
 
 | #  | Task                                                             | Impact                           | Effort |
 | -- | ---------------------------------------------------------------- | -------------------------------- | ------ |
-| 11 | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |
-| 12 | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |
-| 13 | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |
-| 14 | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |
-| 15 | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |
-| 16 | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |
+~~| 11 | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |~~ done at `6d269dd`
+~~| 12 | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |~~ done at `6d269dd`
+~~| 13 | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |~~ done at `50487d3`
+~~| 14 | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |~~ done at `50487d3`
+~~| 15 | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |~~ done at `f3a2c2c` (74.8%; 85% not pursued — diminishing returns)
+~~| 16 | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |~~ DUPLICATE — tracked in `docs/modularization/`
 
 ### Tier 4: Nice to Have (Enhancement)
 
 | #  | Task                                     | Impact                          | Effort |
 | -- | ---------------------------------------- | ------------------------------- | ------ |
-| 17 | **Watch mode (`--watch`)**               | Development workflow            | Medium |
-| 18 | **Progress indicator**                   | UX for large directories        | Small  |
-| 19 | **`--dry-run` flag**                     | Debug config without running    | Small  |
-| 20 | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |
-| 21 | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |
-| 22 | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |
-| 23 | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |
-| 24 | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |
-| 25 | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |
+~~| 17 | **Watch mode (`--watch`)**               | Development workflow            | Medium |~~ DUPLICATE — tracked in `ROADMAP.md`
+~~| 18 | **Progress indicator**                   | UX for large directories        | Small  |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 19 | **`--dry-run` flag**                     | Debug config without running    | Small  |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 20 | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |~~ done at `9d11fa0`
+~~| 21 | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |~~ done at `fe11609`
+~~| 22 | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |~~ Won't implement — hand parser retained deliberately
+~~| 23 | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |~~ Won't implement — CLI restructured via direct dispatch instead (`539cb8e`)
+~~| 24 | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |~~ done at `7868a98`
+~~| 25 | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |~~ done at `ecda347`
 
 ---
 

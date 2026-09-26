@@ -122,41 +122,41 @@ Clone groups in tests are common Go patterns:
 
 | # | Improvement                                            | Priority | Impact                     |
 | - | ------------------------------------------------------ | -------- | -------------------------- |
-| 1 | Increase `cmd` package test coverage (currently 70.9%) | Medium   | Better confidence          |
-| 2 | Add integration tests for all supported languages      | Medium   | Better validation coverage |
-| 3 | Create benchmark comparisons vs other tools            | Low      | Marketing/performance      |
-| 4 | Add property-based tests (testing/quick)               | Low      | Edge case coverage         |
-| 5 | Add fuzzy matching for language detection              | Low      | UX improvement             |
+~~| 1 | Increase `cmd` package test coverage (currently 70.9%) | Medium   | Better confidence          |~~ done at `f3a2c2c`
+~~| 2 | Add integration tests for all supported languages      | Medium   | Better validation coverage |~~ done at `13ac23a` + tree-sitter validator tests
+~~| 3 | Create benchmark comparisons vs other tools            | Low      | Marketing/performance      |~~ Won't implement — no comparable tools; internal benchmarks suffice
+~~| 4 | Add property-based tests (testing/quick)               | Low      | Edge case coverage         |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~| 5 | Add fuzzy matching for language detection              | Low      | UX improvement             |~~ Won't implement — exact tags cover real-world usage; no demand
 
 ---
 
 ## F) Top #25 Things We Should Get Done Next
 
-1. **Add more cmd package tests** — Coverage at 70.9% is lowest
-2. **Verify FEATURES.md is up-to-date** — Run docs-freshness-check skill
-3. **Add tree-sitter grammar for Bash/Zsh** — Expand language support
-4. **Create property-based tests** — Use testing/quick for edge cases
-5. **Add JSONPath/XPath validation** — New language support
-6. **Implement config file support** — `.md-go-validator.yaml`
-7. **Add CI/CD pipeline** — GitHub Actions workflow
-8. **Add pre-commit hooks** — Validate on commit
-9. **Create man page** — CLI documentation
-10. **Add shell completions** — bash/zsh/fish
-11. **Implement `--watch` mode** — Auto-revalidate on file changes
-12. **Add `--format` option diversity** — TOML, XML output formats
-13. **Create GitHub Action** — Automated validation
-14. **Add VSCode extension** — IDE integration
-15. **Implement `--ci` mode** — Optimized for CI environments
-16. **Add `--fail-fast` option** — Stop on first error
-17. **Create Docker image** — Containerized execution
-18. **Add Homebrew tap** — macOS installation
-19. **Implement `-o, --output-dir`** — Batch output to directory
-20. **Add diff output mode** — Show what changed
-21. **Implement cache mechanism** — Skip unchanged files
-22. **Add `--severity` filter** — Filter by error severity
-23. **Create LSP server** — Language Server Protocol
-24. **Add multi-threaded parsing** — Parallel block validation
-25. **Implement `--baseline` mode** — Compare against baseline
+~~1. **Add more cmd package tests** — Coverage at 70.9% is lowest~~ done at `f3a2c2c`
+~~2. **Verify FEATURES.md is up-to-date** — Run docs-freshness-check skill~~ done at `50487d3` created it; maintained since (latest: 2026-09-26 docs-health audit)
+~~3. **Add tree-sitter grammar for Bash/Zsh** — Expand language support~~ DUPLICATE — tracked in `ROADMAP.md` (shell/bash validation)
+~~4. **Create property-based tests** — Use testing/quick for edge cases~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~5. **Add JSONPath/XPath validation** — New language support~~ Won't implement — no demand signal
+~~6. **Implement config file support** — `.md-go-validator.yaml`~~ done at `acfe5c4`
+~~7. **Add CI/CD pipeline** — GitHub Actions workflow~~ done at `d3a4a1c`
+~~8. **Add pre-commit hooks** — Validate on commit~~ done at `acfe5c4`
+~~9. **Create man page** — CLI documentation~~ Won't implement — `--help` + website CLI page cover it
+~~10. **Add shell completions** — bash/zsh/fish~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~11. **Implement `--watch` mode** — Auto-revalidate on file changes~~ DUPLICATE — tracked in `ROADMAP.md`
+~~12. **Add `--format` option diversity** — TOML, XML output formats~~ Won't implement — no demand signal
+~~13. **Create GitHub Action** — Automated validation~~ done at `acfe5c4`, `fba9fe5`
+~~14. **Add VSCode extension** — IDE integration~~ Won't implement — no demand signal
+~~15. **Implement `--ci` mode** — Optimized for CI environments~~ done at — exit codes + `-f json`/sarif + `--fail-on-skipped` cover CI needs
+~~16. **Add `--fail-fast` option** — Stop on first error~~ DUPLICATE — tracked in `TODO_LIST.md` (with `--continue-on-error`)
+~~17. **Create Docker image** — Containerized execution~~ done at `acfe5c4`, `ae0c2b2` (Dockerfile; Action-based)
+~~18. **Add Homebrew tap** — macOS installation~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~19. **Implement `-o, --output-dir`** — Batch output to directory~~ done at `0bb2510` (`-o` single output file; batch dir has no demand)
+~~20. **Add diff output mode** — Show what changed~~ done at `9d11fa0` (baseline mode)
+~~21. **Implement cache mechanism** — Skip unchanged files~~ Won't implement — runtime is seconds; no demand
+~~22. **Add `--severity` filter** — Filter by error severity~~ Won't implement — single severity (syntax errors) by design
+~~23. **Create LSP server** — Language Server Protocol~~ DUPLICATE — tracked in `ROADMAP.md`
+~~24. **Add multi-threaded parsing** — Parallel block validation~~ done at `d3a4a1c` (file-level worker pool)
+~~25. **Implement `--baseline` mode** — Compare against baseline~~ done at `9d11fa0`
 
 ---
 
@@ -211,10 +211,10 @@ art-dupl -t 15 . --semantic --sort total-tokens
 
 ## Recommendations
 
-1. **Accept current state** — Production code is at ZERO duplications
-2. **Monitor test duplication** — Track but don't fix (idiomatic patterns)
-3. **Plan plugin architecture** — If extensibility is needed
-4. **Increase cmd coverage** — Quick win for confidence
+~~1. **Accept current state** — Production code is at ZERO duplications~~ done at `16ec967` (test dedup pass followed)
+~~2. **Monitor test duplication** — Track but don't fix (idiomatic patterns)~~ done at `.auto-deduplicate/false-positives.json` documents accepted clones
+~~3. **Plan plugin architecture** — If extensibility is needed~~ done at `a429c53` (Registry is the plugin point)
+~~4. **Increase cmd coverage** — Quick win for confidence~~ done at `f3a2c2c`
 
 ---
 

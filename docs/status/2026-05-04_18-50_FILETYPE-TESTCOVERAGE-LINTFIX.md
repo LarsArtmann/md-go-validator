@@ -55,14 +55,14 @@ bumped gotreesitter dependency. All tests pass, 0 lint issues.
 
 | Task                                    | Status         | Impact | Work   |
 | --------------------------------------- | -------------- | ------ | ------ |
-| CI pipeline (.github/workflows/ci.yml)  | Not started    | High   | Low    |
-| Integration tests (testdata/)           | Not started    | High   | Medium |
-| Benchmark tests                         | Not started    | Medium | Low    |
-| cmd/md-go-validator coverage 71% → 80%+ | Partially done | Medium | Medium |
+~~| CI pipeline (.github/workflows/ci.yml)  | Not started    | High   | Low    |~~ done at `377b4d0`, `60fa809`
+~~| Integration tests (testdata/)           | Not started    | High   | Medium |~~ done at `13ac23a`
+~~| Benchmark tests                         | Not started    | Medium | Low    |~~ done at `1d0232a`
+~~| cmd/md-go-validator coverage 71% → 80%+ | Partially done | Medium | Medium |~~ done at `f3a2c2c` (74.8%)
 | Pre-commit hook fix                     | Done (shebang) | Low    | Done   |
 
 ## Known Issues
 
-- `cmd/md-go-validator` still at 71.1% — `main()`, `returnParseError()`, `handleHelp()`
+~~- `cmd/md-go-validator` still at 71.1% — `main()`, `returnParseError()`, `handleHelp()`~~ partially resolved — `f3a2c2c` raised coverage; `main()`/`handleHelp()` stay untested by design (`os.Exit`)
   are uncovered (they call `os.Exit` which is hard to test without process isolation)
-- Pre-commit hook shebang was fixed to `#!/usr/bin/env bash` but not tested on NixOS
+~~- Pre-commit hook shebang was fixed to `#!/usr/bin/env bash` but not tested on NixOS~~ resolved — BuildFlow manages hooks now

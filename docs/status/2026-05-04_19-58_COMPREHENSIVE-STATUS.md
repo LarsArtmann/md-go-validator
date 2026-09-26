@@ -46,12 +46,12 @@
 
 | Function                      | Location                   | Why                                                      |
 | ----------------------------- | -------------------------- | -------------------------------------------------------- |
-| `main()`                      | `cmd/main.go:45`           | Calls `os.Exit`, hard to test without subprocess pattern |
-| `handleHelp()`                | `cmd/main.go:226`          | Calls `os.Exit(0)`                                       |
-| `returnParseError()`          | `cmd/main.go:221`          | Only called on parse failure paths                       |
-| `addError()`                  | `pkg/validator.go:481`     | Error channel path in concurrent processing              |
-| `formatSupportedExtensions()` | `pkg/validator.go:567`     | Only called in verbose mode                              |
-| `newOutputError()`            | `pkg/output/output.go:205` | Only called on write errors                              |
+~~| `main()`                      | `cmd/main.go:45`           | Calls `os.Exit`, hard to test without subprocess pattern |~~ Won't implement — `os.Exit` path needs a subprocess harness; rejected
+~~| `handleHelp()`                | `cmd/main.go:226`          | Calls `os.Exit(0)`                                       |~~ Won't implement — same `os.Exit` constraint
+~~| `returnParseError()`          | `cmd/main.go:221`          | Only called on parse failure paths                       |~~ partially resolved — CLI integration tests added (`f3a2c2c`); direct unit test still absent
+~~| `addError()`                  | `pkg/validator.go:481`     | Error channel path in concurrent processing              |~~ done at `d40313d` (unreadable-file + cancellation tests hit the error channel)
+~~| `formatSupportedExtensions()` | `pkg/validator.go:567`     | Only called in verbose mode                              |~~ done at `b0f6687` (verbose-mode integration test)
+~~| `newOutputError()`            | `pkg/output/output.go:205` | Only called on write errors                              |~~ Won't implement — write-error path, low value
 
 ### Partial Coverage Functions (60-80%)
 
@@ -72,21 +72,21 @@
 
 ## C) NOT STARTED
 
-1. **`ValidationError.Line`/`Column` use raw `int`** — Should use branded `LineNumber`/`ColumnNumber` types for consistency
-2. **`Registry.GetByString()` / `Registry.Languages()`** — Unused in production code; could be removed or used
-3. **No `FileType` → `Language` mapping** — No reverse mapping from file extension to language
-4. **Subprocess-based CLI tests** — Test `main()`, `handleHelp()`, `returnParseError()` via `exec.Command`
-5. **Error path coverage** — `addError`, `newOutputError`, write error paths
-6. **Verbose mode coverage** — `logProgress`, `formatSupportedExtensions`
-7. **`ValidateGoCode` allocates per call** — Creates `&GoValidator{}` each invocation
-8. **`withInt` helper** — Over-abstracted for 2 int fields
-9. **CONTRIBUTING.md** — No contributor guide
-10. **CODEOWNERS** — No code ownership file
-11. **`flake.nix` migration** — AGENTS.md says "justfile is deprecated" but no flake.nix exists
-12. **Go doc examples** — No `Example*` test functions for godoc
-13. **Fuzzing** — No fuzz tests for extractor/parser
-14. **Release automation** — `goreleaser` config exists but no tag-based release workflow
-15. **Go struct generation** — Could generate branded type boilerplate with `go generate`
+~~1. **`ValidationError.Line`/`Column` use raw `int`** — Should use branded `LineNumber`/`ColumnNumber` types for consistency~~ DUPLICATE — tracked in `TODO_LIST.md` (brand Line/Column)
+~~2. **`Registry.GetByString()` / `Registry.Languages()`** — Unused in production code; could be removed or used~~ Won't implement — kept as documented registry API
+~~3. **No `FileType` → `Language` mapping** — No reverse mapping from file extension to language~~ Won't implement — file extensions and languages are intentionally independent axes
+~~4. **Subprocess-based CLI tests** — Test `main()`, `handleHelp()`, `returnParseError()` via `exec.Command`~~ Won't implement — rejected in favor of handler-level integration tests (`f3a2c2c`)
+~~5. **Error path coverage** — `addError`, `newOutputError`, write error paths~~ done at `d40313d` (addError); write-error paths rejected as low value
+~~6. **Verbose mode coverage** — `logProgress`, `formatSupportedExtensions`~~ done at `b0f6687`
+~~7. **`ValidateGoCode` allocates per call** — Creates `&GoValidator{}` each invocation~~ Won't implement — single small alloc per call; negligible
+~~8. **`withInt` helper** — Over-abstracted for 2 int fields~~ done at `1840ae8` (helper removed)
+~~9. **CONTRIBUTING.md** — No contributor guide~~ done at `b72a1be`
+~~10. **CODEOWNERS** — No code ownership file~~ Won't implement — solo maintainer
+~~11. **`flake.nix` migration** — AGENTS.md says "justfile is deprecated" but no flake.nix exists~~ done at `5f1b8b4`, `68a4d75`
+~~12. **Go doc examples** — No `Example*` test functions for godoc~~ Won't implement — pkg.go.dev reference suffices; no demand
+~~13. **Fuzzing** — No fuzz tests for extractor/parser~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~14. **Release automation** — `goreleaser` config exists but no tag-based release workflow~~ done at `c5830b8` (v0.3.0 cut)
+~~15. **Go struct generation** — Could generate branded type boilerplate with `go generate`~~ Won't implement — hand-written types are small and explicit
 
 ---
 

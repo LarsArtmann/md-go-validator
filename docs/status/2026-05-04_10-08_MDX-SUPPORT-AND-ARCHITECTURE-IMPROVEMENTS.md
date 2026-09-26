@@ -69,24 +69,24 @@
 
 ### Still Needs Improvement
 
-1. **Extension config is private** — `supportedExtensions` is unexported. Library users can't query or extend it. Consider a public API.
-2. **No file-type detection on `ValidateFile`** — Currently accepts any file path. Could validate that the extension is supported before processing (better error message for `.txt` files passed directly).
-3. **`pkg/code` has zero tests** — Critical utility package, untested.
-4. **`pkg/testutil` has zero tests** — Test infrastructure itself is untested.
-5. **cmd coverage at 60.8%** — Missing coverage for error paths, edge cases in arg parsing.
-6. **Test names inconsistent** — "valid markdown file" vs "directory with MDX files" vs "directory with markdown files" — should use consistent terminology.
+~~1. **Extension config is private** — `supportedExtensions` is unexported. Library users can't query or extend it. Consider a public API.~~ done at `d290055` (`SupportedExtensions()` public, `types.AllFileTypes()`)
+~~2. **No file-type detection on `ValidateFile`** — Currently accepts any file path. Could validate that the extension is supported before processing (better error message for `.txt` files passed directly).~~ done at — directory walk filters via `IsSupportedFile`; direct `ValidateFile` on unsupported files returns no blocks by design
+~~3. **`pkg/code` has zero tests** — Critical utility package, untested.~~ done at `3aa3536`
+~~4. **`pkg/testutil` has zero tests** — Test infrastructure itself is untested.~~ done at `58a1f5a`
+~~5. **cmd coverage at 60.8%** — Missing coverage for error paths, edge cases in arg parsing.~~ done at `f3a2c2c` (74.8%)
+~~6. **Test names inconsistent** — "valid markdown file" vs "directory with MDX files" vs "directory with markdown files" — should use consistent terminology.~~ Won't implement — cosmetic; README documents the supported set
 
 ### Type Model Improvements
 
-7. **`FileType` branded type** — Currently extensions are raw strings. A `FileType` type (like `FileID`, `LineNumber`) would make the type system stronger and prevent mixing extensions with other strings.
-8. **`SupportedExtensions()` public func** — Returns the canonical list for library consumers.
-9. **`FileExtension(path) FileType`** — Extract extension with type safety.
+~~7. **`FileType` branded type** — Currently extensions are raw strings. A `FileType` type (like `FileID`, `LineNumber`) would make the type system stronger and prevent mixing extensions with other strings.~~ done at `d290055`
+~~8. **`SupportedExtensions()` public func** — Returns the canonical list for library consumers.~~ done at `d290055`
+~~9. **`FileExtension(path) FileType`** — Extract extension with type safety.~~ Won't implement — `IsSupportedFile` covers the need; no other consumers
 
 ### Library Ecosystem
 
-10. **`go-output` is a local replace** — Consider publishing it or vendoring to improve portability.
-11. **Pre-commit hook** — Make executable or remove.
-12. **justfile → flake.nix** — Per AGENTS.md directive.
+~~10. **`go-output` is a local replace** — Consider publishing it or vendoring to improve portability.~~ done at — published module consumed from the proxy (`220837d`); no local replace remains
+~~11. **Pre-commit hook** — Make executable or remove.~~ resolved — BuildFlow now manages hooks
+~~12. **justfile → flake.nix** — Per AGENTS.md directive.~~ done at `68a4d75` (justfile removed), `5f1b8b4` (flake)
 
 ---
 
@@ -96,31 +96,31 @@ Sorted by **impact / work ratio** (highest first):
 
 | Rank | Item                                                                             | Impact | Work    | Category    |
 | ---- | -------------------------------------------------------------------------------- | ------ | ------- | ----------- |
-| 1    | Fix stale cmd test names ("markdown file" → "supported file")                    | Medium | Trivial | Consistency |
-| 2    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`)                       | High   | Low     | Testing     |
-| 3    | Add file-type validation in `ValidateFile` (reject unsupported extensions early) | Medium | Low     | UX          |
-| 4    | Add `FileType` branded type for extensions                                       | Medium | Low     | Types       |
-| 5    | Export `SupportedExtensions()` and `IsSupportedFile()` as public API             | Medium | Low     | API         |
-| 6    | Add MDX integration test with JSX content                                        | Medium | Low     | Testing     |
-| 7    | Make pre-commit hook executable                                                  | Low    | Trivial | DevEx       |
-| 8    | Increase `cmd` test coverage (error paths, edge cases)                           | Medium | Medium  | Testing     |
-| 9    | Increase `pkg/languages` test coverage (currently 66.7%)                         | Medium | Medium  | Testing     |
-| 10   | Add `--extension` CLI flag for custom file types                                 | Medium | Medium  | Feature     |
-| 11   | Add tests for `pkg/testutil/testutil.go`                                         | Low    | Medium  | Testing     |
-| 12   | Publish or vendor `go-output` to fix LSP resolution                              | High   | Medium  | Infra       |
-| 13   | Add `examples/` directory with sample .md and .mdx files                         | Low    | Medium  | Docs        |
-| 14   | Add `.mdx` mention to README supported file types table                          | Low    | Trivial | Docs        |
-| 15   | Migrate justfile → flake.nix                                                     | Medium | High    | Build       |
-| 16   | Add context-aware error messages (include file type in errors)                   | Low    | Low     | UX          |
-| 17   | Add `WithExtensions()` option to `FileValidator`                                 | Medium | Low     | API         |
-| 18   | Benchmark tests for large .mdx files with many JSX components                    | Low    | Medium  | Perf        |
-| 19   | Add `FileExtension(path) FileType` helper                                        | Low    | Low     | Types       |
-| 20   | Stream-based file processing for very large files                                | Low    | High    | Perf        |
-| 21   | Fuzz testing for extractor/parser                                                | Low    | Medium  | Testing     |
-| 22   | GitHub Actions: add .mdx file to test fixtures                                   | Low    | Trivial | CI          |
-| 23   | Remove `CLONE_ANALYSIS.md` and `REFLECTION_AND_PLAN.md` if stale                 | Low    | Trivial | Cleanup     |
-| 24   | Add goreleaser config for cross-compiled binaries                                | Low    | Medium  | Release     |
-| 25   | Consider `embed` for default config instead of hardcoded values                  | Low    | Medium  | Arch        |
+~~| 1    | Fix stale cmd test names ("markdown file" → "supported file")                    | Medium | Trivial | Consistency |~~ Won't implement — cosmetic only
+~~| 2    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`)                       | High   | Low     | Testing     |~~ done at `3aa3536`
+~~| 3    | Add file-type validation in `ValidateFile` (reject unsupported extensions early) | Medium | Low     | UX          |~~ done at — `IsSupportedFile` gates collection (`pkg/validator.go:439`)
+~~| 4    | Add `FileType` branded type for extensions                                       | Medium | Low     | Types       |~~ done at `d290055`
+~~| 5    | Export `SupportedExtensions()` and `IsSupportedFile()` as public API             | Medium | Low     | API         |~~ done at `d290055`
+~~| 6    | Add MDX integration test with JSX content                                        | Medium | Low     | Testing     |~~ done at `13ac23a` (`mixed.mdx` fixture)
+~~| 7    | Make pre-commit hook executable                                                  | Low    | Trivial | DevEx       |~~ resolved — BuildFlow manages hooks
+~~| 8    | Increase `cmd` test coverage (error paths, edge cases)                           | Medium | Medium  | Testing     |~~ done at `f3a2c2c`
+~~| 9    | Increase `pkg/languages` test coverage (currently 66.7%)                         | Medium | Medium  | Testing     |~~ done at `cb3e883`
+~~| 10   | Add `--extension` CLI flag for custom file types                                 | Medium | Medium  | Feature     |~~ Won't implement — supported set is intentionally fixed; no demand
+~~| 11   | Add tests for `pkg/testutil/testutil.go`                                         | Low    | Medium  | Testing     |~~ done at `58a1f5a`
+~~| 12   | Publish or vendor `go-output` to fix LSP resolution                              | High   | Medium  | Infra       |~~ done at `220837d` (proxy module; replace removed)
+~~| 13   | Add `examples/` directory with sample .md and .mdx files                         | Low    | Medium  | Docs        |~~ Won't implement — `EXAMPLES.md` serves this role
+~~| 14   | Add `.mdx` mention to README supported file types table                          | Low    | Trivial | Docs        |~~ done at `80a582d`
+~~| 15   | Migrate justfile → flake.nix                                                     | Medium | High    | Build       |~~ done at `68a4d75`, `5f1b8b4`
+~~| 16   | Add context-aware error messages (include file type in errors)                   | Low    | Low     | UX          |~~ done at `acfe5c4` (hints), `6d269dd` (codes)
+~~| 17   | Add `WithExtensions()` option to `FileValidator`                                 | Medium | Low     | API         |~~ Won't implement — fixed supported set by design
+~~| 18   | Benchmark tests for large .mdx files with many JSX components                    | Low    | Medium  | Perf        |~~ done at `1d0232a` (extraction benchmarks)
+~~| 19   | Add `FileExtension(path) FileType` helper                                        | Low    | Low     | Types       |~~ Won't implement — `IsSupportedFile` covers the need
+~~| 20   | Stream-based file processing for very large files                                | Low    | High    | Perf        |~~ done at `c75e28b` (streaming results)
+~~| 21   | Fuzz testing for extractor/parser                                                | Low    | Medium  | Testing     |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~| 22   | GitHub Actions: add .mdx file to test fixtures                                   | Low    | Trivial | CI          |~~ done at `13ac23a` (fixtures) + `d3a4a1c` (CI)
+~~| 23   | Remove `CLONE_ANALYSIS.md` and `REFLECTION_AND_PLAN.md` if stale                 | Low    | Trivial | Cleanup     |~~ done at — both deleted from repo
+~~| 24   | Add goreleaser config for cross-compiled binaries                                | Low    | Medium  | Release     |~~ done at — `.goreleaser.yml` cross-compiles (pre-v0.2.0)
+~~| 25   | Consider `embed` for default config instead of hardcoded values                  | Low    | Medium  | Arch        |~~ Won't implement — `InitFile` scaffolds configs instead
 
 ---
 

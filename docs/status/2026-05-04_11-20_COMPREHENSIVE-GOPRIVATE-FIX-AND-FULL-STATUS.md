@@ -82,12 +82,12 @@
 - (b) Vendor `go-output` into this repo
 - (c) Update NixOS environment to apply GOPRIVATE fix and rebuild
 
-### 2. Pre-commit Hook Not Executable (Pre-existing)
+~~### 2. Pre-commit Hook Not Executable (Pre-existing)~~ resolved — BuildFlow now manages hooks
 
 **Status:** Git warns on every commit\
 **Fix:** `chmod +x .git/hooks/pre-commit` or remove if not needed
 
-### 3. `justfile` Still Exists (Pre-existing)
+~~### 3. `justfile` Still Exists (Pre-existing)~~ resolved — done at `68a4d75`
 
 **Status:** AGENTS.md says "justfile is deprecated" but it's still present\
 **Fix:** Migrate to `flake.nix` or document why it's still needed
@@ -104,16 +104,16 @@
 
 ### Still Needs Improvement
 
-4. **LSP module resolution** — The 16 errors in `pkg/output/output.go` degrade IDE experience
-5. **Test coverage gaps** — `pkg/code` and `pkg/testutil` at 0% is unacceptable
-6. **cmd coverage** — 61.7% leaves many CLI paths untested
-7. **External module dependency** — `go-output` local replace hurts portability
+~~4. **LSP module resolution** — The 16 errors in `pkg/output/output.go` degrade IDE experience~~ done at `220837d` (proxy module; local replace removed)
+~~5. **Test coverage gaps** — `pkg/code` and `pkg/testutil` at 0% is unacceptable~~ done at `3aa3536`, `58a1f5a`
+~~6. **cmd coverage** — 61.7% leaves many CLI paths untested~~ done at `f3a2c2c`
+~~7. **External module dependency** — `go-output` local replace hurts portability~~ done at `220837d`
 
 ### Infrastructure
 
-8. **Pre-commit hook** — Make executable or remove
-9. **Build system** — Migrate from justfile to pure flake.nix
-10. **CI/CD** — No golangci-lint in CI yet (risk of regressions)
+~~8. **Pre-commit hook** — Make executable or remove~~ resolved — BuildFlow manages hooks
+~~9. **Build system** — Migrate from justfile to pure flake.nix~~ done at `68a4d75`, `5f1b8b4`
+~~10. **CI/CD** — No golangci-lint in CI yet (risk of regressions)~~ done at `60fa809`
 
 ---
 
@@ -123,31 +123,31 @@ Sorted by impact/work ratio (highest first):
 
 | Rank | Item                                                       | Impact | Work    | Category |
 | ---- | ---------------------------------------------------------- | ------ | ------- | -------- |
-| 1    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`) | High   | Low     | Testing  |
-| 2    | Add tests for `pkg/testutil/testutil.go` helpers           | High   | Low     | Testing  |
-| 3    | Fix LSP module resolution for `go-output`                  | High   | Medium  | DevEx    |
-| 4    | Increase `cmd` test coverage (61.7% → 80%)                 | Medium | Medium  | Testing  |
-| 5    | Make pre-commit hook executable                            | Low    | Trivial | DevEx    |
-| 6    | Remove or migrate justfile to flake.nix                    | Medium | Medium  | Build    |
-| 7    | Add golangci-lint to CI pipeline                           | High   | Low     | CI/CD    |
-| 8    | Add `go test -race` to CI                                  | Medium | Low     | CI/CD    |
-| 9    | Increase `pkg/languages` coverage (66.7% → 80%)            | Medium | Medium  | Testing  |
-| 10   | Add CLI integration tests for all output formats           | High   | Medium  | Testing  |
-| 11   | Add CLI integration tests for timeout/cancellation         | Medium | Low     | Testing  |
-| 12   | Add CLI integration tests for language flag                | Medium | Low     | Testing  |
-| 13   | Add error path tests for `validator.go`                    | Medium | Medium  | Testing  |
-| 14   | Add property-based tests for `ExtractCodeBlocks`           | Medium | Medium  | Testing  |
-| 15   | Add benchmark tests for hot paths                          | Medium | Low     | Perf     |
-| 16   | Add fuzz tests for parser                                  | Medium | Medium  | Testing  |
-| 17   | Add goreleaser cross-compilation CI                        | Medium | Low     | CI/CD    |
-| 18   | Review and update README.md accuracy                       | Low    | Low     | Docs     |
-| 19   | Add CONTRIBUTING.md with lint expectations                 | Low    | Low     | Docs     |
-| 20   | Export `SupportedExtensions()` as public API               | Medium | Low     | API      |
-| 21   | Add `FileType` branded type for extensions                 | Medium | Low     | Types    |
-| 22   | Add file-type validation in `ValidateFile`                 | Medium | Low     | UX       |
-| 23   | Add MDX integration test with JSX content                  | Medium | Low     | Testing  |
-| 24   | Create `examples/` directory with sample files             | Low    | Medium  | Docs     |
-| 25   | Consider `embed` for default config                        | Low    | Medium  | Arch     |
+~~| 1    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`) | High   | Low     | Testing  |~~ done at `3aa3536`
+~~| 2    | Add tests for `pkg/testutil/testutil.go` helpers           | High   | Low     | Testing  |~~ done at `58a1f5a`
+~~| 3    | Fix LSP module resolution for `go-output`                  | High   | Medium  | DevEx    |~~ done at `220837d`
+~~| 4    | Increase `cmd` test coverage (61.7% → 80%)                 | Medium | Medium  | Testing  |~~ done at `f3a2c2c`
+~~| 5    | Make pre-commit hook executable                            | Low    | Trivial | DevEx    |~~ resolved — BuildFlow manages hooks
+~~| 6    | Remove or migrate justfile to flake.nix                    | Medium | Medium  | Build    |~~ done at `68a4d75`, `5f1b8b4`
+~~| 7    | Add golangci-lint to CI pipeline                           | High   | Low     | CI/CD    |~~ done at `60fa809`
+~~| 8    | Add `go test -race` to CI                                  | Medium | Low     | CI/CD    |~~ done at `60fa809`
+~~| 9    | Increase `pkg/languages` coverage (66.7% → 80%)            | Medium | Medium  | Testing  |~~ done at `cb3e883`
+~~| 10   | Add CLI integration tests for all output formats           | High   | Medium  | Testing  |~~ done at `f3a2c2c`
+~~| 11   | Add CLI integration tests for timeout/cancellation         | Medium | Low     | Testing  |~~ done at `f3a2c2c`
+~~| 12   | Add CLI integration tests for language flag                | Medium | Low     | Testing  |~~ done at `f3a2c2c`
+~~| 13   | Add error path tests for `validator.go`                    | Medium | Medium  | Testing  |~~ done at `d40313d`
+~~| 14   | Add property-based tests for `ExtractCodeBlocks`           | Medium | Medium  | Testing  |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~| 15   | Add benchmark tests for hot paths                          | Medium | Low     | Perf     |~~ done at `1d0232a`
+~~| 16   | Add fuzz tests for parser                                  | Medium | Medium  | Testing  |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+~~| 17   | Add goreleaser cross-compilation CI                        | Medium | Low     | CI/CD    |~~ done at `c5830b8`
+~~| 18   | Review and update README.md accuracy                       | Low    | Low     | Docs     |~~ done at `4286541`, `69fcb10`
+~~| 19   | Add CONTRIBUTING.md with lint expectations                 | Low    | Low     | Docs     |~~ done at `b72a1be`
+~~| 20   | Export `SupportedExtensions()` as public API               | Medium | Low     | API      |~~ done at `d290055`
+~~| 21   | Add `FileType` branded type for extensions                 | Medium | Low     | Types    |~~ done at `cb3e883`
+~~| 22   | Add file-type validation in `ValidateFile`                 | Medium | Low     | UX       |~~ done at — `IsSupportedFile` gates collection
+~~| 23   | Add MDX integration test with JSX content                  | Medium | Low     | Testing  |~~ done at `13ac23a`
+~~| 24   | Create `examples/` directory with sample files             | Low    | Medium  | Docs     |~~ Won't implement — `EXAMPLES.md` serves this role
+~~| 25   | Consider `embed` for default config                        | Low    | Medium  | Arch     |~~ Won't implement — `InitFile` scaffolds configs instead
 
 ---
 
