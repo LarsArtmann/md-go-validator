@@ -1,5 +1,8 @@
 # Comprehensive Execution Plan - md-go-validator
 
+> ARCHIVED 2026-09-26 — every phase below was executed; headings struck with closing
+> commits. Current work: `TODO_LIST.md`.
+
 **Generated:** 2026-05-04\
 **Priority:** Based on impact/work ratio
 
@@ -7,7 +10,7 @@
 
 ## PHASE 1: Critical Gaps (Must Fix)
 
-### 1.1 Add tests for `pkg/code` (0% coverage) - IMPACT: HIGH, WORK: LOW
+~~### 1.1 Add tests for `pkg/code` (0% coverage) - IMPACT: HIGH, WORK: LOW~~ done at `3aa3536`
 
 **Files:** `pkg/code/util.go`
 
@@ -18,7 +21,7 @@
 
 **Test file:** `pkg/code/util_test.go`
 
-### 1.2 Add tests for `pkg/testutil` (0% coverage) - IMPACT: HIGH, WORK: LOW
+~~### 1.2 Add tests for `pkg/testutil` (0% coverage) - IMPACT: HIGH, WORK: LOW~~ done at `58a1f5a`
 
 **Files:** `pkg/testutil/testutil.go`
 
@@ -40,7 +43,7 @@
 
 ## PHASE 2: Quick Wins (High Impact, Low Work)
 
-### 2.1 Fix pre-commit hook - IMPACT: LOW, WORK: TRIVIAL
+~~### 2.1 Fix pre-commit hook - IMPACT: LOW, WORK: TRIVIAL~~ resolved — BuildFlow now manages hooks
 
 Either make executable or remove:
 
@@ -50,18 +53,18 @@ chmod +x .git/hooks/pre-commit
 rm .git/hooks/pre-commit
 ```
 
-### 2.2 Remove `justfile` (deprecated) - IMPACT: MEDIUM, WORK: LOW
+~~### 2.2 Remove `justfile` (deprecated) - IMPACT: MEDIUM, WORK: LOW~~ done at `68a4d75`
 
 The AGENTS.md says it's deprecated. If we have flake.nix, justfile adds confusion.
 
-### 2.3 Remove stale documentation - IMPACT: LOW, WORK: LOW
+~~### 2.3 Remove stale documentation - IMPACT: LOW, WORK: LOW~~ done at `68a4d75` (CLONE_ANALYSIS.md, REFLECTION_AND_PLAN.md removed)
 
 Check if these are still relevant:
 
 - `CLONE_ANALYSIS.md`
 - `REFLECTION_AND_PLAN.md`
 
-### 2.4 Export `SupportedExtensions()` - IMPACT: MEDIUM, WORK: LOW
+~~### 2.4 Export `SupportedExtensions()` - IMPACT: MEDIUM, WORK: LOW~~ done at `d290055`
 
 Add public API for library users:
 
@@ -77,7 +80,7 @@ func IsSupportedFile(path string) bool { ... }
 
 ## PHASE 3: Architecture Improvements (Medium Impact)
 
-### 3.1 Add `FileType` branded type - IMPACT: MEDIUM, WORK: LOW
+~~### 3.1 Add `FileType` branded type - IMPACT: MEDIUM, WORK: LOW~~ done at `cb3e883`
 
 Currently extensions are raw strings. Create:
 
@@ -92,7 +95,7 @@ const (
 )
 ```
 
-### 3.2 Improve `cmd` test coverage (61.7% → 80%) - IMPACT: MEDIUM, WORK: MEDIUM
+~~### 3.2 Improve `cmd` test coverage (61.7% → 80%) - IMPACT: MEDIUM, WORK: MEDIUM~~ done at `f3a2c2c` (74.8%; 80% not pursued)
 
 Missing coverage:
 
@@ -101,7 +104,7 @@ Missing coverage:
 - Language flag edge cases
 - Timeout/cancellation
 
-### 3.3 Add `pkg/languages` coverage (66.7% → 80%) - IMPACT: MEDIUM, WORK: MEDIUM
+~~### 3.3 Add `pkg/languages` coverage (66.7% → 80%) - IMPACT: MEDIUM, WORK: MEDIUM~~ done at `cb3e883` (87.9%)
 
 Tree-sitter validators are skipped when grammars unavailable - need to test this path.
 

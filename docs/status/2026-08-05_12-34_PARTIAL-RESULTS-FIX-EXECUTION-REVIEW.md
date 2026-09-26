@@ -1,5 +1,9 @@
 # Status Report — 2026-08-05 12:34
 
+> ANNOTATED 2026-09-26 (docs-health pass): completed items below are struck with
+> closing evidence; unstruck items remain open and are tracked in `TODO_LIST.md`
+> (or `ROADMAP.md` for raw ideas).
+
 ## Session 2: Partial Results Recovery Fix — Execution & Self-Review
 
 **Previous session:** Diagnosed the 0/0/0 report bug but stopped to ask permission instead of fixing it.
@@ -93,11 +97,11 @@
 
 ### Immediate (verify this session's work is solid)
 
-1. Run `go test -cover ./...` and update the AGENTS.md coverage table
-2. Grep for `encountered.*errors` across all test files to verify no test asserts on the old format
+~~1. Run `go test -cover ./...` and update the AGENTS.md coverage table~~ done (docs-health pass 2026-09-26: AGENTS.md table refreshed from `go test -cover`)
+~~2. Grep for `encountered.*errors` across all test files to verify no test asserts on the old format~~ done (verified 2026-09-26: no test asserts the old format)
 3. Run the validator against `/home/lars/projects` to verify the 0/0/0 bug is actually fixed end-to-end
-4. Write a CHANGELOG entry for the fix
-5. Update the planning doc with an "Execution Notes" section
+~~4. Write a CHANGELOG entry for the fix~~ done (docs-health pass 2026-09-26)
+~~5. Update the planning doc with an "Execution Notes" section~~ done (docs-health pass 2026-09-26: inline annotations added to the planning doc)
 
 ### Short-term (complete the partial-results contract)
 
@@ -116,13 +120,13 @@
 15. Print a "WARNING: N files skipped due to errors, results are partial" line before the report when errors occurred
 16. Make the report's "Errors" counter reflect file-read errors, not just block-validation errors
 17. Add `--format sarif` output to include file-read errors as findings
-18. Document exit codes explicitly: 0 = success, 1 = validation errors, 2 = tool/usage errors
+~~18. Document exit codes explicitly: 0 = success, 1 = validation errors, 2 = tool/usage errors~~ done at `4cbc43d` (README exit-code table)
 19. Add `--summary-only` flag to suppress per-block streaming for CI noise reduction
 
 ### Testing improvements
 
 20. Make the cancellation test deterministic (cancel via callback after N results, not timing)
-21. Add a test that mixes valid + errored + skipped files and verifies the report counts are accurate
+~~21. Add a test that mixes valid + errored + skipped files and verifies the report counts are accurate~~ done at `d40313d` (`TestValidatePath_PartialResultsOnDirectoryError`)
 22. Add a test for the streaming API's partial-results-on-error contract
 23. Add a broken-symlink integration test fixture in `pkg/testdata/`
 24. Add a no-read-permissions integration test fixture
@@ -131,16 +135,16 @@
 
 ### Documentation
 
-27. Update AGENTS.md with the `errors.Join` change and new error message format
-28. Document the streaming API contract in the `Validator` interface doc comment
-29. Cross-reference the previous status report's 35 tasks with what actually got done
-30. Write a "Partial Results on Error" design doc explaining the contract for library consumers
+~~27. Update AGENTS.md with the `errors.Join` change and new error message format~~ done at — AGENTS.md documents the `errors.Join` behavior
+~~28. Document the streaming API contract in the `Validator` interface doc comment~~ done at `c75e28b`
+~~29. Cross-reference the previous status report's 35 tasks with what actually got done~~ done (docs-health pass 2026-09-26: inline annotations on the 07-24 report)
+~~30. Write a "Partial Results on Error" design doc explaining the contract for library consumers~~ Won't implement — covered by `AGENTS.md` contract section + website library-api page
 
 ### Depguard / lint cleanup
 
 31. Audit `.golangci.yml` depguard rules — 46 warnings are either stale or misconfigured
 32. Fix or suppress the depguard warnings if the rules are wrong
-33. Pin GitHub Actions to commit SHAs (15 warnings from BuildFlow's go-structure-linter)
+~~33. Pin GitHub Actions to commit SHAs (15 warnings from BuildFlow's go-structure-linter)~~ done at `20b2b55`
 
 ### Nix improvements
 
@@ -149,8 +153,8 @@
 
 ### Code quality
 
-36. Audit the `ireturn` / `nolintlint` catch-22 mentioned in AGENTS.md — is it still relevant?
-37. Check if the `wsl_v5` whitespace rules are too strict (they forced 3 fixes in new code this session)
+~~36. Audit the `ireturn` / `nolintlint` catch-22 mentioned in AGENTS.md — is it still relevant?~~ done at `cb3e883` (resolved via `.golangci.yml` exclusions)
+~~37. Check if the `wsl_v5` whitespace rules are too strict (they forced 3 fixes in new code this session)~~ Won't implement — deliberate style choice, enforced consistently
 38. Consider whether `processJob` should use `errors.Join` for its own error wrapping instead of `fmt.Errorf`
 39. The `errors` import in `validator.go` is used for both sentinel errors and `errors.Join` — verify this is clean
 

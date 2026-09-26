@@ -1,5 +1,8 @@
 # Full Code Review — 2026-06-17
 
+> ARCHIVED 2026-09-26 — items [A]–[K] were implemented the same day (see the in-document
+> UPDATE banner); struck here with their closing commits. Current work: `TODO_LIST.md`.
+
 > Comprehensive Senior-Architect review of `md-go-validator`.
 > Baseline at review start: `go test ./...`, `golangci-lint run ./...`, `go vet` all green.
 > **Critical regression found & fixed: `nix build .#` was broken.**
@@ -58,44 +61,44 @@ consistent with it. Verify this upgrade is intended before committing.
 
 **1% → 51% (do first):**
 
-- **[A] DRY the Nix build.** `flake.nix` fully duplicates `package.nix` (vendorHash, src, ldflags,
+~~- **[A] DRY the Nix build.** `flake.nix` fully duplicates `package.nix` (vendorHash, src, ldflags,~~ done at `cbaa922`
   meta). This duplication _caused_ build break #1 (hash updated in one place, missed the pattern).
   Have `flake.nix` do `pkgs.callPackage ./package.nix { inherit self; }` and delete the inline
   `buildGoModule`. Single source of truth for the build. ~15 min.
 
 **4% → 64%:**
 
-- **[B] Make `StatusError` + nil error unrepresentable.** Fix #5 added a defensive guard, but the
+~~- **[B] Make `StatusError` + nil error unrepresentable.** Fix #5 added a defensive guard, but the~~ done at `db0f022`
   type-level fix is better: `NewResultWithStatus` should reject `StatusError` (callers must use
   `NewErrorResult`), or split the constructors. Makes an impossible state a compile-time error. ~30 min.
-- **[C] Add `pkg/extractor_test.go`.** The extractor — the most logic-heavy parser in the project
+~~- **[C] Add `pkg/extractor_test.go`.** The extractor — the most logic-heavy parser in the project~~ done at `c616c98`
   (state machine, skip directives, multi-lang) — has **no dedicated unit tests**; it is only
   exercised indirectly. Direct table-driven tests would lock in behavior and raise `pkg` coverage. ~45 min.
 
 **20% → 80%:**
 
-- **[D] Simplify result-collection concurrency.** `processFilesParallel` → `collectResultsLoop` →
+~~- **[D] Simplify result-collection concurrency.** `processFilesParallel` → `collectResultsLoop` →~~ done at `c8ad4ca`
   `collectFromChan` + 2 goroutines + mutex is over-engineered for draining two channels closed
   back-to-back. A single goroutine ranging `results` then `errors` (channels are closed sequentially)
   removes ~40 lines and the `goroutineCount` constant. ~30 min.
-- **[E] Fix off-by-one inconsistency in error messages.** `validator.go:199,253` compute
+~~- **[E] Fix off-by-one inconsistency in error messages.** `validator.go:199,253` compute~~ done at `c8ad4ca`
   `blockIndex.Int()-1` (1-based → 0-based) inside messages that elsewhere treat `blockIndex` as
   1-based. Pick one convention; prefer 1-based throughout. ~10 min.
-- **[F] Consolidate ANSI color handling.** `printTableHeaderTo` uses raw `"\033[1;36m"` literals
+~~- **[F] Consolidate ANSI color handling.** `printTableHeaderTo` uses raw `"\033[1;36m"` literals~~ done at `55d2fc9`
   while `printErrorEntry` uses named constants (`ansiBold`, …). Unify on the constants (add
   cyan/green). ~20 min.
 
 **Longer tail (optional):**
 
-- **[G]** `ContextConfig.MaxFiles`/`MaxBlocksPerFile` use `int`; the rest of the domain uses branded
+~~- **[G]** `ContextConfig.MaxFiles`/`MaxBlocksPerFile` use `int`; the rest of the domain uses branded~~ done at `451d016`
   `uint` types. Align for consistency.
-- **[H]** `processJob` creates a per-file `context.WithCancel` it cancels immediately with no
+~~- **[H]** `processJob` creates a per-file `context.WithCancel` it cancels immediately with no~~ done at `1840ae8`
   independent trigger — effectively the parent ctx. Simplify or document intent.
-- **[I]** `ValidationError` uses pointer receivers only, so a value doesn't satisfy `error`. Make
+~~- **[I]** `ValidationError` uses pointer receivers only, so a value doesn't satisfy `error`. Make~~ done at `d4a59e5`
   receivers consistent or document.
-- **[J]** CI dogfood step (`ci.yml:59`) validates only 4 files; consider including `docs/` and
+~~- **[J]** CI dogfood step (`ci.yml:59`) validates only 4 files; consider including `docs/` and~~ done at `ecda347`
   `AGENTS.md`. Also consider running `nix flake check` in CI for parity with the documented workflow.
-- **[K]** `TreeSitterValidator` stores both `language Language` and `langName string` (two sources
+~~- **[K]** `TreeSitterValidator` stores both `language Language` and `langName string` (two sources~~ done at `d4a59e5`
   of truth for "what grammar"). Derive one from the other where possible.
 
 ### Execution graph (D2)

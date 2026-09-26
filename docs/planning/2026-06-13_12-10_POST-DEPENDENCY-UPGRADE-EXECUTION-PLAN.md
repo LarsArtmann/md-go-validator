@@ -1,5 +1,9 @@
 # Post-Dependency Upgrade Execution Plan
 
+> ARCHIVED 2026-09-26 — executed across v0.2.0–v0.3.0 and the 2026-06-25/26 feature
+> rounds. Master tasks are struck with closing commits; routed items live in
+> `TODO_LIST.md` / `ROADMAP.md` / `docs/modularization/`.
+
 _Generated 2026-06-13 12:10 CEST after upgrading go-output to v0.10.0 and restoring the nix build._
 
 ---
@@ -43,31 +47,31 @@ Each task is designed to be **30–100 minutes** of focused work. Total: ~25 tas
 
 | #  | Task                                                            | Impact | Effort | Tier | Notes                                                                       |
 | -- | --------------------------------------------------------------- | ------ | ------ | ---- | --------------------------------------------------------------------------- |
-| 1  | **Cut v0.2.0 release**                                          | 🔥🔥🔥 | S      | P0   | Tag + goreleaser. Unlocks all subsequent value.                             |
-| 2  | **Add `--version` flag**                                        | 🔥🔥🔥 | S      | P0   | Read `main.version` ldflag; print and exit 0. Tests in `cmd/`.              |
-| 3  | **Fix `flake.overlays.default`**                                | 🔥🔥   | S      | P0   | Either create `package.nix` or remove overlay export.                       |
-| 4  | **Fix `CONTRIBUTING.md` dead references**                       | 🔥🔥   | S      | P0   | Replace `just` with `nix` commands; remove dead script refs.                |
-| 5  | **Add self-validation to CI**                                   | 🔥🔥   | S      | P0   | Run built binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md`.     |
-| 6  | **Create `FEATURES.md`**                                        | 🔥🔥   | S      | P1   | Honest inventory by status (DONE / PARTIAL / PLANNED).                      |
-| 7  | **Create `TODO_LIST.md`**                                       | 🔥🔥   | S      | P1   | Short/mid-term actionable tasks, not vague ideas.                           |
-| 8  | **Add granular exit codes**                                     | 🔥🔥   | S      | P1   | 0=valid, 1=errors, 2=crash, 3=no files found.                               |
-| 9  | **Add error codes to JSON output**                              | 🔥     | S      | P1   | Extend `types.ErrorEntry` with stable error code.                           |
-| 10 | **Add `--init` command**                                        | 🔥🔥   | S      | P1   | Generate `.md-go-validator.yaml` with defaults.                             |
-| 11 | **Configuration file support (`.md-go-validator.yaml`)**        | 🔥🔥🔥 | M      | P1   | Use `viper` or `koanf`. Merge file < env < CLI flags.                       |
-| 12 | **Exclude patterns (`.md-go-validator-ignore`)**                | 🔥🔥   | M      | P1   | Use `doublestar` for `.gitignore`-style matching.                           |
-| 13 | **GitHub Action (`action.yml`)**                                | 🔥🔥🔥 | M      | P1   | Composite action using released binary. Single-line CI integration.         |
-| 14 | **Pre-commit hooks (`.pre-commit-hooks.yaml`)**                 | 🔥🔥   | S      | P1   | Hook definition for ecosystem discoverability.                              |
-| 15 | **Introduce `go-error-family` for structured errors**           | 🔥🔥   | M      | P1   | Classify errors: input/validation/internal/rejected.                        |
-| 16 | **Refactor `Result` into a sum type**                           | 🔥🔥   | M      | P2   | `ValidResult` / `SkippedResult` / `ErrorResult` + interface.                |
-| 17 | **Create `pkg/config` domain type**                             | 🔥🔥   | M      | P2   | Centralize defaults, validation, flag mapping.                              |
-| 18 | **Break `pkg/types` ↔ `pkg/languages` cycle**                   | 🔥🔥   | M      | P2   | Move `Language` type to `pkg/language` or `pkg/types`.                      |
-| 19 | **Increase `cmd/` test coverage to 85%+**                       | 🔥     | M      | P2   | Currently 70.9%; focus on flag parsing edge cases.                          |
-| 20 | **Add `internal/` package boundary**                            | 🔥     | M      | P2   | Move non-public implementation under `internal/`.                           |
-| 21 | **Remove stray `md-go-validator` binary + update `.gitignore`** | 🔥     | S      | P2   | Prevents accidental commit.                                                 |
-| 22 | **Add progress indicator for large directories**                | 🔥     | S      | P3   | `cheggaaa/pb` or bubbletea; respect `--quiet`.                              |
-| 23 | **Add `--dry-run` flag**                                        | 🔥     | S      | P3   | List files/blocks that would be validated.                                  |
-| 24 | **Implement watch mode (`--watch`)**                            | 🔥     | M      | P3   | Use `fsnotify`; debounce and re-run.                                        |
-| 25 | **Migrate CLI to `cobra` + `viper`**                            | 🔥🔥   | L      | P3   | Enables subcommands, completion, config, `--version`. Replaces hand parser. |
+~~| 1  | **Cut v0.2.0 release**                                          | 🔥🔥🔥 | S      | P0   | Tag + goreleaser. Unlocks all subsequent value.                             |~~ done at `d3a4a1c`
+~~| 2  | **Add `--version` flag**                                        | 🔥🔥🔥 | S      | P0   | Read `main.version` ldflag; print and exit 0. Tests in `cmd/`.              |~~ done at `d3a4a1c`
+~~| 3  | **Fix `flake.overlays.default`**                                | 🔥🔥   | S      | P0   | Either create `package.nix` or remove overlay export.                       |~~ done at `cbaa922`
+~~| 4  | **Fix `CONTRIBUTING.md` dead references**                       | 🔥🔥   | S      | P0   | Replace `just` with `nix` commands; remove dead script refs.                |~~ done at `b72a1be`
+~~| 5  | **Add self-validation to CI**                                   | 🔥🔥   | S      | P0   | Run built binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md`.     |~~ done at `d3a4a1c`, `ecda347`
+~~| 6  | **Create `FEATURES.md`**                                        | 🔥🔥   | S      | P1   | Honest inventory by status (DONE / PARTIAL / PLANNED).                      |~~ done at `50487d3`
+~~| 7  | **Create `TODO_LIST.md`**                                       | 🔥🔥   | S      | P1   | Short/mid-term actionable tasks, not vague ideas.                           |~~ done at `50487d3`
+~~| 8  | **Add granular exit codes**                                     | 🔥🔥   | S      | P1   | 0=valid, 1=errors, 2=crash, 3=no files found.                               |~~ done at `6d269dd` (0/1/2; separate no-files code rejected)
+~~| 9  | **Add error codes to JSON output**                              | 🔥     | S      | P1   | Extend `types.ErrorEntry` with stable error code.                           |~~ done at `6d269dd`
+~~| 10 | **Add `--init` command**                                        | 🔥🔥   | S      | P1   | Generate `.md-go-validator.yaml` with defaults.                             |~~ done at `c8e8ba8`
+~~| 11 | **Configuration file support (`.md-go-validator.yaml`)**        | 🔥🔥🔥 | M      | P1   | Use `viper` or `koanf`. Merge file < env < CLI flags.                       |~~ done at `acfe5c4` (go-faster/yaml, not viper)
+~~| 12 | **Exclude patterns (`.md-go-validator-ignore`)**                | 🔥🔥   | M      | P1   | Use `doublestar` for `.gitignore`-style matching.                           |~~ done at `da2f6f5`, `ce25525` (`--exclude` flags, not ignore-file)
+~~| 13 | **GitHub Action (`action.yml`)**                                | 🔥🔥🔥 | M      | P1   | Composite action using released binary. Single-line CI integration.         |~~ done at `acfe5c4`, `fba9fe5` (Docker-based)
+~~| 14 | **Pre-commit hooks (`.pre-commit-hooks.yaml`)**                 | 🔥🔥   | S      | P1   | Hook definition for ecosystem discoverability.                              |~~ done at `acfe5c4`
+~~| 15 | **Introduce `go-error-family` for structured errors**           | 🔥🔥   | M      | P1   | Classify errors: input/validation/internal/rejected.                        |~~ DUPLICATE — adoption decision tracked in `ROADMAP.md` (open questions)
+~~| 16 | **Refactor `Result` into a sum type**                           | 🔥🔥   | M      | P2   | `ValidResult` / `SkippedResult` / `ErrorResult` + interface.                |~~ Won't implement — invariant enforcement + status enum shipped instead (`db0f022`)
+~~| 17 | **Create `pkg/config` domain type**                             | 🔥🔥   | M      | P2   | Centralize defaults, validation, flag mapping.                              |~~ done at `acfe5c4`
+~~| 18 | **Break `pkg/types` ↔ `pkg/languages` cycle**                   | 🔥🔥   | M      | P2   | Move `Language` type to `pkg/language` or `pkg/types`.                      |~~ DUPLICATE — tracked in `docs/modularization/`
+~~| 19 | **Increase `cmd/` test coverage to 85%+**                       | 🔥     | M      | P2   | Currently 70.9%; focus on flag parsing edge cases.                          |~~ done at `f3a2c2c` (74.8%; 85% not pursued — diminishing returns)
+~~| 20 | **Add `internal/` package boundary**                            | 🔥     | M      | P2   | Move non-public implementation under `internal/`.                           |~~ DUPLICATE — tracked in `ROADMAP.md`
+~~| 21 | **Remove stray `md-go-validator` binary + update `.gitignore`** | 🔥     | S      | P2   | Prevents accidental commit.                                                 |~~ done at — `/md-go-validator` gitignored
+~~| 22 | **Add progress indicator for large directories**                | 🔥     | S      | P3   | `cheggaaa/pb` or bubbletea; respect `--quiet`.                              |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 23 | **Add `--dry-run` flag**                                        | 🔥     | S      | P3   | List files/blocks that would be validated.                                  |~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~| 24 | **Implement watch mode (`--watch`)**                            | 🔥     | M      | P3   | Use `fsnotify`; debounce and re-run.                                        |~~ DUPLICATE — tracked in `ROADMAP.md`
+~~| 25 | **Migrate CLI to `cobra` + `viper`**                            | 🔥🔥   | L      | P3   | Enables subcommands, completion, config, `--version`. Replaces hand parser. |~~ Won't implement — hand parser retained deliberately
 
 ---
 
@@ -79,98 +83,98 @@ Only the top 10 tasks are decomposed here. Each sub-task should fit in ~15 minut
 
 | #   | Sub-task                                                                   | Rationale                   |
 | --- | -------------------------------------------------------------------------- | --------------------------- |
-| 1.1 | Update `CHANGELOG.md` unreleased section into v0.2.0                       | Legal/clean release notes   |
-| 1.2 | Bump any hardcoded version strings                                         | Ensure consistency          |
-| 1.3 | Run full verification: `go test -race`, `golangci-lint`, `nix flake check` | Release gate                |
-| 1.4 | Tag `v0.2.0` and push                                                      | Git release trigger         |
-| 1.5 | Run `goreleaser release`                                                   | Artifacts, brew, scoop, nix |
+~~| 1.1 | Update `CHANGELOG.md` unreleased section into v0.2.0                       | Legal/clean release notes   |~~ done at `d3a4a1c` (parent task)
+~~| 1.2 | Bump any hardcoded version strings                                         | Ensure consistency          |~~ done at `d3a4a1c` (parent task)
+~~| 1.3 | Run full verification: `go test -race`, `golangci-lint`, `nix flake check` | Release gate                |~~ done at `d3a4a1c` (parent task)
+~~| 1.4 | Tag `v0.2.0` and push                                                      | Git release trigger         |~~ done at `d3a4a1c` (parent task)
+~~| 1.5 | Run `goreleaser release`                                                   | Artifacts, brew, scoop, nix |~~ done at `d3a4a1c` (parent task)
 
 ### Task 2: Add `--version` flag
 
 | #   | Sub-task                                        | Rationale          |
 | --- | ----------------------------------------------- | ------------------ |
-| 2.1 | Add `--version` to flag constants and help text | Discoverability    |
-| 2.2 | Parse `--version` before other flags            | Early exit path    |
-| 2.3 | Print `main.version` (fallback to `dev`)        | Works with ldflags |
-| 2.4 | Add tests for `--version` and missing version   | Coverage           |
-| 2.5 | Update `README.md` examples                     | Docs               |
+~~| 2.1 | Add `--version` to flag constants and help text | Discoverability    |~~ done at `d3a4a1c` (parent task)
+~~| 2.2 | Parse `--version` before other flags            | Early exit path    |~~ done at `d3a4a1c` (parent task)
+~~| 2.3 | Print `main.version` (fallback to `dev`)        | Works with ldflags |~~ done at `d3a4a1c` (parent task)
+~~| 2.4 | Add tests for `--version` and missing version   | Coverage           |~~ done at `d3a4a1c` (parent task)
+~~| 2.5 | Update `README.md` examples                     | Docs               |~~ done at `d3a4a1c` (parent task)
 
 ### Task 3: Fix `flake.overlays.default`
 
 | #   | Sub-task                                                 | Rationale        |
 | --- | -------------------------------------------------------- | ---------------- |
-| 3.1 | Decide: create `package.nix` or remove overlay           | Product decision |
-| 3.2 | If creating: extract package expression from `flake.nix` | DRY              |
-| 3.3 | If removing: delete `flake.overlays.default`             | Simplicity       |
-| 3.4 | Verify `nix flake check` and `nix build .#` still pass   | No regression    |
-| 3.5 | Update `AGENTS.md` and README if overlay changes         | Docs             |
+~~| 3.1 | Decide: create `package.nix` or remove overlay           | Product decision |~~ done at `cbaa922` (parent task)
+~~| 3.2 | If creating: extract package expression from `flake.nix` | DRY              |~~ done at `cbaa922` (parent task)
+~~| 3.3 | If removing: delete `flake.overlays.default`             | Simplicity       |~~ done at `cbaa922` (parent task)
+~~| 3.4 | Verify `nix flake check` and `nix build .#` still pass   | No regression    |~~ done at `cbaa922` (parent task)
+~~| 3.5 | Update `AGENTS.md` and README if overlay changes         | Docs             |~~ done at `cbaa922` (parent task)
 
 ### Task 4: Fix `CONTRIBUTING.md` dead references
 
 | #   | Sub-task                                           | Rationale    |
 | --- | -------------------------------------------------- | ------------ |
-| 4.1 | Replace all `just` commands with `nix` equivalents | Accuracy     |
-| 4.2 | Remove references to non-existent setup scripts    | Accuracy     |
-| 4.3 | Add nix dev shell instructions                     | Onboarding   |
-| 4.4 | Add golangci-lint and test commands                | Completeness |
-| 4.5 | Verify no dead internal links                      | Quality      |
+~~| 4.1 | Replace all `just` commands with `nix` equivalents | Accuracy     |~~ done at `b72a1be` (parent task)
+~~| 4.2 | Remove references to non-existent setup scripts    | Accuracy     |~~ done at `b72a1be` (parent task)
+~~| 4.3 | Add nix dev shell instructions                     | Onboarding   |~~ done at `b72a1be` (parent task)
+~~| 4.4 | Add golangci-lint and test commands                | Completeness |~~ done at `b72a1be` (parent task)
+~~| 4.5 | Verify no dead internal links                      | Quality      |~~ done at `b72a1be` (parent task)
 
 ### Task 5: Add self-validation to CI
 
 | #   | Sub-task                                                         | Rationale     |
 | --- | ---------------------------------------------------------------- | ------------- |
-| 5.1 | Add CI step to build binary                                      | Need artifact |
-| 5.2 | Run binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md` | Dogfooding    |
-| 5.3 | Use `--format=json` and fail on errors                           | CI-friendly   |
-| 5.4 | Verify in a test PR or local act                                 | Confidence    |
+~~| 5.1 | Add CI step to build binary                                      | Need artifact |~~ done at `d3a4a1c` (parent task)
+~~| 5.2 | Run binary against `README.md`, `EXAMPLES.md`, `CONTRIBUTING.md` | Dogfooding    |~~ done at `d3a4a1c` (parent task)
+~~| 5.3 | Use `--format=json` and fail on errors                           | CI-friendly   |~~ done at `d3a4a1c` (parent task)
+~~| 5.4 | Verify in a test PR or local act                                 | Confidence    |~~ done at `d3a4a1c` (parent task)
 
 ### Task 6: Create `FEATURES.md`
 
 | #   | Sub-task                                                 | Rationale       |
 | --- | -------------------------------------------------------- | --------------- |
-| 6.1 | Inventory all features from code                         | Completeness    |
-| 6.2 | Categorize: DONE / PARTIAL / PLANNED / WORTH CONSIDERING | Honesty         |
-| 6.3 | Cross-check against `CONSUMER_PERSPECTIVE.md` gaps       | Consistency     |
-| 6.4 | Add to `AGENTS.md` if appropriate                        | Discoverability |
+~~| 6.1 | Inventory all features from code                         | Completeness    |~~ done at `50487d3` (parent task)
+~~| 6.2 | Categorize: DONE / PARTIAL / PLANNED / WORTH CONSIDERING | Honesty         |~~ done at `50487d3` (parent task)
+~~| 6.3 | Cross-check against `CONSUMER_PERSPECTIVE.md` gaps       | Consistency     |~~ done at `50487d3` (parent task)
+~~| 6.4 | Add to `AGENTS.md` if appropriate                        | Discoverability |~~ done at `50487d3` (parent task)
 
 ### Task 7: Create `TODO_LIST.md`
 
 | #   | Sub-task                                        | Rationale       |
 | --- | ----------------------------------------------- | --------------- |
-| 7.1 | Pull items from this plan and consumer gaps     | Source of truth |
-| 7.2 | Mark status and owner (if any)                  | Accountability  |
-| 7.3 | Keep scoped to short/mid-term (next 1–3 months) | Actionable      |
-| 7.4 | Add links to relevant files/issues              | Navigation      |
+~~| 7.1 | Pull items from this plan and consumer gaps     | Source of truth |~~ done at `50487d3` (parent task)
+~~| 7.2 | Mark status and owner (if any)                  | Accountability  |~~ done at `50487d3` (parent task)
+~~| 7.3 | Keep scoped to short/mid-term (next 1–3 months) | Actionable      |~~ done at `50487d3` (parent task)
+~~| 7.4 | Add links to relevant files/issues              | Navigation      |~~ done at `50487d3` (parent task)
 
 ### Task 8: Add granular exit codes
 
 | #   | Sub-task                         | Rationale     |
 | --- | -------------------------------- | ------------- |
-| 8.1 | Define exit-code enum/consts     | Type safety   |
-| 8.2 | Map validation outcomes to codes | Logic         |
-| 8.3 | Update main exit logic           | Wiring        |
-| 8.4 | Add tests for each exit code     | Coverage      |
-| 8.5 | Document in README               | User contract |
+~~| 8.1 | Define exit-code enum/consts     | Type safety   |~~ done at `6d269dd` (parent task)
+~~| 8.2 | Map validation outcomes to codes | Logic         |~~ done at `6d269dd` (parent task)
+~~| 8.3 | Update main exit logic           | Wiring        |~~ done at `6d269dd` (parent task)
+~~| 8.4 | Add tests for each exit code     | Coverage      |~~ done at `6d269dd` (parent task)
+~~| 8.5 | Document in README               | User contract |~~ done at `6d269dd` (parent task)
 
 ### Task 9: Add error codes to JSON output
 
 | #   | Sub-task                                              | Rationale     |
 | --- | ----------------------------------------------------- | ------------- |
-| 9.1 | Add `Code` field to `types.ErrorEntry`                | Data model    |
-| 9.2 | Classify errors in validators (syntax/not-found/etc.) | Mapping       |
-| 9.3 | Update `BuildReportData`                              | Report wiring |
-| 9.4 | Update JSON tests                                     | Coverage      |
-| 9.5 | Document error-code table                             | API contract  |
+~~| 9.1 | Add `Code` field to `types.ErrorEntry`                | Data model    |~~ done at `6d269dd` (parent task)
+~~| 9.2 | Classify errors in validators (syntax/not-found/etc.) | Mapping       |~~ done at `6d269dd` (parent task)
+~~| 9.3 | Update `BuildReportData`                              | Report wiring |~~ done at `6d269dd` (parent task)
+~~| 9.4 | Update JSON tests                                     | Coverage      |~~ done at `6d269dd` (parent task)
+~~| 9.5 | Document error-code table                             | API contract  |~~ done at `6d269dd` (parent task)
 
 ### Task 10: Add `--init` command
 
 | #    | Sub-task                                       | Rationale         |
 | ---- | ---------------------------------------------- | ----------------- |
-| 10.1 | Define default config struct/defaults          | Reuse config type |
-| 10.2 | Write YAML to `.md-go-validator.yaml`          | Output            |
-| 10.3 | Handle existing file (error or overwrite flag) | Safety            |
-| 10.4 | Add tests                                      | Coverage          |
-| 10.5 | Document in README                             | Usage             |
+~~| 10.1 | Define default config struct/defaults          | Reuse config type |~~ done at `c8e8ba8` (parent task)
+~~| 10.2 | Write YAML to `.md-go-validator.yaml`          | Output            |~~ done at `c8e8ba8` (parent task)
+~~| 10.3 | Handle existing file (error or overwrite flag) | Safety            |~~ done at `c8e8ba8` (parent task)
+~~| 10.4 | Add tests                                      | Coverage          |~~ done at `c8e8ba8` (parent task)
+~~| 10.5 | Document in README                             | Usage             |~~ done at `c8e8ba8` (parent task)
 
 ---
 

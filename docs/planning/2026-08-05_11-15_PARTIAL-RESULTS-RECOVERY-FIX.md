@@ -1,7 +1,10 @@
 # Plan: Partial Results Recovery Fix
 
+> ARCHIVED 2026-09-26 — executed same day. T1–T7 / M1–M14 are struck with their
+> closing commits; outcome documented in `docs/status/2026-08-05_12-34_PARTIAL-RESULTS-FIX-EXECUTION-REVIEW.md`.
+
 **Date:** 2026-08-05 11:15
-**Status:** Ready for execution
+~~~~~~**Status:** Ready for execution~~ executed same day — done at `c01632d`, `d40313d`~~ <function group_planning.<locals>.<lambda> at 0x761adaffbed0>~~ <function group_planning.<locals>.<lambda> at 0x7151be7fbed0>
 **Risk:** Low — surgical fixes to error-handling paths, no API changes
 
 ---
@@ -93,13 +96,13 @@ All three fixes + regression tests covering:
 
 | ID | Task                                                                 | Impact   | Effort | Priority |
 | -- | -------------------------------------------------------------------- | -------- | ------ | -------- |
-| T1 | Fix Bug 1: CLI `validatePath` returns partial results                | Critical | 30 min | P0       |
-| T2 | Fix Bug 2: `processJob` sends partial results on error               | High     | 40 min | P0       |
-| T3 | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium   | 30 min | P1       |
-| T4 | Write regression tests (3 tests: CLI, validator, error-join)         | High     | 90 min | P1       |
-| T5 | Run full verification (build + test + race + lint)                   | Critical | 30 min | P0       |
-| T6 | Update AGENTS.md with partial-results contract                       | Low      | 30 min | P2       |
-| T7 | Write planning doc + commit + push                                   | Low      | 30 min | P2       |
+~~| T1 | Fix Bug 1: CLI `validatePath` returns partial results                | Critical | 30 min | P0       |~~ done at `c01632d`
+~~| T2 | Fix Bug 2: `processJob` sends partial results on error               | High     | 40 min | P0       |~~ done at `c01632d`
+~~| T3 | Fix Bug 3: `errors.Join` in `collectResults` + `streamFilesParallel` | Medium   | 30 min | P1       |~~ done at `c01632d`
+~~| T4 | Write regression tests (3 tests: CLI, validator, error-join)         | High     | 90 min | P1       |~~ done at `d40313d`
+~~| T5 | Run full verification (build + test + race + lint)                   | Critical | 30 min | P0       |~~ done at `d40313d`
+~~| T6 | Update AGENTS.md with partial-results contract                       | Low      | 30 min | P2       |~~ done at `d40313d`
+~~| T7 | Write planning doc + commit + push                                   | Low      | 30 min | P2       |~~ done at `c01632d`, `d40313d`, `fc48c07`
 
 ---
 
@@ -107,20 +110,20 @@ All three fixes + regression tests covering:
 
 | ID  | Task                                                                                 | Est    | Depends On |
 | --- | ------------------------------------------------------------------------------------ | ------ | ---------- |
-| M1  | Edit `main.go:596`: `return nil, false` → `return results, false`                    | 3 min  | —          |
-| M2  | Edit `processJob` in `validator.go`: send partial results before error               | 5 min  | —          |
-| M3  | Edit `collectResults` in `validator.go`: `errors.Join(errs...)` instead of `errs[0]` | 3 min  | —          |
-| M4  | Edit `streamFilesParallel` in `validator.go`: same `errors.Join` fix                 | 3 min  | —          |
-| M5  | Verify no syntax errors via `go build ./cmd/md-go-validator`                         | 2 min  | M1-M4      |
-| M6  | Write `TestValidatePath_PartialResultsOnDirectoryError` in main_test.go              | 12 min | M5         |
-| M7  | Write `TestValidator_ValidateDirectory_UnreadableFile` in validator_test.go          | 12 min | M5         |
-| M8  | Write `TestValidator_ProcessJob_PartialResultsOnCancellation` in validator_test.go   | 10 min | M5         |
-| M9  | Run `go test ./...`                                                                  | 5 min  | M6-M8      |
-| M10 | Run `go test -race ./...`                                                            | 5 min  | M9         |
-| M11 | Run `golangci-lint run ./...`                                                        | 5 min  | M10        |
-| M12 | Update AGENTS.md error-handling section                                              | 5 min  | M11        |
-| M13 | Write this planning doc (already in progress)                                        | 10 min | —          |
-| M14 | Git commit with detailed message                                                     | 5 min  | M12        |
+~~| M1  | Edit `main.go:596`: `return nil, false` → `return results, false`                    | 3 min  | —          |~~ done at `c01632d`
+~~| M2  | Edit `processJob` in `validator.go`: send partial results before error               | 5 min  | —          |~~ done at `c01632d`
+~~| M3  | Edit `collectResults` in `validator.go`: `errors.Join(errs...)` instead of `errs[0]` | 3 min  | —          |~~ done at `c01632d`
+~~| M4  | Edit `streamFilesParallel` in `validator.go`: same `errors.Join` fix                 | 3 min  | —          |~~ done at `c01632d`
+~~| M5  | Verify no syntax errors via `go build ./cmd/md-go-validator`                         | 2 min  | M1-M4      |~~ done at `c01632d`
+~~| M6  | Write `TestValidatePath_PartialResultsOnDirectoryError` in main_test.go              | 12 min | M5         |~~ done at `d40313d`
+~~| M7  | Write `TestValidator_ValidateDirectory_UnreadableFile` in validator_test.go          | 12 min | M5         |~~ done at `d40313d`
+~~| M8  | Write `TestValidator_ProcessJob_PartialResultsOnCancellation` in validator_test.go   | 10 min | M5         |~~ done at `d40313d`
+~~| M9  | Run `go test ./...`                                                                  | 5 min  | M6-M8      |~~ done at `d40313d`
+~~| M10 | Run `go test -race ./...`                                                            | 5 min  | M9         |~~ done at `d40313d`
+~~| M11 | Run `golangci-lint run ./...`                                                        | 5 min  | M10        |~~ done at `d40313d`
+~~| M12 | Update AGENTS.md error-handling section                                              | 5 min  | M11        |~~ done at `d40313d`
+~~| M13 | Write this planning doc (already in progress)                                        | 10 min | —          |~~ done at `fc48c07`
+~~| M14 | Git commit with detailed message                                                     | 5 min  | M12        |~~ done at `d40313d`
 
 ---
 

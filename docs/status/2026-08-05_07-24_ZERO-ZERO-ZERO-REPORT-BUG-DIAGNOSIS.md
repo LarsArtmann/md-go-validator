@@ -1,5 +1,9 @@
 # Status Report — 2026-08-05 07:24
 
+> ANNOTATED 2026-09-26 (docs-health pass): the 0/0/0 bug was fixed in `c01632d` +
+> `d40313d` (see the 12:34 companion report). Completed items below are struck;
+> unstruck items remain open in `TODO_LIST.md`.
+
 ## The 0/0/0 Report Bug — Session Findings
 
 **Trigger:** User ran the validator against `/home/lars/projects` (all projects). Output showed
@@ -103,22 +107,22 @@ walker should either stat-at-read or the error should be non-fatal (see Layer 2)
 
 ### Immediate (this bug)
 
-1. Apply Layer 1 fix: `validatePath` keeps partial results on error.
+~~1. Apply Layer 1 fix: `validatePath` keeps partial results on error.~~ done at `c01632d`
 2. Apply Layer 2 fix: `processJob` emits a Result for unreadable files instead of a batch error.
-3. Write a regression test: directory with one missing/unreadable file + N valid files → report shows N results, not 0/0/0.
-4. Write a regression test: context timeout mid-run → partial results preserved in report.
-5. Fix `streamFilesParallel` to match the new non-fatal-per-file-error contract.
-6. Investigate the "56 errors" — confirm whether it's a context timeout or 56 genuinely-bad files.
-7. Run `go test ./...` and `go test -race ./...` after the fix.
-8. Run `golangci-lint run ./...` after the fix.
-9. Update AGENTS.md with the partial-results-on-error contract.
+~~3. Write a regression test: directory with one missing/unreadable file + N valid files → report shows N results, not 0/0/0.~~ done at `d40313d`
+~~4. Write a regression test: context timeout mid-run → partial results preserved in report.~~ done at `d40313d`
+~~5. Fix `streamFilesParallel` to match the new non-fatal-per-file-error contract.~~ done at `c01632d`
+~~6. Investigate the "56 errors" — confirm whether it's a context timeout or 56 genuinely-bad files.~~ Won't implement — superseded: `errors.Join` now surfaces every error (`c01632d`)
+~~7. Run `go test ./...` and `go test -race ./...` after the fix.~~ done at `d40313d`
+~~8. Run `golangci-lint run ./...` after the fix.~~ done at `d40313d`
+~~9. Update AGENTS.md with the partial-results-on-error contract.~~ done at `d40313d`
 
 ### Short-term (robustness)
 
 10. Add `--continue-on-error` / `--fail-fast` flag to control batch behavior explicitly.
 11. Distinguish file-read errors from validation errors in the report (separate counter or status).
 12. Add a `ValidationStatusFileError` (or `ValidationStatusUnreadable`) to the status enum so the report can show "N files could not be read."
-13. Consider `errors.Join` instead of wrapping only `errs[0]` in `collectResults` — currently 55 of 56 errors are silently dropped from the message.
+~~13. Consider `errors.Join` instead of wrapping only `errs[0]` in `collectResults` — currently 55 of 56 errors are silently dropped from the message.~~ done at `c01632d`
 14. Add a `--max-errors N` flag that stops after N errors (bail-out for huge trees).
 15. Log per-file read errors to stderr with the file path so the user knows which files failed.
 16. Make `collectSupportedFiles` resilient: log-and-skip unreadable entries during walk instead of failing the whole walk.
@@ -130,7 +134,7 @@ walker should either stat-at-read or the error should be non-fatal (see Layer 2)
 ### Medium-term (report quality)
 
 21. The streaming ✅/❌ lines and the final report are disconnected — the report is built from the returned slice, the streaming is stdout side-effect. Consider making streaming optional or feeding it from the same aggregation.
-22. Exit codes: document that exit 2 = tool error, exit 1 = validation errors, exit 0 = clean. Confirm `validatePath`'s `false` return actually maps correctly after the fix.
+~~22. Exit codes: document that exit 2 = tool error, exit 1 = validation errors, exit 0 = clean. Confirm `validatePath`'s `false` return actually maps correctly after the fix.~~ done at `4cbc43d` (README exit-code table); `c01632d` keeps the mapping correct
 23. When results are partial due to errors, print a clear "WARNING: N files skipped due to errors, results are partial" line before the report.
 24. Add `--format sarif` output to include file-read errors as findings so CI catches them.
 25. The report's "Errors: 0" should never lie — if errorsChan had entries, the report should reflect that even if all block-level results were valid.
@@ -142,17 +146,17 @@ walker should either stat-at-read or the error should be non-fatal (see Layer 2)
 
 ### Testing gaps
 
-28. No test covers `validatePath` directly (it's in `cmd/`, which has 73.9% coverage).
-29. No test covers the interaction between `collectResults` returning `(results, err)` and the CLI.
-30. No test covers `streamFilesParallel` error aggregation.
+~~28. No test covers `validatePath` directly (it's in `cmd/`, which has 73.9% coverage).~~ done at `d40313d` (`TestValidatePath_PartialResultsOnDirectoryError`)
+~~29. No test covers the interaction between `collectResults` returning `(results, err)` and the CLI.~~ done at `d40313d`
+~~30. No test covers `streamFilesParallel` error aggregation.~~ done at `d40313d`
 31. `pkg/baseline` is at 73.0% coverage — lowest in the project.
 32. Add a test that the report is accurate when a mix of valid + errored + skipped files are processed.
 
 ### Documentation
 
-33. Document the error contract: "ValidateDirectory returns partial results even on error" — this is true but undocumented and the CLI violated it.
-34. Document the streaming API contract in the Validator interface doc comment.
-35. Add a CHANGELOG entry for the fix.
+~~33. Document the error contract: "ValidateDirectory returns partial results even on error" — this is true but undocumented and the CLI violated it.~~ done at `d40313d`
+~~34. Document the streaming API contract in the Validator interface doc comment.~~ done at `c75e28b`
+~~35. Add a CHANGELOG entry for the fix.~~ done (docs-health pass 2026-09-26: entry added to `CHANGELOG.md` [Unreleased])
 
 ---
 
