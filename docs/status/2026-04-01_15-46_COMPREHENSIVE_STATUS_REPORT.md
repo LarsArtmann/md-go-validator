@@ -1,5 +1,9 @@
 # Comprehensive Status Report
 
+> ARCHIVED 2026-09-26 — multi-language rollout report. All open items below were
+> resolved by later sessions; markers cite the closing commit. Current work:
+> `TODO_LIST.md`.
+
 **Date:** 2026-04-01 15:46\
 **Branch:** master\
 **Commits Ahead:** 3 commits ahead of origin/master\
@@ -73,7 +77,7 @@ The md-go-validator project has undergone significant transformation with the su
 
 ## B) PARTIALLY DONE
 
-### 1. Linting Compliance (70% Complete)
+~~### 1. Linting Compliance (70% Complete)~~ resolved — done at `e4ddfbc` (70 issues → 0)
 
 - **Status:** 🟡 PARTIAL
 - **Remaining Issues:** ~25 linter warnings
@@ -93,7 +97,7 @@ The md-go-validator project has undergone significant transformation with the su
   - perfsprint: 1 fmt.Errorf vs errors.New (low priority)
   - wrapcheck: 1 error wrapping (low priority)
 
-### 2. Cognitive Complexity Reduction
+~~### 2. Cognitive Complexity Reduction~~ resolved — done at `c8ad4ca` (concurrency simplified)
 
 - **Status:** 🟡 PARTIAL
 - **File:** `pkg/validator.go:280`
@@ -102,7 +106,7 @@ The md-go-validator project has undergone significant transformation with the su
 - **Target:** <30
 - **Description:** Worker pool logic needs extraction into smaller functions
 
-### 3. Long Function Refactoring
+~~### 3. Long Function Refactoring~~ resolved — done at `e4ddfbc` (funlen splits)
 
 - **Status:** 🟡 PARTIAL
 - **Remaining:** 5 test functions exceeding 60 lines
@@ -117,7 +121,7 @@ The md-go-validator project has undergone significant transformation with the su
 
 ## C) NOT STARTED
 
-### 1. Global State Refactoring
+~~### 1. Global State Refactoring~~ resolved — done at `539cb8e` (indirection removed, direct dispatch)
 
 - **Status:** 🔴 NOT STARTED
 - **File:** `cmd/md-go-validator/main.go:62`
@@ -127,7 +131,7 @@ The md-go-validator project has undergone significant transformation with the su
 - **Impact:** MEDIUM
 - **Solution:** Convert to function returning map or use struct-based approach
 
-### 2. Type Model Improvements (Proposed)
+~~### 2. Type Model Improvements (Proposed)~~ resolved — done at `cb3e883`, `d290055` (branded types)
 
 - **Status:** 🔴 NOT STARTED
 - **Effort:** MEDIUM
@@ -138,7 +142,7 @@ The md-go-validator project has undergone significant transformation with the su
   - Add ErrorCode enum
   - Add validation methods to types
 
-### 3. Performance Optimization
+~~### 3. Performance Optimization~~ resolved — done at `1d0232a` (benchmarks established; no hotspots found)
 
 - **Status:** 🔴 NOT STARTED
 - **Effort:** HIGH
@@ -148,7 +152,7 @@ The md-go-validator project has undergone significant transformation with the su
   - Validator result caching
   - Parallel file reading I/O
 
-### 4. Enhanced Error Reporting
+~~### 4. Enhanced Error Reporting~~ resolved — done at `2b20999` (line/column + codes), `acfe5c4` (hints)
 
 - **Status:** 🔴 NOT STARTED
 - **Effort:** MEDIUM
@@ -158,7 +162,7 @@ The md-go-validator project has undergone significant transformation with the su
   - Add error codes for programmatic handling
   - Suggestions for common errors
 
-### 5. Integration Testing
+~~### 5. Integration Testing~~ resolved — done at `13ac23a`, `f3a2c2c`
 
 - **Status:** 🔴 NOT STARTED
 - **Effort:** MEDIUM
@@ -168,7 +172,7 @@ The md-go-validator project has undergone significant transformation with the su
   - External tool availability testing
   - Large file performance testing
 
-### 6. Documentation Enhancement
+~~### 6. Documentation Enhancement~~ resolved — done at `b72a1be`, `4cbc43d`, `69fcb10`
 
 - **Status:** 🔴 NOT STARTED
 - **Effort:** LOW
@@ -193,9 +197,9 @@ The md-go-validator project has undergone significant transformation with the su
 
 ### 1. Code Quality (High Priority)
 
-- **gocognit:** Reduce complexity in `processFilesParallel` (validator.go:280)
-- **Global state:** Refactor `argHandlers` in main.go
-- **Error wrapping:** Consistent error wrapping with context
+~~- **gocognit:** Reduce complexity in `processFilesParallel` (validator.go:280)~~ done at `c8ad4ca`
+~~- **Global state:** Refactor `argHandlers` in main.go~~ done at `539cb8e`
+~~- **Error wrapping:** Consistent error wrapping with context~~ done at `acfe5c4`
 
 ### 2. Type System (Medium Priority)
 
@@ -229,62 +233,62 @@ The md-go-validator project has undergone significant transformation with the su
 
 1. ✅ Add //nolint comments where appropriate (exhaustruct in tests)
 2. ✅ Fix golines formatting (3 files)
-3. Run go mod tidy and verify dependencies
-4. Add missing godoc comments for exported functions
-5. Update README with new language support
+~~3. Run go mod tidy and verify dependencies~~ done at `b5c810f`
+~~4. Add missing godoc comments for exported functions~~ done at `e4ddfbc`
+~~5. Update README with new language support~~ done at `69fcb10`
 
 ### High Impact, Medium Effort
 
-6. Refactor `argHandlers` global in main.go
-7. Reduce cognitive complexity in `processFilesParallel`
-8. Add ResultHandler interface
-9. Improve error messages with line/column extraction
-10. Add error codes to ValidationError
+~~6. Refactor `argHandlers` global in main.go~~ done at `539cb8e`
+~~7. Reduce cognitive complexity in `processFilesParallel`~~ done at `c8ad4ca`
+~~8. Add ResultHandler interface~~ Won't implement — streaming callback API shipped instead (`c75e28b`)
+~~9. Improve error messages with line/column extraction~~ done at `2b20999`
+~~10. Add error codes to ValidationError~~ done at `2b20999`
 
 ### Medium Impact, Low Effort
 
-11. Fix perfsprint linter (fmt.Errorf -> errors.New)
-12. Add pre-commit hooks configuration
-13. Create CONTRIBUTING.md
-14. Update CHANGELOG.md
-15. Add architecture diagrams
+~~11. Fix perfsprint linter (fmt.Errorf -> errors.New)~~ done at `e4ddfbc`
+~~12. Add pre-commit hooks configuration~~ done at `acfe5c4`
+~~13. Create CONTRIBUTING.md~~ done at `b72a1be`
+~~14. Update CHANGELOG.md~~ done at `4cbc43d`
+~~15. Add architecture diagrams~~ Won't implement — `AGENTS.md` documents architecture in text
 
 ### Medium Impact, Medium Effort
 
-16. Make CodeBlock immutable
-17. Add streaming parser for large files
-18. Create integration test suite
-19. Add benchmark tests
-20. Create ADR documents
+~~16. Make CodeBlock immutable~~ Won't implement — Result invariant enforcement shipped instead (`db0f022`)
+~~17. Add streaming parser for large files~~ done at `c75e28b`
+~~18. Create integration test suite~~ done at `13ac23a`
+~~19. Add benchmark tests~~ done at `1d0232a`
+~~20. Create ADR documents~~ done at `4a86fb5`
 
 ### Low Impact, Low Effort (Polish)
 
-21. Fix funlen warnings in tests (split long functions)
-22. Fix cyclop in test files
-23. Add more inline code comments
-24. Review and update all TODO comments
-25. Add code coverage reporting
+~~21. Fix funlen warnings in tests (split long functions)~~ done at `e4ddfbc`
+~~22. Fix cyclop in test files~~ done at `16ec967`
+~~23. Add more inline code comments~~ done at `c9cf503`
+~~24. Review and update all TODO comments~~ done — codebase verified TODO/FIXME-free (docs/status/2026-06-05_15-24 audit)
+~~25. Add code coverage reporting~~ done at `60fa809`
 
 ---
 
 ## G) Top #1 Question I Cannot Figure Out Myself
 
-### Question: What is the best approach for handling external tool dependencies?
+~~### Question: What is the best approach for handling external tool dependencies?~~ resolved — done at `a429c53` (external tools replaced by embedded tree-sitter grammars)
 
 **Context:**
 The project now supports multiple languages through external tools (templ, tsc, nix-instantiate, rustfmt, terraform). Currently:
 
-1. **Availability Check:** We check if tools are installed at runtime
-2. **Skip Strategy:** Unavailable validators are silently skipped
-3. **Error Handling:** Validation errors are reported per-block
+~~1. **Availability Check:** We check if tools are installed at runtime~~ done at `a429c53` (moot — no external tools)
+~~2. **Skip Strategy:** Unavailable validators are silently skipped~~ done at `a429c53`
+~~3. **Error Handling:** Validation errors are reported per-block~~ done at `a429c53`
 
 **Options Considered:**
 
-1. **Current Approach (Runtime Detection):**
+~~1. **Current Approach (Runtime Detection):**~~ done at `a429c53`
    - Pros: Zero configuration, graceful degradation
    - Cons: Users don't know why languages are skipped
 
-2. **Strict Mode (Fail on Missing Tools):**
+~~2. **Strict Mode (Fail on Missing Tools):**~~ Won't implement — superseded by `a429c53`
    - Pros: Explicit, users know what's expected
    - Cons: Makes tool harder to use, requires all tools installed
 

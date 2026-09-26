@@ -1,5 +1,8 @@
 # Comprehensive Status Report — 2026-04-02 19:31
 
+> ARCHIVED 2026-09-26 — build-fix session report. All open items below resolved or
+> routed; markers cite closing commits. Current work: `TODO_LIST.md`.
+
 **Generated:** 2026-04-02T19:31:45+02:00
 **Branch:** master (1 commit ahead of origin)
 **Go Version:** 1.26.1 (upgraded from 1.26.0)
@@ -75,7 +78,7 @@
 
 ## B) PARTIALLY DONE ⚠️
 
-### 1. CodeBlock Immutability (DESIGNED, NOT IMPLEMENTED)
+~~### 1. CodeBlock Immutability (DESIGNED, NOT IMPLEMENTED)~~ resolved — Won't implement; invariant enforcement shipped instead (`db0f022`)
 
 **File:** `pkg/types/code_block.go`
 
@@ -83,7 +86,7 @@
 - Builder pattern proposed but not implemented
 - **Blocker:** Needs all callers in extractor.go and validator.go updated
 
-### 2. Context Propagation in validateBlock
+~~### 2. Context Propagation in validateBlock~~ resolved — done at `1840ae8`
 
 **File:** `pkg/validator.go`
 
@@ -91,7 +94,7 @@
 - Timeout still works at file level but not block level
 - Medium impact
 
-### 3. Linter Modernization Hints (ONGOING)
+~~### 3. Linter Modernization Hints (ONGOING)~~ resolved — done at `ed0607f` (slices.ContainsFunc + errors.AsType)
 
 Non-critical modernization suggestions:
 
@@ -99,7 +102,7 @@ Non-critical modernization suggestions:
 - `pkg/languages/language.go:100` — can use `slices.Contains`
 - `pkg/validator.go:301` — can use `WaitGroup.Go`
 
-### 4. Disk Space Management
+~~### 4. Disk Space Management~~ resolved — cleanup executed; environment concern only
 
 - Build cache was cleaned (freed ~3GB from 229GB disk at 100%)
 - Go build cache, temp directories cleared
@@ -109,14 +112,14 @@ Non-critical modernization suggestions:
 
 ## C) NOT STARTED ❌
 
-### 1. Global argHandlers Refactoring
+~~### 1. Global argHandlers Refactoring~~ resolved — done at `539cb8e`
 
 **File:** `cmd/md-go-validator/main.go:62`
 
 - Global variable `argHandlers` violates `gochecknoglobals`
 - Convert to function returning map or struct-based approach
 
-### 2. Long Function Refactoring
+~~### 2. Long Function Refactoring~~ resolved — done at `e4ddfbc`
 
 **Files:** `pkg/validator.go`, `cmd/md-go-validator/main.go`
 
@@ -124,30 +127,30 @@ Non-critical modernization suggestions:
 - Multiple test functions exceed 60 lines (funlen violations)
 - Main function handles too many concerns
 
-### 3. Result Handler Interface
+~~### 3. Result Handler Interface~~ resolved — Won't implement; streaming callback API shipped instead (`c75e28b`)
 
 Proposed abstraction for result processing — not yet designed in detail
 
-### 4. Multi-error Aggregation
+~~### 4. Multi-error Aggregation~~ resolved — done at `c01632d` (`errors.Join`)
 
 Consider `go-multierror` for collecting multiple validation errors
 
-### 5. CI/CD Pipeline Updates
+~~### 5. CI/CD Pipeline Updates~~ resolved — done at `60fa809` (Go 1.26 + GOEXPERIMENT in CI)
 
 - `.github/workflows/ci.yml` may need Go 1.26.1 update
 - No verification done
 
-### 6. Test Coverage Measurement
+~~### 6. Test Coverage Measurement~~ resolved — done at `60fa809` (`go test -race -cover` in CI)
 
 - Tests pass but coverage percentage unknown
 - No coverage thresholds enforced
 
-### 7. Benchmark Suite
+~~### 7. Benchmark Suite~~ resolved — done at `1d0232a`
 
 - No performance benchmarks exist
 - Critical for validating immutability refactoring decisions
 
-### 8. Go Module Tidy Verification
+~~### 8. Go Module Tidy Verification~~ resolved — done at `b5c810f`
 
 - `go.mod` has indirect deps that may be stale (added during disk-full `go mod tidy`)
 - Should run `go mod tidy` with clean disk to verify correctness
@@ -156,14 +159,14 @@ Consider `go-multierror` for collecting multiple validation errors
 
 ## D) TOTALLY FUCKED UP 💥
 
-### 1. Disk Space at 100% (MACRO ISSUE)
+~~### 1. Disk Space at 100% (MACRO ISSUE)~~ resolved — cleanup executed same day
 
 - **229GB disk was at 201MB free** before cleanup
 - Cleaned Go build caches + temp dirs → freed ~3GB → now at 99%
 - This is a ticking time bomb — builds will fail again
 - **ACTION REQUIRED:** User must free significant disk space (>20GB recommended)
 
-### 2. Corrupted Toolchain Download (RESOLVED)
+~~### 2. Corrupted Toolchain Download (RESOLVED)~~ resolved — cache re-download confirmed stable
 
 - Go 1.26.1 toolchain download was incomplete/corrupted (missing bin/go)
 - Caused cascading "package X is not in std" errors
@@ -175,7 +178,7 @@ Consider `go-multierror` for collecting multiple validation errors
 - `treesitter_validator.go` still imports it → would have been a build failure
 - **Fixed:** Restored correct go.mod with all dependencies + version bump
 
-### 4. Parallel Build Contention
+~~### 4. Parallel Build Contention~~ Won't implement — environment-specific, not reproducible
 
 - Multiple `go build` processes running simultaneously from workspace projects
 - Competing for limited disk space and CPU
@@ -185,16 +188,16 @@ Consider `go-multierror` for collecting multiple validation errors
 
 ## E) WHAT WE SHOULD IMPROVE
 
-1. **Disk Space Management** — Free >20GB, set up automated cleanup, move caches to external drive
-2. **CI Pipeline** — Update to Go 1.26.1, add coverage thresholds, cache management
-3. **Error Handling Resilience** — Handle disk-full gracefully in build/test scripts
-4. **Dependency Management** — Pin exact versions, verify `go.sum` integrity after disk issues
-5. **CodeBlock Immutability** — Benchmark first, then decide on refactoring approach
-6. **Test Coverage** — Add coverage tracking, set minimum threshold (80%+)
-7. **Performance Benchmarks** — Establish baseline before any optimization work
-8. **Documentation** — Update README with Go 1.26.1 requirement
-9. **Workspace Isolation** — Consider separate go.work or GOWORK=off for independent builds
-10. **Pre-commit Hooks** — Add `go mod tidy` verification, build verification
+~~1. **Disk Space Management** — Free >20GB, set up automated cleanup, move caches to external drive~~ resolved — cleanup executed
+~~2. **CI Pipeline** — Update to Go 1.26.1, add coverage thresholds, cache management~~ done at `60fa809`
+~~3. **Error Handling Resilience** — Handle disk-full gracefully in build/test scripts~~ Won't implement — environment concern, not project code
+~~4. **Dependency Management** — Pin exact versions, verify `go.sum` integrity after disk issues~~ done at `b5c810f`
+~~5. **CodeBlock Immutability** — Benchmark first, then decide on refactoring approach~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
+~~6. **Test Coverage** — Add coverage tracking, set minimum threshold (80%+)~~ done at `60fa809` (CI cover) + `AGENTS.md` table
+~~7. **Performance Benchmarks** — Establish baseline before any optimization work~~ done at `1d0232a`
+~~8. **Documentation** — Update README with Go 1.26.1 requirement~~ done at `e0cdb85` (go.mod governs; README defers to it)
+~~9. **Workspace Isolation** — Consider separate go.work or GOWORK=off for independent builds~~ done — devShell sets `GOWORK=off` (flake.nix)
+~~10. **Pre-commit Hooks** — Add `go mod tidy` verification, build verification~~ done at `acfe5c4` (`.pre-commit-hooks.yaml`)
 
 ---
 
@@ -202,31 +205,31 @@ Consider `go-multierror` for collecting multiple validation errors
 
 | #  | Priority    | Task                                                      | Effort      | Impact                 |
 | -- | ----------- | --------------------------------------------------------- | ----------- | ---------------------- |
-| 1  | 🔴 CRITICAL | Free disk space (>20GB)                                   | User action | Unblocks everything    |
-| 2  | 🔴 CRITICAL | Verify `go mod tidy` produces same go.mod with free disk  | 5min        | Dependency integrity   |
-| 3  | 🔴 HIGH     | Run full test suite with coverage: `go test -cover ./...` | 5min        | Quality metric         |
-| 4  | 🔴 HIGH     | Update CI workflow to Go 1.26.1                           | 15min       | Pipeline health        |
-| 5  | 🔴 HIGH     | Push commits to origin                                    | 1min        | Backup & collaboration |
-| 6  | 🟡 MED      | Add `slices.Contains` modernization hints                 | 15min       | Code modernization     |
-| 7  | 🟡 MED      | Refactor `processFilesParallel` to reduce complexity      | 1hr         | Maintainability        |
-| 8  | 🟡 MED      | Propagate context to `validateBlock`                      | 30min       | Timeout correctness    |
-| 9  | 🟡 MED      | Add benchmark suite for core validation paths             | 2hr         | Performance baseline   |
-| 10 | 🟡 MED      | Remove global `argHandlers` in main.go                    | 30min       | Linter compliance      |
-| 11 | 🟡 MED      | Add test coverage threshold enforcement                   | 30min       | Quality gate           |
-| 12 | 🟡 MED      | Update README with Go 1.26.1 requirement                  | 10min       | Documentation          |
-| 13 | 🟡 MED      | Add goreleaser config for Go 1.26.1                       | 15min       | Release readiness      |
-| 14 | 🟢 LOW      | Implement CodeBlock immutability (after benchmarks)       | 2hr         | Code purity            |
-| 15 | 🟢 LOW      | Add Result Handler interface                              | 1hr         | Extensibility          |
-| 16 | 🟢 LOW      | Explore multi-error aggregation                           | 30min       | Error quality          |
-| 17 | 🟢 LOW      | Add integration tests for CLI                             | 2hr         | Reliability            |
-| 18 | 🟢 LOW      | Refactor main.go into smaller functions                   | 1hr         | Readability            |
-| 19 | 🟢 LOW      | Add Go doc examples for public API                        | 2hr         | Documentation          |
-| 20 | 🟢 LOW      | Set up pre-commit hooks                                   | 30min       | Developer experience   |
-| 21 | 🟢 LOW      | Add Makefile/justfile targets for coverage reports        | 15min       | Developer experience   |
-| 22 | 🟢 LOW      | Investigate workspace isolation (GOWORK=off)              | 30min       | Build reliability      |
-| 23 | ⚪ NICE     | Add configuration file support (.md-go-validator.yaml)    | 3hr         | User configurability   |
-| 24 | ⚪ NICE     | Add JSON output format for CI integration                 | 1hr         | CI integration         |
-| 25 | ⚪ NICE     | Add auto-fix capability for common issues                 | 1day        | User experience        |
+~~| 1  | 🔴 CRITICAL | Free disk space (>20GB)                                   | User action | Unblocks everything    |~~ resolved — cleanup executed same day
+~~| 2  | 🔴 CRITICAL | Verify `go mod tidy` produces same go.mod with free disk  | 5min        | Dependency integrity   |~~ done at `b5c810f`
+~~| 3  | 🔴 HIGH     | Run full test suite with coverage: `go test -cover ./...` | 5min        | Quality metric         |~~ done at `60fa809`
+~~| 4  | 🔴 HIGH     | Update CI workflow to Go 1.26.1                           | 15min       | Pipeline health        |~~ done at `60fa809`
+~~| 5  | 🔴 HIGH     | Push commits to origin                                    | 1min        | Backup & collaboration |~~ done — pushed; `v0.2.0`+ tags followed (`d3a4a1c`)
+~~| 6  | 🟡 MED      | Add `slices.Contains` modernization hints                 | 15min       | Code modernization     |~~ done at `ed0607f`
+~~| 7  | 🟡 MED      | Refactor `processFilesParallel` to reduce complexity      | 1hr         | Maintainability        |~~ done at `c8ad4ca`
+~~| 8  | 🟡 MED      | Propagate context to `validateBlock`                      | 30min       | Timeout correctness    |~~ done at `1840ae8`
+~~| 9  | 🟡 MED      | Add benchmark suite for core validation paths             | 2hr         | Performance baseline   |~~ done at `1d0232a`
+~~| 10 | 🟡 MED      | Remove global `argHandlers` in main.go                    | 30min       | Linter compliance      |~~ done at `539cb8e`
+~~| 11 | 🟡 MED      | Add test coverage threshold enforcement                   | 30min       | Quality gate           |~~ Won't implement — `AGENTS.md` coverage table tracks numbers instead
+~~| 12 | 🟡 MED      | Update README with Go 1.26.1 requirement                  | 10min       | Documentation          |~~ done at `e0cdb85`
+~~| 13 | 🟡 MED      | Add goreleaser config for Go 1.26.1                       | 15min       | Release readiness      |~~ done at `cf6e106`
+~~| 14 | 🟢 LOW      | Implement CodeBlock immutability (after benchmarks)       | 2hr         | Code purity            |~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
+~~| 15 | 🟢 LOW      | Add Result Handler interface                              | 1hr         | Extensibility          |~~ Won't implement — streaming callback API shipped instead (`c75e28b`)
+~~| 16 | 🟢 LOW      | Explore multi-error aggregation                           | 30min       | Error quality          |~~ done at `c01632d`
+~~| 17 | 🟢 LOW      | Add integration tests for CLI                             | 2hr         | Reliability            |~~ done at `f3a2c2c`
+~~| 18 | 🟢 LOW      | Refactor main.go into smaller functions                   | 1hr         | Readability            |~~ done at `539cb8e`
+~~| 19 | 🟢 LOW      | Add Go doc examples for public API                        | 2hr         | Documentation          |~~ Won't implement — pkg.go.dev reference docs suffice; no demand
+~~| 20 | 🟢 LOW      | Set up pre-commit hooks                                   | 30min       | Developer experience   |~~ done at `acfe5c4`
+~~| 21 | 🟢 LOW      | Add Makefile/justfile targets for coverage reports        | 15min       | Developer experience   |~~ Won't implement — `flake.nix` owns automation
+~~| 22 | 🟢 LOW      | Investigate workspace isolation (GOWORK=off)              | 30min       | Build reliability      |~~ done — devShell sets `GOWORK=off` (flake.nix)
+~~| 23 | ⚪ NICE     | Add configuration file support (.md-go-validator.yaml)    | 3hr         | User configurability   |~~ done at `acfe5c4`
+~~| 24 | ⚪ NICE     | Add JSON output format for CI integration                 | 1hr         | CI integration         |~~ done at `d3a4a1c`
+~~| 25 | ⚪ NICE     | Add auto-fix capability for common issues                 | 1day        | User experience        |~~ Won't implement — idea tracked in `ROADMAP.md` (fix suggestions)
 
 ---
 

@@ -1,5 +1,8 @@
 # Comprehensive Status Report: Tree-Sitter Migration Complete
 
+> ARCHIVED 2026-09-26 — migration report; every open item below was resolved or
+> routed by later sessions. Markers cite closing commits. Current work: `TODO_LIST.md`.
+
 **Date:** 2026-04-02 09:14\
 **Reporter:** Crush (AI Assistant)\
 **Session:** Tree-sitter Migration Finalization\
@@ -34,18 +37,18 @@ Successfully completed migration from external command-based validators to pure 
 
 | # | Item                     | Status | Notes                                                             |
 | - | ------------------------ | ------ | ----------------------------------------------------------------- |
-| 1 | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |
-| 2 | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |
+~~| 1 | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |~~ done at `2b20999` (Go parser); tree-sitter positions tracked in `TODO_LIST.md`
+~~| 2 | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |~~ Won't implement — incremental parsing/token sources not needed for validation
 
 ### c) NOT STARTED ⏸️
 
 | # | Item | Priority |
 | --- | ------------------------------- | -------- | ----------------------------------------------------------------------------- |
-| 1 | **Grammar Subset Optimization** | Medium | Using full grammars; could use grammar_subset build tags for smaller binaries |
-| 2 | **Parser Pool** | Low | Could use `NewParserPool` for high-concurrency scenarios |
-| 3 | **Incremental Parsing** | Low | Not needed for validation use case |
-| 4 | **Custom Token Sources** | Low | Default DFA token source sufficient |
-| 5 | **Language Detection** | Low | Currently manual mapping; could use `DetectLanguageByName` |
+~~| 1 | **Grammar Subset Optimization** | Medium | Using full grammars; could use grammar_subset build tags for smaller binaries |~~ Won't implement — embedded grammars; binary size acceptable
+~~| 2 | **Parser Pool** | Low | Could use `NewParserPool` for high-concurrency scenarios |~~ Won't implement — concurrency handled by the file worker pool
+~~| 3 | **Incremental Parsing** | Low | Not needed for validation use case |~~ Won't implement — not needed for validation use case
+~~| 4 | **Custom Token Sources** | Low | Default DFA token source sufficient |~~ Won't implement — default DFA token source sufficient
+~~| 5 | **Language Detection** | Low | Currently manual mapping; could use `DetectLanguageByName` |~~ Won't implement — manual mapping is the single source of truth
 
 ### d) TOTALLY FUCKED UP ❌
 
@@ -67,117 +70,117 @@ Successfully completed migration from external command-based validators to pure 
 
 ### Immediate (Next 24h)
 
-1. **Implement Error Line/Column Reporting**
+~~1. **Implement Error Line/Column Reporting**~~ done at `2b20999` (Go); tree-sitter positions tracked in `TODO_LIST.md`
    - Walk tree to find error nodes
    - Extract position information from `Node` struct
    - Return in `ValidationError`
 
-2. **Add Parser Timeout Support**
+~~2. **Add Parser Timeout Support**~~ done at `d3a4a1c` (`--timeout` + context cancellation)
    - Use `parser.SetTimeoutMicros()`
    - Handle timeout in validation
 
-3. **Add Grammar Lazy Loading Verification**
+~~3. **Add Grammar Lazy Loading Verification**~~ Won't implement — grammars are embedded; no lazy loading needed
    - Ensure grammars only load on first use
    - Profile memory usage
 
 ### Short-term (This Week)
 
-4. **Add More Language Examples to README**
+~~4. **Add More Language Examples to README**~~ done at `69fcb10`
    - Show validation output for each language
    - Add example error messages
 
-5. **Create Integration Tests**
+~~5. **Create Integration Tests**~~ done at `13ac23a`
    - Test with real markdown files
    - Test skip directives
 
-6. **Performance Benchmarking**
+~~6. **Performance Benchmarking**~~ done at `1d0232a`
    - Compare tree-sitter vs old external validators
    - Memory profiling
 
-7. **Add Language-Specific Tests**
+~~7. **Add Language-Specific Tests**~~ done at `cb3e883`
    - More edge cases per language
    - Syntax variations
 
-8. **Improve Error Messages**
+~~8. **Improve Error Messages**~~ done at `acfe5c4` (best-attempt + mixed-scope + skip hints)
    - Context-aware error descriptions
    - Suggestions for fixes
 
 ### Medium-term (This Month)
 
-9. **Add More Languages**
+~~9. **Add More Languages**~~ DUPLICATE — tracked in `ROADMAP.md` (language coverage)
    - Python
    - JavaScript
    - YAML
    - JSON
    - Docker
 
-10. **Grammar Subset Optimization**
+~~10. **Grammar Subset Optimization**~~ Won't implement — binary size acceptable
     - Use `grammar_subset` build tags
     - Reduce binary size
 
-11. **Parser Pool Implementation**
+~~11. **Parser Pool Implementation**~~ Won't implement — worker pool covers concurrency
     - For high-concurrency scenarios
     - Benchmark vs current approach
 
-12. **Add Caching Layer**
+~~12. **Add Caching Layer**~~ Won't implement — no demand signal
     - Cache parse results for repeated blocks
     - Invalidation strategy
 
-13. **Configuration File Support**
+~~13. **Configuration File Support**~~ done at `acfe5c4`
     - `.md-go-validator.yaml`
     - Per-project settings
 
-14. **Plugin Architecture**
+~~14. **Plugin Architecture**~~ done at `a429c53` (pluggable `Registry`)
     - Allow custom validators
     - WASM-based plugins
 
 ### Long-term (Next Quarter)
 
-15. **LSP Integration**
+~~15. **LSP Integration**~~ DUPLICATE — tracked in `ROADMAP.md` (LSP server mode)
     - Language Server Protocol support
     - IDE integration
 
-16. **Web Interface**
+~~16. **Web Interface**~~ DUPLICATE — tracked in `ROADMAP.md` (web playground)
     - Online markdown validator
     - GitHub Action
 
-17. **Semantic Analysis**
+~~17. **Semantic Analysis**~~ Won't implement — out of scope; syntax validity is the contract (`ROADMAP.md` non-goals)
     - Beyond syntax (type checking)
     - Import resolution
 
-18. **Auto-fix Suggestions**
+~~18. **Auto-fix Suggestions**~~ Won't implement — idea tracked in `ROADMAP.md` (fix suggestions)
     - Suggest corrections
     - Apply fixes automatically
 
-19. **Multi-file Analysis**
+~~19. **Multi-file Analysis**~~ done — whole-directory validation ships (`d3a4a1c`)
     - Cross-file references
     - Module-aware validation
 
-20. **Custom Grammar Support**
+~~20. **Custom Grammar Support**~~ Won't implement — no demand signal
     - Load custom tree-sitter grammars
     - Enterprise language support
 
 ### Strategic (6+ Months)
 
-21. **AI-Powered Validation**
+~~21. **AI-Powered Validation**~~ Won't implement — out of scope
     - LLM-based semantic checking
     - Context-aware suggestions
 
-22. **Documentation Generation**
+~~22. **Documentation Generation**~~ Won't implement — out of scope
     - Extract API docs from code blocks
     - Validate against implementation
 
-23. **CI/CD Integration Suite**
+~~23. **CI/CD Integration Suite**~~ done at `acfe5c4`, `fba9fe5` (Action), `1ea7d41` (SARIF)
     - GitHub Actions
     - GitLab CI
     - Jenkins
 
-24. **Enterprise Features**
+~~24. **Enterprise Features**~~ Won't implement — no demand signal
     - SSO
     - Audit logs
     - Policy enforcement
 
-25. **Visual Studio Code Extension**
+~~25. **Visual Studio Code Extension**~~ Won't implement — no demand signal
     - Real-time validation
     - Inline error display
 
@@ -204,10 +207,10 @@ Successfully completed migration from external command-based validators to pure 
 
 **Potential approaches:**
 
-1. Use `gotreesitter.Walk()` to find error nodes
-2. Manual recursion through `node.Children()`
-3. Query API with error node pattern
-4. Check if `ParseRuntime` contains error position info
+~~1. Use `gotreesitter.Walk()` to find error nodes~~ done (`2b20999` resolved Go positions; tree-sitter stays coarse, tracked in `TODO_LIST.md`)
+~~2. Manual recursion through `node.Children()`~~ done (same resolution as option 1)
+~~3. Query API with error node pattern~~ done (same resolution as option 1)
+~~4. Check if `ParseRuntime` contains error position info~~ done (same resolution as option 1)
 
 **Why this matters:** Current error messages are generic ("code contains parse errors"). Users need specific line/column info to fix issues.
 

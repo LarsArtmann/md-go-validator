@@ -1,5 +1,8 @@
 # Comprehensive Status Report - md-go-validator
 
+> ARCHIVED 2026-09-26 — ErrorCode/line-column session report. All open items below
+> resolved or routed; markers cite closing commits. Current work: `TODO_LIST.md`.
+
 **Date:** 2026-04-02 15:21:32 CEST\
 **Branch:** master\
 **Commit:** 2b20999\
@@ -65,7 +68,7 @@
 
 ## B) PARTIALLY DONE ⚠️
 
-### 1. CodeBlock Immutability (DESIGNED, NOT IMPLEMENTED)
+~~### 1. CodeBlock Immutability (DESIGNED, NOT IMPLEMENTED)~~ resolved — Won't implement; Result invariant enforcement shipped instead (`db0f022`)
 
 **File:** `pkg/types/code_block.go`
 
@@ -90,7 +93,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 
 **Blockers:** Need to update all callers in extractor.go and validator.go
 
-### 2. Context Propagation in validateBlock (IDENTIFIED, NOT FIXED)
+~~### 2. Context Propagation in validateBlock (IDENTIFIED, NOT FIXED)~~ resolved — done at `1840ae8`
 
 **File:** `pkg/validator.go`
 
@@ -98,7 +101,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 - Context cancellation not propagated to validation logic
 - Medium impact - timeout still works at file level
 
-### 3. Linter Warnings Cleanup (ONGOING)
+~~### 3. Linter Warnings Cleanup (ONGOING)~~ resolved — done at `e4ddfbc` (0 issues)
 
 **Status:** Reduced from 40+ warnings to 0 errors, 0 critical warnings
 
@@ -113,7 +116,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 
 ## C) NOT STARTED ❌
 
-### 1. Global argHandlers Refactoring
+~~### 1. Global argHandlers Refactoring~~ resolved — done at `539cb8e`
 
 **File:** `cmd/md-go-validator/main.go:62`
 
@@ -121,7 +124,7 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 **Impact:** Makes testing harder, global state
 **Solution:** Convert to function returning map or use struct-based approach
 
-### 2. Long Function Refactoring
+~~### 2. Long Function Refactoring~~ resolved — done at `e4ddfbc`, `c8ad4ca`
 
 **Files:** `pkg/validator.go`, `cmd/md-go-validator/main.go`
 
@@ -131,14 +134,14 @@ func (b CodeBlock) WithStatus(s ValidationStatus) CodeBlock {
 - Multiple test functions exceed 60 lines (funlen violations)
 - Main function in main.go is long and handles too many concerns
 
-### 3. External Validator Error Handling
+~~### 3. External Validator Error Handling~~ resolved — done at `a429c53` (external validators deleted)
 
 **Note:** External validator appears to have been removed or refactored
 
 - Original REFLECTION_AND_PLAN.md mentioned unchecked `os.Remove` and `tmpFile.Close()` errors
 - Current codebase uses tree-sitter validators (pure Go, no temp files)
 
-### 4. Result Handler Interface
+~~### 4. Result Handler Interface~~ resolved — Won't implement; streaming callback API shipped instead (`c75e28b`)
 
 **File:** Proposed addition
 
@@ -153,7 +156,7 @@ type ResultHandler interface {
 
 **Purpose:** Better abstraction for result processing
 
-### 5. Multi-error Aggregation
+~~### 5. Multi-error Aggregation~~ resolved — done at `c01632d` (`errors.Join`)
 
 **Consideration:** Use `github.com/hashicorp/go-multierror` for collecting multiple validation errors
 **Status:** Not needed yet - current single-error approach works
@@ -178,20 +181,20 @@ Previous issues that were fixed:
 
 ### High Priority (Next Session)
 
-1. **Make CodeBlock Immutable**
+~~1. **Make CodeBlock Immutable**~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
    - Add `WithStatus()` method returning new instance
    - Update all callers (extractor.go, validator.go)
    - Remove pointer receiver methods
    - **Effort:** Medium (20-30 changes)
    - **Impact:** Better functional design, thread safety
 
-2. **Add Context to validateBlock**
+~~2. **Add Context to validateBlock**~~ done at `1840ae8`
    - Update function signature to accept `context.Context`
    - Propagate cancellation
    - **Effort:** Low (5-10 changes)
    - **Impact:** Proper cancellation support
 
-3. **Modernize Go Code (Go 1.22+ features)**
+~~3. **Modernize Go Code (Go 1.22+ features)**~~ done at `ed0607f`
    - Use `slices.Contains` where appropriate
    - Use `range over int` in test loops
    - Use `WaitGroup.Go` for goroutines
@@ -200,19 +203,19 @@ Previous issues that were fixed:
 
 ### Medium Priority
 
-4. **Refactor Global argHandlers**
+~~4. **Refactor Global argHandlers**~~ done at `539cb8e`
    - Convert to `newArgHandlers()` function
    - Or use struct with methods
    - **Effort:** Medium
    - **Impact:** Testability, no global state
 
-5. **Break Down Long Functions**
+~~5. **Break Down Long Functions**~~ done at `e4ddfbc`
    - `processFilesParallel` → Extract worker pool
    - `main()` → Extract setup, validation, output phases
    - **Effort:** High (50-100 changes)
    - **Impact:** Maintainability, testability
 
-6. **Add Result Handler Interface**
+~~6. **Add Result Handler Interface**~~ Won't implement — streaming callback API shipped instead (`c75e28b`)
    - Define interface for result processing
    - Make output package work with interface
    - **Effort:** Medium
@@ -220,25 +223,25 @@ Previous issues that were fixed:
 
 ### Low Priority / Polish
 
-7. **Add More Tree-sitter Languages**
+~~7. **Add More Tree-sitter Languages**~~ DUPLICATE — tracked in `ROADMAP.md` (language coverage)
    - Python, Java, C++, etc.
    - Just add to registration slice
    - **Effort:** Low
    - **Impact:** More language support
 
-8. **Performance Optimizations**
+~~8. **Performance Optimizations**~~ done at `1d0232a` (baseline; no hotspots)
    - Benchmark validation
    - Consider caching parsed trees
    - **Effort:** High
    - **Impact:** Faster validation of large codebases
 
-9. **Better Error Messages**
+~~9. **Better Error Messages**~~ done at `acfe5c4`
    - Extract more context from tree-sitter errors
    - Show code snippet in error
    - **Effort:** Medium
    - **Impact:** Better UX
 
-10. **Configuration File Support**
+~~10. **Configuration File Support**~~ done at `acfe5c4`
     - `.md-go-validator.yaml` for project settings
     - **Effort:** Medium
     - **Impact:** Per-project configuration
@@ -254,32 +257,32 @@ Previous issues that were fixed:
 3. ✅ ~~Fix exhaustruct warnings~~ - **DONE**
 4. ✅ ~~Fix wrapcheck warnings~~ - **DONE**
 5. ✅ ~~TreeSitterValidator ErrorCode support~~ - **DONE**
-6. 🔄 Make CodeBlock immutable with builder pattern
-7. 🔄 Add context propagation to validateBlock
-8. 🔄 Modernize Go code (slices.Contains, range int, WaitGroup.Go)
-9. 🔄 Run full test suite and verify coverage
-10. 🔄 Commit all changes with detailed messages
+~~6. 🔄 Make CodeBlock immutable with builder pattern~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
+~~7. 🔄 Add context propagation to validateBlock~~ done at `1840ae8`
+~~8. 🔄 Modernize Go code (slices.Contains, range int, WaitGroup.Go)~~ done at `ed0607f`
+~~9. 🔄 Run full test suite and verify coverage~~ done at `d40313d` (latest full green run)
+~~10. 🔄 Commit all changes with detailed messages~~ done at `2b20999`
 
 ### High Value
 
-11. Refactor global argHandlers in main.go
-12. Break down processFilesParallel (cognitive complexity 32)
-13. Extract helper functions from main()
-14. Add ResultHandler interface
-15. Improve CodeBlock documentation
-16. Add more validation to types package
-17. Create benchmark tests
-18. Add integration test for multi-language validation
-19. Add example usage to README
-20. Create tutorial documentation
+~~11. Refactor global argHandlers in main.go~~ done at `539cb8e`
+~~12. Break down processFilesParallel (cognitive complexity 32)~~ done at `c8ad4ca`
+~~13. Extract helper functions from main()~~ done at `539cb8e`
+~~14. Add ResultHandler interface~~ Won't implement — streaming callback API shipped instead (`c75e28b`)
+~~15. Improve CodeBlock documentation~~ done at `c9cf503`
+~~16. Add more validation to types package~~ done at `db0f022`
+~~17. Create benchmark tests~~ done at `1d0232a`
+~~18. Add integration test for multi-language validation~~ done at `13ac23a`
+~~19. Add example usage to README~~ done at `69fcb10` (Library Usage section)
+~~20. Create tutorial documentation~~ done at `69fcb10` (website guides)
 
 ### Nice to Have
 
-21. Add Python tree-sitter validator
-22. Add JSON/YAML output for machine parsing
-23. Add progress bar for long-running validation
-24. Add parallel file walking (currently sequential)
-25. Create GitHub Action for easy CI integration
+~~21. Add Python tree-sitter validator~~ DUPLICATE — tracked in `ROADMAP.md` (language coverage)
+~~22. Add JSON/YAML output for machine parsing~~ done at `d3a4a1c` (v0.2.0 formats)
+~~23. Add progress bar for long-running validation~~ DUPLICATE — tracked in `TODO_LIST.md`
+~~24. Add parallel file walking (currently sequential)~~ done at `d3a4a1c` (worker pool)
+~~25. Create GitHub Action for easy CI integration~~ done at `acfe5c4`, `fba9fe5`
 
 ---
 
