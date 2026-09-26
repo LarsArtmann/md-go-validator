@@ -671,7 +671,9 @@
           <div class="eyebrow">
             FEEDBACK &middot; 2026-06-25 &middot; LIBRARY / EMBEDDING ANGLE
           </div>
-          <h1>Making md-go-validator superb to embed</h1>
+          <h1>Making md-go-validator superb to embed
+<blockquote style="border-left:4px solid #14b8a6;padding:.5rem 1rem;margin:1rem 0"><p><strong>ANNOTATED 2026-09-26 (docs-health pass):</strong> Roadmap items 1 (finding adapter → <code>pkg/finding</code>), 3 (exported sentinels + <code>WithExcludePatterns</code>), and 4 (streaming via <code>ValidateDirectoryFunc</code>) shipped — <code>acfe5c4</code>, <code>c75e28b</code>, <code>da2f6f5</code>. Item 2 (tree-sitter sub-package split) and the <code>pkg/output</code> decoupling remain open design questions — see <code>ROADMAP.md</code>.</p></blockquote>
+</h1>
           <p class="subtitle">
             A review of md-go-validator as a <strong>Go library</strong> that
             other tools (BuildFlow, CI runners, editors, doc-site generators)
@@ -1145,7 +1147,7 @@ v <span class="tok-punct">:=</span> mdgovalidator.<span class="tok-func">New</sp
           <div class="migration-step">
             <div class="migration-num">1</div>
             <div class="migration-content">
-              <h4>Ship a finding adapter (the 80%-value step)</h4>
+              <h4><del>Ship a finding adapter</del> ✅ done at <code>acfe5c4</code> (<code>pkg/finding</code>) (the 80%-value step)</h4>
               <p>
                 Add <code>pkg/finding</code> exposing
                 <code>FromResult(tool string, r Result) Finding</code> and

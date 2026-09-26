@@ -1,5 +1,9 @@
 # Status Report: Website Launch & Public Presence Overhaul
 
+> ANNOTATED 2026-09-26 (docs-health pass): struck items cite closing commits. DNS
+> application remains BLOCKED on the Namecheap API key (see `AGENTS.md`); other
+> open polish ideas live in `ROADMAP.md`.
+
 **Date:** 2026-07-15 22:48
 **Session Goal:** Make md-go-validator public-ready: README, website, GitHub metadata, DNS, Firebase hosting, CI/CD
 
@@ -94,9 +98,9 @@
 
 ## c) NOT STARTED
 
-- Git commit of any changes (nothing committed this session)
+~~- Git commit of any changes (nothing committed this session)~~ done at `69fcb10`
 - Domains repo commit
-- `nix build` / `nix flake check` on the main project (to verify doc changes don't break nix build)
+~~- `nix build` / `nix flake check` on the main project (to verify doc changes don't break nix build)~~ done at verified green (docs-health pass 2026-09-26)
 - Pre-commit hooks yaml verification (`.pre-commit-hooks.yaml` exists but not verified against new website)
 - CONTRIBUTING.md update (still references old patterns, no website mention)
 - CHANGELOG.md update (no entry for website launch)
@@ -155,8 +159,8 @@
 ### Immediate (blocks "done")
 
 1. Apply DNS via Terraform (requires real Namecheap API key) → makes `md-go-validator.lars.software` live
-2. Remove or fix OG image meta tags in LandingLayout.astro (currently 404s)
-3. Fix gotreesitter version in AGENTS.md (`v0.21.0` → `v0.37.0`)
+~~2. Remove or fix OG image meta tags in LandingLayout.astro (currently 404s)~~ done at `2608a7a` (`website/public/og/home.png` shipped)
+~~3. Fix gotreesitter version in AGENTS.md (`v0.21.0` → `v0.37.0`)~~ done at `69fcb10`
 4. Commit all changes (project repo + domains repo) with proper separation
 5. Run `nix build .#` and `nix flake check` to verify pre-existing changes don't break
 
@@ -170,7 +174,7 @@
 11. Add Google Analytics or Plausible analytics
 12. Add a sitemap link in the footer
 13. Add social media preview card verification (Twitter Card Validator, Facebook Debugger)
-14. Add a "last updated" date to docs pages
+~~14. Add a "last updated" date to docs pages~~ still open — tracked in `ROADMAP.md` (website polish)
 15. Add search bar customization (Starlight Pagefind defaults are generic)
 
 ### Content

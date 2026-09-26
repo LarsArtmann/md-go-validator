@@ -1,5 +1,9 @@
 # Status Report: GOEXPERIMENT=jsonv2 Environment Fix for BuildFlow
 
+> ANNOTATED 2026-09-26 (docs-health pass): the slices.ContainsFunc migrations shipped
+> (`ed0607f`); README/AGENTS now document the GOEXPERIMENT requirement. Open items
+> (.envrc.example, benchmark/CI tweaks) tracked in `TODO_LIST.md`.
+
 **Date:** 2026-07-15 23:08
 **Session:** BuildFlow GOEXPERIMENT=jsonv2 root cause fix
 **Trigger:** BuildFlow `--fix --semantic --build-mode=full` failing with 4 steps: go-auto-upgrade, go-fix, govalid-generate, test-race
@@ -55,7 +59,7 @@ The dependency `go-output@v0.30.4` (and transitively `go-branded-id@v0.3.2`) imp
 
 ## c) NOT STARTED
 
-1. **Apply `slices.Contains` migrations** — 5 functions flagged by go-auto-upgrade:
+~~1. **Apply `slices.Contains` migrations** — 5 functions flagged by go-auto-upgrade:~~ done at `ed0607f` (all 5 migrated to `slices.ContainsFunc`)
    - `pkg/code/module.go:44` — `isModuleDirective`
    - `pkg/extractor.go:121` — `hasSkipDirective`
    - `pkg/languages/language.go:131` — `IsSupported` (wrapper, not reimpl)
@@ -93,8 +97,8 @@ In session 1, I fixed `GOEXPERIMENT=jsonv2` in 6 config files (flake.nix, packag
 
 1. Run full `buildflow --fix` to verify all 4 previously-failing steps now pass
 2. Apply the 5 `slices.Contains` migrations flagged by go-auto-upgrade
-3. Verify `nix build .#` still passes (it was building successfully at end of last run)
-4. Commit the `.buildflow.yml` (already committed in `4bc17ef`)
+~~3. Verify `nix build .#` still passes (it was building successfully at end of last run)~~ done at verified green (docs-health pass 2026-09-26)
+~~4. Commit the `.buildflow.yml` (already committed in `4bc17ef`)~~ done at `4bc17ef`
 
 ### Medium Priority (P1)
 
@@ -109,11 +113,11 @@ In session 1, I fixed `GOEXPERIMENT=jsonv2` in 6 config files (flake.nix, packag
 
 ### Code Quality (P2)
 
-13. Migrate `isModuleDirective` to `slices.Contains` in `pkg/code/module.go`
-14. Migrate `hasSkipDirective` to `slices.Contains` in `pkg/extractor.go`
-15. Migrate `isExcluded` to `slices.Contains` in `pkg/validator.go`
-16. Migrate `HasErrors` to `slices.Contains` in `pkg/validator.go`
-17. Migrate `HasSkipped` to `slices.Contains` in `pkg/validator.go`
+~~13. Migrate `isModuleDirective` to `slices.Contains` in `pkg/code/module.go`~~ done at `ed0607f`
+~~14. Migrate `hasSkipDirective` to `slices.Contains` in `pkg/extractor.go`~~ done at `ed0607f`
+~~15. Migrate `isExcluded` to `slices.Contains` in `pkg/validator.go`~~ done at `ed0607f`
+~~16. Migrate `HasErrors` to `slices.Contains` in `pkg/validator.go`~~ done at `ed0607f`
+~~17. Migrate `HasSkipped` to `slices.Contains` in `pkg/validator.go`~~ done at `ed0607f`
 18. Review `IsSupported` wrapper in `pkg/languages/language.go` — consider inlining
 19. Add integration test for GOEXPERIMENT requirement (test that build fails without it)
 20. Review if `go-branded-id` is actually needed (it's an indirect dep via go-output)
@@ -121,7 +125,7 @@ In session 1, I fixed `GOEXPERIMENT=jsonv2` in 6 config files (flake.nix, packag
 ### Documentation (P3)
 
 21. Update FEATURES.md with BuildFlow integration status
-22. Add CHANGELOG entry for GOEXPERIMENT fix
+~~22. Add CHANGELOG entry for GOEXPERIMENT fix~~ done at — `[Unreleased]` documents the CI/GOEXPERIMENT setup
 23. Update TODO_LIST.md with remaining items
 24. Document the direnv workflow in CONTRIBUTING.md
 25. Add a "Troubleshooting" section to README for the jsonv2 error

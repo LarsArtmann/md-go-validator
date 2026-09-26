@@ -1,5 +1,9 @@
 # Status Report: Code Quality Modernization & TODO Triage
 
+> ANNOTATED 2026-09-26 (docs-health pass): this session's verification gaps (coverage
+> table, unified flake check, benchmarks, commit) were closed; remaining feature
+> and infra items tracked in `TODO_LIST.md`.
+
 **Date:** 2026-07-15 23:29
 **Session Goal:** Work through open items from TODO_LIST.md and the three 2026-07-15 status reports
 **Trigger:** User pointed at `TODO_LIST.md` and `**/2026-07-15*` and said "READ, UNDERSTAND, RESEARCH, REFLECT. Break this down. Execute and verify."
@@ -126,15 +130,15 @@ Ran `nix build .#` (passed), `nix fmt` (0 changed), but **did NOT run `nix flake
 
 | Item                                    | Why                                                                                                                                          |
 | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Commit any changes**                  | 9 files uncommitted. User hasn't said "commit".                                                                                              |
-| **Update AGENTS.md coverage table**     | Noticed at end of session. Numbers are stale.                                                                                                |
-| **Run `nix flake check`**               | Ran individual components but not the unified check.                                                                                         |
-| **Run benchmarks**                      | `go test -bench=. -benchmem ./pkg/` not run. No perf regression expected from `slices.ContainsFunc` (compiles to same loop), but unverified. |
+~~| **Commit any changes**                  | 9 files uncommitted. User hasn't said "commit".                                                                                              |~~ done at — committed via daemon + `20b2b55` era commits
+~~| **Update AGENTS.md coverage table**     | Noticed at end of session. Numbers are stale.                                                                                                |~~ done at (docs-health pass 2026-09-26: refreshed from `go test -cover`)
+~~| **Run `nix flake check`**               | Ran individual components but not the unified check.                                                                                         |~~ done at verified green (docs-health pass 2026-09-26)
+~~| **Run benchmarks**                      | `go test -bench=. -benchmem ./pkg/` not run. No perf regression expected from `slices.ContainsFunc` (compiles to same loop), but unverified. |~~ done at verified green (docs-health pass 2026-09-26)
 | **Add `--dry-run` flag**                | Medium Impact TODO. Feature work, not verification. Skipped this session.                                                                    |
 | **Add progress indicator**              | Medium Impact TODO. Feature work. Skipped.                                                                                                   |
 | **Generate shell completions**          | Medium Impact TODO. Feature work. Skipped.                                                                                                   |
 | **Document API stability**              | Medium Impact TODO. Design decision needed. Skipped.                                                                                         |
-| **Add drift guard**                     | High Impact TODO. Requires deciding on implementation approach (CI script? pre-commit hook? nix check?).                                     |
+~~| **Add drift guard**                     | High Impact TODO. Requires deciding on implementation approach (CI script? pre-commit hook? nix check?).                                     |~~ still open — tracked in `TODO_LIST.md`
 | **Publish Homebrew tap**                | External dependency (needs publishing credentials).                                                                                          |
 | **Run `nix flake check --all-systems`** | Network-restricted environment.                                                                                                              |
 | **`.envrc.example`**                    | Mentioned in GOEXPERIMENT report. Not created.                                                                                               |
@@ -190,14 +194,14 @@ The `isModuleDirective` function has additional logic after the `slices.Contains
 
 ### Immediate (this session's gaps)
 
-1. Update AGENTS.md coverage table to match actual numbers
-2. Run `nix flake check` as unified verification
-3. Run `go test -bench=. -benchmem ./pkg/` to verify no perf regression
-4. Commit all 9 changed files (waiting on user "commit")
+~~1. Update AGENTS.md coverage table to match actual numbers~~ done at (docs-health pass 2026-09-26)
+~~2. Run `nix flake check` as unified verification~~ done at verified green 2026-09-26
+~~3. Run `go test -bench=. -benchmem ./pkg/` to verify no perf regression~~ done at verified green 2026-09-26
+~~4. Commit all 9 changed files (waiting on user "commit")~~ done at — committed
 
 ### Documentation
 
-5. Add `.envrc.example` to repo for other developers
+~~5. Add `.envrc.example` to repo for other developers~~ still open — tracked in `TODO_LIST.md`
 6. Document `GOEXPERIMENT=jsonv2` requirement in README Development section
 7. Update AGENTS.md Build Commands to mention `direnv allow`
 8. Add a "Troubleshooting" section to README for the jsonv2 error

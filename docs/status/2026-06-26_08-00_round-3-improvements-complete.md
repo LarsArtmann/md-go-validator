@@ -1,5 +1,9 @@
 # Status Report — 2026-06-26 08:00
 
+> ANNOTATED 2026-09-26 (docs-health pass): struck items cite closing commits; the open
+> B-section gaps and remaining F-items are tracked in `TODO_LIST.md` / `ROADMAP.md`.
+> The tree-sitter-split design question (§G) remains open in `ROADMAP.md` open questions.
+
 ## Overview
 
 md-go-validator underwent a major improvement session addressing all known
@@ -137,8 +141,8 @@ Sorted by impact × (1/effort).
 | 5  | SARIF output structure validation test                             | Medium | Low     | **8**  |
 | 6  | Test ValidateDirectoryFunc with concurrent cancellation            | Medium | Low     | **8**  |
 | 7  | Normalize baseline paths to relative                               | Medium | Low     | **8**  |
-| 8  | Update CONSUMER_PERSPECTIVE.md with new features                   | Low    | Trivial | **7**  |
-| 9  | Add `.md-go-validator.yaml` config schema documentation            | Medium | Low     | **7**  |
+~~| 8  | Update CONSUMER_PERSPECTIVE.md with new features                   | Low    | Trivial | **7**  |~~ done at `4cbc43d` (reconciled)
+~~| 9  | Add `.md-go-validator.yaml` config schema documentation            | Medium | Low     | **7**  |~~ done at `69fcb10` (website configuration page)
 | 10 | Test `returnParseError` and `reportStdinError` error paths         | Medium | Low     | **7**  |
 | 11 | Write API stability statement for `pkg/`                           | Medium | Low     | **6**  |
 | 12 | Add Dockerfile to goreleaser builds for Action versioning          | Medium | Medium  | **5**  |
@@ -151,9 +155,9 @@ Sorted by impact × (1/effort).
 | 19 | Reference-resolution mode (check imports resolve)                  | Low    | High    | **2**  |
 | 20 | Auto-fix suggestions for common syntax errors                      | Low    | High    | **2**  |
 | 21 | More language support (Python, Java, C/C++)                        | Medium | High    | **3**  |
-| 22 | `SkipDirective` branded type (low value — no logic to encapsulate) | Low    | Low     | **2**  |
+~~| 22 | `SkipDirective` branded type (low value — no logic to encapsulate) | Low    | Low     | **2**  |~~ Won't implement — no logic to encapsulate
 | 23 | Web-based playground / online demo                                 | Low    | High    | **1**  |
-| 24 | VS Code extension integration                                      | Low    | High    | **1**  |
+~~| 24 | VS Code extension integration                                      | Low    | High    | **1**  |~~ Won't implement — no demand signal
 | 25 | Performance profiling and optimization for large doc sets          | Low    | Medium  | **2**  |
 
 ---
