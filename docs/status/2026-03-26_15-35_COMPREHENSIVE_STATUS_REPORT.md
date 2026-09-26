@@ -4,6 +4,12 @@
 **Version:** 1.0
 **Branch:** master (up to date with origin/master)
 
+> **ARCHIVED 2026-09-26** — all open items below were resolved in later sessions:
+> `--exclude` shipped as repeatable glob patterns (`da2f6f5`, `ce25525`), the `--fail-on`
+> idea shipped as `--fail-on-skipped` (`fe11609`), config file + `--config` + `--init`
+> shipped (`acfe5c4`, `803de23`), and the CI/release/doc gaps closed through `v0.3.0`
+> (`c5830b8`). See `TODO_LIST.md` for current work.
+
 ---
 
 ## Executive Summary
@@ -94,7 +100,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Phase 4.2: --fail-on Flag (0% - Not Started)
 
-**Status:** Not started
+~~**Status:** Not started~~ Won't implement as designed — shipped as `--fail-on-skipped` strict mode (`fe11609`)
 **Estimated effort:** 30 min
 
 **Design questions pending:**
@@ -105,7 +111,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Phase 4.3: --exclude/--include Patterns (0% - Not Started)
 
-**Status:** Not started
+~~**Status:** Not started~~ done at `da2f6f5` (repeatable `--exclude` globs, `ExcludePattern` branded type) and `ce25525` (`**` via doublestar)
 **Estimated effort:** 60 min
 
 **Design questions pending:**
@@ -122,30 +128,30 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 | # | Task                         | Effort | Priority | Notes                       |
 | - | ---------------------------- | ------ | -------- | --------------------------- |
-| 1 | Custom error types           | 30 min | P2       | ValidationError, ParseError |
-| 2 | Parser multi-strategy tests  | 30 min | P2       | Test all 5 strategies       |
-| 3 | Validator interface tests    | 30 min | P2       | Mock validator tests        |
-| 4 | Improve cmd coverage to 70%+ | 45 min | P2       | Currently 56.3%             |
-| 5 | Add E2E integration tests    | 60 min | P3       | Full CLI workflow tests     |
-| 6 | Add benchmark tests          | 30 min | P3       | Performance tracking        |
-| 7 | Add fuzzing tests for parser | 45 min | P3       | Edge case discovery         |
+| 1 | ~~Custom error types~~           | 30 min | P2       | done at `6d269dd` (`ValidationError` + `ErrorCode`); ParseError never needed |
+| 2 | ~~Parser multi-strategy tests~~  | 30 min | P2       | done at `cb3e883` (`go_validator_test.go`) |
+| 3 | ~~Validator interface tests~~    | 30 min | P2       | done at `cb3e883`, `42b0a56` |
+| 4 | ~~Improve cmd coverage to 70%+~~ | 45 min | P2       | done at `f3a2c2c` (now 74.8%) |
+| 5 | ~~Add E2E integration tests~~    | 60 min | P3       | done at `13ac23a`, `f3a2c2c` |
+| 6 | ~~Add benchmark tests~~          | 30 min | P3       | done at `1d0232a` |
+| 7 | ~~Add fuzzing tests for parser~~ | 45 min | P3       | DUPLICATE — testing-depth ideas tracked in `ROADMAP.md` |
 
 ### Documentation Improvements
 
 | #  | Task                              | Effort | Priority |
 | -- | --------------------------------- | ------ | -------- |
-| 8  | Update CHANGELOG.md               | 15 min | P1       |
-| 9  | Add API documentation             | 30 min | P2       |
-| 10 | Add contribution guidelines       | 20 min | P3       |
-| 11 | Add architecture decision records | 45 min | P3       |
+| 8  | ~~Update CHANGELOG.md~~               | 15 min | P1       | done at `4cbc43d`, `c5830b8` |
+| 9  | ~~Add API documentation~~             | 30 min | P2       | done at `69fcb10` (website library-api page) |
+| 10 | ~~Add contribution guidelines~~       | 20 min | P3       | done at `b72a1be` |
+| 11 | ~~Add architecture decision records~~ | 45 min | P3       | done at `4a86fb5` (`docs/adr/`) |
 
 ### CI/CD Improvements
 
 | #  | Task                         | Effort | Priority |
 | -- | ---------------------------- | ------ | -------- |
-| 12 | Add release automation       | 30 min | P2       |
-| 13 | Add code coverage reporting  | 20 min | P2       |
-| 14 | Add dependabot configuration | 15 min | P3       |
+| 12 | ~~Add release automation~~       | 30 min | P2       | done at `c5830b8` (goreleaser, v0.3.0) |
+| 13 | ~~Add code coverage reporting~~  | 20 min | P2       | done at `60fa809` (CI `go test -race -cover`) |
+| 14 | ~~Add dependabot configuration~~ | 15 min | P3       | done at `4a86fb5` (`.github/dependabot.yml`) |
 
 ---
 
@@ -157,9 +163,9 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 | Issue                               | Severity | Status     | Notes                    |
 | ----------------------------------- | -------- | ---------- | ------------------------ |
-| golangci-lint LS panics             | Low      | IDE-only   | Go toolchain cache issue |
+| ~~golangci-lint LS panics~~             | Low      | ~~IDE-only~~   | transient cache issue; lint clean since `e4ddfbc` |
 | gosec G304 warning (path traversal) | Low      | Documented | Safe by design           |
-| cmd package coverage 56.3%          | Low      | Acceptable | Could be higher          |
+| ~~cmd package coverage 56.3%~~          | Low      | ~~Acceptable~~ | done at `f3a2c2c` (74.8%) |
 
 ---
 
@@ -167,27 +173,27 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### High Priority Improvements
 
-1. **Update CHANGELOG.md** - Document new features (--output-file, format/color flags)
-2. **Improve cmd package coverage** - Add more CLI integration tests
-3. **Add parser strategy tests** - Test all 5 parsing strategies explicitly
+1. ~~**Update CHANGELOG.md** - Document new features (--output-file, format/color flags)~~ done at `4cbc43d`, `c5830b8`
+2. ~~**Improve cmd package coverage** - Add more CLI integration tests~~ done at `f3a2c2c` (74.8%)
+3. ~~**Add parser strategy tests** - Test all 5 parsing strategies explicitly~~ done at `cb3e883`
 
 ### Medium Priority Improvements
 
-4. **Add custom error types** - Better error handling and categorization
-5. **Add benchmark tests** - Track performance over time
-6. **Add E2E tests** - Full CLI workflow validation
+4. ~~**Add custom error types** - Better error handling and categorization~~ done at `6d269dd`
+5. ~~**Add benchmark tests** - Track performance over time~~ done at `1d0232a`
+6. ~~**Add E2E tests** - Full CLI workflow validation~~ done at `13ac23a`, `f3a2c2c`
 
 ### Low Priority Improvements
 
-7. **Add fuzzing tests** - Edge case discovery in parser
-8. **Add architecture decision records** - Document design decisions
-9. **Add contribution guidelines** - Help new contributors
+7. ~~**Add fuzzing tests** - Edge case discovery in parser~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
+8. ~~**Add architecture decision records** - Document design decisions~~ done at `4a86fb5`
+9. ~~**Add contribution guidelines** - Help new contributors~~ done at `b72a1be`
 
 ### Architectural Improvements
 
-10. **Consider adding a `--fail-on` flag** - More control over exit codes
-11. **Consider adding `--exclude/--include` patterns** - Filter files by pattern
-12. **Consider adding a `--config` flag** - Load settings from file
+10. ~~**Consider adding a `--fail-on` flag** - More control over exit codes~~ Won't implement as designed — shipped as `--fail-on-skipped` (`fe11609`)
+11. ~~**Consider adding `--exclude/--include` patterns** - Filter files by pattern~~ done at `da2f6f5`, `ce25525`
+12. ~~**Consider adding a `--config` flag** - Load settings from file~~ done at `acfe5c4` (config file), `803de23` (`--config` flag)
 
 ---
 
@@ -197,46 +203,46 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 | # | Task                              | Effort | Impact | Why                                 |
 | - | --------------------------------- | ------ | ------ | ----------------------------------- |
-| 1 | **Update CHANGELOG.md**           | 15 min | High   | Document new features for users     |
-| 2 | **Implement --fail-on flag**      | 30 min | High   | User requested CI/CD control        |
-| 3 | **Implement --exclude/--include** | 60 min | High   | User requested filtering capability |
-| 4 | **Improve cmd coverage to 70%**   | 45 min | Medium | Better test reliability             |
+| 1 | ~~**Update CHANGELOG.md**~~           | 15 min | High   | done at `4cbc43d`, `c5830b8` |
+| 2 | ~~**Implement --fail-on flag**~~      | 30 min | High   | Won't implement — shipped as `--fail-on-skipped` (`fe11609`) |
+| 3 | ~~**Implement --exclude/--include**~~ | 60 min | High   | done at `da2f6f5`, `ce25525` |
+| 4 | ~~**Improve cmd coverage to 70%**~~   | 45 min | Medium | done at `f3a2c2c` (74.8%) |
 
 ### Short Term (This Week)
 
 | # | Task                            | Effort | Impact | Why                             |
 | - | ------------------------------- | ------ | ------ | ------------------------------- |
-| 5 | Add parser multi-strategy tests | 30 min | Medium | Validate all parsing approaches |
-| 6 | Add validator interface tests   | 30 min | Medium | Ensure interface compliance     |
-| 7 | Add custom error types          | 30 min | Medium | Better error categorization     |
-| 8 | Add benchmark tests             | 30 min | Low    | Performance tracking            |
+| 5 | ~~Add parser multi-strategy tests~~ | 30 min | Medium | done at `cb3e883` |
+| 6 | ~~Add validator interface tests~~   | 30 min | Medium | done at `cb3e883`, `42b0a56` |
+| 7 | ~~Add custom error types~~          | 30 min | Medium | done at `6d269dd` |
+| 8 | ~~Add benchmark tests~~             | 30 min | Low    | done at `1d0232a` |
 
 ### Medium Term (Next 2 Weeks)
 
 | #  | Task                        | Effort | Impact | Why                      |
 | -- | --------------------------- | ------ | ------ | ------------------------ |
-| 9  | Add E2E integration tests   | 60 min | Medium | Full workflow validation |
-| 10 | Add code coverage reporting | 20 min | Medium | Track coverage in CI     |
-| 11 | Add release automation      | 30 min | Medium | Streamline releases      |
-| 12 | Add API documentation       | 30 min | Medium | Help library users       |
+| 9  | ~~Add E2E integration tests~~   | 60 min | Medium | done at `13ac23a`, `f3a2c2c` |
+| 10 | ~~Add code coverage reporting~~ | 20 min | Medium | done at `60fa809` |
+| 11 | ~~Add release automation~~      | 30 min | Medium | done at `c5830b8` |
+| 12 | ~~Add API documentation~~       | 30 min | Medium | done at `69fcb10` |
 
 ### Long Term (Nice to Have)
 
 | #  | Task                              | Effort  | Impact | Why                                    |
 | -- | --------------------------------- | ------- | ------ | -------------------------------------- |
-| 13 | Add fuzzing tests for parser      | 45 min  | Low    | Edge case discovery                    |
-| 14 | Add contribution guidelines       | 20 min  | Low    | Help contributors                      |
-| 15 | Add architecture decision records | 45 min  | Low    | Document design decisions              |
-| 16 | Add dependabot configuration      | 15 min  | Low    | Automated dependency updates           |
-| 17 | Add --config flag                 | 60 min  | Low    | Load settings from file                |
-| 18 | Add pre-commit hook example       | 15 min  | Low    | Already in README, could be expanded   |
-| 19 | Add GitHub Action                 | 20 min  | Low    | Already in README, could be standalone |
-| 20 | Add VS Code extension             | 120 min | Low    | Real-time validation                   |
-| 21 | Add LSP server                    | 180 min | Low    | Editor integration                     |
-| 22 | Add watch mode (--watch)          | 45 min  | Low    | Continuous validation                  |
-| 23 | Add parallel processing           | 30 min  | Low    | Faster validation                      |
-| 24 | Add caching                       | 30 min  | Low    | Skip unchanged files                   |
-| 25 | Add JSON schema for output        | 20 min  | Low    | Structured output validation           |
+| 13 | ~~Add fuzzing tests for parser~~      | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md` |
+| 14 | ~~Add contribution guidelines~~       | 20 min  | Low    | done at `b72a1be` |
+| 15 | ~~Add architecture decision records~~ | 45 min  | Low    | done at `4a86fb5` |
+| 16 | ~~Add dependabot configuration~~      | 15 min  | Low    | done at `4a86fb5` |
+| 17 | ~~Add --config flag~~                 | 60 min  | Low    | done at `acfe5c4`, `803de23` |
+| 18 | ~~Add pre-commit hook example~~       | 15 min  | Low    | done at `acfe5c4` (`.pre-commit-hooks.yaml`) |
+| 19 | ~~Add GitHub Action~~                 | 20 min  | Low    | done at `acfe5c4`, `fba9fe5` |
+| 20 | ~~Add VS Code extension~~             | 120 min | Low    | Won't implement — no demand signal |
+| 21 | ~~Add LSP server~~                    | 180 min | Low    | DUPLICATE — tracked in `ROADMAP.md` |
+| 22 | ~~Add watch mode (--watch)~~          | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md` |
+| 23 | ~~Add parallel processing~~           | 30 min  | Low    | done — concurrent worker pool shipped pre-v0.2.0 (`d3a4a1c`) |
+| 24 | ~~Add caching~~                       | 30 min  | Low    | Won't implement — no demand signal |
+| 25 | ~~Add JSON schema for output~~        | 20 min  | Low    | done at `4cbc43d` |
 
 ---
 
@@ -260,7 +266,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 **My recommendation:** Option 1 (simple) - `error` (default) and `never`
 
-**I need your decision:** Which option do you prefer? Or do you have a different approach?
+~~**I need your decision:** Which option do you prefer? Or do you have a different approach?~~ Resolved — shipped as `--fail-on-skipped` (`fe11609`); the `error` behavior is the default exit-1 path.
 
 ### For --exclude/--include Patterns
 
@@ -279,7 +285,7 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 **My recommendation:** Option 1 (glob patterns)
 
-**I need your decision:** Glob or regex? Should multiple values be supported?
+~~**I need your decision:** Glob or regex? Should multiple values be supported?~~ Resolved — glob chosen, repeatable, with `**` support (`da2f6f5`, `ce25525`).
 
 ---
 
