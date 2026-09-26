@@ -157,7 +157,6 @@ type MyStruct struct {
 ```
 ````
 
-````
 ### Available Directives
 
 - `<!-- skip-validate -->`
@@ -175,7 +174,7 @@ md-go-validator -f sarif .      # SARIF for GitHub Code Scanning
 md-go-validator -f yaml .       # YAML
 md-go-validator -f csv .        # CSV for spreadsheets
 md-go-validator -f markdown .   # Markdown table
-````
+```
 
 The JSON output format is [documented with a JSON Schema](docs/json-schema.json). Each error entry includes an `errorCode` field (`syntax`, `not_available`, `not_registered`, or `unknown`) for programmatic error classification.
 
@@ -261,9 +260,14 @@ Or use the built-in GitHub Action:
 nix build .#          # Build the package
 nix flake check       # Run all checks (format, build, test)
 nix develop           # Enter dev shell
-go test ./...         # Run tests
-golangci-lint run ./...  # Lint
+GOEXPERIMENT=jsonv2 go test ./...   # Run tests
+GOEXPERIMENT=jsonv2 golangci-lint run ./...   # Lint
 ```
+
+> The `GOEXPERIMENT=jsonv2` prefix is required because `go-output` imports the experimental
+> `encoding/json/v2` package. The nix devShell sets it automatically; outside nix, export it
+> manually or use `direnv allow` with the provided `.envrc`. Without it, `go build` and
+> `go test` fail with `build constraints exclude all Go files in .../encoding/json/v2`.
 
 ## License
 

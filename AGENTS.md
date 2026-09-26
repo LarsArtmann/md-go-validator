@@ -175,16 +175,33 @@ Run `go test -cover ./...` for current numbers.
 
 | Package       | Coverage |
 | ------------- | -------- |
-| pkg           | 85.2%    |
+| pkg           | 87.0%    |
 | pkg/baseline  | 73.0%    |
 | pkg/code      | 95.7%    |
 | pkg/config    | 84.8%    |
 | pkg/finding   | 100.0%   |
-| pkg/languages | 88.0%    |
+| pkg/languages | 87.9%    |
 | pkg/output    | 85.7%    |
 | pkg/testutil  | 75.0%    |
-| pkg/types     | 81.0%    |
-| cmd           | 73.9%    |
+| pkg/types     | 80.8%    |
+| cmd           | 74.8%    |
+
+_Coverage refreshed 2026-09-26 (docs-health pass)._
+
+## Git Gotcha: Stray Tags
+
+Tags `v1.0.0`, `v1.1.0`, `v1.2.0` point at commits OLDER than `v0.2.0`/`v0.3.0` (found
+2026-09-26). The real release lineage is `v0.2.0` (2026-06-13) → `v0.3.0` (2026-06-18) →
+`master`. Do not infer recency from tag names; cleanup tracked in `TODO_LIST.md`.
+
+## Docs Layout
+
+- Historical status reports and execution plans with open items live in `docs/status/` and
+  `docs/planning/` — completed items in them are struck inline with their closing commit
+  (format: strikethrough + "done at" + short hash)
+- Fully-resolved reports are archived under `docs/status/archived/` and `docs/planning/archived/`
+  with the same inline annotations; every item carries a done-at hash or an explicit route
+  (`TODO_LIST.md` / `ROADMAP.md` / Won't-implement reason)
 
 ## Nix
 

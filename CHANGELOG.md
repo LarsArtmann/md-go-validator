@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Documentation website at [md-go-validator.lars.software](https://md-go-validator.lars.software) (Astro + Starlight + Tailwind v4)
 - CI/CD workflow for automatic website deployment to Firebase Hosting (`.github/workflows/website.yml`)
+- Social preview image (`website/public/og/home.png`) and accessibility contrast fixes for the website
 - SARIF output format for CI integration (GitHub Code Scanning)
 - `--config` flag for explicit config file path
 - `--save-baseline` flag and improved baseline signature precision (includes error code)
@@ -37,6 +38,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Migrated 5 manual loops to `slices.ContainsFunc` (`isModuleDirective`, `hasSkipDirective`, `isExcluded`, `HasErrors`, `HasSkipped`)
 - Simplified `errors.As` to `errors.AsType` generic helper in `errorLine` and `NewErrorResult` (Go 1.26)
 - Added explanatory comment documenting the `postPatch` replace directive invariants in `package.nix`
+- Upgraded go-output to v0.30.4 and gotreesitter to v0.37.0
+- Modernized lint config and pinned CI actions to commit SHAs
+- Multiple errors during directory validation are now joined via `errors.Join` instead of surfacing only the first
+- Historical status reports and execution plans archived under `docs/status/archived/` and `docs/planning/archived/` with inline done-at annotations
 
 ### Removed
 
@@ -48,6 +53,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 - Panic in `formatSupportedExtensions` during verbose mode
 - `ValidateDirectoryFunc` streaming correctness via worker pool
+- Partial validation results are now preserved when a file read fails or validation is cancelled mid-run — the report no longer shows 0/0/0 when one unreadable file poisoned the batch (`c01632d`, `d40313d`)
 
 ## [0.3.0] - 2026-06-17
 

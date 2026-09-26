@@ -52,29 +52,33 @@
 
             test = {
               type = "app";
-              program = pkgs.lib.getExe (pkgs.writeShellApplication {
-                name = "run-test";
-                runtimeInputs = [ pkgs.go_1_26 ];
-                text = ''
-                  export GOEXPERIMENT=jsonv2
-                  go test -race -v -coverprofile=coverage.out ./...
-                '';
-              });
+              program = pkgs.lib.getExe (
+                pkgs.writeShellApplication {
+                  name = "run-test";
+                  runtimeInputs = [ pkgs.go_1_26 ];
+                  text = ''
+                    export GOEXPERIMENT=jsonv2
+                    go test -race -v -coverprofile=coverage.out ./...
+                  '';
+                }
+              );
             };
 
             lint = {
               type = "app";
-              program = pkgs.lib.getExe (pkgs.writeShellApplication {
-                name = "run-lint";
-                runtimeInputs = [
-                  pkgs.go_1_26
-                  pkgs.golangci-lint
-                ];
-                text = ''
-                  export GOEXPERIMENT=jsonv2
-                  golangci-lint run ./...
-                '';
-              });
+              program = pkgs.lib.getExe (
+                pkgs.writeShellApplication {
+                  name = "run-lint";
+                  runtimeInputs = [
+                    pkgs.go_1_26
+                    pkgs.golangci-lint
+                  ];
+                  text = ''
+                    export GOEXPERIMENT=jsonv2
+                    golangci-lint run ./...
+                  '';
+                }
+              );
             };
           };
 
