@@ -15,17 +15,17 @@
 
 ## Code Validation
 
-| Feature                     | Status                | Notes                                                                |
-| --------------------------- | --------------------- | -------------------------------------------------------------------- |
-| Go validation (6-strategy)  | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/go_validator.go`; handles partial snippets            |
-| Mixed-scope error hints     | 🟢 `FULLY_FUNCTIONAL` | Detects mixed package/body snippets; suggests `// skip-validate`     |
+| Feature                      | Status                | Notes                                                                         |
+| ---------------------------- | --------------------- | ----------------------------------------------------------------------------- |
+| Go validation (6-strategy)   | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/go_validator.go`; handles partial snippets                     |
+| Mixed-scope error hints      | 🟢 `FULLY_FUNCTIONAL` | Detects mixed package/body snippets; suggests `// skip-validate`              |
 | Best-attempt error reporting | 🟢 `FULLY_FUNCTIONAL` | Error from the strategy that parsed furthest; `pkg/languages/go_validator.go` |
-| TypeScript/TSX validation   | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`; embedded tree-sitter        |
-| Rust validation             | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                              |
-| Nix validation              | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                              |
-| HCL/Terraform validation    | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                              |
-| Templ validation            | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                              |
-| Pluggable language registry | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/validator.go`; `Register()`, `Get()`, `GetByString()` |
+| TypeScript/TSX validation    | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`; embedded tree-sitter                 |
+| Rust validation              | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                                       |
+| Nix validation               | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                                       |
+| HCL/Terraform validation     | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                                       |
+| Templ validation             | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/treesitter_validator.go`                                       |
+| Pluggable language registry  | 🟢 `FULLY_FUNCTIONAL` | `pkg/languages/validator.go`; `Register()`, `Get()`, `GetByString()`          |
 
 ## File Processing
 
@@ -67,24 +67,24 @@
 
 ## Library API
 
-| Feature              | Status                | Notes                                                    |
-| -------------------- | --------------------- | -------------------------------------------------------- |
-| Embeddable validator | 🟢 `FULLY_FUNCTIONAL` | `pkg/validator.go`; functional-options builder           |
-| Finding conversion   | 🟢 `FULLY_FUNCTIONAL` | `FromResult()`/`FromResults()`; `pkg/finding/finding.go` |
-| Context cancellation | 🟢 `FULLY_FUNCTIONAL` | `pkg/context.go`                                         |
+| Feature                  | Status                | Notes                                                                                                        |
+| ------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Embeddable validator     | 🟢 `FULLY_FUNCTIONAL` | `pkg/validator.go`; functional-options builder                                                               |
+| Finding conversion       | 🟢 `FULLY_FUNCTIONAL` | `FromResult()`/`FromResults()`; `pkg/finding/finding.go`                                                     |
+| Context cancellation     | 🟢 `FULLY_FUNCTIONAL` | `pkg/context.go`                                                                                             |
 | Partial results on error | 🟢 `FULLY_FUNCTIONAL` | `ValidateDirectory`/`ValidateDirectoryFunc` return results collected before a failure (`c01632d`, `d40313d`) |
-| Branded types        | 🟢 `FULLY_FUNCTIONAL` | `FileID`, `LineNumber`, `BlockIndex`, etc.; `pkg/types/` |
+| Branded types            | 🟢 `FULLY_FUNCTIONAL` | `FileID`, `LineNumber`, `BlockIndex`, etc.; `pkg/types/`                                                     |
 
 ## Distribution
 
-| Feature         | Status                | Notes                                         |
-| --------------- | --------------------- | --------------------------------------------- |
+| Feature         | Status                | Notes                                               |
+| --------------- | --------------------- | --------------------------------------------------- |
 | GitHub Action   | 🟢 `FULLY_FUNCTIONAL` | `action.yml` (Docker-based; `path` + `args` inputs) |
-| Pre-commit hook | 🟢 `FULLY_FUNCTIONAL` | `.pre-commit-hooks.yaml`                      |
-| Dockerfile      | 🟢 `FULLY_FUNCTIONAL` | `Dockerfile` (used by the Action)             |
-| Nix flake       | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` + `package.nix`                   |
-| Goreleaser      | 🟢 `FULLY_FUNCTIONAL` | `.goreleaser.yml`; version from git rev       |
-| Homebrew tap    | ⚪ `PLANNED`          | `.goreleaser.yml:102` has `skip_upload: true` |
+| Pre-commit hook | 🟢 `FULLY_FUNCTIONAL` | `.pre-commit-hooks.yaml`                            |
+| Dockerfile      | 🟢 `FULLY_FUNCTIONAL` | `Dockerfile` (used by the Action)                   |
+| Nix flake       | 🟢 `FULLY_FUNCTIONAL` | `flake.nix` + `package.nix`                         |
+| Goreleaser      | 🟢 `FULLY_FUNCTIONAL` | `.goreleaser.yml`; version from git rev             |
+| Homebrew tap    | ⚪ `PLANNED`          | `.goreleaser.yml:102` has `skip_upload: true`       |
 
 ## Documentation
 

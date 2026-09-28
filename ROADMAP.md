@@ -5,12 +5,12 @@
 
 ## Recently Shipped
 
-| Item                       | Details                                                                                                  |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Documentation website      | [md-go-validator.lars.software](https://md-go-validator.lars.software) — Astro + Starlight + Tailwind v4 |
-| CI/CD auto-deploy          | `.github/workflows/website.yml` — Firebase Hosting on push to master                                     |
-| Partial-results-on-error   | Validation results survive file/dir failures (`c01632d`, `d40313d`)                                      |
-| SARIF + baseline mode      | GitHub Code Scanning output (`1ea7d41`); regression mode (`9d11fa0`)                                     |
+| Item                     | Details                                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Documentation website    | [md-go-validator.lars.software](https://md-go-validator.lars.software) — Astro + Starlight + Tailwind v4 |
+| CI/CD auto-deploy        | `.github/workflows/website.yml` — Firebase Hosting on push to master                                     |
+| Partial-results-on-error | Validation results survive file/dir failures (`c01632d`, `d40313d`)                                      |
+| SARIF + baseline mode    | GitHub Code Scanning output (`1ea7d41`); regression mode (`9d11fa0`)                                     |
 
 ## Themes
 
