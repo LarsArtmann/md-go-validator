@@ -9,3 +9,5 @@ reports/** linguist-generated
 *.zip binary
 *.gz binary
 *.woff2 binary
+# Binary files should not be diffed or merged
+*.png binary

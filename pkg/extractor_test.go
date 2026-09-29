@@ -97,7 +97,6 @@ func TestExtractCodeBlocks_DefaultSkipDirectives(t *testing.T) {
 		"<!-- md-skip -->":          true,
 		"<!-- no-validate -->":      true,
 		"// skip-validate":          true,
-		"//nolint":                  true,
 	}
 
 	if len(directives) != len(expected) {
@@ -123,12 +122,12 @@ func TestExtractCodeBlocks_AllDefaultDirectivesSkipBlock(t *testing.T) {
 			content: "<!-- skip-validate -->\n```go\nx\n```",
 		},
 		{
-			name:    "nolint inside block",
-			content: "```go\n//nolint\nx\n```",
-		},
-		{
 			name:    "md-skip before block",
 			content: "<!-- md-skip -->\n```go\nx\n```",
+		},
+		{
+			name:    "skip-validate as first line inside block",
+			content: "```go\n// skip-validate\nx\n```",
 		},
 	}
 
@@ -153,6 +152,30 @@ func TestExtractCodeBlocksWithConfig_CustomDirectives(t *testing.T) {
 		SkipDirectivesConfig{"<!-- custom-skip -->"},
 	)
 	assertSingleSkippedBlock(t, blocks, "expected custom directive to skip block")
+}
+
+func TestExtractCodeBlocks_ProseDirectiveMentionDoesNotSkip(t *testing.T) {
+	t.Parallel()
+
+	// Regression: a prose mention of a directive (backticked or inline) must
+	// not poison the next block. Only standalone directive lines count.
+	content := "- moved the G304 exclusion from inline `// skip-validate` to config\n" +
+		"```go\npackage main\n```"
+	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	b := testutil.AssertSingleBlock(t, blocks)
+
+	if b.IsSkipped() {
+		t.Error("expected prose directive mention to NOT skip the next block")
+	}
+}
+
+func TestExtractCodeBlocks_IndentedStandaloneDirectiveSkips(t *testing.T) {
+	t.Parallel()
+
+	// List items whose trimmed content IS the directive still count.
+	content := "- <!-- md-skip -->\n```go\nx\n```"
+	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
+	assertSingleSkippedBlock(t, blocks, "expected indented standalone directive to skip block")
 }
 
 func TestExtractCodeBlocksWithConfig_DefaultDoesNotSkipCustom(t *testing.T) {

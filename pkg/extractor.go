@@ -21,7 +21,6 @@ func DefaultSkipDirectives() SkipDirectivesConfig {
 		"<!-- md-skip -->",
 		"<!-- no-validate -->",
 		"// skip-validate",
-		"//nolint",
 	}
 }
 
@@ -101,7 +100,11 @@ func newExtractorStateWithConfig(
 func (s *extractorState) processLine(lineNum int, line string, blocks *[]types.CodeBlock) {
 	trimmed := strings.TrimSpace(line)
 
-	if s.hasSkipDirective(line) {
+	// Directives only take effect as standalone lines outside code blocks.
+	// A mention inside prose (e.g. a changelog bullet about //nolint removal)
+	// must not poison the next block, and in-block content is handled by the
+	// whole-block scan in endCodeBlock.
+	if !s.inCodeBlock && s.isSkipDirective(trimmed) {
 		s.skipNext = true
 	}
 
@@ -122,6 +125,10 @@ func (s *extractorState) hasSkipDirective(line string) bool {
 	return slices.ContainsFunc(s.skipDirectives, func(directive string) bool {
 		return strings.Contains(line, directive)
 	})
+}
+
+func (s *extractorState) isSkipDirective(line string) bool {
+	return slices.Contains(s.skipDirectives, line)
 }
 
 func (s *extractorState) handleCodeContent(line string) {
