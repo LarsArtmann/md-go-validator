@@ -64,29 +64,29 @@ This plan addresses technical debt, architectural issues, and test coverage impr
 
 ### Phase 2: Clean Architecture (Impact: HIGH, Effort: MEDIUM)
 
-| #   | Task                                              | Effort | Impact | Priority |
-| --- | ------------------------------------------------- | ------ | ------ | -------- |
-~~| 2.1 | Simplify splitLines to use strings.Split          | 5 min  | Low    | P2       |~~ done — no-op (already used `strings.Split`)
-~~| 2.2 | Leverage go-output's CSV formatting               | 20 min | Medium | P1       |~~ done at `84dab03`
-~~| 2.3 | Fix newExtractorState to use SkipDirectivesConfig | 10 min | Medium | P1       |~~ done at `31b2272`
-~~| 2.4 | Add custom error types for validation             | 30 min | High   | P2       |~~ done at `6d269dd`
+| #  | Task | Effort                                            | Impact | Priority |
+| -- | ---- | ------------------------------------------------- | ------ | -------- |
+| ~~ | 2.1  | Simplify splitLines to use strings.Split          | 5 min  | Low      |
+| ~~ | 2.2  | Leverage go-output's CSV formatting               | 20 min | Medium   |
+| ~~ | 2.3  | Fix newExtractorState to use SkipDirectivesConfig | 10 min | Medium   |
+| ~~ | 2.4  | Add custom error types for validation             | 30 min | High     |
 
 ### Phase 3: Improve Test Coverage (Impact: MEDIUM, Effort: MEDIUM)
 
-| #   | Task                                        | Effort | Impact | Priority |
-| --- | ------------------------------------------- | ------ | ------ | -------- |
-~~| 3.1 | Add CLI integration tests for --format flag | 30 min | High   | P1       |~~ done at `dee7bc2`
-~~| 3.2 | Add CLI integration tests for --color flag  | 20 min | Medium | P2       |~~ done at `dee7bc2`
-~~| 3.3 | Add Validator interface tests               | 30 min | Medium | P2       |~~ done at `42b0a56`
-~~| 3.4 | Add parser multi-strategy tests             | 30 min | Medium | P2       |~~ done at `cb3e883`
+| #  | Task | Effort                                      | Impact | Priority |
+| -- | ---- | ------------------------------------------- | ------ | -------- |
+| ~~ | 3.1  | Add CLI integration tests for --format flag | 30 min | High     |
+| ~~ | 3.2  | Add CLI integration tests for --color flag  | 20 min | Medium   |
+| ~~ | 3.3  | Add Validator interface tests               | 30 min | Medium   |
+| ~~ | 3.4  | Add parser multi-strategy tests             | 30 min | Medium   |
 
 ### Phase 4: Enhance Functionality (Impact: MEDIUM, Effort: MEDIUM)
 
-| #   | Task                                  | Effort | Impact | Priority |
-| --- | ------------------------------------- | ------ | ------ | -------- |
-~~| 4.1 | Add --output-file flag for CI/CD      | 40 min | High   | P1       |~~ done at `0bb2510`
-~~| 4.2 | Add --fail-on flag (error, warning)   | 30 min | Medium | P2       |~~ Won't implement as designed — shipped as `--fail-on-skipped` (`fe11609`)
-~~| 4.3 | Add --exclude/--include glob patterns | 60 min | Medium | P2       |~~ done at `da2f6f5`, `ce25525`
+| #  | Task | Effort                                | Impact | Priority |
+| -- | ---- | ------------------------------------- | ------ | -------- |
+| ~~ | 4.1  | Add --output-file flag for CI/CD      | 40 min | High     |
+| ~~ | 4.2  | Add --fail-on flag (error, warning)   | 30 min | Medium   |
+| ~~ | 4.3  | Add --exclude/--include glob patterns | 60 min | Medium   |
 
 ---
 

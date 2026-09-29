@@ -106,33 +106,33 @@ N/A — all lint issues resolved.
 
 ## F) TOP 25 THINGS TO DO NEXT
 
-| #  | Task                                                                             | Impact | Effort |
-| -- | -------------------------------------------------------------------------------- | ------ | ------ |
-~~| 1  | Add tests for `pkg/code` package (0% coverage)                                   | High   | Low    |~~ done at `3aa3536`
-~~| 2  | Improve `cmd/md-go-validator` test coverage (61.7% → 80%+)                       | High   | Medium |~~ done at `f3a2c2c`
-~~| 3  | Add CLI integration tests for all output formats                                 | High   | Medium |~~ done at `f3a2c2c`
-~~| 4  | Add CLI integration tests for timeout/cancellation                               | Medium | Low    |~~ done at `f3a2c2c`
-~~| 5  | Add CLI integration tests for language flag                                      | Medium | Low    |~~ done at `f3a2c2c`
-~~| 6  | Improve `pkg/languages` coverage (66.7% → 80%+)                                  | Medium | Medium |~~ done at `cb3e883`
-~~| 7  | Add error path tests for `validator.go` (context cancellation, registry errors)  | Medium | Medium |~~ done at `d40313d`
-~~| 8  | Add property-based tests for `ExtractCodeBlocks` edge cases                      | Medium | Medium |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
-~~| 9  | Add benchmark tests for hot paths (extraction, validation)                       | Medium | Low    |~~ done at `1d0232a`
-~~| 10 | Add fuzz tests for parser (`ValidateGoCode`)                                     | Medium | Medium |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
-~~| 11 | Set up CI pipeline with `golangci-lint` (prevent regressions)                    | High   | Low    |~~ done at `60fa809`
-~~| 12 | Add `goreleaser` cross-compilation CI                                            | Medium | Low    |~~ done at `c5830b8` (release cut via goreleaser)
-~~| 13 | Add `go test -race ./...` to CI                                                  | Medium | Low    |~~ done at `60fa809`
-~~| 14 | Review and update README.md for accuracy                                         | Low    | Low    |~~ done at `4286541`, `69fcb10`
-~~| 15 | Add CONTRIBUTING.md with lint expectations                                       | Low    | Low    |~~ done at `b72a1be`
-~~| 16 | Add pre-commit hook for `golangci-lint`                                          | Medium | Low    |~~ done at `acfe5c4`
-~~| 17 | Consider `exhaustruct` test-only config (currently complains about test structs) | Low    | Low    |~~ Won't implement — strict mode kept; all test structs explicit
-~~| 18 | Add example tests (`testableexamples`) for exported functions                    | Medium | Low    |~~ Won't implement — no godoc examples; pkg.go.dev reference suffices
-~~| 19 | Audit error messages for consistency                                             | Low    | Low    |~~ done at `acfe5c4` (hint system unified)
-~~| 20 | Add `//nolint` comments with expiration dates where appropriate                  | Low    | Low    |~~ Won't implement — nolintlint enforces explanations; expunused not adopted
-~~| 21 | Consider adding `govet` shadow checking                                          | Low    | Low    |~~ Won't implement — vet passes clean; shadow not enabled
-~~| 22 | Review `godoclint` findings across the codebase                                  | Low    | Low    |~~ done at `20b2b55` (lint config modernized; 0 issues)
-~~| 23 | Add `buildflow --semantic --fix` to CI                                           | Low    | Low    |~~ Won't implement — BuildFlow runs locally; CI keeps lint+test gates
-~~| 24 | Add `go-structure-linter` to CI                                                  | Low    | Low    |~~ Won't implement — golangci-lint gate suffices
-~~| 25 | Performance profile and optimize directory walking                               | Low    | Medium |~~ done at `1d0232a` (benchmarks; no hotspot found)
+| #  | Task | Impact                                                                           | Effort |
+| -- | ---- | -------------------------------------------------------------------------------- | ------ |
+| ~~ | 1    | Add tests for `pkg/code` package (0% coverage)                                   | High   |
+| ~~ | 2    | Improve `cmd/md-go-validator` test coverage (61.7% → 80%+)                       | High   |
+| ~~ | 3    | Add CLI integration tests for all output formats                                 | High   |
+| ~~ | 4    | Add CLI integration tests for timeout/cancellation                               | Medium |
+| ~~ | 5    | Add CLI integration tests for language flag                                      | Medium |
+| ~~ | 6    | Improve `pkg/languages` coverage (66.7% → 80%+)                                  | Medium |
+| ~~ | 7    | Add error path tests for `validator.go` (context cancellation, registry errors)  | Medium |
+| ~~ | 8    | Add property-based tests for `ExtractCodeBlocks` edge cases                      | Medium |
+| ~~ | 9    | Add benchmark tests for hot paths (extraction, validation)                       | Medium |
+| ~~ | 10   | Add fuzz tests for parser (`ValidateGoCode`)                                     | Medium |
+| ~~ | 11   | Set up CI pipeline with `golangci-lint` (prevent regressions)                    | High   |
+| ~~ | 12   | Add `goreleaser` cross-compilation CI                                            | Medium |
+| ~~ | 13   | Add `go test -race ./...` to CI                                                  | Medium |
+| ~~ | 14   | Review and update README.md for accuracy                                         | Low    |
+| ~~ | 15   | Add CONTRIBUTING.md with lint expectations                                       | Low    |
+| ~~ | 16   | Add pre-commit hook for `golangci-lint`                                          | Medium |
+| ~~ | 17   | Consider `exhaustruct` test-only config (currently complains about test structs) | Low    |
+| ~~ | 18   | Add example tests (`testableexamples`) for exported functions                    | Medium |
+| ~~ | 19   | Audit error messages for consistency                                             | Low    |
+| ~~ | 20   | Add `//nolint` comments with expiration dates where appropriate                  | Low    |
+| ~~ | 21   | Consider adding `govet` shadow checking                                          | Low    |
+| ~~ | 22   | Review `godoclint` findings across the codebase                                  | Low    |
+| ~~ | 23   | Add `buildflow --semantic --fix` to CI                                           | Low    |
+| ~~ | 24   | Add `go-structure-linter` to CI                                                  | Low    |
+| ~~ | 25   | Performance profile and optimize directory walking                               | Low    |
 
 ---
 

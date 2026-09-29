@@ -74,13 +74,13 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ## b) PARTIALLY DONE
 
-| Item                              | State | Details                                                                                           |
-| --------------------------------- | ----- | ------------------------------------------------------------------------------------------------- |
-~~| `README.md`                       | 90%   | Polished, covers CLI + library. Architecture diagram slightly misleading.                         |~~ done at `69fcb10`
-~~| `CHANGELOG.md`                    | 80%   | Unreleased section is substantial — no version bump since v0.1.0 in January                       |~~ done at `c5830b8`
-~~| `CONSUMER_PERSPECTIVE.md`         | 70%   | 15 gaps identified, none addressed yet                                                            |~~ done at `4cbc43d` (reconciled)
-~~| `docs/modularization/PROPOSAL.md` | 50%   | Dead dependency cycle `pkg/types` ↔ `pkg/languages` identified, proposal written but not executed |~~ DUPLICATE — tracked in `docs/modularization/`
-~~| Nix build                         | 60%   | Hash mismatch in go-modules derivation. `go build` works, `nix build` does not.                   |~~ done at `5dc7606` (vendorHash fixed; go.work removed)
+| Item | State                             | Details |
+| ---- | --------------------------------- | ------- |
+| ~~   | `README.md`                       | 90%     |
+| ~~   | `CHANGELOG.md`                    | 80%     |
+| ~~   | `CONSUMER_PERSPECTIVE.md`         | 70%     |
+| ~~   | `docs/modularization/PROPOSAL.md` | 50%     |
+| ~~   | Nix build                         | 60%     |
 
 ---
 
@@ -88,23 +88,23 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### From CONSUMER_PERSPECTIVE.md (15 gaps, none started):
 
-| #  | Gap                                                    | Severity |
-| -- | ------------------------------------------------------ | -------- |
-~~| 1  | `--version` flag                                       | Critical |~~ done at `d3a4a1c`
-~~| 2  | Configuration file support (`.md-go-validator.yaml`)   | Critical |~~ done at `acfe5c4`
-~~| 3  | `--init` command for config generation                 | Critical |~~ done at `c8e8ba8`
-~~| 4  | `.md-go-validator-ignore` / exclude patterns           | Critical |~~ done at `da2f6f5`, `ce25525`
-~~| 5  | Fix CONTRIBUTING.md dead references                    | Critical |~~ done at `b72a1be`
-~~| 6  | Reusable GitHub Action (`action.yml`)                  | Major    |~~ done at `acfe5c4`, `fba9fe5`
-~~| 7  | Pre-commit hook integration (`.pre-commit-hooks.yaml`) | Major    |~~ done at `acfe5c4`
-~~| 8  | Watch / incremental mode (`--watch`)                   | Major    |~~ DUPLICATE — tracked in `ROADMAP.md`
-~~| 9  | Error codes in CLI output                              | Major    |~~ done at `6d269dd`
-~~| 10 | Diff / regression mode (`--baseline`)                  | Major    |~~ done at `9d11fa0`
-~~| 11 | `--dry-run` flag                                       | Moderate |~~ DUPLICATE — tracked in `TODO_LIST.md`
-~~| 12 | Progress indicator                                     | Moderate |~~ DUPLICATE — tracked in `TODO_LIST.md`
-~~| 13 | Granular exit codes (errors vs crash vs no files)      | Moderate |~~ done at `6d269dd` (0/1/2; no-files variant not needed)
-~~| 14 | Self-validation in CI (dogfooding)                     | Moderate |~~ done at `d3a4a1c`, `ecda347`
-~~| 15 | `--fail-on-skipped` option                             | Minor    |~~ done at `fe11609`
+| #  | Gap | Severity                                               |
+| -- | --- | ------------------------------------------------------ |
+| ~~ | 1   | `--version` flag                                       |
+| ~~ | 2   | Configuration file support (`.md-go-validator.yaml`)   |
+| ~~ | 3   | `--init` command for config generation                 |
+| ~~ | 4   | `.md-go-validator-ignore` / exclude patterns           |
+| ~~ | 5   | Fix CONTRIBUTING.md dead references                    |
+| ~~ | 6   | Reusable GitHub Action (`action.yml`)                  |
+| ~~ | 7   | Pre-commit hook integration (`.pre-commit-hooks.yaml`) |
+| ~~ | 8   | Watch / incremental mode (`--watch`)                   |
+| ~~ | 9   | Error codes in CLI output                              |
+| ~~ | 10  | Diff / regression mode (`--baseline`)                  |
+| ~~ | 11  | `--dry-run` flag                                       |
+| ~~ | 12  | Progress indicator                                     |
+| ~~ | 13  | Granular exit codes (errors vs crash vs no files)      |
+| ~~ | 14  | Self-validation in CI (dogfooding)                     |
+| ~~ | 15  | `--fail-on-skipped` option                             |
 
 ### Other Not Started:
 
@@ -119,13 +119,13 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ## d) TOTALLY FUCKED UP
 
-| Issue                                          | Severity | Details                                                                                                                                                                                                                   |
-| ---------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **Nix build broken**                           | HIGH     | `nix flake check` fails with go-modules hash mismatch. Root cause: `go.work` uses local go-output with newer API. The `go.mod` has v0.6.3 but `go.work` overrides to local. Nix doesn't use go.work, sees different hash. |~~ done at `5dc7606`
-| **6 months without a release**                 | HIGH     | v0.1.0 was 2026-01-01. Massive unreleased changes: MDX support, tree-sitter, branded types, multi-format output, context support, skip directives overhaul. Users on v0.1.0 have a fundamentally different tool.          |
-| **CONTRIBUTING.md is broken**                  | MEDIUM   | References `just` commands and setup scripts that don't exist. First contributor experience is broken.                                                                                                                    |
-| **No dogfooding in CI**                        | MEDIUM   | Tool validates markdown code blocks but doesn't validate its own docs in CI. Undermines credibility.                                                                                                                      |
-~~| **pkg/types ↔ pkg/languages dependency cycle** | LOW      | `pkg/types` imports `pkg/languages` (for `Language` type in `CodeBlock`), `pkg/languages` imports `pkg/types` (for result types). Documented in modularization proposal but unresolved.                                   |~~ DUPLICATE — tracked in `docs/modularization/`
+| Issue                          | Severity                                       | Details                                                                                                                                                                                                          |
+| ------------------------------ | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~~                             | **Nix build broken**                           | HIGH                                                                                                                                                                                                             |
+| **6 months without a release** | HIGH                                           | v0.1.0 was 2026-01-01. Massive unreleased changes: MDX support, tree-sitter, branded types, multi-format output, context support, skip directives overhaul. Users on v0.1.0 have a fundamentally different tool. |
+| **CONTRIBUTING.md is broken**  | MEDIUM                                         | References `just` commands and setup scripts that don't exist. First contributor experience is broken.                                                                                                           |
+| **No dogfooding in CI**        | MEDIUM                                         | Tool validates markdown code blocks but doesn't validate its own docs in CI. Undermines credibility.                                                                                                             |
+| ~~                             | **pkg/types ↔ pkg/languages dependency cycle** | LOW                                                                                                                                                                                                              |
 
 ---
 
@@ -159,48 +159,48 @@ _Generated after deduplication session reducing clone groups from 12 to 8._
 
 ### Tier 1: Critical (Adoption Blockers)
 
-| # | Task                                           | Impact                           | Effort |
-| - | ---------------------------------------------- | -------------------------------- | ------ |
-~~| 1 | **Cut v0.2.0 release**                         | Ships 6 months of work to users  | Small  |~~ done at `d3a4a1c`
-~~| 2 | **Add `--version` flag**                       | Users can verify installation    | Small  |~~ done at `d3a4a1c`
-~~| 3 | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         | Medium |~~ done at `5dc7606`
-~~| 4 | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends | Small  |~~ done at `b72a1be`
-~~| 5 | **Add self-validation to CI**                  | Dogfooding builds trust          | Small  |~~ done at `d3a4a1c`, `ecda347`
+| #  | Task | Impact                                         | Effort                           |
+| -- | ---- | ---------------------------------------------- | -------------------------------- |
+| ~~ | 1    | **Cut v0.2.0 release**                         | Ships 6 months of work to users  |
+| ~~ | 2    | **Add `--version` flag**                       | Users can verify installation    |
+| ~~ | 3    | **Fix nix build** (remove go.work or fix hash) | Reproducible builds work         |
+| ~~ | 4    | **Fix CONTRIBUTING.md** dead references        | Contributors don't hit dead ends |
+| ~~ | 5    | **Add self-validation to CI**                  | Dogfooding builds trust          |
 
 ### Tier 2: High Impact (Quality of Life)
 
-| #  | Task                                                     | Impact                        | Effort |
-| -- | -------------------------------------------------------- | ----------------------------- | ------ |
-~~| 6  | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo | Medium |~~ done at `acfe5c4`
-~~| 7  | **GitHub Action** (`action.yml`)                         | Single-line CI integration    | Medium |~~ done at `acfe5c4`, `fba9fe5`
-~~| 8  | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   | Small  |~~ done at `da2f6f5`, `ce25525`
-~~| 9  | **`--init` command**                                     | Generate starter config       | Small  |~~ done at `c8e8ba8`
-~~| 10 | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     | Small  |~~ done at `acfe5c4`
+| #  | Task | Impact                                                   | Effort                        |
+| -- | ---- | -------------------------------------------------------- | ----------------------------- |
+| ~~ | 6    | **Configuration file support** (`.md-go-validator.yaml`) | Users commit settings to repo |
+| ~~ | 7    | **GitHub Action** (`action.yml`)                         | Single-line CI integration    |
+| ~~ | 8    | **Exclude patterns** (`.md-go-validator-ignore`)         | Skip vendor/generated files   |
+| ~~ | 9    | **`--init` command**                                     | Generate starter config       |
+| ~~ | 10   | **Pre-commit hooks** (`.pre-commit-hooks.yaml`)          | Ecosystem discoverability     |
 
 ### Tier 3: Important (Polish)
 
-| #  | Task                                                             | Impact                           | Effort |
-| -- | ---------------------------------------------------------------- | -------------------------------- | ------ |
-~~| 11 | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes | Small  |~~ done at `6d269dd`
-~~| 12 | **Error codes in JSON output**                                   | Machine-actionable results       | Small  |~~ done at `6d269dd`
-~~| 13 | **Create `TODO_LIST.md`**                                        | Prioritized backlog              | Small  |~~ done at `50487d3`
-~~| 14 | **Create `FEATURES.md`**                                         | Feature inventory                | Small  |~~ done at `50487d3`
-~~| 15 | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     | Medium |~~ done at `f3a2c2c` (74.8%; 85% not pursued — diminishing returns)
-~~| 16 | **Break types ↔ languages dependency cycle**                     | Clean architecture               | Medium |~~ DUPLICATE — tracked in `docs/modularization/`
+| #  | Task | Impact                                                           | Effort                           |
+| -- | ---- | ---------------------------------------------------------------- | -------------------------------- |
+| ~~ | 11   | **Granular exit codes** (0=valid, 1=errors, 2=crash, 3=no files) | CI can distinguish failure modes |
+| ~~ | 12   | **Error codes in JSON output**                                   | Machine-actionable results       |
+| ~~ | 13   | **Create `TODO_LIST.md`**                                        | Prioritized backlog              |
+| ~~ | 14   | **Create `FEATURES.md`**                                         | Feature inventory                |
+| ~~ | 15   | **Increase cmd coverage to 85%+**                                | Confidence in CLI edge cases     |
+| ~~ | 16   | **Break types ↔ languages dependency cycle**                     | Clean architecture               |
 
 ### Tier 4: Nice to Have (Enhancement)
 
-| #  | Task                                     | Impact                          | Effort |
-| -- | ---------------------------------------- | ------------------------------- | ------ |
-~~| 17 | **Watch mode (`--watch`)**               | Development workflow            | Medium |~~ DUPLICATE — tracked in `ROADMAP.md`
-~~| 18 | **Progress indicator**                   | UX for large directories        | Small  |~~ DUPLICATE — tracked in `TODO_LIST.md`
-~~| 19 | **`--dry-run` flag**                     | Debug config without running    | Small  |~~ DUPLICATE — tracked in `TODO_LIST.md`
-~~| 20 | **Diff/regression mode (`--baseline`)**  | Incremental adoption            | Large  |~~ done at `9d11fa0`
-~~| 21 | **`--fail-on-skipped` option**           | Strict enforcement              | Small  |~~ done at `fe11609`
-~~| 22 | **Migrate CLI to cobra**                 | Extensibility, shell completion | Medium |~~ Won't implement — hand parser retained deliberately
-~~| 23 | **Extract cmd config to separate file**  | Reduce main.go size             | Small  |~~ Won't implement — CLI restructured via direct dispatch instead (`539cb8e`)
-~~| 24 | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             | Small  |~~ done at `7868a98`
-~~| 25 | **Add nix flake to CI**                  | Verify nix build in CI          | Small  |~~ done at `ecda347`
+| #  | Task | Impact                                   | Effort                          |
+| -- | ---- | ---------------------------------------- | ------------------------------- |
+| ~~ | 17   | **Watch mode (`--watch`)**               | Development workflow            |
+| ~~ | 18   | **Progress indicator**                   | UX for large directories        |
+| ~~ | 19   | **`--dry-run` flag**                     | Debug config without running    |
+| ~~ | 20   | **Diff/regression mode (`--baseline`)**  | Incremental adoption            |
+| ~~ | 21   | **`--fail-on-skipped` option**           | Strict enforcement              |
+| ~~ | 22   | **Migrate CLI to cobra**                 | Extensibility, shell completion |
+| ~~ | 23   | **Extract cmd config to separate file**  | Reduce main.go size             |
+| ~~ | 24   | **Add `docs/DOMAIN_LANGUAGE.md` review** | Ensure completeness             |
+| ~~ | 25   | **Add nix flake to CI**                  | Verify nix build in CI          |
 
 ---
 

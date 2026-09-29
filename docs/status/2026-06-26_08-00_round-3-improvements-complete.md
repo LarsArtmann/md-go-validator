@@ -132,33 +132,33 @@ and `**` recursive glob support — all shipped, lint-clean, race-clean.
 
 Sorted by impact × (1/effort).
 
-| #  | Task                                                               | Impact | Effort  | Score  |
-| -- | ------------------------------------------------------------------ | ------ | ------- | ------ |
-| 1  | Test `**` glob matching in ExcludePattern.Match                    | High   | Low     | **10** |
-| 2  | Test `--config` flag via parseArgs (loads specified file)          | High   | Low     | **10** |
-| 3  | Test `--save-baseline` end-to-end (save → reload → filter)         | High   | Low     | **9**  |
-| 4  | Test `applyConfigFormat` (format from config file)                 | High   | Low     | **9**  |
-| 5  | SARIF output structure validation test                             | Medium | Low     | **8**  |
-| 6  | Test ValidateDirectoryFunc with concurrent cancellation            | Medium | Low     | **8**  |
-| 7  | Normalize baseline paths to relative                               | Medium | Low     | **8**  |
-~~| 8  | Update CONSUMER_PERSPECTIVE.md with new features                   | Low    | Trivial | **7**  |~~ done at `4cbc43d` (reconciled)
-~~| 9  | Add `.md-go-validator.yaml` config schema documentation            | Medium | Low     | **7**  |~~ done at `69fcb10` (website configuration page)
-| 10 | Test `returnParseError` and `reportStdinError` error paths         | Medium | Low     | **7**  |
-| 11 | Write API stability statement for `pkg/`                           | Medium | Low     | **6**  |
-| 12 | Add Dockerfile to goreleaser builds for Action versioning          | Medium | Medium  | **5**  |
-| 13 | Add benchmark for SARIF conversion + doublestar matching           | Low    | Low     | **5**  |
-| 14 | Split tree-sitter into opt-in sub-package                          | High   | High    | **4**  |
-| 15 | Decouple `pkg/output` from library import graph                    | Medium | High    | **3**  |
-| 16 | Add `--watch` incremental mode                                     | Low    | High    | **2**  |
-| 17 | Homebrew tap publish via goreleaser                                | Low    | Low     | **4**  |
-| 18 | Property-based testing for elision normalizer                      | Low    | Medium  | **3**  |
-| 19 | Reference-resolution mode (check imports resolve)                  | Low    | High    | **2**  |
-| 20 | Auto-fix suggestions for common syntax errors                      | Low    | High    | **2**  |
-| 21 | More language support (Python, Java, C/C++)                        | Medium | High    | **3**  |
-~~| 22 | `SkipDirective` branded type (low value — no logic to encapsulate) | Low    | Low     | **2**  |~~ Won't implement — no logic to encapsulate
-| 23 | Web-based playground / online demo                                 | Low    | High    | **1**  |
-~~| 24 | VS Code extension integration                                      | Low    | High    | **1**  |~~ Won't implement — no demand signal
-| 25 | Performance profiling and optimization for large doc sets          | Low    | Medium  | **2**  |
+| #  | Task                                                       | Impact                                                             | Effort | Score   |
+| -- | ---------------------------------------------------------- | ------------------------------------------------------------------ | ------ | ------- |
+| 1  | Test `**` glob matching in ExcludePattern.Match            | High                                                               | Low    | **10**  |
+| 2  | Test `--config` flag via parseArgs (loads specified file)  | High                                                               | Low    | **10**  |
+| 3  | Test `--save-baseline` end-to-end (save → reload → filter) | High                                                               | Low    | **9**   |
+| 4  | Test `applyConfigFormat` (format from config file)         | High                                                               | Low    | **9**   |
+| 5  | SARIF output structure validation test                     | Medium                                                             | Low    | **8**   |
+| 6  | Test ValidateDirectoryFunc with concurrent cancellation    | Medium                                                             | Low    | **8**   |
+| 7  | Normalize baseline paths to relative                       | Medium                                                             | Low    | **8**   |
+| ~~ | 8                                                          | Update CONSUMER_PERSPECTIVE.md with new features                   | Low    | Trivial |
+| ~~ | 9                                                          | Add `.md-go-validator.yaml` config schema documentation            | Medium | Low     |
+| 10 | Test `returnParseError` and `reportStdinError` error paths | Medium                                                             | Low    | **7**   |
+| 11 | Write API stability statement for `pkg/`                   | Medium                                                             | Low    | **6**   |
+| 12 | Add Dockerfile to goreleaser builds for Action versioning  | Medium                                                             | Medium | **5**   |
+| 13 | Add benchmark for SARIF conversion + doublestar matching   | Low                                                                | Low    | **5**   |
+| 14 | Split tree-sitter into opt-in sub-package                  | High                                                               | High   | **4**   |
+| 15 | Decouple `pkg/output` from library import graph            | Medium                                                             | High   | **3**   |
+| 16 | Add `--watch` incremental mode                             | Low                                                                | High   | **2**   |
+| 17 | Homebrew tap publish via goreleaser                        | Low                                                                | Low    | **4**   |
+| 18 | Property-based testing for elision normalizer              | Low                                                                | Medium | **3**   |
+| 19 | Reference-resolution mode (check imports resolve)          | Low                                                                | High   | **2**   |
+| 20 | Auto-fix suggestions for common syntax errors              | Low                                                                | High   | **2**   |
+| 21 | More language support (Python, Java, C/C++)                | Medium                                                             | High   | **3**   |
+| ~~ | 22                                                         | `SkipDirective` branded type (low value — no logic to encapsulate) | Low    | Low     |
+| 23 | Web-based playground / online demo                         | Low                                                                | High   | **1**   |
+| ~~ | 24                                                         | VS Code extension integration                                      | Low    | High    |
+| 25 | Performance profiling and optimization for large doc sets  | Low                                                                | Medium | **2**   |
 
 ---
 

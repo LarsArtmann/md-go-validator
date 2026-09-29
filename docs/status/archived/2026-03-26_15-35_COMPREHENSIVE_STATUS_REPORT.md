@@ -126,32 +126,32 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Optional Enhancements
 
-| # | Task                         | Effort | Priority | Notes                       |
-| - | ---------------------------- | ------ | -------- | --------------------------- |
+| # | Task                             | Effort | Priority | Notes                                                                        |
+| - | -------------------------------- | ------ | -------- | ---------------------------------------------------------------------------- |
 | 1 | ~~Custom error types~~           | 30 min | P2       | done at `6d269dd` (`ValidationError` + `ErrorCode`); ParseError never needed |
-| 2 | ~~Parser multi-strategy tests~~  | 30 min | P2       | done at `cb3e883` (`go_validator_test.go`) |
-| 3 | ~~Validator interface tests~~    | 30 min | P2       | done at `cb3e883`, `42b0a56` |
-| 4 | ~~Improve cmd coverage to 70%+~~ | 45 min | P2       | done at `f3a2c2c` (now 74.8%) |
-| 5 | ~~Add E2E integration tests~~    | 60 min | P3       | done at `13ac23a`, `f3a2c2c` |
-| 6 | ~~Add benchmark tests~~          | 30 min | P3       | done at `1d0232a` |
-| 7 | ~~Add fuzzing tests for parser~~ | 45 min | P3       | DUPLICATE — testing-depth ideas tracked in `ROADMAP.md` |
+| 2 | ~~Parser multi-strategy tests~~  | 30 min | P2       | done at `cb3e883` (`go_validator_test.go`)                                   |
+| 3 | ~~Validator interface tests~~    | 30 min | P2       | done at `cb3e883`, `42b0a56`                                                 |
+| 4 | ~~Improve cmd coverage to 70%+~~ | 45 min | P2       | done at `f3a2c2c` (now 74.8%)                                                |
+| 5 | ~~Add E2E integration tests~~    | 60 min | P3       | done at `13ac23a`, `f3a2c2c`                                                 |
+| 6 | ~~Add benchmark tests~~          | 30 min | P3       | done at `1d0232a`                                                            |
+| 7 | ~~Add fuzzing tests for parser~~ | 45 min | P3       | DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`                      |
 
 ### Documentation Improvements
 
-| #  | Task                              | Effort | Priority |
-| -- | --------------------------------- | ------ | -------- |
-| 8  | ~~Update CHANGELOG.md~~               | 15 min | P1       | done at `4cbc43d`, `c5830b8` |
-| 9  | ~~Add API documentation~~             | 30 min | P2       | done at `69fcb10` (website library-api page) |
-| 10 | ~~Add contribution guidelines~~       | 20 min | P3       | done at `b72a1be` |
-| 11 | ~~Add architecture decision records~~ | 45 min | P3       | done at `4a86fb5` (`docs/adr/`) |
+| #  | Task                                  | Effort | Priority |
+| -- | ------------------------------------- | ------ | -------- |
+| 8  | ~~Update CHANGELOG.md~~               | 15 min | P1       |
+| 9  | ~~Add API documentation~~             | 30 min | P2       |
+| 10 | ~~Add contribution guidelines~~       | 20 min | P3       |
+| 11 | ~~Add architecture decision records~~ | 45 min | P3       |
 
 ### CI/CD Improvements
 
-| #  | Task                         | Effort | Priority |
-| -- | ---------------------------- | ------ | -------- |
-| 12 | ~~Add release automation~~       | 30 min | P2       | done at `c5830b8` (goreleaser, v0.3.0) |
-| 13 | ~~Add code coverage reporting~~  | 20 min | P2       | done at `60fa809` (CI `go test -race -cover`) |
-| 14 | ~~Add dependabot configuration~~ | 15 min | P3       | done at `4a86fb5` (`.github/dependabot.yml`) |
+| #  | Task                             | Effort | Priority |
+| -- | -------------------------------- | ------ | -------- |
+| 12 | ~~Add release automation~~       | 30 min | P2       |
+| 13 | ~~Add code coverage reporting~~  | 20 min | P2       |
+| 14 | ~~Add dependabot configuration~~ | 15 min | P3       |
 
 ---
 
@@ -161,11 +161,11 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Minor Issues (Non-Blocking)
 
-| Issue                               | Severity | Status     | Notes                    |
-| ----------------------------------- | -------- | ---------- | ------------------------ |
-| ~~golangci-lint LS panics~~             | Low      | ~~IDE-only~~   | transient cache issue; lint clean since `e4ddfbc` |
-| gosec G304 warning (path traversal) | Low      | Documented | Safe by design           |
-| ~~cmd package coverage 56.3%~~          | Low      | ~~Acceptable~~ | done at `f3a2c2c` (74.8%) |
+| Issue                               | Severity | Status         | Notes                                             |
+| ----------------------------------- | -------- | -------------- | ------------------------------------------------- |
+| ~~golangci-lint LS panics~~         | Low      | ~~IDE-only~~   | transient cache issue; lint clean since `e4ddfbc` |
+| gosec G304 warning (path traversal) | Low      | Documented     | Safe by design                                    |
+| ~~cmd package coverage 56.3%~~      | Low      | ~~Acceptable~~ | done at `f3a2c2c` (74.8%)                         |
 
 ---
 
@@ -201,48 +201,48 @@ a6047b0 test(cmd): improve test coverage from 44.9% to 59.4%
 
 ### Immediate (Next Session)
 
-| # | Task                              | Effort | Impact | Why                                 |
-| - | --------------------------------- | ------ | ------ | ----------------------------------- |
-| 1 | ~~**Update CHANGELOG.md**~~           | 15 min | High   | done at `4cbc43d`, `c5830b8` |
+| # | Task                                  | Effort | Impact | Why                                                          |
+| - | ------------------------------------- | ------ | ------ | ------------------------------------------------------------ |
+| 1 | ~~**Update CHANGELOG.md**~~           | 15 min | High   | done at `4cbc43d`, `c5830b8`                                 |
 | 2 | ~~**Implement --fail-on flag**~~      | 30 min | High   | Won't implement — shipped as `--fail-on-skipped` (`fe11609`) |
-| 3 | ~~**Implement --exclude/--include**~~ | 60 min | High   | done at `da2f6f5`, `ce25525` |
-| 4 | ~~**Improve cmd coverage to 70%**~~   | 45 min | Medium | done at `f3a2c2c` (74.8%) |
+| 3 | ~~**Implement --exclude/--include**~~ | 60 min | High   | done at `da2f6f5`, `ce25525`                                 |
+| 4 | ~~**Improve cmd coverage to 70%**~~   | 45 min | Medium | done at `f3a2c2c` (74.8%)                                    |
 
 ### Short Term (This Week)
 
-| # | Task                            | Effort | Impact | Why                             |
-| - | ------------------------------- | ------ | ------ | ------------------------------- |
-| 5 | ~~Add parser multi-strategy tests~~ | 30 min | Medium | done at `cb3e883` |
+| # | Task                                | Effort | Impact | Why                          |
+| - | ----------------------------------- | ------ | ------ | ---------------------------- |
+| 5 | ~~Add parser multi-strategy tests~~ | 30 min | Medium | done at `cb3e883`            |
 | 6 | ~~Add validator interface tests~~   | 30 min | Medium | done at `cb3e883`, `42b0a56` |
-| 7 | ~~Add custom error types~~          | 30 min | Medium | done at `6d269dd` |
-| 8 | ~~Add benchmark tests~~             | 30 min | Low    | done at `1d0232a` |
+| 7 | ~~Add custom error types~~          | 30 min | Medium | done at `6d269dd`            |
+| 8 | ~~Add benchmark tests~~             | 30 min | Low    | done at `1d0232a`            |
 
 ### Medium Term (Next 2 Weeks)
 
-| #  | Task                        | Effort | Impact | Why                      |
-| -- | --------------------------- | ------ | ------ | ------------------------ |
+| #  | Task                            | Effort | Impact | Why                          |
+| -- | ------------------------------- | ------ | ------ | ---------------------------- |
 | 9  | ~~Add E2E integration tests~~   | 60 min | Medium | done at `13ac23a`, `f3a2c2c` |
-| 10 | ~~Add code coverage reporting~~ | 20 min | Medium | done at `60fa809` |
-| 11 | ~~Add release automation~~      | 30 min | Medium | done at `c5830b8` |
-| 12 | ~~Add API documentation~~       | 30 min | Medium | done at `69fcb10` |
+| 10 | ~~Add code coverage reporting~~ | 20 min | Medium | done at `60fa809`            |
+| 11 | ~~Add release automation~~      | 30 min | Medium | done at `c5830b8`            |
+| 12 | ~~Add API documentation~~       | 30 min | Medium | done at `69fcb10`            |
 
 ### Long Term (Nice to Have)
 
-| #  | Task                              | Effort  | Impact | Why                                    |
-| -- | --------------------------------- | ------- | ------ | -------------------------------------- |
-| 13 | ~~Add fuzzing tests for parser~~      | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md` |
-| 14 | ~~Add contribution guidelines~~       | 20 min  | Low    | done at `b72a1be` |
-| 15 | ~~Add architecture decision records~~ | 45 min  | Low    | done at `4a86fb5` |
-| 16 | ~~Add dependabot configuration~~      | 15 min  | Low    | done at `4a86fb5` |
-| 17 | ~~Add --config flag~~                 | 60 min  | Low    | done at `acfe5c4`, `803de23` |
-| 18 | ~~Add pre-commit hook example~~       | 15 min  | Low    | done at `acfe5c4` (`.pre-commit-hooks.yaml`) |
-| 19 | ~~Add GitHub Action~~                 | 20 min  | Low    | done at `acfe5c4`, `fba9fe5` |
-| 20 | ~~Add VS Code extension~~             | 120 min | Low    | Won't implement — no demand signal |
-| 21 | ~~Add LSP server~~                    | 180 min | Low    | DUPLICATE — tracked in `ROADMAP.md` |
-| 22 | ~~Add watch mode (--watch)~~          | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md` |
+| #  | Task                                  | Effort  | Impact | Why                                                          |
+| -- | ------------------------------------- | ------- | ------ | ------------------------------------------------------------ |
+| 13 | ~~Add fuzzing tests for parser~~      | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md`                          |
+| 14 | ~~Add contribution guidelines~~       | 20 min  | Low    | done at `b72a1be`                                            |
+| 15 | ~~Add architecture decision records~~ | 45 min  | Low    | done at `4a86fb5`                                            |
+| 16 | ~~Add dependabot configuration~~      | 15 min  | Low    | done at `4a86fb5`                                            |
+| 17 | ~~Add --config flag~~                 | 60 min  | Low    | done at `acfe5c4`, `803de23`                                 |
+| 18 | ~~Add pre-commit hook example~~       | 15 min  | Low    | done at `acfe5c4` (`.pre-commit-hooks.yaml`)                 |
+| 19 | ~~Add GitHub Action~~                 | 20 min  | Low    | done at `acfe5c4`, `fba9fe5`                                 |
+| 20 | ~~Add VS Code extension~~             | 120 min | Low    | Won't implement — no demand signal                           |
+| 21 | ~~Add LSP server~~                    | 180 min | Low    | DUPLICATE — tracked in `ROADMAP.md`                          |
+| 22 | ~~Add watch mode (--watch)~~          | 45 min  | Low    | DUPLICATE — tracked in `ROADMAP.md`                          |
 | 23 | ~~Add parallel processing~~           | 30 min  | Low    | done — concurrent worker pool shipped pre-v0.2.0 (`d3a4a1c`) |
-| 24 | ~~Add caching~~                       | 30 min  | Low    | Won't implement — no demand signal |
-| 25 | ~~Add JSON schema for output~~        | 20 min  | Low    | done at `4cbc43d` |
+| 24 | ~~Add caching~~                       | 30 min  | Low    | Won't implement — no demand signal                           |
+| 25 | ~~Add JSON schema for output~~        | 20 min  | Low    | done at `4cbc43d`                                            |
 
 ---
 

@@ -128,21 +128,21 @@ Ran `nix build .#` (passed), `nix fmt` (0 changed), but **did NOT run `nix flake
 
 ## c) NOT STARTED
 
-| Item                                    | Why                                                                                                                                          |
-| --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **Commit any changes**                  | 9 files uncommitted. User hasn't said "commit".                                                                                              |~~ done at — committed via daemon + `20b2b55` era commits
-~~| **Update AGENTS.md coverage table**     | Noticed at end of session. Numbers are stale.                                                                                                |~~ done at (docs-health pass 2026-09-26: refreshed from `go test -cover`)
-~~| **Run `nix flake check`**               | Ran individual components but not the unified check.                                                                                         |~~ done at verified green (docs-health pass 2026-09-26)
-~~| **Run benchmarks**                      | `go test -bench=. -benchmem ./pkg/` not run. No perf regression expected from `slices.ContainsFunc` (compiles to same loop), but unverified. |~~ done at verified green (docs-health pass 2026-09-26)
-| **Add `--dry-run` flag**                | Medium Impact TODO. Feature work, not verification. Skipped this session.                                                                    |
-| **Add progress indicator**              | Medium Impact TODO. Feature work. Skipped.                                                                                                   |
-| **Generate shell completions**          | Medium Impact TODO. Feature work. Skipped.                                                                                                   |
-| **Document API stability**              | Medium Impact TODO. Design decision needed. Skipped.                                                                                         |
-~~| **Add drift guard**                     | High Impact TODO. Requires deciding on implementation approach (CI script? pre-commit hook? nix check?).                                     |~~ still open — tracked in `TODO_LIST.md`
-| **Publish Homebrew tap**                | External dependency (needs publishing credentials).                                                                                          |
-| **Run `nix flake check --all-systems`** | Network-restricted environment.                                                                                                              |
-| **`.envrc.example`**                    | Mentioned in GOEXPERIMENT report. Not created.                                                                                               |
-| **Document GOEXPERIMENT in README**     | Mentioned in GOEXPERIMENT report. Not done.                                                                                                  |
+| Item                                    | Why                                                                       |
+| --------------------------------------- | ------------------------------------------------------------------------- |
+| ~~                                      | **Commit any changes**                                                    |
+| ~~                                      | **Update AGENTS.md coverage table**                                       |
+| ~~                                      | **Run `nix flake check`**                                                 |
+| ~~                                      | **Run benchmarks**                                                        |
+| **Add `--dry-run` flag**                | Medium Impact TODO. Feature work, not verification. Skipped this session. |
+| **Add progress indicator**              | Medium Impact TODO. Feature work. Skipped.                                |
+| **Generate shell completions**          | Medium Impact TODO. Feature work. Skipped.                                |
+| **Document API stability**              | Medium Impact TODO. Design decision needed. Skipped.                      |
+| ~~                                      | **Add drift guard**                                                       |
+| **Publish Homebrew tap**                | External dependency (needs publishing credentials).                       |
+| **Run `nix flake check --all-systems`** | Network-restricted environment.                                           |
+| **`.envrc.example`**                    | Mentioned in GOEXPERIMENT report. Not created.                            |
+| **Document GOEXPERIMENT in README**     | Mentioned in GOEXPERIMENT report. Not done.                               |
 
 ---
 

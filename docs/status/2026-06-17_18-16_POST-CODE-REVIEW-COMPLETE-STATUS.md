@@ -105,14 +105,14 @@ extractor tests, CLI honesty fixes, and CI parity with the Nix workflow.
 
 | Area                               | Description                                                                                                                                    |
 | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-~~| **v0.3.0 release**                 | No git tag, no goreleaser run, no CHANGELOG entry for post-v0.2.0 work                                                                         |~~ done at `c5830b8`
+| ~~                                 | **v0.3.0 release**                                                                                                                             |
 | **`internal/` directory**          | BuildFlow flagged that private implementation code could move to `internal/` for stronger encapsulation (Go's internal visibility enforcement) |
 | **BDD tests**                      | No Ginkgo/Gomega BDD tests for critical user-facing flows (the project has BDD-testing skill available but it's unused)                        |
 | **Watch mode**                     | No file-watcher for incremental re-validation during editing                                                                                   |
 | **Configuration file**             | No `.md-go-validator.yaml` config file support (flags only)                                                                                    |
-~~| **Exit code semantics**            | Single exit code (0/1); no distinction between "validation errors" vs "tool errors" (e.g., file not found)                                     |~~ done at `6d269dd`
-~~| **STDIN support**                  | Cannot pipe markdown via stdin for validation                                                                                                  |~~ done at `6d269dd`
-~~| **JSON schema output**             | No formal JSON schema for the JSON output format                                                                                               |~~ done at `4cbc43d`
+| ~~                                 | **Exit code semantics**                                                                                                                        |
+| ~~                                 | **STDIN support**                                                                                                                              |
+| ~~                                 | **JSON schema output**                                                                                                                         |
 | **Performance benchmarking suite** | Benchmarks exist but no regression tracking or CI benchmark gating                                                                             |
 
 ---
@@ -160,33 +160,33 @@ extractor tests, CLI honesty fixes, and CI parity with the Nix workflow.
 
 ## f) Top 25 Things to Get Done Next
 
-| #  | Task                                                                                                                | Impact | Effort | Category     |
-| -- | ------------------------------------------------------------------------------------------------------------------- | ------ | ------ | ------------ |
-~~| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                                                                 | High   | Low    | Release      |~~ done at `c5830b8`
-~~| 2  | **Populate CHANGELOG `[Unreleased]`** with this session's 11 commits                                                | High   | Low    | Docs         |~~ done at `4cbc43d`
-~~| 3  | **Confirm go-output v0.11.0 upgrade intent** — verify it's desired                                                  | High   | Low    | Decision     |~~ done at resolved — kept; upgraded since (`220837d`)
-| 4  | **Add `internal/` directory** for private packages (BuildFlow recommendation)                                       | Medium | Medium | Architecture |
-| 5  | **Migrate to `go-error-family`** for structured error classification                                                | Medium | Medium | Architecture |
-| 6  | **CLI integration tests** — `--output`, `--timeout`, `--language`, exit codes (raise cmd coverage from 71.5%)       | Medium | Medium | Testing      |
-| 7  | **Fix stale gopls diagnostics** on `extractor_test.go`                                                              | Low    | Low    | DX           |
-~~| 8  | **Add JSON schema** for JSON output format (document the contract)                                                  | Medium | Low    | Docs         |~~ done at `4cbc43d`
-~~| 9  | **STDIN support** — pipe markdown via stdin for validation                                                          | Medium | Low    | Feature      |~~ done at `6d269dd`
-~~| 10 | **Config file support** (`.md-go-validator.yaml`)                                                                   | Medium | Medium | Feature      |~~ done at `acfe5c4`
-| 11 | **Watch mode** — file watcher for incremental re-validation                                                         | Low    | High   | Feature      |
-| 12 | **Property-based tests** for extractor state machine                                                                | Low    | Medium | Testing      |
-| 13 | **Grammar edge-case tests** — unicode, nesting, grammar-specific syntax                                             | Low    | Medium | Testing      |
-~~| 14 | **Exit code semantics** — distinguish validation errors from tool errors                                            | Low    | Low    | Feature      |~~ done at `6d269dd`
-~~| 15 | **`ErrorCode` branded type** for consistency with domain types                                                      | Low    | Low    | Architecture |~~ done at `6d269dd`
-~~| 16 | **Review `CONSUMER_PERSPECTIVE.md`** for accuracy post-refactor                                                     | Low    | Low    | Docs         |~~ done at `4cbc43d`
-~~| 17 | **Pre-commit hook robustness** — fix flake-meta-checker TTY flakiness                                               | Low    | Low    | DX           |~~ done at fixed upstream in BuildFlow (`b7d5360a`)
-| 18 | **Performance regression tracking** — CI benchmark gating or tracking                                               | Low    | Medium | Ops          |
-| 19 | **BDD tests** for critical user flows (Ginkgo, per skill)                                                           | Low    | Medium | Testing      |
-~~| 20 | **Aggregate CHANGELOG entries** into a release-notes-friendly format                                                | Low    | Low    | Docs         |~~ done at `c5830b8`
-| 21 | **`go mod tidy` in CI** — ensure go.mod/go.sum are always tidy                                                      | Low    | Low    | Ops          |
-| 22 | **Cross-platform testing** — verify on macOS/Windows (path handling, ANSI)                                          | Low    | Low    | Testing      |
-| 23 | **README examples** — verify all README code blocks are current                                                     | Low    | Low    | Docs         |
-| 24 | **Deprecation strategy** — `ValidateGoCode` in `parser.go` is a thin wrapper; consider deprecation timeline         | Low    | Low    | Architecture |
-~~| 25 | **Thread `ErrorCode` through `Result`** — currently `ValidationError.Code` is lost when wrapped into `Result.Error` | Low    | Low    | Architecture |~~ done at `6d269dd`
+| #  | Task                                                                                                          | Impact                                                                                                              | Effort | Category     |
+| -- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | ------ | ------------ |
+| ~~ | 1                                                                                                             | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                                                                 | High   | Low          |
+| ~~ | 2                                                                                                             | **Populate CHANGELOG `[Unreleased]`** with this session's 11 commits                                                | High   | Low          |
+| ~~ | 3                                                                                                             | **Confirm go-output v0.11.0 upgrade intent** — verify it's desired                                                  | High   | Low          |
+| 4  | **Add `internal/` directory** for private packages (BuildFlow recommendation)                                 | Medium                                                                                                              | Medium | Architecture |
+| 5  | **Migrate to `go-error-family`** for structured error classification                                          | Medium                                                                                                              | Medium | Architecture |
+| 6  | **CLI integration tests** — `--output`, `--timeout`, `--language`, exit codes (raise cmd coverage from 71.5%) | Medium                                                                                                              | Medium | Testing      |
+| 7  | **Fix stale gopls diagnostics** on `extractor_test.go`                                                        | Low                                                                                                                 | Low    | DX           |
+| ~~ | 8                                                                                                             | **Add JSON schema** for JSON output format (document the contract)                                                  | Medium | Low          |
+| ~~ | 9                                                                                                             | **STDIN support** — pipe markdown via stdin for validation                                                          | Medium | Low          |
+| ~~ | 10                                                                                                            | **Config file support** (`.md-go-validator.yaml`)                                                                   | Medium | Medium       |
+| 11 | **Watch mode** — file watcher for incremental re-validation                                                   | Low                                                                                                                 | High   | Feature      |
+| 12 | **Property-based tests** for extractor state machine                                                          | Low                                                                                                                 | Medium | Testing      |
+| 13 | **Grammar edge-case tests** — unicode, nesting, grammar-specific syntax                                       | Low                                                                                                                 | Medium | Testing      |
+| ~~ | 14                                                                                                            | **Exit code semantics** — distinguish validation errors from tool errors                                            | Low    | Low          |
+| ~~ | 15                                                                                                            | **`ErrorCode` branded type** for consistency with domain types                                                      | Low    | Low          |
+| ~~ | 16                                                                                                            | **Review `CONSUMER_PERSPECTIVE.md`** for accuracy post-refactor                                                     | Low    | Low          |
+| ~~ | 17                                                                                                            | **Pre-commit hook robustness** — fix flake-meta-checker TTY flakiness                                               | Low    | Low          |
+| 18 | **Performance regression tracking** — CI benchmark gating or tracking                                         | Low                                                                                                                 | Medium | Ops          |
+| 19 | **BDD tests** for critical user flows (Ginkgo, per skill)                                                     | Low                                                                                                                 | Medium | Testing      |
+| ~~ | 20                                                                                                            | **Aggregate CHANGELOG entries** into a release-notes-friendly format                                                | Low    | Low          |
+| 21 | **`go mod tidy` in CI** — ensure go.mod/go.sum are always tidy                                                | Low                                                                                                                 | Low    | Ops          |
+| 22 | **Cross-platform testing** — verify on macOS/Windows (path handling, ANSI)                                    | Low                                                                                                                 | Low    | Testing      |
+| 23 | **README examples** — verify all README code blocks are current                                               | Low                                                                                                                 | Low    | Docs         |
+| 24 | **Deprecation strategy** — `ValidateGoCode` in `parser.go` is a thin wrapper; consider deprecation timeline   | Low                                                                                                                 | Low    | Architecture |
+| ~~ | 25                                                                                                            | **Thread `ErrorCode` through `Result`** — currently `ValidationError.Code` is lost when wrapped into `Result.Error` | Low    | Low          |
 
 ---
 

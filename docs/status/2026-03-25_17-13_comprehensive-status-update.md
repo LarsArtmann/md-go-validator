@@ -17,18 +17,18 @@ Successfully integrated `go-output` library into `md-go-validator` providing mul
 
 ## Current Status Matrix
 
-| Component                 | Status               | Details                                         |
-| ------------------------- | -------------------- | ----------------------------------------------- |
-| **go-output Integration** | ✅ FULLY DONE        | JSON, YAML, Markdown, CSV, Table, Quiet formats |
-| **Type Safety**           | ✅ FULLY DONE        | Branded types, ValidationStatus enum            |
-| **Output Package**        | ✅ FULLY DONE        | 271 lines, clean architecture                   |
-| **CLI Flags**             | ✅ FULLY DONE        | `-f/--format`, `--color`                        |
-| **Split-Brain Fix**       | ✅ FULLY DONE        | Deprecated old PrintReport                      |
-| **Core Validation**       | ✅ FULLY DONE        | Works correctly                                 |
-~~| **Test Coverage**         | ⚠️ PARTIALLY DONE     | 71-91% core, 28% output                         |~~ done at — 73-100% today (AGENTS.md table)
-~~| **BDD Tests**             | ❌ NOT STARTED       | No ginkgo/testify                               |~~ still open — testing-depth ideas tracked in `ROADMAP.md`
-~~| **Linting**               | ❌ TOTALLY FUCKED UP | golangci-lint config broken                     |~~ done at `e4ddfbc` (0 issues since 2026-05-04)
-| **Documentation**         | ✅ FULLY DONE        | Status reports, README                          |
+| Component                 | Status            | Details                                         |
+| ------------------------- | ----------------- | ----------------------------------------------- |
+| **go-output Integration** | ✅ FULLY DONE     | JSON, YAML, Markdown, CSV, Table, Quiet formats |
+| **Type Safety**           | ✅ FULLY DONE     | Branded types, ValidationStatus enum            |
+| **Output Package**        | ✅ FULLY DONE     | 271 lines, clean architecture                   |
+| **CLI Flags**             | ✅ FULLY DONE     | `-f/--format`, `--color`                        |
+| **Split-Brain Fix**       | ✅ FULLY DONE     | Deprecated old PrintReport                      |
+| **Core Validation**       | ✅ FULLY DONE     | Works correctly                                 |
+| ~~                        | **Test Coverage** | ⚠️ PARTIALLY DONE                                |
+| ~~                        | **BDD Tests**     | ❌ NOT STARTED                                  |
+| ~~                        | **Linting**       | ❌ TOTALLY FUCKED UP                            |
+| **Documentation**         | ✅ FULLY DONE     | Status reports, README                          |
 
 ---
 

@@ -121,33 +121,33 @@
 
 Sorted by impact/work ratio (highest first):
 
-| Rank | Item                                                       | Impact | Work    | Category |
-| ---- | ---------------------------------------------------------- | ------ | ------- | -------- |
-~~| 1    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`) | High   | Low     | Testing  |~~ done at `3aa3536`
-~~| 2    | Add tests for `pkg/testutil/testutil.go` helpers           | High   | Low     | Testing  |~~ done at `58a1f5a`
-~~| 3    | Fix LSP module resolution for `go-output`                  | High   | Medium  | DevEx    |~~ done at `220837d`
-~~| 4    | Increase `cmd` test coverage (61.7% → 80%)                 | Medium | Medium  | Testing  |~~ done at `f3a2c2c`
-~~| 5    | Make pre-commit hook executable                            | Low    | Trivial | DevEx    |~~ resolved — BuildFlow manages hooks
-~~| 6    | Remove or migrate justfile to flake.nix                    | Medium | Medium  | Build    |~~ done at `68a4d75`, `5f1b8b4`
-~~| 7    | Add golangci-lint to CI pipeline                           | High   | Low     | CI/CD    |~~ done at `60fa809`
-~~| 8    | Add `go test -race` to CI                                  | Medium | Low     | CI/CD    |~~ done at `60fa809`
-~~| 9    | Increase `pkg/languages` coverage (66.7% → 80%)            | Medium | Medium  | Testing  |~~ done at `cb3e883`
-~~| 10   | Add CLI integration tests for all output formats           | High   | Medium  | Testing  |~~ done at `f3a2c2c`
-~~| 11   | Add CLI integration tests for timeout/cancellation         | Medium | Low     | Testing  |~~ done at `f3a2c2c`
-~~| 12   | Add CLI integration tests for language flag                | Medium | Low     | Testing  |~~ done at `f3a2c2c`
-~~| 13   | Add error path tests for `validator.go`                    | Medium | Medium  | Testing  |~~ done at `d40313d`
-~~| 14   | Add property-based tests for `ExtractCodeBlocks`           | Medium | Medium  | Testing  |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
-~~| 15   | Add benchmark tests for hot paths                          | Medium | Low     | Perf     |~~ done at `1d0232a`
-~~| 16   | Add fuzz tests for parser                                  | Medium | Medium  | Testing  |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
-~~| 17   | Add goreleaser cross-compilation CI                        | Medium | Low     | CI/CD    |~~ done at `c5830b8`
-~~| 18   | Review and update README.md accuracy                       | Low    | Low     | Docs     |~~ done at `4286541`, `69fcb10`
-~~| 19   | Add CONTRIBUTING.md with lint expectations                 | Low    | Low     | Docs     |~~ done at `b72a1be`
-~~| 20   | Export `SupportedExtensions()` as public API               | Medium | Low     | API      |~~ done at `d290055`
-~~| 21   | Add `FileType` branded type for extensions                 | Medium | Low     | Types    |~~ done at `cb3e883`
-~~| 22   | Add file-type validation in `ValidateFile`                 | Medium | Low     | UX       |~~ done at — `IsSupportedFile` gates collection
-~~| 23   | Add MDX integration test with JSX content                  | Medium | Low     | Testing  |~~ done at `13ac23a`
-~~| 24   | Create `examples/` directory with sample files             | Low    | Medium  | Docs     |~~ Won't implement — `EXAMPLES.md` serves this role
-~~| 25   | Consider `embed` for default config                        | Low    | Medium  | Arch     |~~ Won't implement — `InitFile` scaffolds configs instead
+| Rank | Item | Impact                                                     | Work   | Category |
+| ---- | ---- | ---------------------------------------------------------- | ------ | -------- |
+| ~~   | 1    | Add tests for `pkg/code/util.go` (`IndentCode`, `ParseGo`) | High   | Low      |
+| ~~   | 2    | Add tests for `pkg/testutil/testutil.go` helpers           | High   | Low      |
+| ~~   | 3    | Fix LSP module resolution for `go-output`                  | High   | Medium   |
+| ~~   | 4    | Increase `cmd` test coverage (61.7% → 80%)                 | Medium | Medium   |
+| ~~   | 5    | Make pre-commit hook executable                            | Low    | Trivial  |
+| ~~   | 6    | Remove or migrate justfile to flake.nix                    | Medium | Medium   |
+| ~~   | 7    | Add golangci-lint to CI pipeline                           | High   | Low      |
+| ~~   | 8    | Add `go test -race` to CI                                  | Medium | Low      |
+| ~~   | 9    | Increase `pkg/languages` coverage (66.7% → 80%)            | Medium | Medium   |
+| ~~   | 10   | Add CLI integration tests for all output formats           | High   | Medium   |
+| ~~   | 11   | Add CLI integration tests for timeout/cancellation         | Medium | Low      |
+| ~~   | 12   | Add CLI integration tests for language flag                | Medium | Low      |
+| ~~   | 13   | Add error path tests for `validator.go`                    | Medium | Medium   |
+| ~~   | 14   | Add property-based tests for `ExtractCodeBlocks`           | Medium | Medium   |
+| ~~   | 15   | Add benchmark tests for hot paths                          | Medium | Low      |
+| ~~   | 16   | Add fuzz tests for parser                                  | Medium | Medium   |
+| ~~   | 17   | Add goreleaser cross-compilation CI                        | Medium | Low      |
+| ~~   | 18   | Review and update README.md accuracy                       | Low    | Low      |
+| ~~   | 19   | Add CONTRIBUTING.md with lint expectations                 | Low    | Low      |
+| ~~   | 20   | Export `SupportedExtensions()` as public API               | Medium | Low      |
+| ~~   | 21   | Add `FileType` branded type for extensions                 | Medium | Low      |
+| ~~   | 22   | Add file-type validation in `ValidateFile`                 | Medium | Low      |
+| ~~   | 23   | Add MDX integration test with JSX content                  | Medium | Low      |
+| ~~   | 24   | Create `examples/` directory with sample files             | Low    | Medium   |
+| ~~   | 25   | Consider `embed` for default config                        | Low    | Medium   |
 
 ---
 

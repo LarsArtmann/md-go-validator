@@ -233,9 +233,9 @@ The md-go-validator project has undergone significant transformation with the su
 
 1. ✅ Add //nolint comments where appropriate (exhaustruct in tests)
 2. ✅ Fix golines formatting (3 files)
-~~3. Run go mod tidy and verify dependencies~~ done at `b5c810f`
-~~4. Add missing godoc comments for exported functions~~ done at `e4ddfbc`
-~~5. Update README with new language support~~ done at `69fcb10`
+   ~~3. Run go mod tidy and verify dependencies~~ done at `b5c810f`
+   ~~4. Add missing godoc comments for exported functions~~ done at `e4ddfbc`
+   ~~5. Update README with new language support~~ done at `69fcb10`
 
 ### High Impact, Medium Effort
 
@@ -285,12 +285,14 @@ The project now supports multiple languages through external tools (templ, tsc, 
 **Options Considered:**
 
 ~~1. **Current Approach (Runtime Detection):**~~ done at `a429c53`
-   - Pros: Zero configuration, graceful degradation
-   - Cons: Users don't know why languages are skipped
+
+- Pros: Zero configuration, graceful degradation
+- Cons: Users don't know why languages are skipped
 
 ~~2. **Strict Mode (Fail on Missing Tools):**~~ Won't implement — superseded by `a429c53`
-   - Pros: Explicit, users know what's expected
-   - Cons: Makes tool harder to use, requires all tools installed
+
+- Pros: Explicit, users know what's expected
+- Cons: Makes tool harder to use, requires all tools installed
 
 3. **Configuration File (.mdvalidator.yml):**
    - Pros: Explicit configuration, per-project settings

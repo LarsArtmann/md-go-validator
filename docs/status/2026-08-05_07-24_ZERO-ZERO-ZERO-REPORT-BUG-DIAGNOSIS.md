@@ -122,22 +122,22 @@ walker should either stat-at-read or the error should be non-fatal (see Layer 2)
 10. Add `--continue-on-error` / `--fail-fast` flag to control batch behavior explicitly.
 11. Distinguish file-read errors from validation errors in the report (separate counter or status).
 12. Add a `ValidationStatusFileError` (or `ValidationStatusUnreadable`) to the status enum so the report can show "N files could not be read."
-~~13. Consider `errors.Join` instead of wrapping only `errs[0]` in `collectResults` — currently 55 of 56 errors are silently dropped from the message.~~ done at `c01632d`
-14. Add a `--max-errors N` flag that stops after N errors (bail-out for huge trees).
-15. Log per-file read errors to stderr with the file path so the user knows which files failed.
-16. Make `collectSupportedFiles` resilient: log-and-skip unreadable entries during walk instead of failing the whole walk.
-17. Add integration test fixture: a directory with a broken symlink.
-18. Add integration test fixture: a directory with a file that has no read permissions.
-19. Add a `--summary-only` flag that suppresses per-block streaming output for CI noise reduction.
-20. Benchmark the streaming vs buffered path to confirm they're equivalent in throughput.
+    ~~13. Consider `errors.Join` instead of wrapping only `errs[0]` in `collectResults` — currently 55 of 56 errors are silently dropped from the message.~~ done at `c01632d`
+13. Add a `--max-errors N` flag that stops after N errors (bail-out for huge trees).
+14. Log per-file read errors to stderr with the file path so the user knows which files failed.
+15. Make `collectSupportedFiles` resilient: log-and-skip unreadable entries during walk instead of failing the whole walk.
+16. Add integration test fixture: a directory with a broken symlink.
+17. Add integration test fixture: a directory with a file that has no read permissions.
+18. Add a `--summary-only` flag that suppresses per-block streaming output for CI noise reduction.
+19. Benchmark the streaming vs buffered path to confirm they're equivalent in throughput.
 
 ### Medium-term (report quality)
 
 21. The streaming ✅/❌ lines and the final report are disconnected — the report is built from the returned slice, the streaming is stdout side-effect. Consider making streaming optional or feeding it from the same aggregation.
-~~22. Exit codes: document that exit 2 = tool error, exit 1 = validation errors, exit 0 = clean. Confirm `validatePath`'s `false` return actually maps correctly after the fix.~~ done at `4cbc43d` (README exit-code table); `c01632d` keeps the mapping correct
-23. When results are partial due to errors, print a clear "WARNING: N files skipped due to errors, results are partial" line before the report.
-24. Add `--format sarif` output to include file-read errors as findings so CI catches them.
-25. The report's "Errors: 0" should never lie — if errorsChan had entries, the report should reflect that even if all block-level results were valid.
+    ~~22. Exit codes: document that exit 2 = tool error, exit 1 = validation errors, exit 0 = clean. Confirm `validatePath`'s `false` return actually maps correctly after the fix.~~ done at `4cbc43d` (README exit-code table); `c01632d` keeps the mapping correct
+22. When results are partial due to errors, print a clear "WARNING: N files skipped due to errors, results are partial" line before the report.
+23. Add `--format sarif` output to include file-read errors as findings so CI catches them.
+24. The report's "Errors: 0" should never lie — if errorsChan had entries, the report should reflect that even if all block-level results were valid.
 
 ### Depguard warnings (noticed during this session)
 

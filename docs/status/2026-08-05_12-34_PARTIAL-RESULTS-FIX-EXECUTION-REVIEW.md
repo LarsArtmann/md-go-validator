@@ -120,18 +120,18 @@
 15. Print a "WARNING: N files skipped due to errors, results are partial" line before the report when errors occurred
 16. Make the report's "Errors" counter reflect file-read errors, not just block-validation errors
 17. Add `--format sarif` output to include file-read errors as findings
-~~18. Document exit codes explicitly: 0 = success, 1 = validation errors, 2 = tool/usage errors~~ done at `4cbc43d` (README exit-code table)
-19. Add `--summary-only` flag to suppress per-block streaming for CI noise reduction
+    ~~18. Document exit codes explicitly: 0 = success, 1 = validation errors, 2 = tool/usage errors~~ done at `4cbc43d` (README exit-code table)
+18. Add `--summary-only` flag to suppress per-block streaming for CI noise reduction
 
 ### Testing improvements
 
 20. Make the cancellation test deterministic (cancel via callback after N results, not timing)
-~~21. Add a test that mixes valid + errored + skipped files and verifies the report counts are accurate~~ done at `d40313d` (`TestValidatePath_PartialResultsOnDirectoryError`)
-22. Add a test for the streaming API's partial-results-on-error contract
-23. Add a broken-symlink integration test fixture in `pkg/testdata/`
-24. Add a no-read-permissions integration test fixture
-25. Benchmark streaming vs buffered path to confirm equivalent throughput
-26. Add `HasSkipped` test (currently untested — only `HasErrors` is tested)
+    ~~21. Add a test that mixes valid + errored + skipped files and verifies the report counts are accurate~~ done at `d40313d` (`TestValidatePath_PartialResultsOnDirectoryError`)
+21. Add a test for the streaming API's partial-results-on-error contract
+22. Add a broken-symlink integration test fixture in `pkg/testdata/`
+23. Add a no-read-permissions integration test fixture
+24. Benchmark streaming vs buffered path to confirm equivalent throughput
+25. Add `HasSkipped` test (currently untested — only `HasErrors` is tested)
 
 ### Documentation
 
@@ -144,7 +144,7 @@
 
 31. Audit `.golangci.yml` depguard rules — 46 warnings are either stale or misconfigured
 32. Fix or suppress the depguard warnings if the rules are wrong
-~~33. Pin GitHub Actions to commit SHAs (15 warnings from BuildFlow's go-structure-linter)~~ done at `20b2b55`
+    ~~33. Pin GitHub Actions to commit SHAs (15 warnings from BuildFlow's go-structure-linter)~~ done at `20b2b55`
 
 ### Nix improvements
 

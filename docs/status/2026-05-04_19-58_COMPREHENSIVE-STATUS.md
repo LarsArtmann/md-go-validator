@@ -44,14 +44,14 @@
 
 ### Coverage Gaps (0% functions remaining)
 
-| Function                      | Location                   | Why                                                      |
-| ----------------------------- | -------------------------- | -------------------------------------------------------- |
-~~| `main()`                      | `cmd/main.go:45`           | Calls `os.Exit`, hard to test without subprocess pattern |~~ Won't implement — `os.Exit` path needs a subprocess harness; rejected
-~~| `handleHelp()`                | `cmd/main.go:226`          | Calls `os.Exit(0)`                                       |~~ Won't implement — same `os.Exit` constraint
-~~| `returnParseError()`          | `cmd/main.go:221`          | Only called on parse failure paths                       |~~ partially resolved — CLI integration tests added (`f3a2c2c`); direct unit test still absent
-~~| `addError()`                  | `pkg/validator.go:481`     | Error channel path in concurrent processing              |~~ done at `d40313d` (unreadable-file + cancellation tests hit the error channel)
-~~| `formatSupportedExtensions()` | `pkg/validator.go:567`     | Only called in verbose mode                              |~~ done at `b0f6687` (verbose-mode integration test)
-~~| `newOutputError()`            | `pkg/output/output.go:205` | Only called on write errors                              |~~ Won't implement — write-error path, low value
+| Function | Location                      | Why                        |
+| -------- | ----------------------------- | -------------------------- |
+| ~~       | `main()`                      | `cmd/main.go:45`           |
+| ~~       | `handleHelp()`                | `cmd/main.go:226`          |
+| ~~       | `returnParseError()`          | `cmd/main.go:221`          |
+| ~~       | `addError()`                  | `pkg/validator.go:481`     |
+| ~~       | `formatSupportedExtensions()` | `pkg/validator.go:567`     |
+| ~~       | `newOutputError()`            | `pkg/output/output.go:205` |
 
 ### Partial Coverage Functions (60-80%)
 

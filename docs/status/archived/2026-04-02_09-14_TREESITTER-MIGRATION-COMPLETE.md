@@ -35,10 +35,10 @@ Successfully completed migration from external command-based validators to pure 
 
 ### b) PARTIALLY DONE 🟡
 
-| # | Item                     | Status | Notes                                                             |
-| - | ------------------------ | ------ | ----------------------------------------------------------------- |
-~~| 1 | Error Location Reporting | 50%    | `HasError()` detects errors but doesn't provide line/column yet   |~~ done at `2b20999` (Go parser); tree-sitter positions tracked in `TODO_LIST.md`
-~~| 2 | Advanced Parser Features | 30%    | Not using incremental parsing, token sources, or timeout features |~~ Won't implement — incremental parsing/token sources not needed for validation
+| #  | Item | Status                   | Notes |
+| -- | ---- | ------------------------ | ----- |
+| ~~ | 1    | Error Location Reporting | 50%   |
+| ~~ | 2    | Advanced Parser Features | 30%   |
 
 ### c) NOT STARTED ⏸️
 
@@ -71,118 +71,143 @@ Successfully completed migration from external command-based validators to pure 
 ### Immediate (Next 24h)
 
 ~~1. **Implement Error Line/Column Reporting**~~ done at `2b20999` (Go); tree-sitter positions tracked in `TODO_LIST.md`
-   - Walk tree to find error nodes
-   - Extract position information from `Node` struct
-   - Return in `ValidationError`
+
+- Walk tree to find error nodes
+- Extract position information from `Node` struct
+- Return in `ValidationError`
 
 ~~2. **Add Parser Timeout Support**~~ done at `d3a4a1c` (`--timeout` + context cancellation)
-   - Use `parser.SetTimeoutMicros()`
-   - Handle timeout in validation
+
+- Use `parser.SetTimeoutMicros()`
+- Handle timeout in validation
 
 ~~3. **Add Grammar Lazy Loading Verification**~~ Won't implement — grammars are embedded; no lazy loading needed
-   - Ensure grammars only load on first use
-   - Profile memory usage
+
+- Ensure grammars only load on first use
+- Profile memory usage
 
 ### Short-term (This Week)
 
 ~~4. **Add More Language Examples to README**~~ done at `69fcb10`
-   - Show validation output for each language
-   - Add example error messages
+
+- Show validation output for each language
+- Add example error messages
 
 ~~5. **Create Integration Tests**~~ done at `13ac23a`
-   - Test with real markdown files
-   - Test skip directives
+
+- Test with real markdown files
+- Test skip directives
 
 ~~6. **Performance Benchmarking**~~ done at `1d0232a`
-   - Compare tree-sitter vs old external validators
-   - Memory profiling
+
+- Compare tree-sitter vs old external validators
+- Memory profiling
 
 ~~7. **Add Language-Specific Tests**~~ done at `cb3e883`
-   - More edge cases per language
-   - Syntax variations
+
+- More edge cases per language
+- Syntax variations
 
 ~~8. **Improve Error Messages**~~ done at `acfe5c4` (best-attempt + mixed-scope + skip hints)
-   - Context-aware error descriptions
-   - Suggestions for fixes
+
+- Context-aware error descriptions
+- Suggestions for fixes
 
 ### Medium-term (This Month)
 
 ~~9. **Add More Languages**~~ DUPLICATE — tracked in `ROADMAP.md` (language coverage)
-   - Python
-   - JavaScript
-   - YAML
-   - JSON
-   - Docker
+
+- Python
+- JavaScript
+- YAML
+- JSON
+- Docker
 
 ~~10. **Grammar Subset Optimization**~~ Won't implement — binary size acceptable
-    - Use `grammar_subset` build tags
-    - Reduce binary size
+
+- Use `grammar_subset` build tags
+- Reduce binary size
 
 ~~11. **Parser Pool Implementation**~~ Won't implement — worker pool covers concurrency
-    - For high-concurrency scenarios
-    - Benchmark vs current approach
+
+- For high-concurrency scenarios
+- Benchmark vs current approach
 
 ~~12. **Add Caching Layer**~~ Won't implement — no demand signal
-    - Cache parse results for repeated blocks
-    - Invalidation strategy
+
+- Cache parse results for repeated blocks
+- Invalidation strategy
 
 ~~13. **Configuration File Support**~~ done at `acfe5c4`
-    - `.md-go-validator.yaml`
-    - Per-project settings
+
+- `.md-go-validator.yaml`
+- Per-project settings
 
 ~~14. **Plugin Architecture**~~ done at `a429c53` (pluggable `Registry`)
-    - Allow custom validators
-    - WASM-based plugins
+
+- Allow custom validators
+- WASM-based plugins
 
 ### Long-term (Next Quarter)
 
 ~~15. **LSP Integration**~~ DUPLICATE — tracked in `ROADMAP.md` (LSP server mode)
-    - Language Server Protocol support
-    - IDE integration
+
+- Language Server Protocol support
+- IDE integration
 
 ~~16. **Web Interface**~~ DUPLICATE — tracked in `ROADMAP.md` (web playground)
-    - Online markdown validator
-    - GitHub Action
+
+- Online markdown validator
+- GitHub Action
 
 ~~17. **Semantic Analysis**~~ Won't implement — out of scope; syntax validity is the contract (`ROADMAP.md` non-goals)
-    - Beyond syntax (type checking)
-    - Import resolution
+
+- Beyond syntax (type checking)
+- Import resolution
 
 ~~18. **Auto-fix Suggestions**~~ Won't implement — idea tracked in `ROADMAP.md` (fix suggestions)
-    - Suggest corrections
-    - Apply fixes automatically
+
+- Suggest corrections
+- Apply fixes automatically
 
 ~~19. **Multi-file Analysis**~~ done — whole-directory validation ships (`d3a4a1c`)
-    - Cross-file references
-    - Module-aware validation
+
+- Cross-file references
+- Module-aware validation
 
 ~~20. **Custom Grammar Support**~~ Won't implement — no demand signal
-    - Load custom tree-sitter grammars
-    - Enterprise language support
+
+- Load custom tree-sitter grammars
+- Enterprise language support
 
 ### Strategic (6+ Months)
 
 ~~21. **AI-Powered Validation**~~ Won't implement — out of scope
-    - LLM-based semantic checking
-    - Context-aware suggestions
+
+- LLM-based semantic checking
+- Context-aware suggestions
 
 ~~22. **Documentation Generation**~~ Won't implement — out of scope
-    - Extract API docs from code blocks
-    - Validate against implementation
+
+- Extract API docs from code blocks
+- Validate against implementation
 
 ~~23. **CI/CD Integration Suite**~~ done at `acfe5c4`, `fba9fe5` (Action), `1ea7d41` (SARIF)
-    - GitHub Actions
-    - GitLab CI
-    - Jenkins
+
+- GitHub Actions
+- GitLab CI
+- Jenkins
 
 ~~24. **Enterprise Features**~~ Won't implement — no demand signal
-    - SSO
-    - Audit logs
-    - Policy enforcement
+
+- SSO
+- Audit logs
+- Policy enforcement
 
 ~~25. **Visual Studio Code Extension**~~ Won't implement — no demand signal
-    - Real-time validation
-    - Inline error display
+
+- Real-time validation
+- Inline error display
 
 ---
 

@@ -84,30 +84,30 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 ## b) PARTIALLY DONE
 
-| Area                             | Status                                                    | Gap                                                                       |
-| -------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------- |
-| **v0.3.0 release**               | All code changes done, CHANGELOG `[Unreleased]` populated | No git tag, no goreleaser run — needs explicit cut                        |
-~~| **`ValidateGoCode` deprecation** | `parser.go` is a thin wrapper                             | No deprecation notice added to the function itself                        |~~ Won't implement — wrapper is documented public API
-| **`internal/` restructuring**    | BuildFlow recommends it                                   | Not started — `pkg/` public API is still wider than necessary             |
-~~| **go-output v0.11.0 upgrade**    | Builds and tests pass                                     | Intent still unconfirmed (appeared mid-session without explicit decision) |~~ done at resolved — kept and upgraded since (`220837d`, `511e2b2`)
+| Area                          | Status                                                    | Gap                                                           |
+| ----------------------------- | --------------------------------------------------------- | ------------------------------------------------------------- |
+| **v0.3.0 release**            | All code changes done, CHANGELOG `[Unreleased]` populated | No git tag, no goreleaser run — needs explicit cut            |
+| ~~                            | **`ValidateGoCode` deprecation**                          | `parser.go` is a thin wrapper                                 |
+| **`internal/` restructuring** | BuildFlow recommends it                                   | Not started — `pkg/` public API is still wider than necessary |
+| ~~                            | **go-output v0.11.0 upgrade**                             | Builds and tests pass                                         |
 
 ---
 
 ## c) NOT STARTED
 
-| Area                                              | Description                                                          |
-| ------------------------------------------------- | -------------------------------------------------------------------- |
-~~| **Config file support** (`.md-go-validator.yaml`) | No config file — flags only                                          |~~ done at `acfe5c4`
-| **Watch mode**                                    | No file-watcher for incremental re-validation                        |
-~~| **Exclude patterns**                              | No `.md-go-validator-ignore` or exclude flags                        |~~ done at `da2f6f5`, `ce25525`
-~~| **GitHub Action** (`action.yml`)                  | No reusable GitHub Action for `uses: LarsArtmann/md-go-validator@v1` |~~ done at `acfe5c4`, `fba9fe5`
-~~| **Pre-commit hook** (`.pre-commit-hooks.yaml`)    | Not created                                                          |~~ done at `acfe5c4`
-~~| **`--init` command**                              | No config file generation                                            |~~ done at `c8e8ba8`
-| **BDD tests** (Ginkgo/Gomega)                     | Skill available but unused                                           |
-| **Property-based tests**                          | No `testing/quick` or `rapid` for extractor state machine            |
-| **Grammar edge-case tests**                       | No unicode, deeply nested, or grammar-specific error position tests  |
-| **Watch mode incremental**                        | No diff/regression mode (`--baseline`)                               |
-| **Performance benchmarking**                      | Benchmarks exist but no CI regression tracking                       |
+| Area                          | Description                                                         |
+| ----------------------------- | ------------------------------------------------------------------- |
+| ~~                            | **Config file support** (`.md-go-validator.yaml`)                   |
+| **Watch mode**                | No file-watcher for incremental re-validation                       |
+| ~~                            | **Exclude patterns**                                                |
+| ~~                            | **GitHub Action** (`action.yml`)                                    |
+| ~~                            | **Pre-commit hook** (`.pre-commit-hooks.yaml`)                      |
+| ~~                            | **`--init` command**                                                |
+| **BDD tests** (Ginkgo/Gomega) | Skill available but unused                                          |
+| **Property-based tests**      | No `testing/quick` or `rapid` for extractor state machine           |
+| **Grammar edge-case tests**   | No unicode, deeply nested, or grammar-specific error position tests |
+| **Watch mode incremental**    | No diff/regression mode (`--baseline`)                              |
+| **Performance benchmarking**  | Benchmarks exist but no CI regression tracking                      |
 
 ---
 
@@ -155,33 +155,33 @@ BuildFlow (Lars's own tool), tested, and installed.
 
 ## f) Top 25 Things to Get Done Next
 
-| #  | Task                                                                 | Impact | Effort | Category     |
-| -- | -------------------------------------------------------------------- | ------ | ------ | ------------ |
-~~| 1  | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG                  | High   | Low    | Release      |~~ done at `c5830b8`
-~~| 2  | **Confirm go-output v0.11.0 upgrade intent**                         | High   | Low    | Decision     |~~ done at resolved — kept; upgraded since (`220837d`)
-~~| 3  | **Create GitHub Action** (`action.yml`)                              | High   | Low    | Adoption     |~~ done at `acfe5c4`, `fba9fe5`
-~~| 4  | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)                   | Medium | Low    | Adoption     |~~ done at `acfe5c4`
-~~| 5  | **Config file support** (`.md-go-validator.yaml`)                    | High   | Medium | Feature      |~~ done at `acfe5c4`
-~~| 6  | **Exclude patterns** (CLI flag + config)                             | Medium | Low    | Feature      |~~ done at `da2f6f5`, `ce25525`
-| 7  | **Move `pkg/` to `internal/`** for visibility enforcement            | Medium | Medium | Architecture |
-| 8  | **Migrate to `go-error-family`** for structured error classification | Medium | Medium | Architecture |
-~~| 9  | **`--languages` discovery command**                                  | Low    | Low    | DX           |~~ done at `fe11609` (`--list-languages`)
-~~| 10 | **`--init` command** for config file generation                      | Low    | Low    | DX           |~~ done at `c8e8ba8`
-| 11 | **BDD tests** for critical user flows (Ginkgo)                       | Low    | Medium | Testing      |
-| 12 | **Property-based tests** for extractor state machine                 | Low    | Medium | Testing      |
-| 13 | **Grammar edge-case tests** — unicode, nesting                       | Low    | Medium | Testing      |
-| 14 | **Watch mode** (`--watch` flag)                                      | Low    | High   | Feature      |
-| 15 | **Diff/regression mode** (`--baseline`)                              | Low    | Medium | Feature      |
-| 16 | **Shell completions** (bash/zsh/fish)                                | Low    | Low    | DX           |
-| 17 | **Rename `ErrorEntry.Code` → `Snippet`** for clarity                 | Low    | Low    | Architecture |
-| 18 | **Add deprecation notice** to `ValidateGoCode` in `parser.go`        | Low    | Low    | Maintenance  |
-| 19 | **`go mod tidy` in CI**                                              | Low    | Low    | Ops          |
-| 20 | **Performance regression tracking** in CI                            | Low    | Medium | Ops          |
-| 21 | **Cross-platform testing** (macOS/Windows)                           | Low    | Low    | Testing      |
-| 22 | **API stability documentation** for library consumers                | Low    | Low    | Docs         |
-~~| 23 | **`--fail-on-skipped` option** for strict validation                 | Low    | Low    | Feature      |~~ done at `fe11609`
-~~| 24 | **Fix `oxfmt` failing on `reports/html/` web assets**                | Low    | Low    | DX           |~~ done at `a568367` (minified third-party assets removed)
-| 25 | **Homebrew tap publication**                                         | Low    | Low    | Adoption     |
+| #  | Task                                                                 | Impact                                                | Effort | Category     |
+| -- | -------------------------------------------------------------------- | ----------------------------------------------------- | ------ | ------------ |
+| ~~ | 1                                                                    | **Cut v0.3.0 release** — tag, goreleaser, CHANGELOG   | High   | Low          |
+| ~~ | 2                                                                    | **Confirm go-output v0.11.0 upgrade intent**          | High   | Low          |
+| ~~ | 3                                                                    | **Create GitHub Action** (`action.yml`)               | High   | Low          |
+| ~~ | 4                                                                    | **Add pre-commit hook** (`.pre-commit-hooks.yaml`)    | Medium | Low          |
+| ~~ | 5                                                                    | **Config file support** (`.md-go-validator.yaml`)     | High   | Medium       |
+| ~~ | 6                                                                    | **Exclude patterns** (CLI flag + config)              | Medium | Low          |
+| 7  | **Move `pkg/` to `internal/`** for visibility enforcement            | Medium                                                | Medium | Architecture |
+| 8  | **Migrate to `go-error-family`** for structured error classification | Medium                                                | Medium | Architecture |
+| ~~ | 9                                                                    | **`--languages` discovery command**                   | Low    | Low          |
+| ~~ | 10                                                                   | **`--init` command** for config file generation       | Low    | Low          |
+| 11 | **BDD tests** for critical user flows (Ginkgo)                       | Low                                                   | Medium | Testing      |
+| 12 | **Property-based tests** for extractor state machine                 | Low                                                   | Medium | Testing      |
+| 13 | **Grammar edge-case tests** — unicode, nesting                       | Low                                                   | Medium | Testing      |
+| 14 | **Watch mode** (`--watch` flag)                                      | Low                                                   | High   | Feature      |
+| 15 | **Diff/regression mode** (`--baseline`)                              | Low                                                   | Medium | Feature      |
+| 16 | **Shell completions** (bash/zsh/fish)                                | Low                                                   | Low    | DX           |
+| 17 | **Rename `ErrorEntry.Code` → `Snippet`** for clarity                 | Low                                                   | Low    | Architecture |
+| 18 | **Add deprecation notice** to `ValidateGoCode` in `parser.go`        | Low                                                   | Low    | Maintenance  |
+| 19 | **`go mod tidy` in CI**                                              | Low                                                   | Low    | Ops          |
+| 20 | **Performance regression tracking** in CI                            | Low                                                   | Medium | Ops          |
+| 21 | **Cross-platform testing** (macOS/Windows)                           | Low                                                   | Low    | Testing      |
+| 22 | **API stability documentation** for library consumers                | Low                                                   | Low    | Docs         |
+| ~~ | 23                                                                   | **`--fail-on-skipped` option** for strict validation  | Low    | Low          |
+| ~~ | 24                                                                   | **Fix `oxfmt` failing on `reports/html/` web assets** | Low    | Low          |
+| 25 | **Homebrew tap publication**                                         | Low                                                   | Low    | Adoption     |
 
 ---
 

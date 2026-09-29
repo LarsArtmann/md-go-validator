@@ -182,69 +182,79 @@ Previous issues that were fixed:
 ### High Priority (Next Session)
 
 ~~1. **Make CodeBlock Immutable**~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
-   - Add `WithStatus()` method returning new instance
-   - Update all callers (extractor.go, validator.go)
-   - Remove pointer receiver methods
-   - **Effort:** Medium (20-30 changes)
-   - **Impact:** Better functional design, thread safety
+
+- Add `WithStatus()` method returning new instance
+- Update all callers (extractor.go, validator.go)
+- Remove pointer receiver methods
+- **Effort:** Medium (20-30 changes)
+- **Impact:** Better functional design, thread safety
 
 ~~2. **Add Context to validateBlock**~~ done at `1840ae8`
-   - Update function signature to accept `context.Context`
-   - Propagate cancellation
-   - **Effort:** Low (5-10 changes)
-   - **Impact:** Proper cancellation support
+
+- Update function signature to accept `context.Context`
+- Propagate cancellation
+- **Effort:** Low (5-10 changes)
+- **Impact:** Proper cancellation support
 
 ~~3. **Modernize Go Code (Go 1.22+ features)**~~ done at `ed0607f`
-   - Use `slices.Contains` where appropriate
-   - Use `range over int` in test loops
-   - Use `WaitGroup.Go` for goroutines
-   - **Effort:** Low (automated/small changes)
-   - **Impact:** Cleaner, more idiomatic code
+
+- Use `slices.Contains` where appropriate
+- Use `range over int` in test loops
+- Use `WaitGroup.Go` for goroutines
+- **Effort:** Low (automated/small changes)
+- **Impact:** Cleaner, more idiomatic code
 
 ### Medium Priority
 
 ~~4. **Refactor Global argHandlers**~~ done at `539cb8e`
-   - Convert to `newArgHandlers()` function
-   - Or use struct with methods
-   - **Effort:** Medium
-   - **Impact:** Testability, no global state
+
+- Convert to `newArgHandlers()` function
+- Or use struct with methods
+- **Effort:** Medium
+- **Impact:** Testability, no global state
 
 ~~5. **Break Down Long Functions**~~ done at `e4ddfbc`
-   - `processFilesParallel` → Extract worker pool
-   - `main()` → Extract setup, validation, output phases
-   - **Effort:** High (50-100 changes)
-   - **Impact:** Maintainability, testability
+
+- `processFilesParallel` → Extract worker pool
+- `main()` → Extract setup, validation, output phases
+- **Effort:** High (50-100 changes)
+- **Impact:** Maintainability, testability
 
 ~~6. **Add Result Handler Interface**~~ Won't implement — streaming callback API shipped instead (`c75e28b`)
-   - Define interface for result processing
-   - Make output package work with interface
-   - **Effort:** Medium
-   - **Impact:** Better abstraction, testability
+
+- Define interface for result processing
+- Make output package work with interface
+- **Effort:** Medium
+- **Impact:** Better abstraction, testability
 
 ### Low Priority / Polish
 
 ~~7. **Add More Tree-sitter Languages**~~ DUPLICATE — tracked in `ROADMAP.md` (language coverage)
-   - Python, Java, C++, etc.
-   - Just add to registration slice
-   - **Effort:** Low
-   - **Impact:** More language support
+
+- Python, Java, C++, etc.
+- Just add to registration slice
+- **Effort:** Low
+- **Impact:** More language support
 
 ~~8. **Performance Optimizations**~~ done at `1d0232a` (baseline; no hotspots)
-   - Benchmark validation
-   - Consider caching parsed trees
-   - **Effort:** High
-   - **Impact:** Faster validation of large codebases
+
+- Benchmark validation
+- Consider caching parsed trees
+- **Effort:** High
+- **Impact:** Faster validation of large codebases
 
 ~~9. **Better Error Messages**~~ done at `acfe5c4`
-   - Extract more context from tree-sitter errors
-   - Show code snippet in error
-   - **Effort:** Medium
-   - **Impact:** Better UX
+
+- Extract more context from tree-sitter errors
+- Show code snippet in error
+- **Effort:** Medium
+- **Impact:** Better UX
 
 ~~10. **Configuration File Support**~~ done at `acfe5c4`
-    - `.md-go-validator.yaml` for project settings
-    - **Effort:** Medium
-    - **Impact:** Per-project configuration
+
+- `.md-go-validator.yaml` for project settings
+- **Effort:** Medium
+- **Impact:** Per-project configuration
 
 ---
 
@@ -257,11 +267,11 @@ Previous issues that were fixed:
 3. ✅ ~~Fix exhaustruct warnings~~ - **DONE**
 4. ✅ ~~Fix wrapcheck warnings~~ - **DONE**
 5. ✅ ~~TreeSitterValidator ErrorCode support~~ - **DONE**
-~~6. 🔄 Make CodeBlock immutable with builder pattern~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
-~~7. 🔄 Add context propagation to validateBlock~~ done at `1840ae8`
-~~8. 🔄 Modernize Go code (slices.Contains, range int, WaitGroup.Go)~~ done at `ed0607f`
-~~9. 🔄 Run full test suite and verify coverage~~ done at `d40313d` (latest full green run)
-~~10. 🔄 Commit all changes with detailed messages~~ done at `2b20999`
+   ~~6. 🔄 Make CodeBlock immutable with builder pattern~~ Won't implement — invariant enforcement shipped instead (`db0f022`)
+   ~~7. 🔄 Add context propagation to validateBlock~~ done at `1840ae8`
+   ~~8. 🔄 Modernize Go code (slices.Contains, range int, WaitGroup.Go)~~ done at `ed0607f`
+   ~~9. 🔄 Run full test suite and verify coverage~~ done at `d40313d` (latest full green run)
+   ~~10. 🔄 Commit all changes with detailed messages~~ done at `2b20999`
 
 ### High Value
 

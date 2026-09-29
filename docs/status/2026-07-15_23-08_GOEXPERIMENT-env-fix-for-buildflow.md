@@ -60,12 +60,14 @@ The dependency `go-output@v0.30.4` (and transitively `go-branded-id@v0.3.2`) imp
 ## c) NOT STARTED
 
 ~~1. **Apply `slices.Contains` migrations** — 5 functions flagged by go-auto-upgrade:~~ done at `ed0607f` (all 5 migrated to `slices.ContainsFunc`)
-   - `pkg/code/module.go:44` — `isModuleDirective`
-   - `pkg/extractor.go:121` — `hasSkipDirective`
-   - `pkg/languages/language.go:131` — `IsSupported` (wrapper, not reimpl)
-   - `pkg/validator.go:453` — `isExcluded`
-   - `pkg/validator.go:641` — `HasErrors`
-   - `pkg/validator.go:652` — `HasSkipped`
+
+- `pkg/code/module.go:44` — `isModuleDirective`
+- `pkg/extractor.go:121` — `hasSkipDirective`
+- `pkg/languages/language.go:131` — `IsSupported` (wrapper, not reimpl)
+- `pkg/validator.go:453` — `isExcluded`
+- `pkg/validator.go:641` — `HasErrors`
+- `pkg/validator.go:652` — `HasSkipped`
+
 2. **`.envrc` is gitignored** — other developers cloning this repo won't get the fix automatically. Consider documenting the requirement in README or adding a `.envrc.example`.
 3. **Website `pnpm-update`** — BuildFlow can't update website pnpm deps due to the directory-vs-file bug. May need BuildFlow upstream fix or a workaround.
 
@@ -97,8 +99,8 @@ In session 1, I fixed `GOEXPERIMENT=jsonv2` in 6 config files (flake.nix, packag
 
 1. Run full `buildflow --fix` to verify all 4 previously-failing steps now pass
 2. Apply the 5 `slices.Contains` migrations flagged by go-auto-upgrade
-~~3. Verify `nix build .#` still passes (it was building successfully at end of last run)~~ done at verified green (docs-health pass 2026-09-26)
-~~4. Commit the `.buildflow.yml` (already committed in `4bc17ef`)~~ done at `4bc17ef`
+   ~~3. Verify `nix build .#` still passes (it was building successfully at end of last run)~~ done at verified green (docs-health pass 2026-09-26)
+   ~~4. Commit the `.buildflow.yml` (already committed in `4bc17ef`)~~ done at `4bc17ef`
 
 ### Medium Priority (P1)
 
@@ -125,10 +127,10 @@ In session 1, I fixed `GOEXPERIMENT=jsonv2` in 6 config files (flake.nix, packag
 ### Documentation (P3)
 
 21. Update FEATURES.md with BuildFlow integration status
-~~22. Add CHANGELOG entry for GOEXPERIMENT fix~~ done at — `[Unreleased]` documents the CI/GOEXPERIMENT setup
-23. Update TODO_LIST.md with remaining items
-24. Document the direnv workflow in CONTRIBUTING.md
-25. Add a "Troubleshooting" section to README for the jsonv2 error
+    ~~22. Add CHANGELOG entry for GOEXPERIMENT fix~~ done at — `[Unreleased]` documents the CI/GOEXPERIMENT setup
+22. Update TODO_LIST.md with remaining items
+23. Document the direnv workflow in CONTRIBUTING.md
+24. Add a "Troubleshooting" section to README for the jsonv2 error
 
 ### Build Infrastructure (P3)
 

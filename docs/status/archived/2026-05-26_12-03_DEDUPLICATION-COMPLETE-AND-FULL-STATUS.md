@@ -120,13 +120,13 @@ Clone groups in tests are common Go patterns:
 
 ## E) What We Should Improve
 
-| # | Improvement                                            | Priority | Impact                     |
-| - | ------------------------------------------------------ | -------- | -------------------------- |
-~~| 1 | Increase `cmd` package test coverage (currently 70.9%) | Medium   | Better confidence          |~~ done at `f3a2c2c`
-~~| 2 | Add integration tests for all supported languages      | Medium   | Better validation coverage |~~ done at `13ac23a` + tree-sitter validator tests
-~~| 3 | Create benchmark comparisons vs other tools            | Low      | Marketing/performance      |~~ Won't implement — no comparable tools; internal benchmarks suffice
-~~| 4 | Add property-based tests (testing/quick)               | Low      | Edge case coverage         |~~ DUPLICATE — testing-depth ideas tracked in `ROADMAP.md`
-~~| 5 | Add fuzzy matching for language detection              | Low      | UX improvement             |~~ Won't implement — exact tags cover real-world usage; no demand
+| #  | Improvement | Priority                                               | Impact |
+| -- | ----------- | ------------------------------------------------------ | ------ |
+| ~~ | 1           | Increase `cmd` package test coverage (currently 70.9%) | Medium |
+| ~~ | 2           | Add integration tests for all supported languages      | Medium |
+| ~~ | 3           | Create benchmark comparisons vs other tools            | Low    |
+| ~~ | 4           | Add property-based tests (testing/quick)               | Low    |
+| ~~ | 5           | Add fuzzy matching for language detection              | Low    |
 
 ---
 

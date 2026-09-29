@@ -30,7 +30,7 @@
 
 ### 4. All six living docs updated and verified
 
-- **README.md:** repaired broken 4-backtick fence block (the *Available Directives* list and entire *Output Formats* section were swallowed as one literal code block); documented the mandatory `GOEXPERIMENT=jsonv2` build requirement (with direnv note)
+- **README.md:** repaired broken 4-backtick fence block (the _Available Directives_ list and entire _Output Formats_ section were swallowed as one literal code block); documented the mandatory `GOEXPERIMENT=jsonv2` build requirement (with direnv note)
 - **AGENTS.md:** coverage table refreshed from a live `go test -cover` run (pkg 85.2→87.0, languages 88.0→87.9, types 81.0→80.8, cmd 73.9→74.8); added "Git Gotcha: Stray Tags" and "Docs Layout" (archive convention + annotation format) sections
 - **CHANGELOG.md:** appended missing `[Unreleased]` entries — partial-results-on-error fix (`c01632d`, `d40313d`), `errors.Join` surfacing, go-output v0.30.4/gotreesitter v0.37.0 bump, lint modernization + SHA-pinned actions, docs archive restructure
 - **FEATURES.md:** added mixed-scope hint, best-attempt reporting, and partial-results-on-error rows (all verified `FULLY_FUNCTIONAL`); Dockerfile row; corrected goreleaser line anchor
@@ -48,7 +48,7 @@
 
 ### 6. New discoveries logged
 
-- **Live extractor scoping bug reproduced:** README's own `- \`//nolint\`` markdown bullet skips the Library Usage Go example (`--verbose` shows block at line 191 SKIPPED). Root cause: `pkg/extractor.go:104` tests directives on every line, inside code blocks and regular prose alike. Flagged 2026-06-05 as "latent"; now proven live. → TODO_LIST High #1
+- **Live extractor scoping bug reproduced:** README's own `- \`//nolint\``markdown bullet skips the Library Usage Go example (`--verbose`shows block at line 191 SKIPPED). Root cause:`pkg/extractor.go:104` tests directives on every line, inside code blocks and regular prose alike. Flagged 2026-06-05 as "latent"; now proven live. → TODO_LIST High #1
 - **Stray git tags:** `v1.0.0`/`v1.1.0`/`v1.2.0` point at commits OLDER than `v0.2.0`/`v0.3.0` — real lineage is v0.2.0 (2026-06-13) → v0.3.0 (2026-06-18) → master. Documented in AGENTS.md; cleanup TODO
 - **Lint config drift:** `exhaustruct` deprecated → `exhaustruct_v5`; `legacyerrors` nolint directive references an unknown linter → TODO Low
 - Several lingering "still open" confirmations: `Registry.GetByString` has zero production callers; `TruncateForError` truncates by bytes not runes; no `b.ReportAllocs()` in any benchmark; no CSP HTTP header in `firebase.json`
@@ -184,9 +184,9 @@
 ## g) Questions I Cannot Answer Myself
 
 1. **The stray tags `v1.0.0`/`v1.1.0`/`v1.2.0` point at commits older than `v0.2.0`/`v0.3.0`.** Should I delete them (locally + on origin), or are any of them intentionally pinned (consumers, go install references)? Deleting remote tags is the kind of irreversible-ish action I won't take on a guess.
-2. **Skip-directive scoping semantics:** when the extractor bug is fixed, should a directive only be recognized as a standalone line *outside* code fences (strict), or also as the first line *inside* a block (lenient, matches README's "before the code block or inside it" wording)? The choice changes which real-world docs validate, and README currently promises the lenient behavior.
+2. **Skip-directive scoping semantics:** when the extractor bug is fixed, should a directive only be recognized as a standalone line _outside_ code fences (strict), or also as the first line _inside_ a block (lenient, matches README's "before the code block or inside it" wording)? The choice changes which real-world docs validate, and README currently promises the lenient behavior.
 3. **Drain policy for `docs/status/`:** should kept-in-place reports be fully gate-annotated and archived as their items resolve (my recommendation), or do you prefer a simpler "keep newest N reports, bulk-archive the rest with route banners" rule?
 
 ---
 
-*Report by docs-health full pass, 2026-09-26 16:41 CEST. Awaiting instructions.*
+_Report by docs-health full pass, 2026-09-26 16:41 CEST. Awaiting instructions._

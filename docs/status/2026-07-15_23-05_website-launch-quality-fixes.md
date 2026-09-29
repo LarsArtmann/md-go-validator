@@ -139,10 +139,10 @@ The website-launch skill completed all 7 phases and the user committed the work 
 
 13. Verify ALL code examples in docs compile (write a CI test that extracts and validates them — dogfooding!)
 14. Verify Docker Hub image reference or remove it from ci-integration.mdx
-~~15. Add OG image (static SVG or re-enable astro-og-canvas with local font)~~ done at `2608a7a` (static `og/home.png`)
-16. Review every doc page for factual accuracy against current source code
-17. Add a "Stability" section to library-api.mdx documenting which APIs are stable vs experimental
-18. Write tests for the library API examples to ensure they stay in sync with the code
+    ~~15. Add OG image (static SVG or re-enable astro-og-canvas with local font)~~ done at `2608a7a` (static `og/home.png`)
+15. Review every doc page for factual accuracy against current source code
+16. Add a "Stability" section to library-api.mdx documenting which APIs are stable vs experimental
+17. Write tests for the library API examples to ensure they stay in sync with the code
 
 ### Website polish
 
@@ -182,11 +182,11 @@ The website-launch skill completed all 7 phases and the user committed the work 
 43. Add `--dry-run` flag
 44. Add progress indicator for large directories
 45. Document API stability (stable vs experimental packages)
-~~46. Add finding round-trip integration test~~ done at `ed0607f`
-47. Run `nix flake check --all-systems`
-48. Add Python language support (roadmap)
-49. Add Java language support (roadmap)
-50. Add shell/bash validation (roadmap)
+    ~~46. Add finding round-trip integration test~~ done at `ed0607f`
+46. Run `nix flake check --all-systems`
+47. Add Python language support (roadmap)
+48. Add Java language support (roadmap)
+49. Add shell/bash validation (roadmap)
 
 ---
 

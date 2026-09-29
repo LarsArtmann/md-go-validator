@@ -101,6 +101,7 @@ be0aae5 refactor(pkg): reduce complexity and improve error handling
 ### Code Duplication (2 clone groups)
 
 ~~- **Status:** Reduced from 5 to 2 groups (60% improvement)~~ done at `16ec967` (full test dedup pass)
+
 - **Remaining:** Test file patterns in `pkg/validator_test.go`
   - Clone 1: Lines 20-30 vs 32-42 (single block assertions)
   - Clone 2: Lines 44-54 vs 84-95 (skip assertion patterns)
