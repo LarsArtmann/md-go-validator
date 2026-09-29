@@ -595,7 +595,9 @@ func shouldSkipDir(name string) bool {
 		return true
 	}
 
-	return slices.Contains([]string{"node_modules", "vendor", "build", "dist"}, name)
+	// testdata is Go's conventional non-documentation directory; fixtures
+	// there are often deliberately broken and must not gate validation.
+	return slices.Contains([]string{"node_modules", "vendor", "build", "dist", "testdata"}, name)
 }
 
 // SupportedExtensions returns all supported file extensions in sorted order.

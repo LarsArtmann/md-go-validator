@@ -886,3 +886,30 @@ func TestFormatSupportedExtensions(t *testing.T) {
 		}
 	}
 }
+
+func TestShouldSkipDir(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		dir  string
+		want bool
+	}{
+		{"hidden dir", ".git", true},
+		{"node_modules", "node_modules", true},
+		{"vendor", "vendor", true},
+		{"testdata fixtures are not documentation", "testdata", true},
+		{"regular dir", "docs", false},
+		{"docs subdirectory", "guides", false},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			if got := shouldSkipDir(tc.dir); got != tc.want {
+				t.Errorf("shouldSkipDir(%q) = %v, want %v", tc.dir, got, tc.want)
+			}
+		})
+	}
+}
