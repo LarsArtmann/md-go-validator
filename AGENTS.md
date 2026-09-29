@@ -138,7 +138,8 @@ Error reporting uses best-attempt selection (highest error line from the strateg
 ### Skip Directives
 
 - `<!-- skip-validate -->`, `<!-- skip-md-validate -->`, `<!-- md-skip -->`, `<!-- no-validate -->`
-- `// skip-validate`, `//nolint`
+- `// skip-validate`
+- Placement (fixed 2026-09-29): a directive before a block must be a STANDALONE line outside code blocks; prose mentions (e.g. changelog bullets about `//nolint` removals) no longer poison the next block. `//nolint` was REMOVED from the default set — it silently disabled validation for any block that mentioned linting; blocks about nolint must now validate like everything else (explicit `// skip-validate` is the only opt-out). In-block content scan (`endCodeBlock`) is unchanged and catches directives anywhere inside a block.
 
 ### Branded Types
 

@@ -164,7 +164,10 @@ type MyStruct struct {
 - `<!-- md-skip -->`
 - `<!-- no-validate -->`
 - `// skip-validate`
-- `//nolint`
+
+A directive before a block must be a standalone line — prose that merely
+mentions a directive does not skip the next block. Inside a block, a
+directive anywhere in the content skips it.
 
 ## Output Formats
 

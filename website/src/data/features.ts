@@ -29,6 +29,6 @@ export const features: Feature[] = [
   {
     icon: "bolt",
     title: "Skip Directives",
-    desc: "Mark intentionally incomplete snippets with <!-- skip-validate --> or //nolint. Custom directives configurable via YAML.",
+    desc: "Mark intentionally incomplete snippets with <!-- skip-validate -->. Custom directives configurable via YAML.",
   },
 ];
