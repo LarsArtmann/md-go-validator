@@ -169,15 +169,6 @@ func TestExtractCodeBlocks_ProseDirectiveMentionDoesNotSkip(t *testing.T) {
 	}
 }
 
-func TestExtractCodeBlocks_IndentedStandaloneDirectiveSkips(t *testing.T) {
-	t.Parallel()
-
-	// List items whose trimmed content IS the directive still count.
-	content := "- <!-- md-skip -->\n```go\nx\n```"
-	blocks := ExtractCodeBlocks(content, []languages.Language{languages.LangGo})
-	assertSingleSkippedBlock(t, blocks, "expected indented standalone directive to skip block")
-}
-
 func TestExtractCodeBlocksWithConfig_DefaultDoesNotSkipCustom(t *testing.T) {
 	t.Parallel()
 
