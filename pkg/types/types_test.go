@@ -777,7 +777,11 @@ func TestErrorCodeThreading(t *testing.T) {
 	// Build a wrapped ValidationError the way the validator would surface one,
 	// so we can assert that the error code is preserved across the layers.
 	newSyntaxValidationError := func() error {
-		valErr := &languages.ValidationError{
+		// Pointer-shaped on purpose: production extracts via
+		// errors.AsType[*languages.ValidationError] (result.go), so a value
+		// wrap would not thread the code. The indirection also keeps go vet's
+		// printf check from demanding a value wrap.
+		var valErr error = &languages.ValidationError{
 			Message: "syntax error",
 			Line:    3,
 			Column:  10,

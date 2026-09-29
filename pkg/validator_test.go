@@ -101,13 +101,19 @@ type Partial struct {
 	assertBlockSkipped(t, blocks[0])
 }
 
-func TestExtractGoCodeBlocks_SkipInCode(t *testing.T) {
+func TestExtractGoCodeBlocks_NolintContentStillValidates(t *testing.T) {
 	t.Parallel()
 
+	// //nolint is a linting directive, not a validation opt-out: blocks that
+	// mention it must still be validated. Explicit // skip-validate remains
+	// the only in-code opt-out.
 	content := "```go\n//nolint\ntype Partial struct{}\n```"
 
 	blocks := extractAndAssertBlockCount(t, content, 1)
-	assertBlockSkipped(t, blocks[0])
+
+	if blocks[0].IsSkipped() {
+		t.Error("expected block containing //nolint to NOT be skipped")
+	}
 }
 
 func TestExtractGoCodeBlocks_EmptyBlock(t *testing.T) {

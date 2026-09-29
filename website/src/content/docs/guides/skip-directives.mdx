@@ -14,7 +14,6 @@ Place these **before** the code block or **inside** it:
 | `<!-- md-skip -->`          | HTML comment        |
 | `<!-- no-validate -->`      | HTML comment        |
 | `// skip-validate`          | Go comment          |
-| `//nolint`                  | Go linter directive |
 
 ## Usage
 
@@ -52,16 +51,12 @@ type MyStruct struct {
 ```
 ````
 
-### nolint Directive
+### Placement Rules
 
-````markdown
-```go
-//nolint
-func example() {
-    // intentionally incomplete
-}
-```
-````
+A directive before a block must be a **standalone line** — prose that merely
+mentions a directive (e.g. a changelog bullet about a removed `//nolint`)
+does not skip the next block. Inside a block, a directive anywhere in the
+content skips it.
 
 ## Custom Directives
 
