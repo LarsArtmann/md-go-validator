@@ -429,7 +429,9 @@ func (v *FileValidator) collectSupportedFiles(dirPath string) ([]string, error) 
 		}
 
 		if entry.IsDir() {
-			if shouldSkipDir(entry.Name()) || v.isExcluded(path) {
+			// The requested root is never skipped: an explicit target is an
+			// explicit request, even when its basename matches the skip list.
+			if path != dirPath && (shouldSkipDir(entry.Name()) || v.isExcluded(path)) {
 				return filepath.SkipDir
 			}
 
