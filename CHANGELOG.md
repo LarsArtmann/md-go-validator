@@ -8,6 +8,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
+- Nothing yet.
+
+## [1.3.0] - 2026-10-05
+
+### Added
+
 - Documentation website at [md-go-validator.lars.software](https://md-go-validator.lars.software) (Astro + Starlight + Tailwind v4)
 - CI/CD workflow for automatic website deployment to Firebase Hosting (`.github/workflows/website.yml`)
 - Social preview image (`website/public/og/home.png`) and accessibility contrast fixes for the website

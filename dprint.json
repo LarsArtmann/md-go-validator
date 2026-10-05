@@ -16,6 +16,7 @@
     "node_modules/**",
     "**/CHANGELOG.md",
     "**/helm/**/templates/**",
-    "**/charts/**/templates/**"
+    "**/charts/**/templates/**",
+    "docs/status/archived/2026-06-05_15-24_BUILD-FIX-AND-FULL-STATUS.md"
   ]
 }
