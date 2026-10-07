@@ -1,12 +1,15 @@
 {
   lib,
+  go_1_27,
   buildGoModule,
   self ? { },
   go-finding-src ? null,
 }:
 let
   version = self.shortRev or self.dirtyShortRev or "dev";
-  vendorHash = "sha256-ZMZ6t01NQooBfBNJogZ5HTLtmqyFCsIABsaT1r+nQwM=";
+  # go.mod requires go 1.27 and the derivation pins GOTOOLCHAIN=local, so the
+  # default nixpkgs go (1.26.x) aborts with "go.mod requires go >= 1.27".
+  vendorHash = "sha256-uF0J63iQxZR+rRkeNW3pDg2HpTT/rgjj5HvrhuRCIaU=";
 
   src = lib.fileset.toSource {
     root = ./.;
@@ -18,7 +21,7 @@ let
     ];
   };
 in
-buildGoModule {
+(buildGoModule.override { go = go_1_27; }) {
   pname = "md-go-validator";
   inherit version vendorHash src;
   proxyVendor = true;

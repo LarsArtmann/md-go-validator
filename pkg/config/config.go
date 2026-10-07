@@ -63,7 +63,7 @@ func Load(path string) (Config, error) {
 		return Config{}, fmt.Errorf("read config file %s: %w", path, err)
 	}
 
-	cfg := Config{} //nolint:exhaustruct // zero-value fields are intentional for YAML unmarshaling
+	cfg := Config{} //nolint:exhaustruct_v5 // zero-value fields are intentional for YAML unmarshaling
 
 	switch ext := filepath.Ext(path); ext {
 	case ".yaml", ".yml":

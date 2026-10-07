@@ -7,10 +7,10 @@ Uses multiple parsing strategies to handle partial code snippets commonly found 
 
 ## Tech Stack
 
-- Go 1.26.4+
-- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.37.0 — pure Go tree-sitter for multi-language parsing
-- [go-output](https://github.com/larsartmann/go-output) v0.30.4 — multi-format output (JSON, YAML, CSV, table, markdown)
-- [go-finding](https://github.com/larsartmann/go-finding) v1.2.0 — neutral Finding type for SARIF/LSP/JSON interchange
+- Go 1.27+
+- [gotreesitter](https://github.com/odvcencio/gotreesitter) v0.55.1 — pure Go tree-sitter for multi-language parsing
+- [go-output](https://github.com/larsartmann/go-output) v0.38.3 — multi-format output (JSON, YAML, CSV, table, markdown)
+- [go-finding](https://github.com/larsartmann/go-finding) v1.14.0 — neutral Finding type for SARIF/LSP/JSON interchange
 - [go-faster/yaml](https://github.com/go-faster/yaml) v0.4.6 — YAML parsing for config files
 - Library code in `pkg/`
 - CLI entry point in `cmd/md-go-validator/`
@@ -169,6 +169,9 @@ Pattern: type + `New*()` constructor + `String()` + `Validate()` methods.
 - `wsl_v5` requires blank lines before certain constructs
 - `noinlineerr` forbids `if err := ...; err != nil`
 - `wrapcheck` requires wrapping errors from external packages
+- `exhaustruct_v5` (the enabled linter) ignores `//nolint:exhaustruct` directives — inline suppressions must target `exhaustruct_v5`
+- `//nolint:legacyerrors` directives are inert (not a golangci-lint linter name); golangci-lint warns "unknown linters" — harmless
+- `run.go` pin removed from `.golangci.yml` (2026-10-07): golangci-lint auto-detects from go.mod, a hardcoded pin always drifts
 
 ## Coverage
 
@@ -216,11 +219,21 @@ Tags `v1.0.0`, `v1.1.0`, `v1.2.0` point at commits OLDER than `v0.2.0`/`v0.3.0` 
 - Version derived from git: `self.rev or self.dirtyRev or "dev"`
 - Overlay exported at `overlays.default` via `package.nix`
 
+### Nix Gotcha: Go toolchain pin
+
+go.mod requires `go 1.27`; nixpkgs' default `go` can lag behind (1.26.7 broke
+the flake build, issue #8). The derivation pins `go_1_27` via
+`buildGoModule.override`, and the devShells / test / lint apps use `pkgs.go_1_27`
+— bump all of them together with go.mod. The derivation pins
+`GOTOOLCHAIN=local`, so a lagging default go aborts instead of auto-upgrading.
+
 ### Nix Gotcha: go-finding-src replace directive
 
 `package.nix` injects a `replace github.com/larsartmann/go-finding => <flake-input-src>`
 via `postPatch`. This means the nix build compiles against whatever version the
 `go-finding-src` flake input points to, **not** the version in `go.mod`.
+Since 2026-10-07 the input is a plain public `github:` URL (was `git+ssh`, which
+CI could not fetch).
 
 **Every `go-finding` bump requires a coordinated 3-place update:**
 

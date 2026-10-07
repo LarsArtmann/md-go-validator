@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
       inputs.nixpkgs-lib.follows = "nixpkgs";
@@ -16,7 +15,7 @@
     };
 
     go-finding-src = {
-      url = "git+ssh://git@github.com/LarsArtmann/go-finding?ref=refs/tags/v1.10.0";
+      url = "github:LarsArtmann/go-finding?ref=v1.14.0";
       flake = false;
     };
   };
@@ -59,7 +58,7 @@
               program = pkgs.lib.getExe (
                 pkgs.writeShellApplication {
                   name = "run-test";
-                  runtimeInputs = [ pkgs.go_1_26 ];
+                  runtimeInputs = [ pkgs.go_1_27 ];
                   text = ''
                     export GOEXPERIMENT=jsonv2
                     go test -race -v -coverprofile=coverage.out ./...
@@ -74,7 +73,7 @@
                 pkgs.writeShellApplication {
                   name = "run-lint";
                   runtimeInputs = [
-                    pkgs.go_1_26
+                    pkgs.go_1_27
                     pkgs.golangci-lint
                   ];
                   text = ''
@@ -90,7 +89,7 @@
             default = pkgs.mkShell {
               packages = builtins.attrValues {
                 inherit (pkgs)
-                  go
+                  go_1_27
                   gopls
                   golangci-lint
                   goreleaser
@@ -103,7 +102,7 @@
             ci = pkgs.mkShellNoCC {
               packages = builtins.attrValues {
                 inherit (pkgs)
-                  go
+                  go_1_27
                   golangci-lint
                   ;
               };

@@ -383,7 +383,7 @@ func parseArgs(args []string) config {
 		fileCfg, cfgErr = cfgpkg.LoadFromDir(".")
 	}
 
-	cfg := config{ //nolint:exhaustruct // fields set by CLI flags later
+	cfg := config{ //nolint:exhaustruct_v5 // fields set by CLI flags later
 		verbose:    false,
 		showCode:   true,
 		format:     output.FormatTable,

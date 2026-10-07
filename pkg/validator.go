@@ -45,7 +45,7 @@ type FileValidator struct {
 
 // New creates a new FileValidator with default settings.
 func New(verbose bool) *FileValidator {
-	return &FileValidator{ //nolint:exhaustruct // optional fields set via builder methods
+	return &FileValidator{ //nolint:exhaustruct_v5 // optional fields set via builder methods
 		registry:    languages.DefaultRegistry(),
 		verbose:     verbose,
 		maxFiles:    0,

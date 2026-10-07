@@ -19,7 +19,7 @@ const RuleName = "md-codeblock-syntax"
 // Non-error results (valid or skipped) return a zero-value Finding and false.
 func FromResult(r types.Result) (finding.Finding, bool) {
 	if !r.HasError() {
-		return finding.Finding{}, false //nolint:exhaustruct // zero-value is intentional for non-error results
+		return finding.Finding{}, false //nolint:exhaustruct_v5 // zero-value is intentional for non-error results
 	}
 
 	pos := finding.Position{

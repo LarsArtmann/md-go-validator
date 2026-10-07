@@ -118,7 +118,7 @@ func PrintReportTo(
 	colorMode ColorMode,
 	showCode bool,
 ) error {
-	switch format {
+	switch format { //nolint:exhaustive // default intentionally renders unhandled formats as a table
 	case FormatJSON:
 		return marshalReport(w, results, showCode, func(r any) ([]byte, error) {
 			return output.MarshalJSONIndent(r, "", "  ")
@@ -315,7 +315,7 @@ func printQuietTo(w io.Writer, results []types.Result) error {
 func printSARIFTo(w io.Writer, results []types.Result) error {
 	findings := finding.FromResults(results)
 
-	report := gofinding.NewReport(gofinding.ToolInfo{ //nolint:exhaustruct // version optional
+	report := gofinding.NewReport(gofinding.ToolInfo{ //nolint:exhaustruct_v5 // version optional
 		Name: finding.ToolName,
 	})
 	report.AddFindings(findings)
