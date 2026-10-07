@@ -4,13 +4,13 @@
 **Scope:** This session only — GitHub issue/PR triage + all breakage discovered and fixed along the way.
 **Session commits (master):**
 
-| Commit | Subject |
-| --- | --- |
+| Commit    | Subject                                                                       |
+| --------- | ----------------------------------------------------------------------------- |
 | `99cea9a` | Fix flake build: pin Go 1.27 toolchain and public go-finding input (Fixes #8) |
-| `199647d` | chore(deps): bump svgo (#7) — squash-merge of PR #7 |
-| `43acbdf` | Pin website TypeScript to 6 so astro check works again |
-| `020cb24` | Patch 19 vulnerable transitive deps via pnpm workspace overrides |
-| `3f913bf` | docs: record pnpm 11 overrides and astro check TS 6 gotchas |
+| `199647d` | chore(deps): bump svgo (#7) — squash-merge of PR #7                           |
+| `43acbdf` | Pin website TypeScript to 6 so astro check works again                        |
+| `020cb24` | Patch 19 vulnerable transitive deps via pnpm workspace overrides              |
+| `3f913bf` | docs: record pnpm 11 overrides and astro check TS 6 gotchas                   |
 
 **End state:** 0 open issues, 0 open PRs. Master CI ✅ (Test/Lint/Build/Nix flake check), Website workflow ✅ (astro check + build + deploy), `pnpm audit` 0 vulnerabilities, `go test ./...` ✅, `golangci-lint` 0 issues, `nix build` / `nix run -- --help` / `nix flake check` ✅ locally.
 
@@ -40,7 +40,7 @@
 3. **Lint hygiene** — 0 issues, but knowingly left behind (documented in AGENTS.md, not fixed): inert `//nolint:legacyerrors` directives (golangci-lint warns "unknown linters"), dead `exhaustruct` entry in `.golangci.yml` test exclusions, CI golangci-lint still floats on `version: latest` (the very mechanism that caused the exhaustruct_v5 drift).
 4. **Docs** — AGENTS.md updated, but TODO_LIST.md / FEATURES.md / CHANGELOG.md / ROADMAP.md were not touched; the section-(f) items below are not harvested into TODO_LIST.md yet (risk of entombing them in this timestamped file). Coverage table in AGENTS.md not re-measured.
 5. **Nix verification breadth** — `nix flake check` ran on x86_64-linux only; aarch64-darwin / aarch64-linux (`--all-systems`) unverified. `nix run .#test` (-race app) not run locally.
-6. **Dependabot security job** — its last run (at `43acbdf`) still shows failure; with `pnpm audit` now at zero it *should* pass on the next scheduled run, but that is a prediction, not a verification.
+6. **Dependabot security job** — its last run (at `43acbdf`) still shows failure; with `pnpm audit` now at zero it _should_ pass on the next scheduled run, but that is a prediction, not a verification.
 
 ## c) NOT STARTED
 
@@ -59,7 +59,7 @@
 
 **Nothing destructive or irreversible.** Three blemishes, all recovered or cosmetic:
 
-1. **PR #4 close-comment shell quoting bug**: I wrapped the comment in double quotes with literal backticks → local command substitution executed `` `master` `` (error: "master: executable file not found in $PATH"). The comment WAS posted, but "already on ``master``" almost certainly rendered with an empty inline-code span. Cosmetic, fixable via comment edit.
+1. **PR #4 close-comment shell quoting bug**: I wrapped the comment in double quotes with literal backticks → local command substitution executed `` `master` `` (error: "master: executable file not found in $PATH"). The comment WAS posted, but "already on `master`" almost certainly rendered with an empty inline-code span. Cosmetic, fixable via comment edit.
 2. **Auto-commit daemon races** (3×): the daemon committed mid-work (`0ae6cf3`, `17595b5`, `d44d372`, `f1af077`) with heuristic messages; I briefly misread one as lost work, then soft-reset + squashed each into proper commits. History ended clean — but I should have checked `git log` before my first commit attempt instead of being surprised three times.
 3. **First `package.nix` edit was syntactically wrong** (added both `(` and a trailing `)`); caught immediately by `nix-instantiate --parse`, fixed in seconds. Zero impact.
 
@@ -74,9 +74,10 @@
 
 ## f) Up to 50 things we should get done next
 
-*Brainstorm sorted by impact — NOT a commitment list; harvest-worthy items belong in TODO_LIST.md, the rest in ROADMAP.md.*
+_Brainstorm sorted by impact — NOT a commitment list; harvest-worthy items belong in TODO_LIST.md, the rest in ROADMAP.md._
 
 **Release & consumers (highest impact)**
+
 1. Cut a release (v1.3.1/v1.4.0) so tag-consuming flakes get the go-1.27 fix.
 2. `goreleaser release --dry-run` (or local `--snapshot`) to verify release tooling against go 1.27.
 3. Check README + website docs for stale Go version / install-from-flake instructions; point them at the new tag.
@@ -88,11 +89,11 @@
 7. Run `nix run .#test` (the -race app) and `go test -race ./...` locally post-changes.
 8. Fetch/inspect the live site (md-go-validator.web.app) to confirm the deploy content, not just the green job.
 9. Confirm the Dependabot Updates security job goes green on its next scheduled run.
-10. Root-cause *why* the Dependabot security job failed to resolve (the overrides treat the symptom; is there a resolver bug or a repo config factor?).
+10. Root-cause _why_ the Dependabot security job failed to resolve (the overrides treat the symptom; is there a resolver bug or a repo config factor?).
 11. Review `.github/dependabot.yml` (never read this session).
 12. Verify the `go-finding-src` replace-directive machinery is still needed now that input == go.mod version (v1.14.0 == v1.14.0) — candidate for simplification in `package.nix`.
 13. Add a guard so go.mod's `go` line can never exceed the nix-pinned toolchain again (CI eval check or flake assertion) — prevents #8 recurrence.
-14. CI's `nix flake check --no-build` only *evaluates* — nothing in CI builds the nix package; consider a cached full `nix build` job (cachix/magic-nix-cache).
+14. CI's `nix flake check --no-build` only _evaluates_ — nothing in CI builds the nix package; consider a cached full `nix build` job (cachix/magic-nix-cache).
 15. Fix the PR #4 close-comment rendering (empty inline code from the backtick bug) via comment edit.
 16. Sweep docs for now-dead linter names (exhaustruct, legacyerrors) in EXAMPLES.md / CONTRIBUTING.md / website content.
 
@@ -144,10 +145,10 @@
 
 ## g) Questions I can NOT figure out myself
 
-1. **Release authority:** Should I cut v1.3.1 (or v1.4.0) *now* so flake consumers at tags actually receive the issue-#8 fix — and if yes, version number preference? (Today's fix is only on master; the issue's consumers consume by tag.)
+1. **Release authority:** Should I cut v1.3.1 (or v1.4.0) _now_ so flake consumers at tags actually receive the issue-#8 fix — and if yes, version number preference? (Today's fix is only on master; the issue's consumers consume by tag.)
 2. **Dependency-update policy:** Do you want Dependabot automerge enabled for the npm_and_yarn group (merge when CI is green), so group PRs stop rotting for weeks like #4 did — or do you prefer keeping the manual merge gate and just rely on the new workspace overrides?
 3. **legacyerrors / errors.AsType:** The inert `//nolint:legacyerrors` directives suggest a deferred `errors.As` → `errors.AsType[E]` modernization. Should I run that migration in this repo now (removing the dead nolints properly), or do you want to keep them as-is for a coordinated fleet-wide pass?
 
 ---
 
-*Report generated per session scope — no external research beyond this session's observations. Section (f) is brainstorm-grade; route through docs-health HARVEST before treating any item as committed work.*
+_Report generated per session scope — no external research beyond this session's observations. Section (f) is brainstorm-grade; route through docs-health HARVEST before treating any item as committed work._
