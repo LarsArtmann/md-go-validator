@@ -2,7 +2,7 @@
   "name": "md-go-validator-website",
   "version": "1.0.0",
   "private": true,
-  "description": "Website and documentation for md-go-validator — validate code blocks in Markdown and MDX documentation",
+  "description": "Website and documentation for md-go-validator \u2014 validate code blocks in Markdown and MDX documentation",
   "keywords": [
     "astro",
     "documentation",

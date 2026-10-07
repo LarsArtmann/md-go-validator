@@ -1,2 +1,11 @@
 allowBuilds:
   esbuild: true
+overrides:
+  devalue: ^5.9.3
+  fast-uri: ^3.1.8
+  http-cache-semantics: ^4.2.1
+  js-yaml: ^4.3.2
+  postcss-selector-parser: ^7.1.6
+  sharp: ^0.35.5
+  smol-toml: ^1.8.1
+  source-map-js: ^1.2.2
