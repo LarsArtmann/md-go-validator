@@ -3,13 +3,13 @@ module github.com/larsartmann/md-go-validator
 go 1.27
 
 require (
-	github.com/bmatcuk/doublestar/v4 v4.10.2
+	github.com/bmatcuk/doublestar/v4 v4.10.3
 	github.com/go-faster/yaml v0.4.6
-	github.com/larsartmann/go-finding v1.14.0
-	github.com/larsartmann/go-output v0.38.4
-	github.com/larsartmann/go-output/delimited v0.38.4
-	github.com/larsartmann/go-output/serialization v0.38.4
-	github.com/odvcencio/gotreesitter v0.55.1
+	github.com/larsartmann/go-finding v1.15.0
+	github.com/larsartmann/go-output v0.38.5
+	github.com/larsartmann/go-output/delimited v0.38.5
+	github.com/larsartmann/go-output/serialization v0.38.5
+	github.com/odvcencio/gotreesitter v0.56.0
 )
 
 require (
