@@ -13,7 +13,6 @@ import (
 	"time"
 
 	"github.com/larsartmann/go-compliance"
-
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/baseline"
 	cfgpkg "github.com/larsartmann/md-go-validator/pkg/config"
@@ -138,6 +137,7 @@ func runWithConfig(cfg config) int {
 	}
 
 	exitCode := exitSuccess
+
 	switch {
 	case hadToolError:
 		exitCode = exitToolErr
@@ -164,6 +164,7 @@ func recordComplianceRun(exitCode int, results []types.Result) {
 	}
 
 	errorCount := int64(0)
+
 	for _, result := range results {
 		if result.Status == types.StatusError {
 			errorCount++
