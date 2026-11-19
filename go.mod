@@ -5,6 +5,7 @@ go 1.27
 require (
 	github.com/bmatcuk/doublestar/v4 v4.10.4
 	github.com/go-faster/yaml v0.4.6
+	github.com/larsartmann/go-compliance v0.1.0
 	github.com/larsartmann/go-finding v1.15.1
 	github.com/larsartmann/go-output v0.38.7
 	github.com/larsartmann/go-output/delimited v0.38.7
@@ -15,7 +16,7 @@ require (
 require (
 	github.com/go-faster/errors v0.8.0 // indirect
 	github.com/go-faster/jx v1.2.0 // indirect
-	github.com/larsartmann/go-branded-id v0.7.0 // indirect
+	github.com/larsartmann/go-branded-id v0.7.1 // indirect
 	github.com/larsartmann/go-error-family v0.12.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.3 // indirect
 	github.com/segmentio/asm v1.2.1 // indirect

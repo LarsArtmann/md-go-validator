@@ -12,6 +12,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/larsartmann/go-compliance"
+
 	mdgovalidator "github.com/larsartmann/md-go-validator/pkg"
 	"github.com/larsartmann/md-go-validator/pkg/baseline"
 	cfgpkg "github.com/larsartmann/md-go-validator/pkg/config"
@@ -135,19 +137,49 @@ func runWithConfig(cfg config) int {
 		output.PrintReport(allResults, cfg.format, cfg.colorMode, cfg.showCode)
 	}
 
-	if hadToolError {
-		return exitToolErr
+	exitCode := exitSuccess
+	switch {
+	case hadToolError:
+		exitCode = exitToolErr
+	case mdgovalidator.HasErrors(allResults):
+		exitCode = exitValidationErr
+	case cfg.failOnSkipped && mdgovalidator.HasSkipped(allResults):
+		exitCode = exitValidationErr
 	}
 
-	if mdgovalidator.HasErrors(allResults) {
-		return exitValidationErr
+	recordComplianceRun(exitCode, allResults)
+
+	return exitCode
+}
+
+// recordComplianceRun reports the run to the fleet compliance document
+// (GO_COMPLIANCE_EVIDENCE_FILE, default /var/lib/overview/compliance.json)
+// via go-compliance's one-line reporter SDK. Best-effort telemetry: a
+// record failure never changes the tool's exit code - the validation
+// verdict belongs on stdout/stderr, the fleet document is a side channel.
+func recordComplianceRun(exitCode int, results []types.Result) {
+	verdict := compliance.VerdictPassed
+	if exitCode != exitSuccess {
+		verdict = compliance.VerdictFailed
 	}
 
-	if cfg.failOnSkipped && mdgovalidator.HasSkipped(allResults) {
-		return exitValidationErr
+	errorCount := int64(0)
+	for _, result := range results {
+		if result.Status == types.StatusError {
+			errorCount++
+		}
 	}
 
-	return exitSuccess
+	err := compliance.Record(context.Background(), compliance.NewRepoName("md-go-validator"),
+		compliance.RunResult{
+			Verdict:      verdict,
+			StepRows:     int64(len(results)),
+			Failures:     errorCount,
+			GateFindings: map[string]int{"md-go-validator": int(errorCount)},
+		})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "compliance record failed (non-fatal): %v\n", err)
+	}
 }
 
 // argHandler defines a function type for handling an argument.
