@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Added
 
-- Nothing yet.
+- Fleet compliance reporting: the CLI now records every run into the fleet evidence document (GO_COMPLIANCE_EVIDENCE_FILE, default /var/lib/overview/compliance.json) via go-compliance v0.1.0's one-line reporter SDK - verdict derives from the exit code, failures and gate findings from the validation results. Best-effort telemetry: record failures never change the tool exit code. First non-BuildFlow consumer of the go-compliance SDK.
 
 ## [1.3.0] - 2026-10-05
 

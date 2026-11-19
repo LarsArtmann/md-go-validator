@@ -1272,3 +1272,67 @@ func TestRunWithConfig_BaselineDoesNotSuppressNewErrors(t *testing.T) {
 		t.Errorf("expected exit %d for error not in baseline, got %d", exitValidationErr, code)
 	}
 }
+
+// TestRecordComplianceRun_WiresFleetDocument pins the go-compliance
+// reporter integration (XP2 follow-up, 2026-11-19): a run must land a v1
+// row for this repo in the evidence document named by
+// GO_COMPLIANCE_EVIDENCE_FILE, with the verdict derived from the exit
+// code. Serial: t.Setenv is process-global.
+func TestRecordComplianceRun_WiresFleetDocument(t *testing.T) {
+	evidence := filepath.Join(t.TempDir(), "evidence.json")
+	t.Setenv("GO_COMPLIANCE_EVIDENCE_FILE", evidence)
+
+	recordComplianceRun(exitSuccess, nil)
+
+	data, err := os.ReadFile(evidence)
+	if err != nil {
+		t.Fatalf("evidence document not written: %v", err)
+	}
+
+	doc := string(data)
+	for _, want := range []string{
+		`"repo":"md-go-validator"`,
+		`"state":"compliant"`,
+		`"last_run_verdict":"passed"`,
+	} {
+		if !strings.Contains(doc, want) {
+			t.Fatalf("evidence document missing %s:\n%s", want, doc)
+		}
+	}
+}
+
+// TestRecordComplianceRun_FailedVerdict pins the failing side: a non-zero
+// exit must record verdict failed (the fleet honesty rule: any failure in
+// the window keeps the repo failing).
+func TestRecordComplianceRun_FailedVerdict(t *testing.T) {
+	evidence := filepath.Join(t.TempDir(), "evidence.json")
+	t.Setenv("GO_COMPLIANCE_EVIDENCE_FILE", evidence)
+
+	results := []types.Result{
+		types.NewErrorResult(
+			types.NewFileID("doc.md"),
+			types.NewLineNumber(1),
+			types.NewBlockIndex(0),
+			"invalid",
+			errors.New("syntax error"),
+		),
+	}
+
+	recordComplianceRun(exitValidationErr, results)
+
+	data, err := os.ReadFile(evidence)
+	if err != nil {
+		t.Fatalf("evidence document not written: %v", err)
+	}
+
+	doc := string(data)
+	for _, want := range []string{
+		`"state":"failing"`,
+		`"failures":1`,
+		`"gate_findings":{"md-go-validator":1}`,
+	} {
+		if !strings.Contains(doc, want) {
+			t.Fatalf("evidence document missing %s:\n%s", want, doc)
+		}
+	}
+}

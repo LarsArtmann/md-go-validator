@@ -257,6 +257,13 @@ Or use the built-in GitHub Action:
 | [go-finding](https://github.com/larsartmann/go-finding)   | Neutral Finding type for SARIF/LSP/JSON interchange |
 | [go-faster/yaml](https://github.com/go-faster/yaml)       | YAML config file parsing                            |
 
+# Fleet compliance
+
+Every validation run records itself into the fleet evidence document
+(`GO_COMPLIANCE_EVIDENCE_FILE`, default `/var/lib/overview/compliance.json`)
+via [go-compliance](https://github.com/LarsArtmann/go-compliance)'s reporter SDK - one call in the runner, best-effort (never affects the exit
+code). The row feeds the fleet compliance table and the hub dashboard.
+
 ## Development
 
 ```bash
