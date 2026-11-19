@@ -9,7 +9,7 @@ let
   version = self.shortRev or self.dirtyShortRev or "dev";
   # go.mod requires go 1.27 and the derivation pins GOTOOLCHAIN=local, so the
   # default nixpkgs go (1.26.x) aborts with "go.mod requires go >= 1.27".
-  vendorHash = "sha256-e+jOFi3mjRy4207Y56Fo5H1VMNpFQAaeZaPZk1ADFmw=";
+  vendorHash = "sha256-vUoNAHNv5g7epoIUbNT/13qFmX+rD85qP+uhLy8uO6o=";
 
   src = lib.fileset.toSource {
     root = ./.;
