@@ -10,7 +10,7 @@ require (
 	github.com/larsartmann/go-output v0.38.7
 	github.com/larsartmann/go-output/delimited v0.38.7
 	github.com/larsartmann/go-output/serialization v0.38.7
-	github.com/odvcencio/gotreesitter v0.56.0
+	github.com/odvcencio/gotreesitter v0.57.0
 )
 
 require (
