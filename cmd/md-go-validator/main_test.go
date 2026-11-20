@@ -1164,7 +1164,6 @@ func TestRunWithConfig_ExcludePatterns(t *testing.T) {
 	}
 }
 
-//nolint:paralleltest // t.Chdir is incompatible with parallel tests
 func TestHandleEarlyExit_Init(t *testing.T) {
 	tmpDir := t.TempDir()
 	t.Chdir(tmpDir)
